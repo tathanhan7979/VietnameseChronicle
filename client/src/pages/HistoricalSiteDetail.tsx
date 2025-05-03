@@ -3,7 +3,7 @@ import { useParams, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CalendarDays, MapPin, ArrowLeft, Home } from "lucide-react";
+import { CalendarDays, MapPin, ArrowLeft, Home, Share2, Bookmark } from "lucide-react";
 import { API_ENDPOINTS } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { slugify } from "../lib/utils";
@@ -14,6 +14,33 @@ export default function HistoricalSiteDetail() {
   const [period, setPeriod] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<any>(null);
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  
+  // Toggle bookmark/favorite status
+  const toggleFavorite = () => {
+    const newStatus = !isFavorite;
+    setIsFavorite(newStatus);
+    
+    // Save to localStorage
+    const savedFavorites = localStorage.getItem('favoriteSites');
+    let favorites: number[] = [];
+    
+    if (savedFavorites) {
+      favorites = JSON.parse(savedFavorites);
+    }
+    
+    if (newStatus) {
+      // Add to favorites if not already present
+      if (!favorites.includes(siteId)) {
+        favorites.push(siteId);
+      }
+    } else {
+      // Remove from favorites
+      favorites = favorites.filter(id => id !== siteId);
+    }
+    
+    localStorage.setItem('favoriteSites', JSON.stringify(favorites));
+  };
 
   // Hooks
   const params = useParams<{ id: string; slug?: string }>();
@@ -55,6 +82,15 @@ export default function HistoricalSiteDetail() {
           const correctSlug = slugify(siteData.name);
           if (!params.slug && correctSlug) {
             setLocation(`/di-tich/${siteId}/${correctSlug}`, { replace: true });
+          }
+        }
+
+        // 4. Kiểm tra trạng thái yêu thích
+        const savedFavorites = localStorage.getItem('favoriteSites');
+        if (savedFavorites) {
+          const favorites = JSON.parse(savedFavorites);
+          if (favorites.includes(siteId)) {
+            setIsFavorite(true);
           }
         }
 
@@ -220,15 +256,39 @@ export default function HistoricalSiteDetail() {
               </div>
             </Card>
 
-            {/* Chia sẻ mạng xã hội */}
+            {/* Chia sẻ và đánh dấu */}
             <Card className="p-6 shadow-md bg-white mt-6">
-              <h3 className="text-lg font-semibold mb-4">Chia sẻ</h3>
+              <h3 className="text-lg font-semibold mb-4">Tác vụ</h3>
               <div className="flex space-x-3">
-                <Button variant="outline" size="sm" className="w-full">
-                  Chia sẻ
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full flex items-center justify-center"
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: site.name,
+                        text: site.description,
+                        url: window.location.href
+                      }).catch(err => console.log('Error sharing', err));
+                    } else {
+                      // Fallback - copy to clipboard
+                      navigator.clipboard.writeText(window.location.href)
+                        .then(() => alert('Đường dẫn đã được sao chép!'))
+                        .catch(err => console.error('Không thể sao chép đường dẫn', err));
+                    }
+                  }}
+                >
+                  <Share2 className="mr-2 h-4 w-4" /> Chia sẻ
                 </Button>
-                <Button variant="outline" size="sm" className="w-full">
-                  Đánh dấu
+                <Button 
+                  variant={isFavorite ? "default" : "outline"}
+                  size="sm" 
+                  className={`w-full flex items-center justify-center ${isFavorite ? 'bg-primary text-white' : ''}`}
+                  onClick={toggleFavorite}
+                >
+                  <Bookmark className={`mr-2 h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+                  {isFavorite ? 'Đã lưu' : 'Đánh dấu'}
                 </Button>
               </div>
             </Card>

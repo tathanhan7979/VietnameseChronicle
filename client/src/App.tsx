@@ -6,6 +6,7 @@ import Home from "@/pages/Home";
 import EventDetail from "@/pages/EventDetail";
 import HistoricalFigureDetail from "@/pages/HistoricalFigureDetail";
 import HistoricalSiteDetail from "@/pages/HistoricalSiteDetail";
+import HistoricalSitesList from "@/pages/HistoricalSitesList";
 import NotFound from "@/pages/not-found";
 import { useState, useEffect } from "react";
 
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/su-kien/:eventId/:eventSlug" component={EventDetail} />
       <Route path="/nhan-vat/:figureId" component={HistoricalFigureDetail} />
       <Route path="/nhan-vat/:figureId/:figureSlug" component={HistoricalFigureDetail} />
+      <Route path="/di-tich" component={HistoricalSitesList} />
       <Route path="/di-tich/:id" component={HistoricalSiteDetail} />
       <Route path="/di-tich/:id/:slug" component={HistoricalSiteDetail} />
       <Route component={NotFound} />
