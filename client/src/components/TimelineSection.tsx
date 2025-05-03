@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'wouter';
-import { slugify } from '@/lib/utils';
-import { PeriodData, EventData } from '@/lib/types';
-import '../styles/timeline.css';
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { Link } from "wouter";
+import { slugify } from "@/lib/utils";
+import { PeriodData, EventData } from "@/lib/types";
+import "../styles/timeline.css";
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -12,73 +12,75 @@ interface TimelineSectionProps {
   onPeriodSelect?: (periodSlug: string) => void;
 }
 
-export default function TimelineSection({ 
-  periods = [], 
-  events = [], 
+export default function TimelineSection({
+  periods = [],
+  events = [],
   activePeriodSlug = null,
-  onPeriodSelect 
+  onPeriodSelect,
 }: TimelineSectionProps) {
-  const [activeSection, setActiveSection] = useState<string | null>(activePeriodSlug);
+  const [activeSection, setActiveSection] = useState<string | null>(
+    activePeriodSlug,
+  );
   const timelineRef = useRef<HTMLDivElement>(null);
-  
+
   // Set active period from props
   useEffect(() => {
     if (activePeriodSlug) {
       setActiveSection(activePeriodSlug);
     }
   }, [activePeriodSlug]);
-  
+
   // Add auto detection for active section
   useEffect(() => {
     const handleScroll = () => {
       // Find all period sections
       const periodSections = document.querySelectorAll('[id^="period-"]');
       if (!periodSections.length) return;
-      
+
       // Determine which one is in view
       const scrollPosition = window.scrollY + 200; // 200px offset for better detection
-      
+
       // Convert NodeList to Array for easier manipulation
       Array.from(periodSections).forEach((section) => {
         const periodId = section.id;
-        const slug = periodId.replace('period-', '');
+        const slug = periodId.replace("period-", "");
         const { top, bottom } = section.getBoundingClientRect();
         const elementTop = top + window.scrollY;
         const elementBottom = bottom + window.scrollY;
-        
+
         if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
           setActiveSection(slug);
         }
       });
     };
-    
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener("scroll", handleScroll);
     // Run once on mount to set initial active period
     handleScroll();
-    
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  
+
   // Handle period click
   const handlePeriodClick = (slug: string, event: React.MouseEvent) => {
     event.preventDefault();
     setActiveSection(slug);
-    
+
     // Notify parent component
     if (onPeriodSelect) {
       onPeriodSelect(slug);
     }
-    
+
     // Scroll to element
     const element = document.getElementById(`period-${slug}`);
     if (element) {
       const offset = 100; // Header height + some padding
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.scrollY - offset;
-      
+
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -107,7 +109,7 @@ export default function TimelineSection({
             Dòng Thời Gian <span>Lịch Sử Việt Nam</span>
           </h2>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Left sidebar: Period navigation */}
           <div className="md:col-span-1">
@@ -117,12 +119,12 @@ export default function TimelineSection({
               </h3>
               <ul className="period-nav">
                 {periods.map((period) => (
-                  <li 
+                  <li
                     key={period.id}
-                    className={activeSection === period.slug ? 'active' : ''}
+                    className={activeSection === period.slug ? "active" : ""}
                   >
-                    <a 
-                      href={`#period-${period.slug}`} 
+                    <a
+                      href={`#period-${period.slug}`}
                       onClick={(e) => handlePeriodClick(period.slug, e)}
                     >
                       {period.name}
@@ -132,19 +134,21 @@ export default function TimelineSection({
               </ul>
             </div>
           </div>
-          
+
           {/* Right content: Timeline */}
           <div className="md:col-span-3 relative">
             {/* Main vertical timeline line */}
             <div className="timeline-line"></div>
-            
+
             {periods.map((period, periodIndex) => {
-              const periodEvents = events.filter(event => event.periodId === period.id);
-              
+              const periodEvents = events.filter(
+                (event) => event.periodId === period.id,
+              );
+
               return (
-                <div 
-                  id={`period-${period.slug}`} 
-                  key={period.id} 
+                <div
+                  id={`period-${period.slug}`}
+                  key={period.id}
                   className="mb-20"
                 >
                   {/* Period marker circle */}
@@ -153,68 +157,81 @@ export default function TimelineSection({
                       {periodIndex + 1}
                     </div>
                   </div>
-                  
+
                   {/* Period title */}
                   <div className="period-title">
-                    <h3>{period.name} <span>({period.timeframe})</span></h3>
-                    <p className="mt-4 text-gray-700 max-w-2xl mx-auto">{period.description}</p>
+                    <h3>
+                      {period.name} <span>({period.timeframe})</span>
+                    </h3>
                   </div>
-                  
+
                   {/* Events container */}
                   <div className="timeline-events-container">
                     {periodEvents.map((event, index) => {
                       const isLeft = index % 2 === 0;
-                      
+
                       return (
-                        <motion.div 
+                        <motion.div
                           key={event.id}
                           initial={{ opacity: 0, y: 20 }}
                           whileInView={{ opacity: 1, y: 0 }}
                           viewport={{ once: true }}
                           transition={{ duration: 0.5 }}
-                          className={`timeline-event ${isLeft ? 'left' : 'right'}`}
+                          className={`timeline-event ${isLeft ? "left" : "right"}`}
                         >
                           {/* Event dot on the timeline */}
                           <div className="event-dot"></div>
-                          
+
                           {/* Event connector line */}
                           <div className="event-connector"></div>
-                          
+
                           {/* Event card */}
                           <div className="event-card">
-                            <Link href={`/su-kien/${event.id}/${slugify(event.title)}`}>
+                            <Link
+                              href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                            >
                               <h4 className="event-title">{event.title}</h4>
                             </Link>
-                            
+
                             <span className="event-year">{event.year}</span>
-                            
-                            <p className="event-description">{event.description}</p>
-                            
+                          
+                            <p className="event-description">
+                              {event.description}
+                            </p>
+
                             {event.imageUrl && (
-                              <img 
-                                src={event.imageUrl} 
-                                alt={event.title} 
+                              <img
+                                src={event.imageUrl}
+                                alt={event.title}
                                 className="event-image"
                               />
                             )}
-                            
-                            <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
-                              {event.eventTypes && event.eventTypes.length > 0 && (
-                                <div className="event-tags">
-                                  {event.eventTypes.map(type => (
-                                    <span 
-                                      key={type.id}
-                                      className="event-tag"
-                                      style={{ backgroundColor: type.color || '#C62828' }}
-                                    >
-                                      {type.name}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                              
-                              <Link href={`/su-kien/${event.id}/${slugify(event.title)}`}>
-                                <span className="view-details">Xem chi tiết</span>
+
+                            <div className="mt-4">
+                              {event.eventTypes &&
+                                event.eventTypes.length > 0 && (
+                                  <div className="event-tags mb-2">
+                                    {event.eventTypes.map((type) => (
+                                      <span
+                                        key={type.id}
+                                        className="event-tag"
+                                        style={{
+                                          backgroundColor:
+                                            type.color || "#C62828",
+                                        }}
+                                      >
+                                        {type.name}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+
+                              <Link
+                                href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                              >
+                                <span className="view-details">
+                                  Xem chi tiết
+                                </span>
                               </Link>
                             </div>
                           </div>
