@@ -152,7 +152,7 @@ export default function HistoricalFiguresList() {
                 <p className="text-gray-600 line-clamp-3 text-sm mb-4">{figure.description}</p>
                 
                 {figure.achievements && figure.achievements.length > 0 && (
-                  <div className="mt-auto">
+                  <div>
                     <h4 className="font-medium text-sm flex items-center text-[#C62828] mb-2">
                       <Award className="h-4 w-4 mr-2" /> 
                       Chiến công tiêu biểu:
@@ -168,7 +168,7 @@ export default function HistoricalFiguresList() {
                   </div>
                 )}
                 
-                <div className="mt-4 pt-3 border-t border-gray-100">
+                <div className="mt-auto pt-3 border-t border-gray-100 mt-4">
                   <Link href={`/nhan-vat/${figure.id}/${slugify(figure.name)}`}>
                     <div className="flex justify-between items-center group cursor-pointer">
                       <span className="text-[#4527A0] font-medium text-sm group-hover:underline">Xem chi tiết</span>
