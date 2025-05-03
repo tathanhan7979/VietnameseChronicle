@@ -122,27 +122,26 @@ export default function HistoricalSitesSection({ sites: propSites }: HistoricalS
                   </div>
                 </div>
                 
-                <div className="p-5">
+                <div className="p-5 flex flex-col h-full">
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">{site.description}</p>
                   
-                  <div className="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center">
-                    {site.mapUrl ? (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => site.mapUrl ? window.open(site.mapUrl, '_blank') : null}
-                        className="rounded text-xs text-[#4527A0] border-[#4527A0] hover:bg-[#4527A0] hover:text-white"
-                      >
-                        <ExternalLink size={14} className="mr-1" />
-                        Bản đồ
-                      </Button>
-                    ) : <div></div>}
+                  <div className="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => site.mapUrl ? window.open(site.mapUrl, '_blank') : null}
+                      className="rounded text-xs text-gray-600 border-gray-300 hover:bg-gray-100 hover:text-gray-700 flex-1"
+                      disabled={!site.mapUrl}
+                    >
+                      <ExternalLink size={14} className="mr-1" />
+                      Bản đồ
+                    </Button>
                     
                     <Button 
                       variant="default" 
                       size="sm"
                       onClick={() => navigate(`/di-tich/${site.id}/${slugify(site.name)}`)}
-                      className="rounded text-xs bg-[#C62828] hover:bg-[#B71C1C] text-white"
+                      className="rounded text-xs bg-[#C62828] hover:bg-[#B71C1C] text-white flex-1"
                     >
                       <Info size={14} className="mr-1" />
                       Chi tiết

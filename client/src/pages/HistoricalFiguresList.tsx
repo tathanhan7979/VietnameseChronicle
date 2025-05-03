@@ -54,6 +54,16 @@ export default function HistoricalFiguresList() {
   
   return (
     <div className="container mx-auto px-4 py-16">
+      <div className="mb-6 flex items-center">
+        <Link href="/">
+          <div className="flex items-center text-gray-600 hover:text-[#4527A0] transition-colors cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Trở về trang chủ</span>
+          </div>
+        </Link>
+      </div>
       <div className="text-center mb-16">
         <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#4527A0] inline-flex items-center justify-center gap-3">
           <Users className="h-8 w-8" />

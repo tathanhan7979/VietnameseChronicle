@@ -141,16 +141,21 @@ export default function HistoricalSitesList() {
 
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
+      {/* Back to home button */}
+      <div className="container mx-auto px-4 pt-6">
+        <Button 
+          variant="ghost" 
+          className="flex items-center text-gray-600 hover:text-red-700 mb-4"
+          onClick={() => navigate('/')}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Trở về trang chủ
+        </Button>
+      </div>
+      
       {/* Header section */}
       <div className="bg-gradient-to-r from-red-700 to-red-900 text-white py-12">
         <div className="container mx-auto px-4">
-          <Button 
-            variant="ghost" 
-            className="text-white mb-6 hover:bg-white/10"
-            onClick={() => navigate('/')}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Trang chủ
-          </Button>
 
           <h1 className="text-4xl font-bold mb-4">Di Tích Lịch Sử Việt Nam</h1>
           <p className="text-lg max-w-3xl mb-8">
@@ -337,35 +342,37 @@ function SiteCard({ site, isFavorite, periodName, onToggleFavorite, onShare, onC
         </Button>
       </div>
       
-      <div className="p-5" onClick={onClick} style={{ cursor: 'pointer' }}>
-        <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-primary">{site.name}</h3>
+      <div className="p-5 flex flex-col h-full">
+        <div onClick={onClick} style={{ cursor: 'pointer' }}>
+          <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-primary">{site.name}</h3>
+          <p className="text-gray-600 text-sm mb-4 line-clamp-3">{site.description}</p>
+        </div>
         
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3">{site.description}</p>
-      </div>
-      
-      <div className="px-5 pb-5 pt-0 mt-auto border-t flex justify-between items-center">
-        <Button 
-          variant="ghost" 
-          size="sm"
-          className="text-gray-600 hover:text-gray-900 px-3"
-          onClick={(e) => {
-            e.stopPropagation();
-            onShare();
-          }}
-        >
-          <Share2 size={16} className="mr-1" />
-          Chia sẻ
-        </Button>
-        
-        <Button 
-          variant="default" 
-          size="sm"
-          className="bg-primary hover:bg-primary/90 text-white rounded-full px-4"
-          onClick={onClick}
-        >
-          <Info size={16} className="mr-1" />
-          Chi tiết
-        </Button>
+        <div className="mt-auto pt-3 border-t flex justify-between items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="rounded text-xs text-gray-600 border-gray-300 hover:bg-gray-100 hover:text-gray-700 flex-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (site.mapUrl) window.open(site.mapUrl, '_blank');
+            }}
+            disabled={!site.mapUrl}
+          >
+            <MapPin size={14} className="mr-1" />
+            Bản đồ
+          </Button>
+          
+          <Button 
+            variant="default" 
+            size="sm"
+            className="rounded text-xs bg-[#C62828] hover:bg-[#B71C1C] text-white flex-1"
+            onClick={onClick}
+          >
+            <Info size={14} className="mr-1" />
+            Chi tiết
+          </Button>
+        </div>
       </div>
     </Card>
   );
