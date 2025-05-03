@@ -100,41 +100,41 @@ export default function TimelineSection() {
                   {periodEvents.map((event, index) => (
                     <div className="timeline-item" key={event.id}>
                       <div className="timeline-dot"></div>
-                      <Link href={`/events/${event.id}`}>
-                        <div>
-                          <motion.div 
-                            className="timeline-content bg-white rounded-lg shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300"
-                            initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5 }}
-                          >
-                            <h4 className="font-['Playfair_Display'] font-bold text-xl text-[hsl(var(--secondary))] mb-3">
-                              {event.title}
-                            </h4>
-                            <p className="mb-4 line-clamp-3">{event.description}</p>
-                            
-                            {event.imageUrl && (
-                              <div className="mt-4">
-                                <img 
-                                  src={event.imageUrl} 
-                                  alt={event.title} 
-                                  className="w-full h-48 object-cover rounded-md"
-                                />
-                              </div>
-                            )}
-                            
-                            <div className="flex justify-between items-center mt-4">
-                              {event.eventType && (
-                                <span className="inline-block bg-[hsl(var(--primary))] bg-opacity-10 text-[hsl(var(--primary))] px-3 py-1 rounded-full text-sm">
-                                  {event.eventType}
-                                </span>
-                              )}
-                              <span className="text-[hsl(var(--secondary))] font-medium text-sm underline">Xem chi tiết</span>
-                            </div>
-                          </motion.div>
+                      <motion.div 
+                        className="timeline-content bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-300"
+                        initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <Link href={`/events/${event.id}`}>
+                          <h4 className="font-['Playfair_Display'] font-bold text-xl text-[hsl(var(--secondary))] mb-3 cursor-pointer hover:underline">
+                            {event.title}
+                          </h4>
+                        </Link>
+                        <p className="mb-4 line-clamp-3">{event.description}</p>
+                        
+                        {event.imageUrl && (
+                          <div className="mt-4">
+                            <img 
+                              src={event.imageUrl} 
+                              alt={event.title} 
+                              className="w-full h-48 object-cover rounded-md"
+                            />
+                          </div>
+                        )}
+                        
+                        <div className="flex justify-between items-center mt-4">
+                          {event.eventType && (
+                            <span className="inline-block bg-[hsl(var(--primary))] bg-opacity-10 text-[hsl(var(--primary))] px-3 py-1 rounded-full text-sm">
+                              {event.eventType}
+                            </span>
+                          )}
+                          <Link href={`/events/${event.id}`}>
+                            <span className="text-[hsl(var(--secondary))] font-medium text-sm underline cursor-pointer hover:text-opacity-80">Xem chi tiết</span>
+                          </Link>
                         </div>
-                      </Link>
+                      </motion.div>
                     </div>
                   ))}
                 </div>
