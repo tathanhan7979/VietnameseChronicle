@@ -20,8 +20,24 @@ export default function HistoricalSitesSection({ sites: propSites }: HistoricalS
     queryKey: ['/api/historical-sites'],
   });
 
-  // Use provided sites or query results
-  const sites = propSites || querySites || [];
+  // Use provided sites or query results and randomize them
+  const getSitesRandomized = () => {
+    const allSites = propSites || querySites || [];
+    if (allSites.length === 0) return [];
+    
+    // Create a copy to avoid mutating the original data
+    const shuffled = [...allSites];
+    
+    // Fisher-Yates shuffle algorithm
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
+    return shuffled;
+  };
+  
+  const sites = getSitesRandomized();
   
   if (isLoading && !propSites) {
     return (

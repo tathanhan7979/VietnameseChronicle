@@ -17,8 +17,24 @@ export default function HistoricalFiguresSection({ figures: propFigures }: Histo
     queryKey: ['/api/historical-figures'],
   });
 
-  // Use provided figures or query results
-  const figures = propFigures || queryFigures;
+  // Use provided figures or query results and randomize them
+  const getFiguresRandomized = () => {
+    const allFigures = propFigures || queryFigures;
+    if (!allFigures) return [];
+    
+    // Create a copy to avoid mutating the original data
+    const shuffled = [...allFigures];
+    
+    // Fisher-Yates shuffle algorithm
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
+    return shuffled;
+  };
+  
+  const figures = getFiguresRandomized();
   
   const handleLoadMore = () => {
     if (figures) {
