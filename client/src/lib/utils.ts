@@ -8,6 +8,21 @@ export function cn(...inputs: ClassValue[]) {
 export function slugify(text: string): string {
   if (!text) return "";
   
+  // Xử lý các trường hợp đặc biệt theo slug trong database
+  if (text.includes('Nhà Lý')) return 'ly';
+  if (text.includes('Nhà Trần')) return 'tran';
+  if (text.includes('Nhà Hồ')) return 'ho-and-ming';
+  if (text.includes('Nhà Lê')) return 'le';
+  if (text.includes('Tây Sơn')) return 'tay-son';
+  if (text.includes('Nhà Nguyễn')) return 'nguyen';
+  if (text.includes('Tiền Sử') || text.includes('Hồng Bàng')) return 'prehistoric';
+  if (text.includes('Các Vua Hùng')) return 'ancient';
+  if (text.includes('Âu Lạc')) return 'au-lac';
+  if (text.includes('Bắc Thuộc')) return 'chinese-domination';
+  if (text.includes('Ngô') || text.includes('Đinh') || text.includes('Tiền Lê')) return 'ngo-dinh';
+  if (text.includes('Pháp Thuộc')) return 'french';
+  if (text.includes('Hiện Đại')) return 'modern';
+  
   // Chuyển chuỗi sang lower case
   let str = text.toLowerCase()
     // Xử lý các ký tự đặc biệt tiếng Việt
@@ -40,4 +55,33 @@ export function slugify(text: string): string {
   str = str.replace(/\s/g, "-");
   
   return str;
+}
+
+// Hàm chuyển đổi tên thời kỳ sang slug dùng trong Database
+export function getPeriodSlug(periodName: string): string {
+  const slugs: Record<string, string> = {
+    'Nhà Lý': 'ly',
+    'Nhà Trần': 'tran',
+    'Nhà Hồ & Minh Thuộc': 'ho-and-ming',
+    'Nhà Lê': 'le',
+    'Tây Sơn': 'tay-son',
+    'Nhà Nguyễn': 'nguyen',
+    'Thời Tiền Sử - Hồng Bàng': 'prehistoric',
+    'Thời Đại Các Vua Hùng': 'ancient',
+    'Nước Âu Lạc': 'au-lac',
+    'Thời Kỳ Bắc Thuộc': 'chinese-domination',
+    'Thời Ngô - Đinh - Tiền Lê': 'ngo-dinh',
+    'Thời Kỳ Pháp Thuộc': 'french',
+    'Việt Nam Hiện Đại': 'modern'
+  };
+  
+  // Tìm kiếm khớp một phần nếu không tìm thấy khớp chính xác
+  for (const [key, value] of Object.entries(slugs)) {
+    if (periodName.includes(key) || key.includes(periodName)) {
+      return value;
+    }
+  }
+  
+  // Nếu không tìm thấy, trả về slug thông thường
+  return slugify(periodName);
 }

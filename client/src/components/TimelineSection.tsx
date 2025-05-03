@@ -89,7 +89,7 @@ export default function TimelineSection() {
               const periodEvents = events.filter(event => event.periodId === period.id);
               
               return (
-                <div id={`period-${period.slug}`} key={period.id} className="mb-24 pt-12">
+                <div id={`period-${period.slug}`} key={period.id} className="mb-24 pt-12" data-period-name={period.name}>
                   <div className="era-marker" style={{ top: "0px" }}>
                     <span className="material-icons">{period.icon}</span>
                   </div>

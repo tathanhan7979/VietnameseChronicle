@@ -262,7 +262,16 @@ export default function HistoricalFigureDetail() {
                 </div>
                 
                 <div className="mt-6">
-                  <Link href={`/#period-${slugify(figure.period)}`}>
+                  <Link 
+                    href={`/#period-${slugify(figure.period)}`}
+                    onClick={() => {
+                      // Phòng trường hợp ID không tồn tại, chuyển đến trang timeline chung
+                      const el = document.getElementById(`period-${slugify(figure.period)}`);
+                      if (!el) {
+                        return window.location.href = '/#timeline';
+                      }
+                    }}
+                  >
                     <Button variant="outline" size="sm" className="w-full text-red-600 border-red-200 hover:bg-red-50 py-5">
                       Xem thêm về thời kỳ này
                       <ChevronRight className="ml-1 h-4 w-4" />
