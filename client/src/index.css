@@ -181,22 +181,22 @@
   
   @media (max-width: 768px) {
     .timeline-vertical::before {
-      left: 20px;
+      left: 10px;
     }
     .timeline-dot {
-      left: 20px;
+      left: 10px;
       margin-left: 0;
     }
     .timeline-content {
-      width: calc(100% - 60px);
-      left: 60px !important;
+      width: calc(100% - 50px);
+      left: 50px !important;
     }
     .era-marker {
-      left: 20px;
+      left: 10px;
     }
     .timeline-vertical h3 {
       text-align: left !important;
-      padding-left: 50px !important;
+      padding-left: 40px !important;
       width: 100%;
     }
   }
