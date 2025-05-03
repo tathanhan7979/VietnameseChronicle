@@ -76,7 +76,9 @@ export default function HistoricalFiguresSection({ figures: propFigures }: Histo
         <div className="text-center mb-16">
           <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#4527A0] inline-flex items-center justify-center gap-3">
             <Users className="h-8 w-8" />
-            Những Nhân Vật <span className="text-[#C62828]">Lịch Sử Tiêu Biểu</span>
+            <span className="cursor-pointer hover:underline" onClick={handleViewAllFigures}>
+              Những Nhân Vật <span className="text-[#C62828]">Lịch Sử Tiêu Biểu</span>
+            </span>
           </h2>
           <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
             Tìm hiểu về những nhân vật đã đóng góp và định hình nền lịch sử hào hùng của dân tộc Việt Nam

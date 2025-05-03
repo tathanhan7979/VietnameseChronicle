@@ -82,7 +82,9 @@ export default function HistoricalSitesSection({
         <div className="text-center mb-16">
           <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#C62828] inline-flex items-center justify-center gap-3">
             <LandmarkIcon className="h-8 w-8" />
-            Di Tích <span className="text-[#4527A0]">Lịch Sử Tiêu Biểu</span>
+            <span className="cursor-pointer hover:underline" onClick={() => navigate("/di-tich")}>
+              Di Tích <span className="text-[#4527A0]">Lịch Sử Tiêu Biểu</span>
+            </span>
           </h2>
           <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
             Khám phá những địa điểm lịch sử văn hóa tiêu biểu của dân tộc Việt
