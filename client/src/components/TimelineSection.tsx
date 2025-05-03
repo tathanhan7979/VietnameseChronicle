@@ -18,13 +18,25 @@ export default function TimelineSection() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   
   const activeIds = periods?.map(period => `period-${period.slug}`) || [];
-  const activeIndex = useScrollSpy(activeIds, { threshold: 0.4 });
+  const activeIndex = useScrollSpy(activeIds, { threshold: 0.3, rootMargin: "-100px 0px -300px 0px" });
   
   useEffect(() => {
     if (activeIndex !== -1 && periods && periods[activeIndex]) {
       setActiveSection(periods[activeIndex].slug);
     }
   }, [activeIndex, periods]);
+  
+  // Xử lý khi click vào menu
+  const handlePeriodClick = (slug: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    setActiveSection(slug);
+    
+    // Cuộn đến element có id tương ứng
+    const element = document.getElementById(`period-${slug}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   if (isLoadingPeriods || isLoadingEvents) {
     return (
@@ -72,9 +84,14 @@ export default function TimelineSection() {
                 {periods.map((period) => (
                   <li 
                     key={period.id}
-                    className={`pl-4 py-2 cursor-pointer transition-all duration-300 rounded-r-md ${activeSection === period.slug ? 'active' : ''}`}
+                    className={`pl-4 py-2 cursor-pointer transition-all duration-300 rounded-r-md 
+                      ${activeSection === period.slug ? 'active bg-red-100 border-l-4 border-red-600' : 'border-l-2 border-gray-200 hover:border-l-4 hover:border-red-300'}`}
                   >
-                    <a href={`#period-${period.slug}`} className="block font-['Montserrat']">
+                    <a 
+                      href={`#period-${period.slug}`} 
+                      className={`block font-['Montserrat'] ${activeSection === period.slug ? 'font-semibold text-red-700' : 'text-gray-700 hover:text-red-500'}`}
+                      onClick={(e) => handlePeriodClick(period.slug, e)}
+                    >
                       {period.name}
                     </a>
                   </li>
