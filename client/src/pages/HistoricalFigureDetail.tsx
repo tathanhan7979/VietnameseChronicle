@@ -97,7 +97,7 @@ export default function HistoricalFigureDetail() {
             </div>
             
             {/* Achievements */}
-            {figure.achievements && Array.isArray(figure.achievements) && figure.achievements.length > 0 && (
+            {figure.achievements && Array.isArray(figure.achievements) && figure.achievements.length > 0 && !Array.isArray(figure.achievements[0]) && (
               <div className="mt-12">
                 <h3 className="text-xl font-semibold mb-4 text-[hsl(var(--primary))] border-b pb-2">
                   Thành tựu nổi bật
