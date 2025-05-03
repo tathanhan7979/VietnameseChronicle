@@ -62,7 +62,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   }, [isOpen, onClose]);
   
   // Handle search with API
-  const { data: searchResults } = useQuery<{
+  const { data: searchResults, error: searchError } = useQuery<{
     events: EventData[],
     figures: HistoricalFigure[],
     periods: PeriodData[],
