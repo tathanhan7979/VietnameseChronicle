@@ -127,7 +127,7 @@ export default function TimelineSection() {
                         
                         <div className="flex justify-between items-center mt-4">
                           {event.eventType && (
-                            <span className="inline-block bg-[hsl(var(--primary))] bg-opacity-10 text-[hsl(var(--primary))] px-3 py-1 rounded-full text-sm">
+                            <span className="inline-block bg-[hsl(var(--primary))] text-white px-3 py-1 rounded-full text-sm">
                               {event.eventType}
                             </span>
                           )}
