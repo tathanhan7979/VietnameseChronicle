@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
@@ -19,9 +19,11 @@ export default function HistoricalFiguresSection({ figures: propFigures }: Histo
   });
 
   // Use provided figures or query results and randomize them
-  const getFiguresRandomized = () => {
+  const [randomizedFigures, setRandomizedFigures] = useState<HistoricalFigure[]>([]);
+  
+  useEffect(() => {
     const allFigures = propFigures || queryFigures;
-    if (!allFigures) return [];
+    if (!allFigures || allFigures.length === 0) return;
     
     // Create a copy to avoid mutating the original data
     const shuffled = [...allFigures];
@@ -32,10 +34,10 @@ export default function HistoricalFiguresSection({ figures: propFigures }: Histo
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     
-    return shuffled;
-  };
+    setRandomizedFigures(shuffled);
+  }, [propFigures, queryFigures]);
   
-  const figures = getFiguresRandomized();
+  const figures = randomizedFigures;
   
   const handleViewAllFigures = () => {
     navigate('/nhan-vat');
