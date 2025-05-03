@@ -2,6 +2,11 @@ import { db } from "./index";
 import * as schema from "@shared/schema";
 import { eq } from "drizzle-orm";
 
+// Interface for seed data with eventType field
+interface EventSeedData extends Omit<schema.InsertEvent, 'id'> {
+  eventType?: string;
+}
+
 async function seed() {
   try {
     console.log("Starting to seed database with Vietnamese history data...");
@@ -139,7 +144,7 @@ async function seed() {
     
     // Seed historical events
     console.log("Seeding historical events...");
-    const eventsData: schema.InsertEvent[] = [
+    const eventsData: EventSeedData[] = [
       // Prehistoric era
       {
         periodId: periodMap['prehistoric'],
@@ -514,10 +519,8 @@ async function seed() {
           // Check if relation already exists
           const existingRelation = await db.query.eventToEventType.findFirst({
             where: (relations) => {
-              return relations.and(
-                eq(schema.eventToEventType.eventId, eventId),
-                eq(schema.eventToEventType.eventTypeId, eventTypeMap[typeSlug])
-              );
+              return eq(schema.eventToEventType.eventId, eventId) && 
+                     eq(schema.eventToEventType.eventTypeId, eventTypeMap[typeSlug]);
             }
           });
           
