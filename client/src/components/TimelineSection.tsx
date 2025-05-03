@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollSpy } from '@/hooks/use-scroll-spy';
 import { useQuery } from '@tanstack/react-query';
 import { PeriodData, EventData } from '@/lib/types';
+import { Link } from 'wouter';
 
 export default function TimelineSection() {
   const { data: periods, isLoading: isLoadingPeriods } = useQuery<PeriodData[]>({
@@ -100,16 +101,17 @@ export default function TimelineSection() {
                     <div className="timeline-item" key={event.id}>
                       <div className="timeline-dot"></div>
                       <motion.div 
-                        className="timeline-content bg-white rounded-lg shadow-lg p-6"
+                        className="timeline-content bg-white rounded-lg shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all duration-300"
                         initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
+                        onClick={() => window.location.href = `/events/${event.id}`}
                       >
                         <h4 className="font-['Playfair_Display'] font-bold text-xl text-[hsl(var(--secondary))] mb-3">
                           {event.title}
                         </h4>
-                        <p className="mb-4">{event.description}</p>
+                        <p className="mb-4 line-clamp-3">{event.description}</p>
                         
                         {event.imageUrl && (
                           <div className="mt-4">
@@ -121,13 +123,14 @@ export default function TimelineSection() {
                           </div>
                         )}
                         
-                        {event.eventType && (
-                          <div className="flex justify-end mt-4">
+                        <div className="flex justify-between items-center mt-4">
+                          {event.eventType && (
                             <span className="inline-block bg-[hsl(var(--primary))] bg-opacity-10 text-[hsl(var(--primary))] px-3 py-1 rounded-full text-sm">
                               {event.eventType}
                             </span>
-                          </div>
-                        )}
+                          )}
+                          <span className="text-[hsl(var(--secondary))] font-medium text-sm underline">Xem chi tiết</span>
+                        </div>
                       </motion.div>
                     </div>
                   ))}
