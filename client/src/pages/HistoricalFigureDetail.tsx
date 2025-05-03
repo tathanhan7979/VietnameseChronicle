@@ -105,18 +105,18 @@ export default function HistoricalFigureDetail() {
               </div>
               
               <div className="max-w-3xl pb-8">
-                <Badge className="bg-red-500/70 mb-4 px-3 py-1 text-sm text-white">
+                <Badge className="bg-red-500/70 mb-6 px-3 py-1 text-sm text-white">
                   Nhân vật lịch sử
                 </Badge>
                 
                 <motion.h1 
                   initial={{ opacity: 0, y: 20 }} 
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg mb-4">
+                  className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg mb-8">
                   {figure.name}
                 </motion.h1>
                 
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-white/90">
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-white/90 mt-4">
                   <div className="flex items-center bg-white/10 px-3 py-1 rounded-full">
                     <Calendar className="h-4 w-4 mr-2 text-amber-300" />
                     <span>{figure.lifespan}</span>
@@ -245,31 +245,25 @@ export default function HistoricalFigureDetail() {
             >
               {/* Period info card */}
               <Card className="bg-white rounded-xl shadow-md overflow-hidden p-6">
-                <h3 className="text-xl font-semibold mb-6 flex items-center text-red-700">
-                  <HistoryIcon className="h-5 w-5 mr-2 text-red-700" />
-                  Thông tin thời kỳ
-                </h3>
-                
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 mb-4">
-                  <h4 className="font-medium text-gray-900 mb-1">{figure.period}</h4>
-                  <p className="text-gray-500 text-sm">{figure.lifespan}</p>
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-semibold flex items-center text-red-700">
+                    <HistoryIcon className="h-5 w-5 mr-2 text-red-700" />
+                    Thời kỳ liên quan
+                  </h3>
                 </div>
                 
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <div className="bg-red-50 p-2 rounded-full mr-3">
-                      <Calendar className="h-4 w-4 text-red-600" />
-                    </div>
-                    <div>
-                      <h5 className="text-sm font-medium text-gray-900">Thời gian sống</h5>
-                      <p className="text-gray-700">{figure.lifespan}</p>
-                    </div>
+                <div className="p-5 bg-gray-50 rounded-lg border border-gray-100 mb-5 flex items-center">
+                  <div className="bg-red-500/10 p-3 rounded-full mr-4">
+                    <HistoryIcon className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-lg">{figure.period}</h4>
                   </div>
                 </div>
                 
                 <div className="mt-6">
                   <Link href={`/#period-${slugify(figure.period)}`}>
-                    <Button variant="outline" size="sm" className="w-full text-red-600 border-red-200 hover:bg-red-50">
+                    <Button variant="outline" size="sm" className="w-full text-red-600 border-red-200 hover:bg-red-50 py-5">
                       Xem thêm về thời kỳ này
                       <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
