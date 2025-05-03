@@ -142,6 +142,9 @@ export default function EventDetail() {
               </div>
             )}
             
+            {/* Đường ngang tách phần header và nội dung */}
+            <div className="border-b border-gray-200 opacity-50 my-6"></div>
+            
             {/* Description */}
             <div className="prose prose-lg max-w-none">
               {event.detailedDescription ? (
