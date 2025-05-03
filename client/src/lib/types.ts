@@ -14,6 +14,7 @@ export interface EventData {
   periodId: number;
   title: string;
   description: string;
+  detailedDescription?: string;
   year: string;
   imageUrl?: string;
   eventType?: string;

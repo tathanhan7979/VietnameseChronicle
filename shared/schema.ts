@@ -39,6 +39,7 @@ export const events = pgTable("events", {
   periodId: integer("period_id").references(() => periods.id).notNull(),
   title: text("title").notNull(),
   description: text("description").notNull(),
+  detailedDescription: text("detailed_description"),
   year: text("year").notNull(),
   imageUrl: text("image_url"),
   eventType: text("event_type"),

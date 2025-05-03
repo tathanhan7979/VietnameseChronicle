@@ -110,7 +110,23 @@ export default function EventDetail() {
             
             {/* Description */}
             <div className="prose prose-lg max-w-none">
-              <p className="text-lg mb-6">{event.description}</p>
+              {event.detailedDescription ? (
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 text-[hsl(var(--primary))]">
+                    Tóm tắt
+                  </h3>
+                  <p className="text-lg mb-6">{event.description}</p>
+                  
+                  <h3 className="text-xl font-semibold my-4 text-[hsl(var(--primary))]">
+                    Chi tiết
+                  </h3>
+                  <div className="text-lg mb-6 whitespace-pre-line">
+                    {event.detailedDescription}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-lg mb-6">{event.description}</p>
+              )}
             </div>
             
             {/* Event type badge */}
