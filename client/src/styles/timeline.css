@@ -1,67 +1,166 @@
 /* Timeline styles */
-.timeline-content {
+.timeline-vertical {
   position: relative;
 }
 
-/* Clearfix for floating elements */
-.space-y-16::after {
-  content: "";
-  display: table;
-  clear: both;
+/* Vertical timeline line */
+.timeline-vertical::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background-color: #C62828;
+  transform: translateX(-50%);
+}
+
+/* Timeline dots */
+.timeline-dot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background-color: #C62828;
+  border-radius: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* Timeline period markers */
+.period-marker {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background-color: #C62828;
+  border-radius: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* Timeline event cards */
+.event-left {
+  margin-right: 50%;
+  padding-right: 30px;
+  text-align: right;
+  position: relative;
+}
+
+.event-right {
+  margin-left: 50%;
+  padding-left: 30px;
+  text-align: left;
+  position: relative;
+}
+
+.event-left::after,
+.event-right::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  width: 20px;
+  height: 2px;
+  background-color: #C62828;
+}
+
+.event-left::after {
+  right: 0;
+}
+
+.event-right::after {
+  left: 0;
 }
 
 /* Period navigation styling */
+.period-nav {
+  background-color: #FDFAF3;
+}
+
+.period-nav li {
+  padding: 0;
+  margin: 0;
+}
+
 .period-nav li a {
   display: block;
+  padding: 8px 16px;
+  color: #333;
+  border-left: 3px solid transparent;
   transition: all 0.3s ease;
 }
 
 .period-nav li a:hover {
-  transform: translateX(4px);
+  background-color: rgba(198, 40, 40, 0.05);
+  color: #C62828;
+  border-left-color: #C62828;
 }
 
 .period-nav li.active a {
   font-weight: 600;
   color: #C62828;
+  background-color: rgba(198, 40, 40, 0.1);
+  border-left: 3px solid #C62828;
 }
 
-/* Timeline event positioning */
-@media (min-width: 768px) {
-  .timeline-event:nth-child(even) > div {
-    float: right !important;
-    clear: right !important;
-    padding-left: 24px !important;
-    padding-right: 0 !important;
-  }
-
-  .timeline-event:nth-child(even) > div::before {
-    left: 0;
-    border-color: transparent transparent transparent #C62828;
-  }
-
-  .timeline-event:nth-child(odd) > div::before {
-    right: 0;
-    border-color: transparent #C62828 transparent transparent;
-  }
-}
-
-/* Event card styling */
-.event-card {
+/* Timeline header styling */
+.timeline-header {
+  text-align: center;
+  margin-bottom: 40px;
   position: relative;
+}
+
+.timeline-header h2 {
+  margin: 0;
+  font-weight: 700;
+}
+
+.timeline-header .time-period {
+  color: #D4AF37;
+  font-style: italic;
+}
+
+/* Hover effects for event cards */
+.event-card {
   transition: all 0.3s ease;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  overflow: hidden;
 }
 
 .event-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
 }
 
-/* Timeline responsive adjustments */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .timeline-event > div {
-    width: 100% !important;
-    float: none !important;
-    clear: both !important;
-    padding: 0 !important;
+  .timeline-vertical::before {
+    left: 32px;
+  }
+  
+  .timeline-dot,
+  .period-marker {
+    left: 32px;
+  }
+  
+  .event-left,
+  .event-right {
+    margin-left: 60px;
+    margin-right: 0;
+    padding-left: 20px;
+    padding-right: 0;
+    text-align: left;
+  }
+  
+  .event-left::after,
+  .event-right::after {
+    left: 0;
+    right: auto;
   }
 }
