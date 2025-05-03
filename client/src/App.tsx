@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import Home from "@/pages/Home";
 import EventDetail from "@/pages/EventDetail";
+import HistoricalFigureDetail from "@/pages/HistoricalFigureDetail";
 import NotFound from "@/pages/not-found";
 import { useState, useEffect } from "react";
 
@@ -12,6 +13,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/events/:eventId" component={EventDetail} />
+      <Route path="/historical-figure/:figureId" component={HistoricalFigureDetail} />
       <Route component={NotFound} />
     </Switch>
   );

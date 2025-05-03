@@ -78,6 +78,12 @@ export default function HistoricalFiguresSection() {
                       {figure.period}
                     </span>
                   </div>
+                  <div className="mt-4">
+                    <Link href={`/historical-figure/${figure.id}`} className="inline-flex items-center text-[hsl(var(--primary))] hover:underline">
+                      Xem chi tiết
+                      <ChevronRight className="ml-1 h-4 w-4" />
+                    </Link>
+                  </div>
                 </div>
               </div>
               <div className="card-back bg-[hsl(var(--primary))] text-white rounded-lg shadow-lg p-6">
@@ -93,6 +99,12 @@ export default function HistoricalFiguresSection() {
                     </ul>
                   </div>
                 )}
+                <div className="mt-6">
+                  <Link href={`/historical-figure/${figure.id}`} className="inline-flex items-center text-white hover:underline">
+                    Xem chi tiết
+                    <ChevronRight className="ml-1 h-4 w-4" />
+                  </Link>
+                </div>
               </div>
             </motion.div>
           ))}
