@@ -266,26 +266,30 @@ export default function HistoricalFigureDetail() {
                 </div>
                 
                 <div className="mt-6">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full text-red-600 border-red-200 hover:bg-red-50 py-5"
-                    onClick={() => {
-                      toast({
-                        title: "Chuyển đến thời kỳ",
-                        description: `Đang tải thời kỳ ${figure.period}...`,
-                      });
-                      
-                      // First navigate to homepage
-                      window.location.href = '/';
-                      
-                      // Then save the target period to localStorage
-                      localStorage.setItem('scrollToPeriod', slugify(figure.period));
-                    }}
-                  >
-                    Xem thêm về thời kỳ này
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </Button>
+                  <Link href={`/#timeline`}>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full text-red-600 border-red-200 hover:bg-red-50 py-5"
+                      onClick={() => {
+                        toast({
+                          title: "Chuyển đến thời kỳ",
+                          description: `Đã chuyển đến thời kỳ ${figure.period}`,
+                        });
+                        
+                        // Đặt timeout để đảm bảo đủ thời gian load trang 
+                        setTimeout(() => {
+                          const periodElement = document.getElementById(`period-${slugify(figure.period)}`);
+                          if (periodElement) {
+                            periodElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }
+                        }, 1000);
+                      }}
+                    >
+                      Xem thêm về thời kỳ này
+                      <ChevronRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  </Link>
                 </div>
               </Card>
               

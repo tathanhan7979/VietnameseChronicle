@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollSpy } from '@/hooks/use-scroll-spy';
 import { useQuery } from '@tanstack/react-query';
 import { PeriodData, EventData } from '@/lib/types';
 import { Link } from 'wouter';
-import { slugify, scrollToSection } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+import { slugify } from '@/lib/utils';
 
 export default function TimelineSection() {
   const { data: periods, isLoading: isLoadingPeriods } = useQuery<PeriodData[]>({
@@ -17,43 +16,9 @@ export default function TimelineSection() {
   });
 
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const timelineRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
   
   const activeIds = periods?.map(period => `period-${period.slug}`) || [];
   const activeIndex = useScrollSpy(activeIds, { threshold: 0.4 });
-  
-  // Xử lý cuộn đến thời kỳ cụ thể khi có yêu cầu từ localStorage
-  useEffect(() => {
-    if (periods && periods.length > 0) {
-      const savedPeriod = localStorage.getItem('scrollToPeriod');
-      
-      if (savedPeriod) {
-        // Xoá thông tin từ localStorage để tránh cuộn lại khi tải mới trang
-        localStorage.removeItem('scrollToPeriod');
-        
-        // Tìm thời kỳ phù hợp
-        const targetPeriod = periods.find(period => slugify(period.slug) === savedPeriod);
-        
-        if (targetPeriod) {
-          // Thông báo đang cuộn
-          toast({
-            title: "Đã chuyển đến thời kỳ",
-            description: `Đã tìm thấy thời kỳ ${targetPeriod.name}`,
-          });
-          
-          // Đợi một chút để trang đã render hoàn toàn
-          setTimeout(() => {
-            const elementId = `period-${targetPeriod.slug}`;
-            const element = document.getElementById(elementId);
-            if (element) {
-              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }, 500);
-        }
-      }
-    }
-  }, [periods, toast]);
   
   useEffect(() => {
     if (activeIndex !== -1 && periods && periods[activeIndex]) {
@@ -90,7 +55,7 @@ export default function TimelineSection() {
   }
 
   return (
-    <section ref={timelineRef} id="timeline" className="bg-[hsl(var(--background))] pt-24 pb-16">
+    <section id="timeline" className="bg-[hsl(var(--background))] pt-24 pb-16">
       <div className="container mx-auto px-4">
         <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[hsl(var(--primary))] text-center mb-16">
           Dòng Thời Gian <span className="text-[hsl(var(--secondary))]">Lịch Sử Việt Nam</span>
