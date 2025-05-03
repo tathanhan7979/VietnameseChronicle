@@ -227,6 +227,13 @@ async function seed() {
         year: "968",
         sortOrder: 2
       },
+      {
+        periodId: periodMap['ngo-dinh'],
+        title: "Lê Hoàn Đánh Bại Quân Tống",
+        description: "Lê Hoàn lên ngôi lập nên nhà Tiền Lê và đã đánh bại quân xâm lược nhà Tống, bảo vệ nền độc lập non trẻ của Đại Cồ Việt.",
+        year: "981",
+        sortOrder: 3
+      },
       
       // Ly Dynasty
       {
@@ -259,6 +266,158 @@ async function seed() {
         year: "1288",
         imageUrl: "https://images.unsplash.com/photo-1563284223-333497736fb0?q=80&w=1974",
         sortOrder: 2
+      },
+      
+      // Ho Dynasty and Ming Domination
+      {
+        periodId: periodMap['ho-and-ming'],
+        title: "Nhà Hồ Thay Thế Nhà Trần",
+        description: "Hồ Quý Ly cướp ngôi nhà Trần, lập ra nhà Hồ và tiến hành nhiều cải cách về tiền tệ, ruộng đất và giáo dục.",
+        year: "1400",
+        sortOrder: 1
+      },
+      {
+        periodId: periodMap['ho-and-ming'],
+        title: "Nhà Minh Xâm Lược Đại Nội",
+        description: "Quân Minh xâm chiếm Đại Nội, bắt sống Hồ Quý Ly và con trai, kết thúc triều đại Hồ. Đại Việt rơi vào 20 năm đô hộ của nhà Minh.",
+        year: "1407",
+        sortOrder: 2
+      },
+      {
+        periodId: periodMap['ho-and-ming'],
+        title: "Khởi Nghĩa Lam Sơn",
+        description: "Lê Lợi phát động khởi nghĩa tại Lam Sơn (Thanh Hóa) chống lại quân Minh, mở đầu cho cuộc chiến kéo dài 10 năm.",
+        year: "1418",
+        imageUrl: "https://images.unsplash.com/photo-1655635949212-1d8f4f103ea1?q=80&w=2070",
+        sortOrder: 3
+      },
+      
+      // Le Dynasty
+      {
+        periodId: periodMap['le'],
+        title: "Triều Đại Lê Sơ Và Bộ Luật Hồng Đức",
+        description: "Dưới thời Lê Thánh Tông, bộ luật Hồng Đức được ban hành, đánh dấu bước phát triển quan trọng của hệ thống pháp luật Việt Nam.",
+        year: "1470",
+        sortOrder: 1
+      },
+      {
+        periodId: periodMap['le'],
+        title: "Thời Kỳ Lê-Mạc Phan Tranh",
+        description: "Mạc Đăng Dung cướp ngôi nhà Lê, khởi đầu thời kỳ phan tranh giữa hai triều đại. Người nhà Lê chạy vào Thanh Hóa tiếp tục cuộc chiến giành lại ngai vàng.",
+        year: "1527",
+        sortOrder: 2
+      },
+      {
+        periodId: periodMap['le'],
+        title: "Trịnh-Nguyễn Phan Tranh",
+        description: "Đất nước chia cắt với chúa Trịnh nắm quyền ở đàng ngoài và chúa Nguyễn ở đàng trong. Cả hai đều thề hiện tôn phụng vua Lê nhưng đấu tranh quyền lực với nhau.",
+        year: "1600-1788",
+        imageUrl: "https://images.unsplash.com/photo-1563975523129-98684dd2e32c?q=80&w=2070",
+        sortOrder: 3
+      },
+      
+      // Tay Son
+      {
+        periodId: periodMap['tay-son'],
+        title: "Khởi Nghĩa Tây Sơn",
+        description: "Anh em Nguyễn Nhạc, Nguyễn Huệ và Nguyễn Lữ nổi dậy tại Tây Sơn (Bình Định), khởi đầu cho phong trào nông dân lớn nhất trong lịch sử.",
+        year: "1771",
+        sortOrder: 1
+      },
+      {
+        periodId: periodMap['tay-son'],
+        title: "Chiến Thắng Rạch Gầm - Xoài Mút",
+        description: "Nguyễn Huệ chỉ huy quân Tây Sơn đánh bại quân Xiêm (Thái Lan) do Nguyễn Ánh dẫn đường, bảo vệ miền Nam.",
+        year: "1785",
+        sortOrder: 2
+      },
+      {
+        periodId: periodMap['tay-son'],
+        title: "Chiến Thắng Ngọc Hồi - Đống Đa",
+        description: "Vua Quang Trung (Nguyễn Huệ) chỉ huy đại thắng quân Thanh vào dịp Tết Kỷ Dậu, đánh đuổi 29 vạn quân xâm lược ra khỏi bờ cõi.",
+        year: "1789",
+        imageUrl: "https://images.unsplash.com/photo-1617183644446-fed06416fc4a?q=80&w=2072",
+        sortOrder: 3
+      },
+      
+      // Nguyen Dynasty
+      {
+        periodId: periodMap['nguyen'],
+        title: "Gia Long Thống Nhất Đất Nước",
+        description: "Nguyễn Ánh đánh bại Tây Sơn, lên ngôi Hoàng đế lấy hiệu là Gia Long, thống nhất đất nước và đặt tên nước là Việt Nam.",
+        year: "1802",
+        sortOrder: 1
+      },
+      {
+        periodId: periodMap['nguyen'],
+        title: "Hiệp Ước Nhâm Tuất",
+        description: "Hước đầu của sự xâm lược của Pháp vào Việt Nam. Hiệp ước buộc triều đình Huế nhượng đất và nhiều quyền lợi cho Pháp.",
+        year: "1862",
+        sortOrder: 2
+      },
+      {
+        periodId: periodMap['nguyen'],
+        title: "Vua Hàm Nghi Ra Chiếu Cần Vương",
+        description: "Sau khi quân Pháp tấn công kinh thành Huế, vua Hàm Nghi rời kinh thành và ban hành chiếu Cần Vương kêu gọi dân chúng khởi nghĩa chống Pháp.",
+        year: "1885",
+        imageUrl: "https://images.unsplash.com/photo-1587143694825-154188c577ce?q=80&w=2070",
+        sortOrder: 3
+      },
+      
+      // French Colonization
+      {
+        periodId: periodMap['french'],
+        title: "Pháp Đánh Chiếm Nam Kỳ",
+        description: "Quân Pháp tấn công và chiếm Sài Gòn, buộc triều đình Huế ký hiệp ước nhượng ba tỉnh miền đông Nam Kỳ.",
+        year: "1859-1862",
+        sortOrder: 1
+      },
+      {
+        periodId: periodMap['french'],
+        title: "Đông Dương Liên Bang",
+        description: "Pháp thành lập Liên bang Đông Dương gồm năm xứ: Bắc Kỳ, Trung Kỳ, Nam Kỳ, Cao Miên (Campuchia) và Ai Lao (Lào).",
+        year: "1887",
+        sortOrder: 2
+      },
+      {
+        periodId: periodMap['french'],
+        title: "Phong Trào Yêu Nước Đầu Thế Kỷ 20",
+        description: "Nhiều phong trào yêu nước nổi lên chống thực dân Pháp như Đông Kinh Nghĩa Thục, phong trào của Phan Bội Châu, Phan Châu Trinh...",
+        year: "1900-1930",
+        imageUrl: "https://images.unsplash.com/photo-1566140967404-b8b3932483f5?q=80&w=2070",
+        sortOrder: 3
+      },
+      
+      // Modern Vietnam
+      {
+        periodId: periodMap['modern'],
+        title: "Tuyên Ngôn Độc Lập",
+        description: "Chủ tịch Hồ Chí Minh đọc bản Tuyên ngôn Độc lập tại Quảng trường Ba Đình, khai sinh nước Việt Nam Dân chủ Cộng hòa.",
+        year: "2/9/1945",
+        imageUrl: "https://images.unsplash.com/photo-1618402079626-d6ba9e5a6d24?q=80&w=2070",
+        sortOrder: 1
+      },
+      {
+        periodId: periodMap['modern'],
+        title: "Chiến Thắng Điện Biên Phủ",
+        description: "Quân đội Việt Nam dưới sự chỉ huy của Đại tướng Võ Nguyên Giáp đánh bại quân viễn chinh Pháp, chấm dứt chế độ thực dân của Pháp tại Đông Dương.",
+        year: "7/5/1954",
+        sortOrder: 2
+      },
+      {
+        periodId: periodMap['modern'],
+        title: "Giải Phóng Miền Nam, Thống Nhất Đất Nước",
+        description: "Chiến dịch Hồ Chí Minh kết thúc thắng lợi, giải phóng hoàn toàn miền Nam, thống nhất đất nước sau gần 30 năm chia cắt.",
+        year: "30/4/1975",
+        sortOrder: 3
+      },
+      {
+        periodId: periodMap['modern'],
+        title: "Đổi Mới",
+        description: "Chính sách đổi mới kinh tế được đưa ra tại Đại hội Đảng lần thứ VI, chuyển từ nền kinh tế kế hoạch hóa tập trung sang nền kinh tế thị trường định hướng xã hội chủ nghĩa.",
+        year: "1986",
+        imageUrl: "https://images.unsplash.com/photo-1676905188113-5c962d034b52?q=80&w=1934",
+        sortOrder: 4
       }
     ];
     
