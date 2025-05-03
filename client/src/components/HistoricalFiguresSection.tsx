@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { HistoricalFigure } from '@/lib/types';
 import { ChevronRight, UserIcon, Award, Users } from 'lucide-react';
 import { slugify } from '@/lib/utils';
@@ -11,7 +11,8 @@ interface HistoricalFiguresSectionProps {
 }
 
 export default function HistoricalFiguresSection({ figures: propFigures }: HistoricalFiguresSectionProps = {}) {
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount] = useState(6);
+  const [, navigate] = useLocation();
   
   const { data: queryFigures, isLoading } = useQuery<HistoricalFigure[]>({
     queryKey: ['/api/historical-figures'],
@@ -36,10 +37,8 @@ export default function HistoricalFiguresSection({ figures: propFigures }: Histo
   
   const figures = getFiguresRandomized();
   
-  const handleLoadMore = () => {
-    if (figures) {
-      setVisibleCount(prev => Math.min(prev + 6, figures.length));
-    }
+  const handleViewAllFigures = () => {
+    navigate('/nhan-vat');
   };
   
   if (isLoading && !propFigures) {
@@ -144,17 +143,15 @@ export default function HistoricalFiguresSection({ figures: propFigures }: Histo
           ))}
         </div>
         
-        {visibleCount < (figures?.length || 0) && (
-          <div className="text-center mt-12">
-            <button 
-              onClick={handleLoadMore}
-              className="bg-[#4527A0] hover:bg-[#311B92] text-white px-8 py-3 rounded-md font-['Montserrat'] text-lg transition-colors shadow-md hover:shadow-lg flex mx-auto items-center gap-2"
-            >
-              Xem Thêm Nhân Vật
-              <UserIcon className="h-5 w-5" />
-            </button>
-          </div>
-        )}
+        <div className="text-center mt-12">
+          <button 
+            onClick={handleViewAllFigures}
+            className="bg-[#4527A0] hover:bg-[#311B92] text-white px-8 py-3 rounded-md font-['Montserrat'] text-lg transition-colors shadow-md hover:shadow-lg flex mx-auto items-center gap-2"
+          >
+            Xem Tất Cả Nhân Vật
+            <UserIcon className="h-5 w-5" />
+          </button>
+        </div>
       </div>
     </section>
   );

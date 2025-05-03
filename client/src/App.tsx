@@ -6,6 +6,7 @@ import BackToTop from "@/components/BackToTop";
 import Home from "@/pages/Home";
 import EventDetail from "@/pages/EventDetail";
 import HistoricalFigureDetail from "@/pages/HistoricalFigureDetail";
+import HistoricalFiguresList from "@/pages/HistoricalFiguresList";
 import HistoricalSiteDetail from "@/pages/HistoricalSiteDetail";
 import HistoricalSitesList from "@/pages/HistoricalSitesList";
 import NotFound from "@/pages/not-found";
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/su-kien/:eventId" component={EventDetail} />
       <Route path="/su-kien/:eventId/:eventSlug" component={EventDetail} />
+      <Route path="/nhan-vat" component={HistoricalFiguresList} />
       <Route path="/nhan-vat/:figureId" component={HistoricalFigureDetail} />
       <Route path="/nhan-vat/:figureId/:figureSlug" component={HistoricalFigureDetail} />
       <Route path="/di-tich" component={HistoricalSitesList} />
