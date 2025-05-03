@@ -106,18 +106,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get all event types
+  app.get(`${apiPrefix}/event-types`, async (req, res) => {
+    try {
+      const types = await storage.getAllEventTypes();
+      res.json(types);
+    } catch (error) {
+      console.error('Error fetching event types:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Get events by event type
+  app.get(`${apiPrefix}/events/type/:typeSlug`, async (req, res) => {
+    try {
+      const events = await storage.getEventsByType(req.params.typeSlug);
+      res.json(events);
+    } catch (error) {
+      console.error('Error fetching events by type:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
   // Search API
   app.get(`${apiPrefix}/search`, async (req, res) => {
     try {
-      const { term, period } = req.query;
+      const { term, period, eventType } = req.query;
       
-      if (!term && !period) {
-        return res.status(400).json({ error: 'Search term or period is required' });
+      if (!term && !period && !eventType) {
+        return res.status(400).json({ error: 'Search term, period, or event type is required' });
       }
       
       const results = await storage.search(
         term ? String(term) : undefined,
-        period ? String(period) : undefined
+        period ? String(period) : undefined,
+        eventType ? String(eventType) : undefined
       );
       
       res.json(results);

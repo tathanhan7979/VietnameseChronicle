@@ -9,6 +9,14 @@ export interface PeriodData {
   icon: string;
 }
 
+export interface EventType {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  color: string;
+}
+
 export interface EventData {
   id: number;
   periodId: number;
@@ -17,7 +25,7 @@ export interface EventData {
   detailedDescription?: string;
   year: string;
   imageUrl?: string;
-  eventType?: string;
+  eventTypes?: EventType[];
 }
 
 export interface Achievement {
@@ -51,6 +59,7 @@ export interface SearchResult {
 export interface SearchFormData {
   term: string;
   periodFilter?: string;
+  eventTypeFilter?: string;
 }
 
 export interface NewsletterFormData {
