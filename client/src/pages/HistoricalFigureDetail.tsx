@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function HistoricalFigureDetail() {
   const { figureId } = useParams();
   const { toast } = useToast();
-  // Removed unused state variable
+  const [isNavigating, setIsNavigating] = useState(false);
   
   // Fetch the specific historical figure
   const { data: figure, isLoading, error } = useQuery<HistoricalFigure>({
@@ -270,23 +270,40 @@ export default function HistoricalFigureDetail() {
                     variant="outline" 
                     size="sm" 
                     className="w-full text-red-600 border-red-200 hover:bg-red-50 py-5"
+                    disabled={isNavigating}
                     onClick={() => {
-                      // Hiển thị thông báo đang chuyển hướng
+                      setIsNavigating(true);
+                      // Hiển thị thông báo
                       toast({
-                        title: "Chuyển đến thời kỳ",
-                        description: `Đang chuyển đến thời kỳ ${figure.period}...`,
+                        title: "Đang chuyển hướng",
+                        description: "Đang chuyển đến phần thời kỳ liên quan...",
                       });
-
-                      // Tạo một element tạm thời để lưu trữ slug của thời kỳ
-                      const targetPeriodSlug = slugify(figure.period);
-                      localStorage.setItem('scrollToPeriod', targetPeriodSlug);
                       
-                      // Chuyển hướng đến trang chủ
-                      window.location.href = '/';
+                      // Điều hướng đến trang chủ
+                      window.location.href = `/`;
+                      
+                      // Đặt timeout để đảm bảo trang đã tải trước khi cuộn
+                      setTimeout(() => {
+                        const elementId = `period-${slugify(figure.period)}`;
+                        const element = document.getElementById(elementId);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        setIsNavigating(false);
+                      }, 1000); // Tăng thời gian delay để đảm bảo trang đã tải
                     }}
                   >
-                    Xem thêm về thời kỳ này
-                    <ChevronRight className="ml-1 h-4 w-4" />
+                    {isNavigating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Đang chuyển hướng...
+                      </>
+                    ) : (
+                      <>
+                        Xem thêm về thời kỳ này
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                      </>
+                    )}
                   </Button>
                 </div>
               </Card>
