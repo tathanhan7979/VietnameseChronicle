@@ -7,7 +7,6 @@ import EventDetail from "@/pages/EventDetail";
 import HistoricalFigureDetail from "@/pages/HistoricalFigureDetail";
 import HistoricalSiteDetail from "@/pages/HistoricalSiteDetail";
 import NotFound from "@/pages/not-found";
-import PeriodBridge from "@/pages/PeriodBridge";
 import { useState, useEffect } from "react";
 
 function Router() {
@@ -20,7 +19,6 @@ function Router() {
       <Route path="/nhan-vat/:figureId/:figureSlug" component={HistoricalFigureDetail} />
       <Route path="/di-tich/:id" component={HistoricalSiteDetail} />
       <Route path="/di-tich/:id/:slug" component={HistoricalSiteDetail} />
-      <Route path="/thoi-ky/:periodSlug" component={PeriodBridge} />
       <Route component={NotFound} />
     </Switch>
   );
