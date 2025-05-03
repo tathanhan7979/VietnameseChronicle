@@ -101,7 +101,17 @@
     bottom: 0;
     left: 50%;
     margin-left: -2px;
-    z-index: 1;
+    z-index: 0;
+  }
+  
+  /* Style for period headers */
+  .timeline-vertical h3 {
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
   }
   
   .timeline-dot {
@@ -181,6 +191,11 @@
     }
     .era-marker {
       left: 40px;
+    }
+    .timeline-vertical h3 {
+      text-align: left !important;
+      padding-left: 60px !important;
+      width: 100%;
     }
   }
   

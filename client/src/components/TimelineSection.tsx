@@ -89,11 +89,11 @@ export default function TimelineSection() {
               const periodEvents = events.filter(event => event.periodId === period.id);
               
               return (
-                <div id={`period-${period.slug}`} key={period.id} className="mb-24">
-                  <div className="era-marker" style={{ top: "-20px" }}>
+                <div id={`period-${period.slug}`} key={period.id} className="mb-24 pt-12">
+                  <div className="era-marker" style={{ top: "0px" }}>
                     <span className="material-icons">{period.icon}</span>
                   </div>
-                  <h3 className="font-['Playfair_Display'] font-bold text-2xl md:text-3xl text-[hsl(var(--primary))] mb-8 pl-16 md:pl-0 md:text-center">
+                  <h3 className="font-['Playfair_Display'] font-bold text-2xl md:text-3xl text-[hsl(var(--primary))] mb-12 pl-16 md:pl-0 md:text-center bg-[hsl(var(--background))] py-4 rounded-lg">
                     {period.name} ({period.timeframe})
                   </h3>
                   
