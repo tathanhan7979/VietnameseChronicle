@@ -4,6 +4,7 @@ import { useScrollSpy } from '@/hooks/use-scroll-spy';
 import { useQuery } from '@tanstack/react-query';
 import { PeriodData, EventData } from '@/lib/types';
 import { Link } from 'wouter';
+import { slugify } from '@/lib/utils';
 
 export default function TimelineSection() {
   const { data: periods, isLoading: isLoadingPeriods } = useQuery<PeriodData[]>({
@@ -107,7 +108,7 @@ export default function TimelineSection() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                       >
-                        <Link href={`/events/${event.id}`}>
+                        <Link href={`/su-kien/${event.id}/${slugify(event.title)}`}>
                           <h4 className="font-['Playfair_Display'] font-bold text-xl text-[hsl(var(--secondary))] mb-3 cursor-pointer hover:underline">
                             {event.title}
                           </h4>

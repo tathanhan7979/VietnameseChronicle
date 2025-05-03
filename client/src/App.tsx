@@ -12,8 +12,10 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/events/:eventId" component={EventDetail} />
-      <Route path="/historical-figure/:figureId" component={HistoricalFigureDetail} />
+      <Route path="/su-kien/:eventId" component={EventDetail} />
+      <Route path="/su-kien/:eventId/:eventSlug" component={EventDetail} />
+      <Route path="/nhan-vat/:figureId" component={HistoricalFigureDetail} />
+      <Route path="/nhan-vat/:figureId/:figureSlug" component={HistoricalFigureDetail} />
       <Route component={NotFound} />
     </Switch>
   );
