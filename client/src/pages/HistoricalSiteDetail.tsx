@@ -108,89 +108,131 @@ export default function HistoricalSiteDetail() {
 
   // Hiển thị thông tin di tích
   return (
-    <div className="container mx-auto py-8 px-4">
-      {/* Nút quay lại */}
-      <Button 
-        variant="outline" 
-        className="mb-6"
-        onClick={() => setLocation('/')}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
-      </Button>
+    <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
+      {/* Header area with image background */}
+      <div className="relative">
+        {site.imageUrl && (
+          <div className="absolute inset-0 z-0 h-[350px] overflow-hidden">
+            <div className="absolute inset-0 bg-black/40 z-10" />
+            <img 
+              src={site.imageUrl} 
+              alt={site.name} 
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
+        )}
 
-      <h1 className="text-3xl font-bold mb-6 text-primary">{site.name}</h1>
-      
-      {/* Thẻ ghi thời kỳ nếu có */}
-      {period && (
-        <Badge variant="outline" className="mb-4">
-          {period}
-        </Badge>
-      )}
+        {/* Content overlay */}
+        <div className="container mx-auto relative z-20 pt-12 px-4">
+          <Button 
+            variant="outline" 
+            className="mb-6 bg-white/90 hover:bg-white"
+            onClick={() => setLocation('/')}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
+          </Button>
 
-      {/* Ảnh chính */}
-      {site.imageUrl && (
-        <div className="mb-8 overflow-hidden rounded-lg shadow-md">
-          <img 
-            src={site.imageUrl} 
-            alt={site.name} 
-            className="w-full h-[500px] object-cover"
-          />
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Cột thông tin chi tiết */}
-        <div className="md:col-span-2">
-          <div className="prose prose-lg max-w-none dark:prose-invert mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Giới thiệu</h2>
-            <p>{site.description}</p>
-
-            {site.detailedDescription && (
-              <div 
-                className="mt-6" 
-                dangerouslySetInnerHTML={{ __html: site.detailedDescription }}
-              />
-            )}
+          <div className="pb-16 pt-8">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-md">{site.name}</h1>
+            
+            <div className="flex flex-wrap gap-2 items-center">
+              {period && (
+                <Badge className="bg-primary/90 hover:bg-primary text-white px-3 py-1 text-sm">
+                  {period}
+                </Badge>
+              )}
+              {site.yearBuilt && (
+                <Badge variant="outline" className="bg-white/70 hover:bg-white px-3 py-1">
+                  <CalendarDays className="h-3.5 w-3.5 mr-1" />
+                  {site.yearBuilt}
+                </Badge>
+              )}
+              <Badge variant="outline" className="bg-white/70 hover:bg-white px-3 py-1">
+                <MapPin className="h-3.5 w-3.5 mr-1" />
+                {site.location}
+              </Badge>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Cột thông tin bổ sung */}
-        <div>
-          <Card className="p-6">
-            <h3 className="text-xl font-semibold mb-4">Thông tin</h3>
-            
-            <div className="space-y-4">
-              <div className="flex items-start">
-                <MapPin className="h-5 w-5 mr-3 mt-0.5 text-primary" />
-                <div>
-                  <h4 className="font-medium">Địa điểm</h4>
-                  <p>{site.location}</p>
-                  {site.address && <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{site.address}</p>}
-                </div>
+      {/* Main content area */}
+      <div className="container mx-auto px-4 py-8 -mt-10 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Cột thông tin chi tiết */}
+          <div className="md:col-span-2">
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <h2 className="text-2xl font-semibold mb-6 pb-4 border-b text-primary">Giới thiệu</h2>
+              <div className="prose prose-lg max-w-none dark:prose-invert prose-img:rounded-md prose-headings:text-primary prose-a:text-blue-600">
+                <p className="text-gray-700 leading-relaxed">{site.description}</p>
+
+                {site.detailedDescription && (
+                  <div 
+                    className="mt-8" 
+                    dangerouslySetInnerHTML={{ __html: site.detailedDescription }}
+                  />
+                )}
               </div>
+            </div>
+          </div>
 
-              {site.yearBuilt && (
+          {/* Cột thông tin bổ sung */}
+          <div>
+            <Card className="p-6 shadow-md bg-white">
+              <h3 className="text-xl font-semibold mb-6 pb-3 border-b">Thông tin chi tiết</h3>
+              
+              <div className="space-y-6">
                 <div className="flex items-start">
-                  <CalendarDays className="h-5 w-5 mr-3 mt-0.5 text-primary" />
+                  <div className="bg-gray-100 p-3 rounded-full mr-4">
+                    <MapPin className="h-5 w-5 text-primary" />
+                  </div>
                   <div>
-                    <h4 className="font-medium">Năm xây dựng</h4>
-                    <p>{site.yearBuilt}</p>
+                    <h4 className="font-medium text-gray-900">Địa điểm</h4>
+                    <p className="text-gray-700">{site.location}</p>
+                    {site.address && <p className="text-sm text-gray-600 mt-1">{site.address}</p>}
                   </div>
                 </div>
-              )}
-              
-              {/* Thêm nút xem bản đồ */}
-              {site.mapUrl && (
-                <Button 
-                  className="w-full mt-4"
-                  onClick={() => window.open(site.mapUrl, '_blank')}
-                >
-                  <MapPin className="mr-2 h-4 w-4" />
-                  Xem trên bản đồ
+
+                {site.yearBuilt && (
+                  <div className="flex items-start">
+                    <div className="bg-gray-100 p-3 rounded-full mr-4">
+                      <CalendarDays className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">Năm xây dựng</h4>
+                      <p className="text-gray-700">{site.yearBuilt}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Google Maps button */}
+                {site.mapUrl && (
+                  <div className="mt-8">
+                    <Button 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => window.open(site.mapUrl, '_blank')}
+                    >
+                      <MapPin className="mr-2 h-4 w-4" />
+                      Xem trên Google Maps
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* Chia sẻ mạng xã hội */}
+            <Card className="p-6 shadow-md bg-white mt-6">
+              <h3 className="text-lg font-semibold mb-4">Chia sẻ</h3>
+              <div className="flex space-x-3">
+                <Button variant="outline" size="sm" className="w-full">
+                  Chia sẻ
                 </Button>
-              )}
-            </div>
-          </Card>
+                <Button variant="outline" size="sm" className="w-full">
+                  Đánh dấu
+                </Button>
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

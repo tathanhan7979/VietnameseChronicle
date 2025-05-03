@@ -6,10 +6,11 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function slugify(text: string): string {
+  if (!text) return "";
+  
   // Chuyển chuỗi sang lower case
-  const str = text.toLowerCase()
+  let str = text.toLowerCase()
     // Xử lý các ký tự đặc biệt tiếng Việt
-    // Các thay thế cụ thể cho tiếng Việt
     .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a")
     .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e")
     .replace(/ì|í|ị|ỉ|ĩ/g, "i")
@@ -24,11 +25,19 @@ export function slugify(text: string): string {
     .replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "o")
     .replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "u")
     .replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "y")
-    .replace(/Đ/g, "d")
-    // Thay thế các ký tự đặc biệt và khoảng trắng bằng gạch ngang
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-
+    .replace(/Đ/g, "d");
+  
+  // Chuyển các ký tự đặc biệt như dấu gạch ngang (-) trong tên thành khoảng trắng
+  str = str.replace(/[\-_]/g, " ");
+  
+  // Loại bỏ các ký tự không phải chữ cái, số hoặc khoảng trắng
+  str = str.replace(/[^a-z0-9\s]/g, "");
+  
+  // Thay thế nhiều khoảng trắng bằng một khoảng trắng
+  str = str.replace(/\s+/g, " ").trim();
+  
+  // Thay thế khoảng trắng bằng dấu gạch ngang
+  str = str.replace(/\s/g, "-");
+  
   return str;
 }
