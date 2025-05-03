@@ -3,6 +3,8 @@ export const API_ENDPOINTS = {
   PERIODS: '/api/periods',
   EVENTS: '/api/events',
   HISTORICAL_FIGURES: '/api/historical-figures',
+  EVENT_TYPES: '/api/event-types',
+  HISTORICAL_SITES: '/api/historical-sites',
   SEARCH: '/api/search',
 };
 

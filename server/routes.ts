@@ -149,6 +149,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Historical sites API routes
+  // Get all historical sites
+  app.get(`${apiPrefix}/historical-sites`, async (req, res) => {
+    try {
+      const sites = await storage.getAllHistoricalSites();
+      res.json(sites);
+    } catch (error) {
+      console.error('Error fetching historical sites:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Get historical site by ID
+  app.get(`${apiPrefix}/historical-sites/:id`, async (req, res) => {
+    try {
+      const site = await storage.getHistoricalSiteById(parseInt(req.params.id));
+      if (!site) {
+        return res.status(404).json({ error: 'Historical site not found' });
+      }
+      res.json(site);
+    } catch (error) {
+      console.error('Error fetching historical site:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Get historical sites by period ID
+  app.get(`${apiPrefix}/periods/:periodId/historical-sites`, async (req, res) => {
+    try {
+      const sites = await storage.getHistoricalSitesByPeriod(parseInt(req.params.periodId));
+      res.json(sites);
+    } catch (error) {
+      console.error('Error fetching historical sites by period:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   // Create HTTP server
   const httpServer = createServer(app);
   
