@@ -266,25 +266,11 @@ export default function HistoricalFigureDetail() {
                 </div>
                 
                 <div className="mt-6">
-                  <Link href={`/#timeline`}>
+                  <Link href={`/thoi-ky/${slugify(figure.period)}`}>
                     <Button 
                       variant="outline" 
                       size="sm" 
                       className="w-full text-red-600 border-red-200 hover:bg-red-50 py-5"
-                      onClick={() => {
-                        toast({
-                          title: "Chuyển đến thời kỳ",
-                          description: `Đã chuyển đến thời kỳ ${figure.period}`,
-                        });
-                        
-                        // Đặt timeout để đảm bảo đủ thời gian load trang 
-                        setTimeout(() => {
-                          const periodElement = document.getElementById(`period-${slugify(figure.period)}`);
-                          if (periodElement) {
-                            periodElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          }
-                        }, 1000);
-                      }}
                     >
                       Xem thêm về thời kỳ này
                       <ChevronRight className="ml-1 h-4 w-4" />
