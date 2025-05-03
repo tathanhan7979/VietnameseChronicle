@@ -113,7 +113,7 @@ export default function TimelineSection({
           <div className="md:col-span-1">
             <div className="sticky top-24">
               <h3 className="text-xl font-bold mb-4 font-['Playfair_Display'] text-[#4527A0]">
-                Các Thời Kỳ
+                CÁC THỜI KỲ
               </h3>
               <ul className="period-nav">
                 {periods.map((period) => (
@@ -156,8 +156,7 @@ export default function TimelineSection({
                   
                   {/* Period title */}
                   <div className="period-title">
-                    <h3>{period.name}</h3>
-                    <span className="timeframe">{period.timeframe}</span>
+                    <h3>{period.name} <span>({period.timeframe})</span></h3>
                     <p className="mt-4 text-gray-700 max-w-2xl mx-auto">{period.description}</p>
                   </div>
                   

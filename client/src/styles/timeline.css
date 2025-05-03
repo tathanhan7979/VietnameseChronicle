@@ -189,7 +189,7 @@ body {
 }
 
 .right .event-card {
-  text-align: left;
+  text-align: right;
 }
 
 .event-card:hover {
@@ -245,6 +245,10 @@ body {
   justify-content: flex-end;
 }
 
+.right .event-tags {
+  justify-content: flex-end;
+}
+
 .event-tag {
   font-size: 0.75rem;
   padding: 3px 8px;
@@ -286,6 +290,10 @@ body {
     text-align: left;
   }
   
+  .right .event-card {
+    text-align: left;
+  }
+  
   .event-connector {
     width: 30px;
   }
@@ -299,7 +307,8 @@ body {
     left: 88px;
   }
   
-  .left .event-tags {
+  .left .event-tags,
+  .right .event-tags {
     justify-content: flex-start;
   }
   
