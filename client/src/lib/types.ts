@@ -75,8 +75,7 @@ export interface HistoricalSite {
   description: string;
   detailedDescription?: string;
   imageUrl?: string;
-  latitude?: number;
-  longitude?: number;
+  mapUrl?: string;
   address?: string;
   yearBuilt?: string;
   relatedEventId?: number;

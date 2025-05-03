@@ -97,8 +97,8 @@ export default function HistoricalSitesSection() {
                 <div className="mt-4 flex justify-between items-center">
                   <button 
                     className="flex items-center text-blue-600 hover:text-blue-800"
-                    onClick={() => window.open(`https://maps.google.com/?q=${site.latitude},${site.longitude}`, '_blank')}
-                    disabled={!site.latitude || !site.longitude}
+                    onClick={() => site.mapUrl ? window.open(site.mapUrl, '_blank') : null}
+                    disabled={!site.mapUrl}
                   >
                     <MapPin size={16} className="mr-1" />
                     <span className="text-sm">Xem bản đồ</span>

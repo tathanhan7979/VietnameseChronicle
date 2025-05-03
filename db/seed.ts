@@ -712,8 +712,7 @@ async function seed() {
 <li>Đền thờ vua Lê (Lê Đại Hành): Thờ vua Lê Hoàn, người kế tục sự nghiệp của Đinh Tiên Hoàng</li>
 </ul></p>`,
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Co_do_Hoa_Lu.jpg/1200px-Co_do_Hoa_Lu.jpg",
-        latitude: 20.2835,
-        longitude: 105.9147,
+        mapUrl: "https://maps.google.com/?q=20.2835,105.9147",
         address: "Trường Yên, Hoa Lư, Ninh Bình",
         yearBuilt: "968",
         relatedEventId: null,
@@ -734,8 +733,7 @@ async function seed() {
 </ul>
 <p>Hàng năm vào ngày mùng 10 tháng 3 âm lịch, tại đây diễn ra Giỗ Tổ Hùng Vương với quy mô lớn để tưởng nhớ công lao của các Vua Hùng.</p>`,
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/%C4%90%E1%BB%81n_H%C3%B9ng.jpg/1200px-%C4%90%E1%BB%81n_H%C3%B9ng.jpg",
-        latitude: 21.3870, 
-        longitude: 105.3848,
+        mapUrl: "https://maps.google.com/?q=21.3870,105.3848",
         address: "Hy Cương, Việt Trì, Phú Thọ",
         yearBuilt: null,
         relatedEventId: 4, // Liên quan đến sự kiện Lễ Hội Đền Hùng
@@ -756,8 +754,7 @@ async function seed() {
 <li>Bảo tàng Cổ Loa trưng bày nhiều hiện vật quý báu</li>
 </ul>`,
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/31/Co_Loa_thanh.JPG",
-        latitude: 21.1014,
-        longitude: 105.8574,
+        mapUrl: "https://maps.google.com/?q=21.1014,105.8574",
         address: "Cổ Loa, Đông Anh, Hà Nội",
         yearBuilt: "257 TCN",
         relatedEventId: null,
@@ -778,8 +775,7 @@ async function seed() {
 <li>Hệ thống hào nước bao quanh thành</li>
 </ul>`,
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/c0/Citadel_of_the_Ho_Dynasty.jpg",
-        latitude: 19.9736,
-        longitude: 105.6122,
+        mapUrl: "https://maps.google.com/?q=19.9736,105.6122",
         address: "Vĩnh Long, Vĩnh Lộc, Thanh Hóa",
         yearBuilt: "1397",
         relatedEventId: null,
@@ -802,8 +798,7 @@ async function seed() {
 </ul>
 <p>Đặc biệt, tại đây có 82 bia đá khắc tên các tiến sĩ qua các kỳ thi từ năm 1442 đến 1779, được đặt trên lưng rùa đá, tượng trưng cho sự trường thọ và bền vững của học vấn.</p>`,
         imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Van_Mieu_Quoc_Tu_Giam.jpg",
-        latitude: 21.0269,
-        longitude: 105.8354,
+        mapUrl: "https://maps.google.com/?q=21.0269,105.8354",
         address: "58 Quốc Tử Giám, Đống Đa, Hà Nội",
         yearBuilt: "1070",
         relatedEventId: null,
@@ -813,12 +808,27 @@ async function seed() {
     
     // Insert historical sites data
     for (const site of historicalSitesData) {
+      // Remove latitude & longitude fields if they exist
+      const siteData = {
+        name: site.name,
+        location: site.location,
+        periodId: site.periodId,
+        description: site.description,
+        detailedDescription: site.detailedDescription,
+        imageUrl: site.imageUrl,
+        mapUrl: site.mapUrl,
+        address: site.address,
+        yearBuilt: site.yearBuilt,
+        relatedEventId: site.relatedEventId,
+        sortOrder: site.sortOrder
+      };
+      
       const existingSite = await db.query.historicalSites.findFirst({
         where: eq(schema.historicalSites.name, site.name)
       });
       
       if (!existingSite) {
-        await db.insert(schema.historicalSites).values(site);
+        await db.insert(schema.historicalSites).values(siteData);
         console.log(`Added historical site: ${site.name}`);
       } else {
         console.log(`Historical site already exists: ${site.name}`);
