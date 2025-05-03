@@ -1,233 +1,239 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+
+  /* Card Flip CSS */
+  .card-flip {
+    perspective: 1000px;
+    position: relative;
+  }
+
+  .card-front,
+  .card-back {
+    backface-visibility: hidden;
+    transition: transform 0.8s;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .card-front {
+    transform: rotateY(0deg);
+  }
+
+  .card-back {
+    transform: rotateY(180deg);
+  }
+
+  .card-flip:hover .card-front {
+    transform: rotateY(180deg);
+  }
+
+  .card-flip:hover .card-back {
+    transform: rotateY(0deg);
+  }
+
+  /* Vietnamese theme custom colors */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --background: 44 55% 96%;
+    /* vn-paper */
+    --foreground: 0 0% 20%;
+    /* vn-ink */
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
- 
+    --card-foreground: 0 0% 20%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
- 
-    --primary: 0 85% 46%; /* #C62828 - Bold red */
-    --primary-foreground: 0 0% 98%;
- 
-    --secondary: 270 64% 39%; /* #4527A0 - Deep purple */
-    --secondary-foreground: 0 0% 98%;
- 
+    --popover-foreground: 0 0% 20%;
+
+    --primary: 350 74% 45%;
+    /* vn-red */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 43 65% 52%;
+    /* vn-gold */
+    --secondary-foreground: 0 0% 20%;
+
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
- 
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
- 
+
+    --accent: 152 100% 33%;
+    /* vn-green */
+    --accent-foreground: 0 0% 100%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
- 
+    --ring: 350 74% 45%;
+
+    --chart-1: 350 74% 45%;
+    --chart-2: 43 65% 52%;
+    --chart-3: 152 100% 33%;
+    --chart-4: 200 100% 40%;
+    --chart-5: 270 70% 50%;
+
     --radius: 0.5rem;
-  }
- 
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
- 
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
- 
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
- 
-    --primary: 0 85% 48%;
-    --primary-foreground: 0 0% 98%;
- 
-    --secondary: 270 64% 40%;
-    --secondary-foreground: 0 0% 98%;
- 
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
- 
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
- 
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-  }
-}
- 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-    font-family: 'Montserrat', sans-serif;
+
+    --sidebar-background: 0 0% 20%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 350 74% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 43 65% 52%;
+    --sidebar-accent-foreground: 0 0% 20%;
+    --sidebar-border: 0 0% 30%;
+    --sidebar-ring: 350 74% 45%;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
-  }
-}
-
-/* Custom animations */
-.animate-bounce {
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-}
-
-/* Timeline animations for hover effect */
-.timeline-item:hover .timeline-content {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-}
-
-/* Timeline visual components */
-.timeline-dot {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background-color: #C62828;
-  border-radius: 50%;
-  top: 20px;
-  left: -6px;
-  z-index: 2;
-}
-
-/* Timeline vertical line (in desktop view) */
-@media (min-width: 768px) {
   .timeline-vertical::before {
     content: '';
     position: absolute;
+    width: 4px;
+    background-color: hsl(var(--primary));
     top: 0;
     bottom: 0;
-    left: 15px;
-    width: 2px;
-    background-color: #e5e7eb;
+    left: 50%;
+    margin-left: -2px;
+    z-index: 0;
   }
-}
 
-/* Era marker styling */
-.era-marker {
-  position: absolute;
-  left: 0;
-  width: 36px;
-  height: 36px;
-  background-color: #4527A0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  z-index: 2;
-}
+  /* Style for period headers */
+  .timeline-vertical h3 {
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
-/* Card flip effect for historical figures */
-.card-flip {
-  perspective: 1000px;
-  position: relative;
-  width: 100%;
-}
+  .timeline-dot {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 50%;
+    margin-left: -10px;
+    border-radius: 50%;
+    z-index: 2;
+    background: hsl(var(--secondary));
+    border: 4px solid hsl(var(--primary));
+    top: 10px;
+  }
 
-.card-front,
-.card-back {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  transition: transform 0.6s;
-}
+  .timeline-item {
+    position: relative;
+    margin-bottom: 50px;
+    padding-top: 10px;
+  }
 
-.card-front {
-  transform: rotateY(0deg);
-}
+  .timeline-content {
+    position: relative;
+    width: 45%;
+  }
 
-.card-back {
-  transform: rotateY(180deg);
-}
+  .timeline-item:nth-child(odd) .timeline-content {
+    left: 55%;
+  }
 
-.card-flip:hover .card-front {
-  transform: rotateY(180deg);
-}
+  .timeline-item:nth-child(even) .timeline-content {
+    left: 0;
+  }
 
-.card-flip:hover .card-back {
-  transform: rotateY(0deg);
-}
+  .era-marker {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    background: hsl(var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--foreground));
+    font-weight: bold;
+    z-index: 3;
+    border: 5px solid hsl(var(--primary));
+  }
 
-/* Menu active state */
-.period-nav li.active {
-  background-color: rgba(198, 40, 40, 0.1);
-  border-left: 4px solid #C62828;
-  font-weight: 600;
-}
+  /* Removed duplicated card-flip styles */
 
-.period-nav li.active a {
-  color: #C62828;
-}
+  .period-nav li {
+    transition: all 0.3s ease;
+  }
 
-/* Historical Sites Gallery styling */
-.gallery-item:hover img {
-  transform: scale(1.05);
-}
+  .period-nav li:hover {
+    background-color: rgba(201, 31, 55, 0.1);
+    transform: translateX(5px);
+  }
 
-.gallery-item:hover .gallery-overlay {
-  opacity: 0.7;
-}
+  .period-nav li.active {
+    border-left: 4px solid hsl(var(--primary));
+    background-color: rgba(201, 31, 55, 0.2);
+  }
 
-.gallery-item:hover .gallery-caption {
-  opacity: 1;
-  transform: translateY(0);
-}
+  @media (max-width: 768px) {
+    .timeline-vertical::before {
+      left: 10px;
+    }
 
-/* Search overlay animation */
-.search-overlay-enter {
-  opacity: 0;
-  transform: scale(0.95);
-}
+    .timeline-dot {
+      left: 0px;
+      margin-left: 0;
+    }
 
-.search-overlay-enter-active {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 300ms, transform 300ms;
-}
+    .timeline-content {
+      width: calc(100% - 50px);
+      left: 50px !important;
+    }
 
-.search-overlay-exit {
-  opacity: 1;
-  transform: scale(1);
-}
+    .era-marker {
+      left: 10px;
+    }
 
-.search-overlay-exit-active {
-  opacity: 0;
-  transform: scale(0.95);
-  transition: opacity 300ms, transform 300ms;
-}
+    .timeline-vertical h3 {
+      text-align: left !important;
+      padding-left: 40px !important;
+      width: 100%;
+    }
+  }
 
-.search-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: 12px center;
-  padding-left: 40px;
+  .scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0) translateX(-50%);
+    }
+
+    40% {
+      transform: translateY(-20px) translateX(-50%);
+    }
+
+    60% {
+      transform: translateY(-10px) translateX(-50%);
+    }
+  }
 }
