@@ -163,7 +163,7 @@ export default function TimelineSection({
                           whileInView={{ opacity: 1, x: 0 }}
                           viewport={{ once: true }}
                           transition={{ duration: 0.5 }}
-                          className={`mb-16 ${isEven ? 'event-left' : 'event-right'}`}
+                          className={`mb-24 ${isEven ? 'event-left' : 'event-right'}`}
                         >
                           {/* Timeline dot */}
                           <div className="timeline-dot" style={{ top: '20px' }}></div>
