@@ -87,9 +87,10 @@ export const storage = {
   
   getPeriodById: async (id: number): Promise<Period | null> => {
     try {
-      return await db.query.periods.findFirst({
+      const result = await db.query.periods.findFirst({
         where: eq(periods.id, id)
       });
+      return result || null;
     } catch (error) {
       handleDbError(error, "getPeriodById");
       return null;
@@ -98,9 +99,10 @@ export const storage = {
   
   getPeriodBySlug: async (slug: string): Promise<Period | null> => {
     try {
-      return await db.query.periods.findFirst({
+      const result = await db.query.periods.findFirst({
         where: eq(periods.slug, slug)
       });
+      return result || null;
     } catch (error) {
       handleDbError(error, "getPeriodBySlug");
       return null;
@@ -108,11 +110,32 @@ export const storage = {
   },
   
   // Event methods
-  getAllEvents: async (): Promise<Event[]> => {
+  getAllEvents: async (): Promise<(Event & { eventTypes?: EventType[] })[]> => {
     try {
-      return await db.query.events.findMany({
+      const allEvents = await db.query.events.findMany({
         orderBy: [asc(events.periodId), asc(events.sortOrder)]
       });
+      
+      // For each event, load its event types
+      const eventsWithTypes = await Promise.all(allEvents.map(async (event) => {
+        // Get event types for this event
+        const relations = await db.query.eventToEventType.findMany({
+          where: eq(eventToEventType.eventId, event.id),
+          with: {
+            eventType: true
+          }
+        });
+        
+        // Map to event types
+        const types = relations.map(rel => rel.eventType);
+        
+        return {
+          ...event,
+          eventTypes: types
+        };
+      }));
+      
+      return eventsWithTypes;
     } catch (error) {
       handleDbError(error, "getAllEvents");
       return [];
@@ -148,12 +171,33 @@ export const storage = {
     }
   },
   
-  getEventsByPeriod: async (periodId: number): Promise<Event[]> => {
+  getEventsByPeriod: async (periodId: number): Promise<(Event & { eventTypes?: EventType[] })[]> => {
     try {
-      return await db.query.events.findMany({
+      const periodEvents = await db.query.events.findMany({
         where: eq(events.periodId, periodId),
         orderBy: asc(events.sortOrder)
       });
+      
+      // For each event, load its event types
+      const eventsWithTypes = await Promise.all(periodEvents.map(async (event) => {
+        // Get event types for this event
+        const relations = await db.query.eventToEventType.findMany({
+          where: eq(eventToEventType.eventId, event.id),
+          with: {
+            eventType: true
+          }
+        });
+        
+        // Map to event types
+        const types = relations.map(rel => rel.eventType);
+        
+        return {
+          ...event,
+          eventTypes: types
+        };
+      }));
+      
+      return eventsWithTypes;
     } catch (error) {
       handleDbError(error, "getEventsByPeriod");
       return [];
@@ -174,9 +218,10 @@ export const storage = {
   
   getHistoricalFigureById: async (id: number): Promise<HistoricalFigure | null> => {
     try {
-      return await db.query.historicalFigures.findFirst({
+      const result = await db.query.historicalFigures.findFirst({
         where: eq(historicalFigures.id, id)
       });
+      return result || null;
     } catch (error) {
       handleDbError(error, "getHistoricalFigureById");
       return null;
@@ -186,13 +231,13 @@ export const storage = {
   // Search functionality
   search: async (term?: string, periodSlug?: string, eventTypeSlug?: string): Promise<{
     periods: Period[],
-    events: Event[],
+    events: (Event & { eventTypes?: EventType[] })[],
     figures: HistoricalFigure[],
     eventTypes: EventType[]
   }> => {
     try {
       let filteredPeriods: Period[] = [];
-      let filteredEvents: Event[] = [];
+      let filteredEvents: (Event & { eventTypes?: EventType[] })[] = [];
       let filteredFigures: HistoricalFigure[] = [];
       let filteredEventTypes: EventType[] = [];
       
@@ -204,20 +249,20 @@ export const storage = {
       // If there's a period slug filter, get that period first
       let periodFilter: Period | null = null;
       if (periodSlug) {
-        periodFilter = await db.query.periods.findFirst({
+        const result = await db.query.periods.findFirst({
           where: eq(periods.slug, periodSlug)
         });
-        if (periodFilter === undefined) periodFilter = null;
+        periodFilter = result || null;
       }
       
       // If there's an event type filter, get the events for that type
       let eventTypeFilter: EventType | null = null;
       let eventIdsByType: number[] = [];
       if (eventTypeSlug) {
-        eventTypeFilter = await db.query.eventTypes.findFirst({
+        const result = await db.query.eventTypes.findFirst({
           where: eq(eventTypes.slug, eventTypeSlug)
         });
-        if (eventTypeFilter === undefined) eventTypeFilter = null;
+        eventTypeFilter = result || null;
         
         if (eventTypeFilter) {
           // Get all event IDs for this type
@@ -266,7 +311,7 @@ export const storage = {
         }
         
         if (eventTypeFilter && eventIdsByType.length > 0) {
-          conditions.push((fields) => {
+          conditions.push((fields: any) => {
             const eventIdConditions = eventIdsByType.map(id => eq(fields.id, id));
             return or(...eventIdConditions);
           });
@@ -281,10 +326,29 @@ export const storage = {
         }
         
         if (conditions.length > 0) {
-          filteredEvents = await eventsQuery.findMany({
-            where: and(...conditions),
+          const baseEvents = await eventsQuery.findMany({
+            where: and(...conditions || []),
             orderBy: [asc(events.periodId), asc(events.sortOrder)]
           });
+          
+          // For each event, load its event types
+          filteredEvents = await Promise.all(baseEvents.map(async (event) => {
+            // Get event types for this event
+            const relations = await db.query.eventToEventType.findMany({
+              where: eq(eventToEventType.eventId, event.id),
+              with: {
+                eventType: true
+              }
+            });
+            
+            // Map to event types
+            const types = relations.map(rel => rel.eventType);
+            
+            return {
+              ...event,
+              eventTypes: types
+            };
+          }));
         }
       }
       

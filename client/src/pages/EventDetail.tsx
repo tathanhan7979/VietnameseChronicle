@@ -130,12 +130,23 @@ export default function EventDetail() {
               )}
             </div>
             
-            {/* Event type badge */}
-            {event.eventType && (
+            {/* Event types badges */}
+            {event.eventTypes && event.eventTypes.length > 0 && (
               <div className="mt-8">
-                <span className="inline-block bg-[hsl(var(--primary))] bg-opacity-10 text-[hsl(var(--primary))] px-4 py-2 rounded-full text-sm font-medium">
-                  {event.eventType}
-                </span>
+                <h3 className="text-xl font-semibold mb-4 text-[hsl(var(--primary))]">
+                  Loại sự kiện
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {event.eventTypes.map(type => (
+                    <span 
+                      key={type.id}
+                      className="inline-block text-white px-4 py-2 rounded-full text-sm font-medium"
+                      style={{ backgroundColor: type.color || '#ff5722' }}
+                    >
+                      {type.name}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
             
