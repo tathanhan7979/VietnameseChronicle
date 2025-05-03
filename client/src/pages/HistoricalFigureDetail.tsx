@@ -97,7 +97,7 @@ export default function HistoricalFigureDetail() {
             </div>
             
             {/* Achievements */}
-            {figure.achievements && figure.achievements.length > 0 && (
+            {figure.achievements && Array.isArray(figure.achievements) && figure.achievements.length > 0 && (
               <div className="mt-12">
                 <h3 className="text-xl font-semibold mb-4 text-[hsl(var(--primary))] border-b pb-2">
                   Thành tựu nổi bật
@@ -111,7 +111,7 @@ export default function HistoricalFigureDetail() {
                           <div className="font-medium">{achievement.title}</div>
                           {achievement.year && <div className="text-sm text-gray-600 mt-1">Năm: {achievement.year}</div>}
                           {achievement.eventId && (
-                            <Link href={`/su-kien/${achievement.eventId}`} className="inline-flex items-center text-[hsl(var(--primary))] text-sm mt-2 hover:underline">
+                            <Link href={`/su-kien/${achievement.eventId}/${achievement.title ? slugify(achievement.title) : 'su-kien'}`} className="inline-flex items-center text-[hsl(var(--primary))] text-sm mt-2 hover:underline">
                               Xem sự kiện liên quan
                               <ExternalLink className="h-3 w-3 ml-1" />
                             </Link>

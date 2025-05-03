@@ -82,7 +82,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             type: 'event',
             title: event.title,
             subtitle: periods?.find(p => p.id === event.periodId)?.name || '',
-            link: `#period-${periods?.find(p => p.id === event.periodId)?.slug || ''}`,
+            link: `/su-kien/${event.id}/${slugify(event.title)}`,
             icon: 'event'
           });
         }
@@ -118,10 +118,10 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   if (!isOpen) return null;
   
   const popularSearches = [
-    { title: 'Vua Lê Lợi', icon: 'person', link: '#figures' },
-    { title: 'Chiến thắng Bạch Đằng', icon: 'event', link: '#period-tran' },
-    { title: 'Hai Bà Trưng', icon: 'person', link: '#figures' },
-    { title: 'Cách mạng tháng Tám', icon: 'event', link: '#period-modern' }
+    { title: 'Vua Lê Lợi', icon: 'person', link: '/nhan-vat/3/le-loi' },
+    { title: 'Chiến thắng Bạch Đằng', icon: 'event', link: '/su-kien/8/chien-thang-bach-dang' },
+    { title: 'Hai Bà Trưng', icon: 'person', link: '/nhan-vat/5/hai-ba-trung' },
+    { title: 'Cách mạng tháng Tám', icon: 'event', link: '/su-kien/19/cach-mang-thang-tam' }
   ];
   
   return (

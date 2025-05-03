@@ -39,18 +39,18 @@ export default function Header({ onOpenSearch }: HeaderProps) {
         </div>
         
         <nav className="hidden md:flex items-center space-x-8">
-          <Link href="#overview" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
+          <a href="/#overview" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
             Tổng Quan
-          </Link>
-          <Link href="#timeline" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
+          </a>
+          <a href="/#timeline" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
             Dòng Thời Gian
-          </Link>
-          <Link href="#figures" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
+          </a>
+          <a href="/#figures" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
             Nhân Vật
-          </Link>
-          <Link href="#about" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
+          </a>
+          <a href="/#about" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
             Giới Thiệu
-          </Link>
+          </a>
         </nav>
         
         <div className="flex items-center space-x-4">
@@ -73,16 +73,16 @@ export default function Header({ onOpenSearch }: HeaderProps) {
       {isMenuOpen && (
         <div className="md:hidden bg-[hsl(var(--background))] w-full">
           <nav className="container mx-auto px-4 py-4 flex flex-col space-y-3">
-            <a href="#overview" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2 border-b border-gray-200">
+            <a href="/#overview" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2 border-b border-gray-200">
               Tổng Quan
             </a>
-            <a href="#timeline" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2 border-b border-gray-200">
+            <a href="/#timeline" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2 border-b border-gray-200">
               Dòng Thời Gian
             </a>
-            <a href="#figures" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2 border-b border-gray-200">
+            <a href="/#figures" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2 border-b border-gray-200">
               Nhân Vật
             </a>
-            <a href="#about" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2">
+            <a href="/#about" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2">
               Giới Thiệu
             </a>
           </nav>
