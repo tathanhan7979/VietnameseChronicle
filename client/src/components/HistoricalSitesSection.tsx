@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { HistoricalSite } from '../lib/types';
 import { API_ENDPOINTS, DEFAULT_IMAGE } from '../lib/constants';
 import { QueryClient, useQuery } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Info, Building, Landmark } from "lucide-react";
 
 export default function HistoricalSitesSection() {
+  const [, navigate] = useLocation();
   const { isLoading, error, data } = useQuery<HistoricalSite[]>({
     queryKey: [API_ENDPOINTS.HISTORICAL_SITES],
     queryFn: async () => {
@@ -104,7 +106,10 @@ export default function HistoricalSitesSection() {
                     <span className="text-sm">Xem bản đồ</span>
                   </button>
                   
-                  <button className="flex items-center text-blue-600 hover:text-blue-800">
+                  <button 
+                    className="flex items-center text-blue-600 hover:text-blue-800"
+                    onClick={() => navigate(`/historical-sites/${site.id}`)}
+                  >
                     <Info size={16} className="mr-1" />
                     <span className="text-sm">Chi tiết</span>
                   </button>
