@@ -75,7 +75,7 @@ export default function HistoricalFiguresSection() {
                   </h3>
                   <p className="text-[hsl(var(--foreground))]">{figure.lifespan}</p>
                   <div className="mt-2 flex">
-                    <span className="bg-[hsl(var(--primary))] bg-opacity-10 text-[hsl(var(--primary))] px-3 py-1 rounded-full text-sm">
+                    <span className="bg-[hsl(var(--primary))] text-white px-3 py-1 rounded-full text-sm">
                       {figure.period}
                     </span>
                   </div>
