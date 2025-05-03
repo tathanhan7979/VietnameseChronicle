@@ -1,93 +1,138 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
+import { Clock10Icon, UserIcon, LandmarkIcon, HomeIcon, BookOpenIcon, SearchIcon, MenuIcon, XIcon } from 'lucide-react';
+import { useMobile } from '@/hooks/use-mobile';
 
 interface HeaderProps {
   onOpenSearch: () => void;
+  activeSection?: string;
+  onSectionSelect?: (sectionId: string) => void;
 }
 
-export default function Header({ onOpenSearch }: HeaderProps) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+export default function Header({ onOpenSearch, activeSection = '', onSectionSelect }: HeaderProps) {
+  const isMobile = useMobile();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  const toggleMenu = useCallback(() => {
-    setIsMenuOpen(prev => !prev);
+  const navigationItems = [
+    { id: 'home', name: 'Trang Chủ', icon: HomeIcon, href: '/' },
+    { id: 'timeline', name: 'Dòng Thời Gian', icon: Clock10Icon, href: '/#timeline' },
+    { id: 'historical-figures', name: 'Nhân Vật Lịch Sử', icon: UserIcon, href: '/#historical-figures' },
+    { id: 'historical-sites', name: 'Di Tích Lịch Sử', icon: LandmarkIcon, href: '/#historical-sites' },
+    { id: 'about', name: 'Giới Thiệu', icon: BookOpenIcon, href: '/#about' },
+  ];
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setIsScrolled(scrollTop > 50);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
   
+  // Handle navigation click
+  const handleNavClick = (sectionId: string, e: React.MouseEvent) => {
+    // Only handle for homepage sections
+    if (sectionId !== 'home' && onSectionSelect) {
+      e.preventDefault();
+      onSectionSelect(sectionId);
+    }
+
+    // Close mobile menu when clicking a navigation item
+    if (isMobile) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+  
   return (
-    <header className="fixed top-0 w-full bg-[hsl(var(--background))] bg-opacity-90 z-50 shadow-md">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center">
-          <svg
-            className="h-10 w-10 mr-3 rounded-full"
-            viewBox="0 0 100 100"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect width="100" height="100" fill="hsl(var(--primary))"/>
-            <text
-              x="50"
-              y="50"
-              fontSize="50"
-              textAnchor="middle"
-              alignmentBaseline="middle"
-              fill="hsl(var(--secondary))"
-            >
-              VN
-            </text>
-          </svg>
-          <h1 className="font-['Playfair_Display'] font-bold text-xl md:text-2xl text-[hsl(var(--primary))]">
-            LỊCH SỬ VIỆT NAM
-          </h1>
-        </div>
-        
-        <nav className="hidden md:flex items-center space-x-8">
-          <a href="/#overview" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
-            Tổng Quan
-          </a>
-          <a href="/#timeline" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
-            Dòng Thời Gian
-          </a>
-          <a href="/#figures" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
-            Nhân Vật
-          </a>
-          <a href="/#about" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
-            Giới Thiệu
-          </a>
-        </nav>
-        
-        <div className="flex items-center space-x-4">
-          <button 
-            onClick={onOpenSearch}
-            className="rounded-full p-2 hover:bg-[hsl(var(--primary))] hover:text-white transition-colors duration-300"
-          >
-            <span className="material-icons">search</span>
-          </button>
+    <header 
+      className={`fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 shadow-md' : 'bg-white/90 backdrop-blur-sm'}`}
+    >
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex justify-between items-center">
+          {/* Logo */}
+          <Link href="/">
+            <div className="flex items-center cursor-pointer">
+              <div className="h-10 w-10 mr-3 bg-[#C62828] rounded-full flex items-center justify-center text-white font-bold font-['Playfair_Display'] text-lg">
+                VN
+              </div>
+              <h1 className="font-['Playfair_Display'] font-bold text-xl md:text-2xl text-[#C62828] tracking-wider">
+                LỊCH SỬ VIỆT NAM
+              </h1>
+            </div>
+          </Link>
           
-          <button 
-            onClick={toggleMenu}
-            className="md:hidden rounded-full p-2 hover:bg-[hsl(var(--primary))] hover:text-white transition-colors duration-300"
-          >
-            <span className="material-icons">menu</span>
-          </button>
+          {/* Mobile Menu Icon */}
+          {isMobile && (
+            <div className="flex items-center">
+              <button
+                onClick={onOpenSearch}
+                className="p-2 mr-2 text-gray-600 hover:text-[#C62828] transition-colors"
+                aria-label="Tìm kiếm"
+              >
+                <SearchIcon className="h-6 w-6" />
+              </button>
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-gray-600 hover:text-[#C62828] transition-colors"
+                aria-label="Menu"
+              >
+                {isMobileMenuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+              </button>
+            </div>
+          )}
+          
+          {/* Desktop Navigation */}
+          {!isMobile && (
+            <nav className="flex items-center space-x-1">
+              {navigationItems.map((item) => (
+                <Link 
+                  key={item.id} 
+                  href={item.href}
+                  onClick={(e) => handleNavClick(item.id, e)}
+                  className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-colors hover:bg-red-50 hover:text-[#C62828] ${activeSection === item.id ? 'text-[#C62828] bg-red-50' : 'text-gray-700'}`}
+                >
+                  <item.icon className="h-4 w-4 mr-2" />
+                  {item.name}
+                </Link>
+              ))}
+              <button
+                onClick={onOpenSearch}
+                className="flex items-center px-4 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-red-50 hover:text-[#C62828] transition-colors cursor-pointer ml-2"
+                aria-label="Tìm kiếm"
+              >
+                <SearchIcon className="h-4 w-4 mr-2" />
+                Tìm Kiếm
+              </button>
+            </nav>
+          )}
         </div>
-      </div>
-      
-      {isMenuOpen && (
-        <div className="md:hidden bg-[hsl(var(--background))] w-full">
-          <nav className="container mx-auto px-4 py-4 flex flex-col space-y-3">
-            <a href="/#overview" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2 border-b border-gray-200">
-              Tổng Quan
-            </a>
-            <a href="/#timeline" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2 border-b border-gray-200">
-              Dòng Thời Gian
-            </a>
-            <a href="/#figures" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2 border-b border-gray-200">
-              Nhân Vật
-            </a>
-            <a href="/#about" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300 py-2">
-              Giới Thiệu
-            </a>
+        
+        {/* Mobile Menu Dropdown */}
+        {isMobile && isMobileMenuOpen && (
+          <nav className="mt-4 py-4 border-t border-gray-200">
+            <ul className="space-y-2">
+              {navigationItems.map((item) => (
+                <li key={item.id}>
+                  <Link 
+                    href={item.href}
+                    onClick={(e) => handleNavClick(item.id, e)}
+                    className={`flex items-center py-2 px-3 rounded-md font-medium hover:bg-red-50 hover:text-[#C62828] transition-colors ${activeSection === item.id ? 'text-[#C62828] bg-red-50' : 'text-gray-700'}`}
+                  >
+                    <item.icon className="h-5 w-5 mr-3" />
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </nav>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 }
