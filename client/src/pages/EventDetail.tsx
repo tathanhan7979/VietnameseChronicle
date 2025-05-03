@@ -267,7 +267,17 @@ export default function EventDetail() {
                     <p className="mb-2 text-gray-700">{period.description}</p>
                     <p className="text-sm text-gray-600">Khung thời gian: <span className="font-medium">{period.timeframe}</span></p>
                     <div className="mt-4">
-                      <Link href={`/#period-${period.slug}`}>
+                      <Link 
+                        href={`/#period-${period.slug}`}
+                        onClick={() => {
+                          // Phòng trường hợp ID không tồn tại, chuyển đến timeline chung
+                          const el = document.getElementById(`period-${period.slug}`);
+                          if (!el) {
+                            console.log(`Element with ID period-${period.slug} not found, redirecting to timeline`);
+                            return window.location.href = '/#timeline';
+                          }
+                        }}
+                      >
                         <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50">
                           Xem các sự kiện khác
                           <ChevronRight className="ml-1 h-4 w-4" />

@@ -74,7 +74,20 @@ export default function TimelineSection() {
                     key={period.id}
                     className={`pl-4 py-2 cursor-pointer transition-all duration-300 rounded-r-md ${activeSection === period.slug ? 'active' : ''}`}
                   >
-                    <a href={`#period-${period.slug}`} className="block font-['Montserrat']">
+                    <a 
+                      href={`#period-${period.slug}`} 
+                      className="block font-['Montserrat']"
+                      onClick={(e) => {
+                        // Đảm bảo ID tồn tại trước khi chuyển hướng
+                        const targetId = `period-${period.slug}`;
+                        const el = document.getElementById(targetId);
+                        if (!el) {
+                          e.preventDefault();
+                          // Log ra để debug
+                          console.log(`Element with ID ${targetId} not found`);
+                        }
+                      }}
+                    >
                       {period.name}
                     </a>
                   </li>
