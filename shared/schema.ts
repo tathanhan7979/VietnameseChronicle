@@ -57,6 +57,7 @@ export const historicalFigures = pgTable("historical_figures", {
   period: text("period").notNull(),
   lifespan: text("lifespan").notNull(),
   description: text("description").notNull(),
+  detailedDescription: text("detailed_description"),
   imageUrl: text("image_url").notNull(),
   achievements: jsonb("achievements"),
   sortOrder: integer("sort_order").notNull(),

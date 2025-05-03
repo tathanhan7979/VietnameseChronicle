@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { HistoricalFigure } from '@/lib/types';
+import { ChevronRight } from 'lucide-react';
 
 export default function HistoricalFiguresSection() {
   const [visibleCount, setVisibleCount] = useState(6);

@@ -26,6 +26,7 @@ export interface HistoricalFigure {
   period: string;
   lifespan: string;
   description: string;
+  detailedDescription?: string;
   imageUrl: string;
   achievements?: string[];
 }
