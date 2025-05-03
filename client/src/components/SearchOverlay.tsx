@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { PeriodData, EventData, HistoricalFigure, SearchResult } from '@/lib/types';
+import { slugify } from '@/lib/utils';
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -104,7 +105,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             type: 'figure',
             title: figure.name,
             subtitle: figure.period,
-            link: `#figures`,
+            link: `/nhan-vat/${figure.id}/${slugify(figure.name)}`,
             icon: 'person'
           });
         }
@@ -125,7 +126,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-80 z-100 flex items-center justify-center"
+      className="fixed inset-0 bg-black bg-opacity-80 z-[100] flex items-center justify-center"
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose();
       }}
