@@ -48,7 +48,7 @@ export interface HistoricalFigure {
 
 export interface SearchResult {
   id: string;
-  type: 'period' | 'event' | 'figure';
+  type: 'period' | 'event' | 'figure' | 'site';
   title: string;
   subtitle: string;
   link: string;

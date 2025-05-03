@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 import { PeriodData, EventData, HistoricalFigure, SearchResult, EventType } from '@/lib/types';
 import { slugify } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface SearchOverlayProps {
   isOpen: boolean;
@@ -9,6 +11,7 @@ interface SearchOverlayProps {
 }
 
 export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
+  const [, navigate] = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState<string>('');
   const [selectedEventType, setSelectedEventType] = useState<string>('');
@@ -237,10 +240,44 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 </a>
               ))}
             </div>
+            
+            <div className="mt-6 text-center">
+              <Button
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  if (searchTerm) params.set('q', searchTerm);
+                  if (selectedPeriod) params.set('period', selectedPeriod);
+                  if (selectedEventType) params.set('eventType', selectedEventType);
+                  
+                  navigate(`/tim-kiem?${params.toString()}`);
+                  onClose();
+                }}
+                className="bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))] hover:opacity-90"
+              >
+                <span className="material-icons mr-2 text-sm">search</span>
+                Xem tất cả kết quả tìm kiếm
+              </Button>
+            </div>
           </div>
         ) : searchTerm || selectedPeriod || selectedEventType ? (
           <div className="text-center py-8 text-gray-500">
-            Không tìm thấy kết quả phù hợp
+            <div className="mb-4">Không tìm thấy kết quả phù hợp</div>
+            <Button
+              onClick={() => {
+                const params = new URLSearchParams();
+                if (searchTerm) params.set('q', searchTerm);
+                if (selectedPeriod) params.set('period', selectedPeriod);
+                if (selectedEventType) params.set('eventType', selectedEventType);
+                
+                navigate(`/tim-kiem?${params.toString()}`);
+                onClose();
+              }}
+              variant="outline"
+              className="mx-auto"
+            >
+              <span className="material-icons mr-2 text-sm">search</span>
+              Tìm kiếm nâng cao
+            </Button>
           </div>
         ) : (
           <div>

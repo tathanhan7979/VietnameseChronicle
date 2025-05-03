@@ -9,6 +9,7 @@ import HistoricalFigureDetail from "@/pages/HistoricalFigureDetail";
 import HistoricalFiguresList from "@/pages/HistoricalFiguresList";
 import HistoricalSiteDetail from "@/pages/HistoricalSiteDetail";
 import HistoricalSitesList from "@/pages/HistoricalSitesList";
+import SearchResults from "@/pages/SearchResults";
 import NotFound from "@/pages/not-found";
 import { useState, useEffect } from "react";
 
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/di-tich" component={HistoricalSitesList} />
       <Route path="/di-tich/:id" component={HistoricalSiteDetail} />
       <Route path="/di-tich/:id/:slug" component={HistoricalSiteDetail} />
+      <Route path="/tim-kiem" component={SearchResults} />
       <Route component={NotFound} />
     </Switch>
   );
