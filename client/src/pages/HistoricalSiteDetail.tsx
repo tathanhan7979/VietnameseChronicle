@@ -3,7 +3,9 @@ import { useParams, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { CalendarDays, MapPin, ArrowLeft, Home, Share2, Bookmark } from "lucide-react";
+import { FaFacebook, FaTwitter, FaLinkedin, FaPinterest, FaReddit } from "react-icons/fa";
 import { API_ENDPOINTS } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { slugify } from "../lib/utils";
@@ -259,38 +261,111 @@ export default function HistoricalSiteDetail() {
             {/* Chia sẻ và đánh dấu */}
             <Card className="p-6 shadow-md bg-white mt-6">
               <h3 className="text-lg font-semibold mb-4">Tác vụ</h3>
-              <div className="flex space-x-3">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full flex items-center justify-center"
+              
+              {/* Đánh dấu Bookmark */}
+              <Button 
+                variant={isFavorite ? "default" : "outline"}
+                size="sm" 
+                className="w-full flex items-center justify-center mb-4"
+                onClick={toggleFavorite}
+              >
+                <Bookmark className={`mr-2 h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+                {isFavorite ? 'Đã lưu' : 'Đánh dấu vào yêu thích'}
+              </Button>
+              
+              {/* Bookmark trình duyệt */}
+              <Button 
+                variant="outline"
+                size="sm" 
+                className="w-full flex items-center justify-center mb-4"
+                onClick={() => {
+                  if (window.sidebar && window.sidebar.addPanel) { // Firefox <23
+                    window.sidebar.addPanel(site.name, window.location.href, '');
+                  } else if(window.external && ('AddFavorite' in window.external)) { // IE
+                    window.external.AddFavorite(window.location.href, site.name);
+                  } else { // Chrome, Safari, Firefox 23+
+                    alert('Để lưu trang này, hãy nhấn ' + 
+                      (navigator.userAgent.toLowerCase().indexOf('mac') !== -1 ? 'Command/Cmd' : 'Ctrl') + 
+                      '+D trên bàn phím.');
+                  }
+                }}
+              >
+                <Bookmark className="mr-2 h-4 w-4" />
+                Đánh dấu trình duyệt
+              </Button>
+              
+              <Separator className="my-4" />
+              
+              {/* Chia sẻ */}
+              <h4 className="text-sm font-medium mb-3">Chia sẻ lên mạng xã hội</h4>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {/* Facebook */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-[#3b5998] hover:bg-[#3b5998]/90 text-white rounded-full w-10 h-10 p-2"
+                  onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank')}
+                >
+                  <FaFacebook className="w-5 h-5" />
+                </Button>
+                
+                {/* Twitter */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white rounded-full w-10 h-10 p-2"
+                  onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(site.name)}&url=${encodeURIComponent(window.location.href)}`, '_blank')}
+                >
+                  <FaTwitter className="w-5 h-5" />
+                </Button>
+                
+                {/* LinkedIn */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-[#0077b5] hover:bg-[#0077b5]/90 text-white rounded-full w-10 h-10 p-2"
+                  onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}
+                >
+                  <FaLinkedin className="w-5 h-5" />
+                </Button>
+                
+                {/* Pinterest */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-[#E60023] hover:bg-[#E60023]/90 text-white rounded-full w-10 h-10 p-2"
                   onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: site.name,
-                        text: site.description,
-                        url: window.location.href
-                      }).catch(err => console.log('Error sharing', err));
-                    } else {
-                      // Fallback - copy to clipboard
-                      navigator.clipboard.writeText(window.location.href)
-                        .then(() => alert('Đường dẫn đã được sao chép!'))
-                        .catch(err => console.error('Không thể sao chép đường dẫn', err));
-                    }
+                    const media = site.imageUrl ? `&media=${encodeURIComponent(site.imageUrl)}` : '';
+                    window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(window.location.href)}&description=${encodeURIComponent(site.name)}${media}`, '_blank');
                   }}
                 >
-                  <Share2 className="mr-2 h-4 w-4" /> Chia sẻ
+                  <FaPinterest className="w-5 h-5" />
                 </Button>
-                <Button 
-                  variant={isFavorite ? "default" : "outline"}
-                  size="sm" 
-                  className={`w-full flex items-center justify-center ${isFavorite ? 'bg-primary text-white' : ''}`}
-                  onClick={toggleFavorite}
+                
+                {/* Reddit */}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-[#FF4500] hover:bg-[#FF4500]/90 text-white rounded-full w-10 h-10 p-2"
+                  onClick={() => window.open(`https://www.reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(site.name)}`, '_blank')}
                 >
-                  <Bookmark className={`mr-2 h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
-                  {isFavorite ? 'Đã lưu' : 'Đánh dấu'}
+                  <FaReddit className="w-5 h-5" />
                 </Button>
               </div>
+              
+              {/* Copy link */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full flex items-center justify-center mt-4"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href)
+                    .then(() => alert('Đường dẫn đã được sao chép!'))
+                    .catch(err => console.error('Không thể sao chép đường dẫn', err));
+                }}
+              >
+                <Share2 className="mr-2 h-4 w-4" /> Sao chép liên kết
+              </Button>
             </Card>
           </div>
         </div>
