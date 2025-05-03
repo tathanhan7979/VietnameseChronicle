@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'wouter';
+import { Facebook, Mail, Share, Send, Clock10Icon, UserIcon, LandmarkIcon, BookOpenIcon } from 'lucide-react';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -19,93 +20,138 @@ export default function Footer() {
     }
   };
   
+  const handleLinkClick = (sectionId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offset = 80; // Header height
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - offset;
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+  
   return (
-    <footer id="about" className="bg-[hsl(var(--foreground))] text-white py-12">
+    <footer id="about" className="bg-[#1A237E] text-white py-16">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
-            <h3 className="font-['Playfair_Display'] font-bold text-xl mb-4 text-[hsl(var(--secondary))]">
-              Lịch Sử Việt Nam
-            </h3>
-            <p className="mb-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 bg-[#C62828] rounded-full flex items-center justify-center text-white font-bold font-['Playfair_Display'] text-lg">
+                VN
+              </div>
+              <h3 className="font-['Playfair_Display'] font-bold text-xl text-white">
+                Lịch Sử Việt Nam
+              </h3>
+            </div>
+            <p className="mb-4 text-gray-200">
               Trang thông tin lịch sử Việt Nam từ thời Vua Hùng dựng nước đến thời hiện đại, 
               giúp bạn khám phá hành trình 4000 năm dựng nước và giữ nước của dân tộc.
             </p>
             <div className="flex space-x-4 mt-6">
-              <a href="#" className="text-white hover:text-[hsl(var(--secondary))] transition-colors duration-300">
-                <span className="material-icons">facebook</span>
+              <a href="#" className="text-white hover:text-[#FF8A80] transition-colors duration-300 bg-white/10 p-2 rounded-full">
+                <Facebook size={20} />
               </a>
-              <a href="#" className="text-white hover:text-[hsl(var(--secondary))] transition-colors duration-300">
-                <span className="material-icons">email</span>
+              <a href="#" className="text-white hover:text-[#FF8A80] transition-colors duration-300 bg-white/10 p-2 rounded-full">
+                <Mail size={20} />
               </a>
-              <a href="#" className="text-white hover:text-[hsl(var(--secondary))] transition-colors duration-300">
-                <span className="material-icons">share</span>
+              <a href="#" className="text-white hover:text-[#FF8A80] transition-colors duration-300 bg-white/10 p-2 rounded-full">
+                <Share size={20} />
               </a>
             </div>
           </div>
           
           <div>
-            <h3 className="font-['Playfair_Display'] font-bold text-xl mb-4 text-[hsl(var(--secondary))]">
-              Liên Kết
+            <h3 className="font-['Playfair_Display'] font-bold text-xl mb-6 text-white">
+              Khám Phá Website
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               <li>
-                <Link href="#overview" className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
+                <a 
+                  href="#home" 
+                  onClick={(e) => handleLinkClick('home', e)}
+                  className="flex items-center text-gray-200 hover:text-white transition-colors duration-300 hover:translate-x-1 transform"
+                >
+                  <BookOpenIcon className="h-4 w-4 mr-2" />
                   Trang Chủ
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="#timeline" className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
+                <a 
+                  href="#timeline" 
+                  onClick={(e) => handleLinkClick('timeline', e)}
+                  className="flex items-center text-gray-200 hover:text-white transition-colors duration-300 hover:translate-x-1 transform"
+                >
+                  <Clock10Icon className="h-4 w-4 mr-2" />
                   Dòng Thời Gian
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="#figures" className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
+                <a 
+                  href="#historical-figures" 
+                  onClick={(e) => handleLinkClick('historical-figures', e)}
+                  className="flex items-center text-gray-200 hover:text-white transition-colors duration-300 hover:translate-x-1 transform"
+                >
+                  <UserIcon className="h-4 w-4 mr-2" />
                   Nhân Vật Lịch Sử
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="#about" className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
-                  Giới Thiệu
-                </Link>
+                <a 
+                  href="#historical-sites" 
+                  onClick={(e) => handleLinkClick('historical-sites', e)}
+                  className="flex items-center text-gray-200 hover:text-white transition-colors duration-300 hover:translate-x-1 transform"
+                >
+                  <LandmarkIcon className="h-4 w-4 mr-2" />
+                  Di Tích Lịch Sử
+                </a>
               </li>
             </ul>
           </div>
           
           <div>
-            <h3 className="font-['Playfair_Display'] font-bold text-xl mb-4 text-[hsl(var(--secondary))]">
+            <h3 className="font-['Playfair_Display'] font-bold text-xl mb-6 text-white">
               Đăng Ký Nhận Tin
             </h3>
-            <p className="mb-4">Đăng ký để nhận thông tin mới nhất về lịch sử Việt Nam.</p>
+            <p className="mb-4 text-gray-200">Đăng ký để nhận thông tin mới nhất về lịch sử Việt Nam.</p>
             <div className="mt-4">
               <form onSubmit={handleSubscribe}>
                 <div className="flex">
                   <input 
                     type="email" 
                     placeholder="Email của bạn" 
-                    className="px-4 py-2 rounded-l-md w-full focus:outline-none text-[hsl(var(--foreground))]"
+                    className="px-4 py-3 rounded-l-md w-full focus:outline-none text-gray-800 text-sm"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                   <button 
                     type="submit"
-                    className="bg-[hsl(var(--primary))] text-white px-4 py-2 rounded-r-md hover:bg-opacity-90 transition-colors duration-300"
+                    className="bg-[#C62828] text-white px-4 py-3 rounded-r-md hover:bg-[#B71C1C] transition-colors duration-300"
                   >
-                    <span className="material-icons">send</span>
+                    <Send size={18} />
                   </button>
                 </div>
               </form>
               
               {isSubscribed && (
-                <p className="text-green-400 mt-2">Đăng ký thành công!</p>
+                <p className="text-green-400 mt-2 text-sm">Đăng ký thành công!</p>
               )}
             </div>
           </div>
         </div>
         
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
+        <div className="border-t border-indigo-900 mt-10 pt-6 text-center text-sm text-indigo-200 flex flex-col md:flex-row justify-between items-center">
           <p>&copy; {new Date().getFullYear()} Lịch Sử Việt Nam. Tất cả các quyền được bảo lưu.</p>
+          <div className="mt-2 md:mt-0 space-x-4">
+            <a href="#" className="text-indigo-200 hover:text-white">Chính sách bảo mật</a>
+            <span className="text-indigo-900">|</span>
+            <a href="#" className="text-indigo-200 hover:text-white">Điều khoản sử dụng</a>
+          </div>
         </div>
       </div>
     </footer>
