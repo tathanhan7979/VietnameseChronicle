@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Home from "@/pages/Home";
 import EventDetail from "@/pages/EventDetail";
 import HistoricalFigureDetail from "@/pages/HistoricalFigureDetail";
+import HistoricalSiteDetail from "@/pages/HistoricalSiteDetail";
 import NotFound from "@/pages/not-found";
 import { useState, useEffect } from "react";
 
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/su-kien/:eventId/:eventSlug" component={EventDetail} />
       <Route path="/nhan-vat/:figureId" component={HistoricalFigureDetail} />
       <Route path="/nhan-vat/:figureId/:figureSlug" component={HistoricalFigureDetail} />
+      <Route path="/historical-sites/:id" component={HistoricalSiteDetail} />
       <Route component={NotFound} />
     </Switch>
   );

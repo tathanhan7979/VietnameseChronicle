@@ -14,8 +14,20 @@ export default function HistoricalSiteDetail() {
   const [, setLocation] = useLocation();
   const siteId = parseInt(params.id, 10);
 
-  const { data: site, isLoading, error } = useQuery({
+  const { data: site, isLoading, error } = useQuery<HistoricalSite>({
     queryKey: [`${API_ENDPOINTS.HISTORICAL_SITES}/${siteId}`],
+    queryFn: async () => {
+      const response = await fetch(`${API_ENDPOINTS.HISTORICAL_SITES}/${siteId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    },
     enabled: !isNaN(siteId),
   });
 
@@ -54,8 +66,20 @@ export default function HistoricalSiteDetail() {
     );
   }
 
-  // Lấy thông tin thời kỳ
-  const period = site.periodId && HISTORY_PERIODS[site.periodId.toString()];
+  // Lấy thông tin thời kỳ từ API periods
+  const { data: periods } = useQuery<any[]>({
+    queryKey: [API_ENDPOINTS.PERIODS],
+    queryFn: async () => {
+      const response = await fetch(API_ENDPOINTS.PERIODS);
+      if (!response.ok) {
+        throw new Error('Failed to fetch periods');
+      }
+      return response.json();
+    },
+  });
+  
+  // Tìm tên thời kỳ dựa vào periodId
+  const period = periods?.find(p => p.id === site.periodId)?.name;
 
   return (
     <div className="container mx-auto py-8 px-4">
