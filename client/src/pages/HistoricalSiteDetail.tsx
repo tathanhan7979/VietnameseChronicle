@@ -54,18 +54,6 @@ export default function HistoricalSiteDetail() {
     );
   }
 
-  if (error || !site) {
-    return (
-      <div className="container mx-auto py-8 px-4 text-center">
-        <h1 className="text-2xl font-bold mb-4 text-red-600">Đã xảy ra lỗi</h1>
-        <p className="mb-6">Không thể tải thông tin di tích lịch sử. Vui lòng thử lại sau.</p>
-        <Button onClick={() => setLocation('/')}>
-          <Home className="mr-2 h-4 w-4" /> Về trang chủ
-        </Button>
-      </div>
-    );
-  }
-
   // Lấy thông tin thời kỳ từ API periods
   const { data: periods } = useQuery<any[]>({
     queryKey: [API_ENDPOINTS.PERIODS],
@@ -77,6 +65,18 @@ export default function HistoricalSiteDetail() {
       return response.json();
     },
   });
+
+  if (error || !site) {
+    return (
+      <div className="container mx-auto py-8 px-4 text-center">
+        <h1 className="text-2xl font-bold mb-4 text-red-600">Đã xảy ra lỗi</h1>
+        <p className="mb-6">Không thể tải thông tin di tích lịch sử. Vui lòng thử lại sau.</p>
+        <Button onClick={() => setLocation('/')}>
+          <Home className="mr-2 h-4 w-4" /> Về trang chủ
+        </Button>
+      </div>
+    );
+  }
   
   // Tìm tên thời kỳ dựa vào periodId
   const period = periods?.find(p => p.id === site.periodId)?.name;
