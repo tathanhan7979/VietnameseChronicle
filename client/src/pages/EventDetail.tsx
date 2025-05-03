@@ -69,6 +69,19 @@ export default function EventDetail() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
                 <div className="p-6 text-white">
                   <h1 className="text-3xl md:text-4xl font-bold font-['Playfair_Display'] mb-2">{event.title}</h1>
+                  {event.eventTypes && event.eventTypes.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      {event.eventTypes.map(type => (
+                        <span 
+                          key={type.id}
+                          className="inline-block text-white px-3 py-1 rounded-full text-sm font-medium"
+                          style={{ backgroundColor: type.color || '#ff5722' }}
+                        >
+                          {type.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {event.year && (
                     <div className="flex items-center text-white/90 mb-1">
                       <Calendar className="h-4 w-4 mr-2" />
@@ -109,6 +122,26 @@ export default function EventDetail() {
               </div>
             )}
             
+            {/* Event types badges - Di chuyển lên trên (chỉ hiện khi không có ảnh) */}
+            {!event.imageUrl && event.eventTypes && event.eventTypes.length > 0 && (
+              <div className="mb-6">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-lg font-semibold text-[hsl(var(--primary))]">
+                    Loại sự kiện:
+                  </h3>
+                  {event.eventTypes.map(type => (
+                    <span 
+                      key={type.id}
+                      className="inline-block text-white px-3 py-1 rounded-full text-sm font-medium"
+                      style={{ backgroundColor: type.color || '#ff5722' }}
+                    >
+                      {type.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             {/* Description */}
             <div className="prose prose-lg max-w-none">
               {event.detailedDescription ? (
@@ -129,26 +162,6 @@ export default function EventDetail() {
                 <p className="text-lg mb-6">{event.description}</p>
               )}
             </div>
-            
-            {/* Event types badges */}
-            {event.eventTypes && event.eventTypes.length > 0 && (
-              <div className="mt-8">
-                <h3 className="text-xl font-semibold mb-4 text-[hsl(var(--primary))]">
-                  Loại sự kiện
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {event.eventTypes.map(type => (
-                    <span 
-                      key={type.id}
-                      className="inline-block text-white px-4 py-2 rounded-full text-sm font-medium"
-                      style={{ backgroundColor: type.color || '#ff5722' }}
-                    >
-                      {type.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
             
             {/* Period info */}
             {period && (
