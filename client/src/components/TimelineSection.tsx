@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'wouter';
 import { slugify } from '@/lib/utils';
@@ -19,6 +19,7 @@ export default function TimelineSection({
   onPeriodSelect 
 }: TimelineSectionProps) {
   const [activeSection, setActiveSection] = useState<string | null>(activePeriodSlug);
+  const timelineRef = useRef<HTMLDivElement>(null);
   
   // Set active period from props
   useEffect(() => {
@@ -133,7 +134,7 @@ export default function TimelineSection({
           </div>
           
           {/* Timeline Content with Vertical Line */}
-          <div className="md:w-3/4 timeline-vertical">
+          <div className="md:w-3/4 timeline-vertical" ref={timelineRef}>
             {periods.map((period, periodIndex) => {
               const periodEvents = events.filter(event => event.periodId === period.id);
               
