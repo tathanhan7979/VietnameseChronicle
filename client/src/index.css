@@ -1,0 +1,195 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+  
+  /* Vietnamese theme custom colors */
+  :root {
+    --background: 44 55% 96%; /* vn-paper */
+    --foreground: 0 0% 20%; /* vn-ink */
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 20%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 20%;
+    
+    --primary: 350 74% 45%; /* vn-red */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 43 65% 52%; /* vn-gold */
+    --secondary-foreground: 0 0% 20%;
+    
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    
+    --accent: 152 100% 33%; /* vn-green */
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 350 74% 45%;
+    
+    --chart-1: 350 74% 45%;
+    --chart-2: 43 65% 52%;
+    --chart-3: 152 100% 33%;
+    --chart-4: 200 100% 40%;
+    --chart-5: 270 70% 50%;
+    
+    --radius: 0.5rem;
+    
+    --sidebar-background: 0 0% 20%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 350 74% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 43 65% 52%;
+    --sidebar-accent-foreground: 0 0% 20%;
+    --sidebar-border: 0 0% 30%;
+    --sidebar-ring: 350 74% 45%;
+  }
+  
+  .timeline-vertical::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    background-color: hsl(var(--primary));
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    margin-left: -2px;
+    z-index: 1;
+  }
+  
+  .timeline-dot {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 50%;
+    margin-left: -10px;
+    border-radius: 50%;
+    z-index: 2;
+    background: hsl(var(--secondary));
+    border: 4px solid hsl(var(--primary));
+  }
+  
+  .timeline-item {
+    position: relative;
+    margin-bottom: 50px;
+  }
+  
+  .timeline-content {
+    position: relative;
+    width: 45%;
+  }
+  
+  .timeline-item:nth-child(odd) .timeline-content {
+    left: 55%;
+  }
+  
+  .timeline-item:nth-child(even) .timeline-content {
+    left: 0;
+  }
+  
+  .era-marker {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    background: hsl(var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--foreground));
+    font-weight: bold;
+    z-index: 3;
+    border: 5px solid hsl(var(--primary));
+  }
+  
+  .card-flip {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    height: 100%;
+    position: relative;
+    transition: transform 0.6s;
+  }
+  
+  .card-flip:hover {
+    transform: rotateY(180deg);
+  }
+  
+  .card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  
+  .card-back {
+    transform: rotateY(180deg);
+  }
+  
+  .period-nav li {
+    transition: all 0.3s ease;
+  }
+  
+  .period-nav li:hover {
+    background-color: rgba(201, 31, 55, 0.1);
+    transform: translateX(5px);
+  }
+  
+  .period-nav li.active {
+    border-left: 4px solid hsl(var(--primary));
+    background-color: rgba(201, 31, 55, 0.2);
+  }
+  
+  @media (max-width: 768px) {
+    .timeline-vertical::before {
+      left: 40px;
+    }
+    .timeline-dot {
+      left: 40px;
+      margin-left: 0;
+    }
+    .timeline-content {
+      width: calc(100% - 80px);
+      left: 80px !important;
+    }
+    .era-marker {
+      left: 40px;
+    }
+  }
+  
+  .scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: bounce 2s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0) translateX(-50%);
+    }
+    40% {
+      transform: translateY(-20px) translateX(-50%);
+    }
+    60% {
+      transform: translateY(-10px) translateX(-50%);
+    }
+  }
+}
