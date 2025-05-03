@@ -4,7 +4,7 @@ import { Link } from "wouter";
 import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Clock, History, CalendarDays } from "lucide-react";
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -106,7 +106,8 @@ export default function TimelineSection({
     <section id="timeline" className="timeline-container py-16">
       <div className="container mx-auto px-4">
         <div className="timeline-heading">
-          <h2>
+          <h2 className="flex items-center justify-center gap-3">
+            <History className="h-8 w-8 text-[#C62828]" />
             Dòng Thời Gian <span>Lịch Sử Việt Nam</span>
           </h2>
         </div>
@@ -162,7 +163,10 @@ export default function TimelineSection({
                   {/* Period title */}
                   <div className="period-title">
                     <h3>
-                      {period.name} <span>({period.timeframe})</span>
+                      <div className="flex items-center gap-2 justify-center">
+                        <CalendarDays className="h-5 w-5 text-[#4527A0]" />
+                        {period.name} <span>({period.timeframe})</span>
+                      </div>
                     </h3>
                   </div>
 
