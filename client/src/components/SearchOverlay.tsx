@@ -167,7 +167,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           </h4>
           <div className="flex flex-wrap gap-2">
             <span 
-              className={`px-3 py-1 ${selectedPeriod === '' ? 'bg-[hsl(var(--primary))] text-white' : 'bg-[hsl(var(--primary))] bg-opacity-10 text-[hsl(var(--primary))]'} rounded-full text-sm cursor-pointer hover:bg-opacity-20`}
+              className={`px-3 py-1 ${selectedPeriod === '' ? 'bg-black text-white' : 'bg-[hsl(var(--primary))] text-white'} rounded-full text-sm cursor-pointer hover:bg-black hover:text-white transition-colors`}
               onClick={() => setSelectedPeriod('')}
             >
               Tất cả
@@ -176,7 +176,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             {periods?.map(period => (
               <span 
                 key={period.id}
-                className={`px-3 py-1 ${selectedPeriod === period.slug ? 'bg-[hsl(var(--primary))] text-white' : 'bg-[hsl(var(--primary))] bg-opacity-10 text-[hsl(var(--primary))]'} rounded-full text-sm cursor-pointer hover:bg-opacity-20`}
+                className={`px-3 py-1 ${selectedPeriod === period.slug ? 'bg-black text-white' : 'bg-[hsl(var(--primary))] text-white'} rounded-full text-sm cursor-pointer hover:bg-black hover:text-white transition-colors`}
                 onClick={() => setSelectedPeriod(period.slug)}
               >
                 {period.name}
