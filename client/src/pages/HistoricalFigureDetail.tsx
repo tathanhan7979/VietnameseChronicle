@@ -266,30 +266,28 @@ export default function HistoricalFigureDetail() {
                 </div>
                 
                 <div className="mt-6">
-                  <Link href={`/#timeline`}>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full text-red-600 border-red-200 hover:bg-red-50 py-5"
-                      onClick={() => {
-                        toast({
-                          title: "Chuyển đến thời kỳ",
-                          description: `Đã chuyển đến thời kỳ ${figure.period}`,
-                        });
-                        
-                        // Đặt timeout để đảm bảo đủ thời gian load trang 
-                        setTimeout(() => {
-                          const periodElement = document.getElementById(`period-${slugify(figure.period)}`);
-                          if (periodElement) {
-                            periodElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          }
-                        }, 1000);
-                      }}
-                    >
-                      Xem thêm về thời kỳ này
-                      <ChevronRight className="ml-1 h-4 w-4" />
-                    </Button>
-                  </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full text-red-600 border-red-200 hover:bg-red-50 py-5"
+                    onClick={() => {
+                      // Hiển thị thông báo đang chuyển hướng
+                      toast({
+                        title: "Chuyển đến thời kỳ",
+                        description: `Đang chuyển đến thời kỳ ${figure.period}...`,
+                      });
+
+                      // Tạo một element tạm thời để lưu trữ slug của thời kỳ
+                      const targetPeriodSlug = slugify(figure.period);
+                      localStorage.setItem('scrollToPeriod', targetPeriodSlug);
+                      
+                      // Chuyển hướng đến trang chủ
+                      window.location.href = '/';
+                    }}
+                  >
+                    Xem thêm về thời kỳ này
+                    <ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
                 </div>
               </Card>
               

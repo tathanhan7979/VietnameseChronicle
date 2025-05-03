@@ -25,6 +25,21 @@ export default function TimelineSection() {
       setActiveSection(periods[activeIndex].slug);
     }
   }, [activeIndex, periods]);
+  
+  // Xử lý cuộn đến thời kỳ từ localStorage
+  useEffect(() => {
+    const scrollToPeriod = localStorage.getItem('scrollToPeriod');
+    if (scrollToPeriod && periods && periods.length > 0) {
+      setTimeout(() => {
+        const periodElement = document.getElementById(`period-${scrollToPeriod}`);
+        if (periodElement) {
+          periodElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Xoá giá trị đã sử dụng
+          localStorage.removeItem('scrollToPeriod');
+        }
+      }, 500); // Đợi 500ms để đảm bảo trang đã render
+    }
+  }, [periods]);
 
   if (isLoadingPeriods || isLoadingEvents) {
     return (
