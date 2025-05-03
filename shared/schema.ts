@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, jsonb, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, primaryKey, doublePrecision } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -111,4 +111,37 @@ export const eventTypesRelations = relations(eventTypes, ({ many }) => ({
 export const eventToEventTypeRelations = relations(eventToEventType, ({ one }) => ({
   event: one(events, { fields: [eventToEventType.eventId], references: [events.id] }),
   eventType: one(eventTypes, { fields: [eventToEventType.eventTypeId], references: [eventTypes.id] })
+}));
+
+// Historical Sites table
+export const historicalSites = pgTable("historical_sites", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  location: text("location").notNull(),
+  periodId: integer("period_id").references(() => periods.id),
+  description: text("description").notNull(),
+  detailedDescription: text("detailed_description"),
+  imageUrl: text("image_url"),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
+  address: text("address"),
+  yearBuilt: text("year_built"),
+  relatedEventId: integer("related_event_id").references(() => events.id),
+  sortOrder: integer("sort_order").notNull(),
+});
+
+export const insertHistoricalSiteSchema = createInsertSchema(historicalSites);
+export type InsertHistoricalSite = z.infer<typeof insertHistoricalSiteSchema>;
+export type HistoricalSite = typeof historicalSites.$inferSelect;
+
+// Relations for Historical Sites
+export const historicalSitesRelations = relations(historicalSites, ({ one }) => ({
+  period: one(periods, { fields: [historicalSites.periodId], references: [periods.id] }),
+  relatedEvent: one(events, { fields: [historicalSites.relatedEventId], references: [events.id] })
+}));
+
+// Update period relations to include historical sites
+export const periodsRelationsWithSites = relations(periods, ({ many }) => ({
+  events: many(events),
+  historicalSites: many(historicalSites)
 }));

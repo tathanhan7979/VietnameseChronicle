@@ -67,6 +67,21 @@ export interface NewsletterFormData {
 }
 
 // API response types
+export interface HistoricalSite {
+  id: number;
+  name: string;
+  location: string;
+  periodId?: number;
+  description: string;
+  detailedDescription?: string;
+  imageUrl?: string;
+  latitude?: number;
+  longitude?: number;
+  address?: string;
+  yearBuilt?: string;
+  relatedEventId?: number;
+}
+
 export interface ApiResponse<T> {
   data: T;
   message?: string;

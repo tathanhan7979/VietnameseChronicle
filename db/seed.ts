@@ -696,6 +696,137 @@ async function seed() {
     }
     
     console.log("Database seeding completed successfully");
+    // Seed historical sites
+    console.log("Seeding historical sites...");
+    const historicalSitesData: schema.InsertHistoricalSite[] = [
+      {
+        name: "Cố Đô Hoa Lư",
+        location: "Ninh Bình",
+        periodId: 5, // Thời Ngô - Đinh - Tiền Lê
+        description: "Cố đô Hoa Lư là kinh đô đầu tiên của nhà nước phong kiến Việt Nam, là kinh đô của Đinh Bộ Lĩnh và Lê Hoàn.",
+        detailedDescription: `<p>Cố đô Hoa Lư (còn gọi là Hoa Lư cố đô, Cố đô Hoa Lư) từng là kinh đô của nước Đại Cồ Việt (quốc hiệu đầu tiên của Việt Nam) từ năm 968 đến năm 1010. Đây là kinh đô của hai triều đại phong kiến: nhà Đinh (968-980) và nhà Tiền Lê (980-1009).</p>
+<p>Kinh đô nằm ở vùng đất hiện nay là các xã Trường Yên, Ninh Xuân, Ninh Hải và thị trấn Trường Yên của huyện Hoa Lư, tỉnh Ninh Bình (tức là khu vực đồng bằng sông Hồng, cách Hà Nội khoảng 100 km về phía nam).</p>
+<p>Khu di tích Cố đô Hoa Lư có hai ngôi đền quan trọng:
+<ul>
+<li>Đền thờ vua Đinh (Đinh Tiên Hoàng): Thờ vua Đinh Tiên Hoàng - người đã thống nhất đất nước sau thời kỳ loạn 12 sứ quân</li>
+<li>Đền thờ vua Lê (Lê Đại Hành): Thờ vua Lê Hoàn, người kế tục sự nghiệp của Đinh Tiên Hoàng</li>
+</ul></p>`,
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Co_do_Hoa_Lu.jpg/1200px-Co_do_Hoa_Lu.jpg",
+        latitude: 20.2835,
+        longitude: 105.9147,
+        address: "Trường Yên, Hoa Lư, Ninh Bình",
+        yearBuilt: "968",
+        relatedEventId: null,
+        sortOrder: 1
+      },
+      {
+        name: "Đền Hùng",
+        location: "Phú Thọ",
+        periodId: 2, // Thời Đại Các Vua Hùng
+        description: "Đền Hùng là quần thể di tích lịch sử văn hóa đặc biệt quan trọng của dân tộc Việt Nam, thờ các Vua Hùng và các nhân vật có công với nước.",
+        detailedDescription: `<p>Đền Hùng nằm trên núi Nghĩa Lĩnh thuộc xã Hy Cương, thành phố Việt Trì, tỉnh Phú Thọ. Đây là nơi thờ cúng các Vua Hùng - những người đã có công dựng nước và tạo nên nền văn minh sông Hồng.</p>
+<p>Quần thể di tích Đền Hùng bao gồm nhiều đền thờ khác nhau:</p>
+<ul>
+<li>Đền Hạ: Nằm ở chân núi, là nơi làm lễ tế chuẩn bị trước khi lên đền trên</li>
+<li>Đền Trung: Thờ các tướng lĩnh phò tá Vua Hùng</li>
+<li>Đền Thượng: Thờ chính các Vua Hùng, đây là trung tâm của cả quần thể</li>
+<li>Đền Giếng: Thờ công chúa Ngọc Hoa</li>
+</ul>
+<p>Hàng năm vào ngày mùng 10 tháng 3 âm lịch, tại đây diễn ra Giỗ Tổ Hùng Vương với quy mô lớn để tưởng nhớ công lao của các Vua Hùng.</p>`,
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/%C4%90%E1%BB%81n_H%C3%B9ng.jpg/1200px-%C4%90%E1%BB%81n_H%C3%B9ng.jpg",
+        latitude: 21.3870, 
+        longitude: 105.3848,
+        address: "Hy Cương, Việt Trì, Phú Thọ",
+        yearBuilt: null,
+        relatedEventId: 4, // Liên quan đến sự kiện Lễ Hội Đền Hùng
+        sortOrder: 2
+      },
+      {
+        name: "Cổ Loa Thành",
+        location: "Hà Nội",
+        periodId: 3, // Nước Âu Lạc
+        description: "Cổ Loa Thành (còn gọi là Thành Cổ Loa) là kinh đô của nước Âu Lạc thời An Dương Vương, được xây dựng theo hình xoắn ốc.",
+        detailedDescription: `<p>Cổ Loa Thành nằm tại xã Cổ Loa, huyện Đông Anh, Hà Nội. Đây là kinh đô của nước Âu Lạc do vua An Dương Vương xây dựng từ thế kỷ thứ III trước Công nguyên.</p>
+<p>Theo truyền thuyết, thành được xây dựng theo hình trôn ốc gồm 9 vòng thành (3 vòng thành chính và 6 vòng phụ), do đó có tên gọi là Cổ Loa (Loa: ốc).</p>
+<p>Công trình này được xem là một kỳ tích về kiến trúc quân sự cổ đại, với hệ thống hào sâu, đắp cao để phòng thủ. Người ta đã tìm thấy tại đây nhiều mũi tên, nỏ đồng (trong đó có nỏ thần) và các hiện vật khác chứng tỏ trình độ luyện kim phát triển của người Âu Lạc.</p>
+<p>Ngày nay, di tích Cổ Loa bao gồm:</p>
+<ul>
+<li>Đền thờ An Dương Vương</li>
+<li>Các vòng thành còn sót lại</li>
+<li>Bảo tàng Cổ Loa trưng bày nhiều hiện vật quý báu</li>
+</ul>`,
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/31/Co_Loa_thanh.JPG",
+        latitude: 21.1014,
+        longitude: 105.8574,
+        address: "Cổ Loa, Đông Anh, Hà Nội",
+        yearBuilt: "257 TCN",
+        relatedEventId: null,
+        sortOrder: 3
+      },
+      {
+        name: "Thành Nhà Hồ",
+        location: "Thanh Hóa",
+        periodId: 7, // Nhà Hồ
+        description: "Thành Nhà Hồ là kinh thành thời nhà Hồ (1400-1407), được xây dựng hoàn toàn bằng đá và được UNESCO công nhận là di sản văn hóa thế giới.",
+        detailedDescription: `<p>Thành Nhà Hồ (còn gọi là Thành Tây Đô) nằm ở xã Vĩnh Long, huyện Vĩnh Lộc, tỉnh Thanh Hóa. Đây là kinh đô của nhà Hồ do Hồ Quý Ly cho xây dựng từ năm 1397 đến 1399.</p>
+<p>Thành có hình chữ nhật, với chu vi khoảng 9km, được xây dựng hoàn toàn bằng những khối đá lớn, mỗi khối nặng từ 10 đến 26 tấn. Các khối đá được ghép với nhau một cách khít khao mà không cần dùng chất kết dính. Đây là một kỳ công về kiến trúc và kỹ thuật thời bấy giờ.</p>
+<p>Năm 2011, Thành Nhà Hồ đã được UNESCO công nhận là Di sản Văn hóa Thế giới, là một trong số ít những di sản nổi bật về giá trị kiến trúc quân sự thời trung đại châu Á.</p>
+<p>Hiện nay, di tích này vẫn còn khá nguyên vẹn với các cấu trúc chính như:</p>
+<ul>
+<li>Bốn cổng thành ở bốn hướng</li>
+<li>Tường thành đá với kỹ thuật xếp đá tinh xảo</li>
+<li>Hệ thống hào nước bao quanh thành</li>
+</ul>`,
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/c0/Citadel_of_the_Ho_Dynasty.jpg",
+        latitude: 19.9736,
+        longitude: 105.6122,
+        address: "Vĩnh Long, Vĩnh Lộc, Thanh Hóa",
+        yearBuilt: "1397",
+        relatedEventId: null,
+        sortOrder: 4
+      },
+      {
+        name: "Văn Miếu - Quốc Tử Giám",
+        location: "Hà Nội",
+        periodId: 6, // Nhà Lý
+        description: "Văn Miếu - Quốc Tử Giám là trường đại học đầu tiên của Việt Nam, được xây dựng năm 1070 dưới triều vua Lý Thánh Tông.",
+        detailedDescription: `<p>Văn Miếu - Quốc Tử Giám nằm tại phường Văn Miếu, quận Đống Đa, Hà Nội. Được xây dựng vào năm 1070 thời Lý Thánh Tông làm nơi thờ Khổng Tử, các bậc hiền triết của Nho giáo và các vị tiến sĩ tiêu biểu của Việt Nam.</p>
+<p>Năm 1076, vua Lý Nhân Tông cho xây dựng Quốc Tử Giám bên cạnh Văn Miếu làm nơi học tập của các hoàng tử. Đến thời vua Trần Thái Tông (1236), Quốc Tử Giám trở thành trường học dành cho con em quý tộc và các học trò giỏi trong cả nước.</p>
+<p>Văn Miếu - Quốc Tử Giám bao gồm năm khu vực chính theo trục chính từ nam đến bắc:</p>
+<ul>
+<li>Khu vực 1: Cổng Văn Miếu và sân</li>
+<li>Khu vực 2: Khuê Văn Các - biểu tượng của Hà Nội</li>
+<li>Khu vực 3: Thiên Quang Tỉnh (giếng) và 82 bia Tiến sĩ</li>
+<li>Khu vực 4: Đại bái (nơi thờ Khổng Tử và 72 học trò)</li>
+<li>Khu vực 5: Hậu cung (nơi thờ các vị thánh và danh nhân)</li>
+</ul>
+<p>Đặc biệt, tại đây có 82 bia đá khắc tên các tiến sĩ qua các kỳ thi từ năm 1442 đến 1779, được đặt trên lưng rùa đá, tượng trưng cho sự trường thọ và bền vững của học vấn.</p>`,
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Van_Mieu_Quoc_Tu_Giam.jpg",
+        latitude: 21.0269,
+        longitude: 105.8354,
+        address: "58 Quốc Tử Giám, Đống Đa, Hà Nội",
+        yearBuilt: "1070",
+        relatedEventId: null,
+        sortOrder: 5
+      }
+    ];
+    
+    // Insert historical sites data
+    for (const site of historicalSitesData) {
+      const existingSite = await db.query.historicalSites.findFirst({
+        where: eq(schema.historicalSites.name, site.name)
+      });
+      
+      if (!existingSite) {
+        await db.insert(schema.historicalSites).values(site);
+        console.log(`Added historical site: ${site.name}`);
+      } else {
+        console.log(`Historical site already exists: ${site.name}`);
+      }
+    }
+    
+    console.log("Database seeding completed successfully!");
+    
   } catch (error) {
     console.error("Error seeding database:", error);
   }
