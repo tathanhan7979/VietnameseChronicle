@@ -75,12 +75,12 @@ export default function HistoricalFiguresSection() {
                   </h3>
                   <p className="text-[hsl(var(--foreground))]">{figure.lifespan}</p>
                   <div className="mt-2 flex">
-                    <span className="bg-black text-white px-3 py-1 rounded-full text-sm">
+                    <span className="bg-[hsl(var(--primary))] bg-opacity-10 text-[hsl(var(--primary))] px-3 py-1 rounded-full text-sm">
                       {figure.period}
                     </span>
                   </div>
                   <div className="mt-auto pt-3">
-                    <Link href={`/nhan-vat/${figure.id}/${slugify(figure.name)}`} className="inline-flex items-center text-white bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary-foreground))] px-3 py-1 rounded-md">
+                    <Link href={`/nhan-vat/${figure.id}/${slugify(figure.name)}`} className="inline-flex items-center text-[hsl(var(--primary))] hover:underline">
                       Xem chi tiết
                       <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>
