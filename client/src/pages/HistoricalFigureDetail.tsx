@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'wouter';
 import { HistoricalFigure, EventData } from '@/lib/types';
@@ -8,9 +9,12 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Calendar, MapPin, Award, ExternalLink, Scroll, Clock, ChevronRight, Info, Share2, HistoryIcon, BookOpen } from 'lucide-react';
 import { slugify } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
 
 export default function HistoricalFigureDetail() {
   const { figureId } = useParams();
+  const { toast } = useToast();
+  const [isNavigating, setIsNavigating] = useState(false);
   
   // Fetch the specific historical figure
   const { data: figure, isLoading, error } = useQuery<HistoricalFigure>({
@@ -262,12 +266,45 @@ export default function HistoricalFigureDetail() {
                 </div>
                 
                 <div className="mt-6">
-                  <Link href={`/#period-${slugify(figure.period)}`}>
-                    <Button variant="outline" size="sm" className="w-full text-red-600 border-red-200 hover:bg-red-50 py-5">
-                      Xem thêm về thời kỳ này
-                      <ChevronRight className="ml-1 h-4 w-4" />
-                    </Button>
-                  </Link>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full text-red-600 border-red-200 hover:bg-red-50 py-5"
+                    disabled={isNavigating}
+                    onClick={() => {
+                      setIsNavigating(true);
+                      // Hiển thị thông báo
+                      toast({
+                        title: "Đang chuyển hướng",
+                        description: "Đang chuyển đến phần thời kỳ liên quan...",
+                      });
+                      
+                      // Điều hướng đến trang chủ
+                      window.location.href = `/`;
+                      
+                      // Đặt timeout để đảm bảo trang đã tải trước khi cuộn
+                      setTimeout(() => {
+                        const elementId = `period-${slugify(figure.period)}`;
+                        const element = document.getElementById(elementId);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        setIsNavigating(false);
+                      }, 1000); // Tăng thời gian delay để đảm bảo trang đã tải
+                    }}
+                  >
+                    {isNavigating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Đang chuyển hướng...
+                      </>
+                    ) : (
+                      <>
+                        Xem thêm về thời kỳ này
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
                 </div>
               </Card>
               
