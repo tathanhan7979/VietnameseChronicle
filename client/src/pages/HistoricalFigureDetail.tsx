@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'wouter';
-import { HistoricalFigure } from '@/lib/types';
+import { HistoricalFigure, EventData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, MapPin, Award } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Award, ExternalLink } from 'lucide-react';
 
 export default function HistoricalFigureDetail() {
   const { figureId } = useParams();
@@ -101,11 +101,22 @@ export default function HistoricalFigureDetail() {
                 <h3 className="text-xl font-semibold mb-4 text-[hsl(var(--primary))] border-b pb-2">
                   Thành tựu nổi bật
                 </h3>
-                <ul className="space-y-3 mt-4">
+                <ul className="space-y-4 mt-4">
                   {figure.achievements.map((achievement, index) => (
-                    <li key={index} className="flex items-start">
-                      <Award className="h-5 w-5 text-[hsl(var(--secondary))] mr-3 mt-1 flex-shrink-0" />
-                      <span>{achievement}</span>
+                    <li key={index}>
+                      <div className="flex items-start">
+                        <Award className="h-5 w-5 text-[hsl(var(--secondary))] mr-3 mt-1 flex-shrink-0" />
+                        <div>
+                          <div className="font-medium">{achievement.title}</div>
+                          {achievement.year && <div className="text-sm text-gray-600 mt-1">Năm: {achievement.year}</div>}
+                          {achievement.eventId && (
+                            <Link href={`/events/${achievement.eventId}`} className="inline-flex items-center text-[hsl(var(--primary))] text-sm mt-2 hover:underline">
+                              Xem sự kiện liên quan
+                              <ExternalLink className="h-3 w-3 ml-1" />
+                            </Link>
+                          )}
+                        </div>
+                      </div>
                     </li>
                   ))}
                 </ul>

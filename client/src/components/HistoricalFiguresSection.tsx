@@ -89,12 +89,12 @@ export default function HistoricalFiguresSection() {
               <div className="card-back bg-[hsl(var(--primary))] text-white rounded-lg shadow-lg p-6">
                 <h3 className="font-['Playfair_Display'] font-bold text-xl mb-4">{figure.name}</h3>
                 <p className="mb-4">{figure.description}</p>
-                {figure.achievements && (
+                {figure.achievements && figure.achievements.length > 0 && (
                   <div className="mt-4">
                     <h4 className="font-bold mb-2">Chiến công tiêu biểu:</h4>
                     <ul className="list-disc list-inside">
                       {figure.achievements.map((achievement, index) => (
-                        <li key={index}>{achievement}</li>
+                        <li key={index}>{achievement.title}</li>
                       ))}
                     </ul>
                   </div>

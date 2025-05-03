@@ -20,6 +20,13 @@ export interface EventData {
   eventType?: string;
 }
 
+export interface Achievement {
+  id: string;
+  title: string;
+  eventId?: number; // Liên kết với event (nếu có)
+  year?: string;
+}
+
 export interface HistoricalFigure {
   id: number;
   name: string;
@@ -28,7 +35,7 @@ export interface HistoricalFigure {
   description: string;
   detailedDescription?: string;
   imageUrl: string;
-  achievements?: string[];
+  achievements?: Achievement[];
 }
 
 export interface SearchResult {
