@@ -1,151 +1,150 @@
-import { useState, useEffect } from 'react';
-import { HistoricalSite } from '../lib/types';
-import { API_ENDPOINTS, DEFAULT_IMAGE } from '../lib/constants';
-import { QueryClient, useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { HistoricalSite } from '@/lib/types';
+import { DEFAULT_IMAGE } from '@/lib/constants';
+import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, Info, Building, Landmark } from "lucide-react";
-import { slugify } from "../lib/utils";
+import { MapPin, Calendar, Info, LandmarkIcon, ExternalLink } from "lucide-react";
+import { slugify } from "@/lib/utils";
 
-export default function HistoricalSitesSection() {
+interface HistoricalSitesSectionProps {
+  sites?: HistoricalSite[];
+}
+
+export default function HistoricalSitesSection({ sites: propSites }: HistoricalSitesSectionProps = {}) {
   const [, navigate] = useLocation();
-  const { isLoading, error, data } = useQuery<HistoricalSite[]>({
-    queryKey: [API_ENDPOINTS.HISTORICAL_SITES],
-    queryFn: async () => {
-      const response = await fetch(API_ENDPOINTS.HISTORICAL_SITES, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    }
+  const { data: querySites, isLoading } = useQuery<HistoricalSite[]>({
+    queryKey: ['/api/historical-sites'],
   });
 
-  if (isLoading) {
+  // Use provided sites or query results
+  const sites = propSites || querySites || [];
+  
+  if (isLoading && !propSites) {
     return (
-      <section id="historical-sites" className="py-16">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Di Tích Lịch Sử</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map(i => (
-              <Card key={i} className="animate-pulse overflow-hidden h-96">
-                <div className="bg-gray-300 h-48 w-full"></div>
-                <div className="p-4">
-                  <div className="h-6 bg-gray-300 rounded w-3/4 mb-3"></div>
-                  <div className="h-4 bg-gray-300 rounded w-1/2 mb-2"></div>
-                  <div className="h-4 bg-gray-300 rounded w-full mb-2"></div>
-                  <div className="h-4 bg-gray-300 rounded w-4/5 mb-2"></div>
-                </div>
-              </Card>
-            ))}
+      <section id="historical-sites" className="py-24 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#C62828] mb-16">
+            Đang tải dữ liệu di tích...
+          </h2>
+          <div className="flex justify-center">
+            <div className="w-20 h-20 border-4 border-[#C62828] border-t-transparent rounded-full animate-spin"></div>
           </div>
         </div>
       </section>
     );
   }
 
-  if (error) {
+  if (sites.length === 0) {
     return (
-      <section id="historical-sites" className="py-16">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Di Tích Lịch Sử</h2>
-          <p className="text-center text-red-500">Đã xảy ra lỗi khi tải dữ liệu</p>
+      <section id="historical-sites" className="py-24 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#C62828] mb-8">
+            Không tìm thấy dữ liệu di tích
+          </h2>
         </div>
       </section>
     );
   }
 
-  const sites = data || [];
-
   return (
-    <section id="historical-sites" className="py-20 bg-gradient-to-b from-white to-gray-50">
+    <section id="historical-sites" className="py-24 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4 relative inline-block">
-            <span className="relative z-10">Di Tích Lịch Sử</span>
-            <span className="absolute bottom-0 left-0 w-full h-3 bg-red-100 -z-10 transform -rotate-1"></span>
+          <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#C62828] inline-flex items-center justify-center gap-3">
+            <LandmarkIcon className="h-8 w-8" />
+            Di Tích <span className="text-[#4527A0]">Lịch Sử Tiêu Biểu</span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            Khám phá những địa điểm lịch sử văn hóa tiêu biểu của dân tộc Việt Nam 
-            qua hàng ngàn năm lịch sử
+          <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
+            Khám phá những địa điểm lịch sử văn hóa tiêu biểu của dân tộc Việt Nam qua hàng ngàn năm lịch sử
           </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {sites.map(site => (
-            <Card 
-              key={site.id} 
-              className="overflow-hidden h-full bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+          {sites.slice(0, 6).map((site, index) => (
+            <motion.div 
+              key={site.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="h-60 overflow-hidden relative group">
-                <img 
-                  src={site.imageUrl || DEFAULT_IMAGE}
-                  alt={site.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-300"></div>
-                <div className="absolute top-0 left-0 mt-3 ml-3">
-                  <Badge className="bg-red-600 text-white hover:bg-red-700 px-3 py-1 text-xs font-medium rounded-full shadow-md">
-                    <MapPin size={12} className="mr-1" />
-                    {site.location}
-                  </Badge>
-                </div>
-                {site.yearBuilt && (
-                  <div className="absolute top-0 right-0 mt-3 mr-3">
-                    <Badge className="bg-white/80 text-gray-800 px-2 py-1 text-xs font-medium rounded-full shadow-sm">
-                      <Calendar size={12} className="mr-1" />
-                      {site.yearBuilt}
+              <Card 
+                className="overflow-hidden h-full bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+              >
+                <div className="h-52 overflow-hidden relative group">
+                  <img 
+                    src={site.imageUrl || DEFAULT_IMAGE}
+                    alt={site.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                  
+                  <div className="absolute top-3 left-3">
+                    <Badge className="bg-[#C62828] text-white hover:bg-[#B71C1C] px-3 py-1 text-xs font-medium rounded-full shadow-md">
+                      <MapPin size={12} className="mr-1" />
+                      {site.location}
                     </Badge>
                   </div>
-                )}
-              </div>
-              
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-primary">{site.name}</h3>
-                
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">{site.description}</p>
-                
-                <div className="pt-4 mt-auto border-t flex justify-between items-center">
-                  {site.mapUrl ? (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => site.mapUrl ? window.open(site.mapUrl, '_blank') : null}
-                      className="text-xs rounded-full"
-                    >
-                      <MapPin size={14} className="mr-1" />
-                      Bản đồ
-                    </Button>
-                  ) : <div></div>}
                   
-                  <Button 
-                    variant="default" 
-                    size="sm"
-                    onClick={() => navigate(`/di-tich/${site.id}/${slugify(site.name)}`)}
-                    className="text-xs bg-primary hover:bg-primary/90 rounded-full"
-                  >
-                    <Info size={14} className="mr-1" />
-                    Chi tiết
-                  </Button>
+                  {site.yearBuilt && (
+                    <div className="absolute top-3 right-3">
+                      <Badge className="bg-[#4527A0] text-white px-2 py-1 text-xs font-medium rounded-full shadow-sm">
+                        <Calendar size={12} className="mr-1" />
+                        {site.yearBuilt}
+                      </Badge>
+                    </div>
+                  )}
+                  
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="font-['Playfair_Display'] font-bold text-xl text-white group-hover:underline">
+                      {site.name}
+                    </h3>
+                  </div>
                 </div>
-              </div>
-            </Card>
+                
+                <div className="p-5">
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{site.description}</p>
+                  
+                  <div className="mt-auto pt-3 border-t border-gray-100 flex justify-between items-center">
+                    {site.mapUrl ? (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => site.mapUrl ? window.open(site.mapUrl, '_blank') : null}
+                        className="rounded text-xs text-[#4527A0] border-[#4527A0] hover:bg-[#4527A0] hover:text-white"
+                      >
+                        <ExternalLink size={14} className="mr-1" />
+                        Bản đồ
+                      </Button>
+                    ) : <div></div>}
+                    
+                    <Button 
+                      variant="default" 
+                      size="sm"
+                      onClick={() => navigate(`/di-tich/${site.id}/${slugify(site.name)}`)}
+                      className="rounded text-xs bg-[#C62828] hover:bg-[#B71C1C] text-white"
+                    >
+                      <Info size={14} className="mr-1" />
+                      Chi tiết
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
           ))}
         </div>
 
-        {/* Nút xem thêm */}
         <div className="mt-12 text-center">
           <Button 
-            className="bg-primary hover:bg-primary/90 text-white px-8 py-2 rounded-full shadow-md"
+            className="rounded-md bg-[#4527A0] hover:bg-[#311B92] text-white px-8 py-3 text-lg shadow-md hover:shadow-lg transition-all"
             onClick={() => navigate('/di-tich')}
           >
             Xem tất cả di tích
+            <LandmarkIcon className="w-5 h-5 ml-2" />
           </Button>
         </div>
       </div>

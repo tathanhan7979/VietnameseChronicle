@@ -3,15 +3,22 @@ import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { HistoricalFigure } from '@/lib/types';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, UserIcon, Award, Users } from 'lucide-react';
 import { slugify } from '@/lib/utils';
 
-export default function HistoricalFiguresSection() {
+interface HistoricalFiguresSectionProps {
+  figures?: HistoricalFigure[];
+}
+
+export default function HistoricalFiguresSection({ figures: propFigures }: HistoricalFiguresSectionProps = {}) {
   const [visibleCount, setVisibleCount] = useState(6);
   
-  const { data: figures, isLoading } = useQuery<HistoricalFigure[]>({
+  const { data: queryFigures, isLoading } = useQuery<HistoricalFigure[]>({
     queryKey: ['/api/historical-figures'],
   });
+
+  // Use provided figures or query results
+  const figures = propFigures || queryFigures;
   
   const handleLoadMore = () => {
     if (figures) {
@@ -19,15 +26,15 @@ export default function HistoricalFiguresSection() {
     }
   };
   
-  if (isLoading) {
+  if (isLoading && !propFigures) {
     return (
-      <section id="figures" className="bg-[hsl(var(--foreground))] py-24">
+      <section id="historical-figures" className="bg-gray-100 py-24">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[hsl(var(--secondary))] mb-16">
+          <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#4527A0] mb-16">
             Đang tải dữ liệu nhân vật...
           </h2>
           <div className="flex justify-center">
-            <div className="w-20 h-20 border-4 border-[hsl(var(--secondary))] border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-20 h-20 border-4 border-[#4527A0] border-t-transparent rounded-full animate-spin"></div>
           </div>
         </div>
       </section>
@@ -36,9 +43,9 @@ export default function HistoricalFiguresSection() {
   
   if (!figures || figures.length === 0) {
     return (
-      <section id="figures" className="bg-[hsl(var(--foreground))] py-24">
-        <div className="container mx-auto px-4 text-center text-white">
-          <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[hsl(var(--secondary))] mb-8">
+      <section id="historical-figures" className="bg-gray-100 py-24">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#4527A0] mb-8">
             Không tìm thấy dữ liệu nhân vật
           </h2>
         </div>
@@ -47,63 +54,73 @@ export default function HistoricalFiguresSection() {
   }
   
   return (
-    <section id="figures" className="bg-[hsl(var(--foreground))] py-24">
+    <section id="historical-figures" className="bg-gray-100 py-24">
       <div className="container mx-auto px-4">
-        <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[hsl(var(--secondary))] text-center mb-16">
-          Những <span className="text-white">Nhân Vật Lịch Sử</span> Tiêu Biểu
-        </h2>
+        <div className="text-center mb-16">
+          <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#4527A0] inline-flex items-center justify-center gap-3">
+            <Users className="h-8 w-8" />
+            Những Nhân Vật <span className="text-[#C62828]">Lịch Sử Tiêu Biểu</span>
+          </h2>
+          <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
+            Tìm hiểu về những nhân vật đã đóng góp và định hình nền lịch sử hào hùng của dân tộc Việt Nam
+          </p>
+        </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {figures.slice(0, visibleCount).map((figure) => (
+          {figures.slice(0, visibleCount).map((figure, index) => (
             <motion.div 
               key={figure.id} 
-              className="card-flip h-96"
+              className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full transition-transform hover:-translate-y-2 hover:shadow-xl"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="card-front bg-[hsl(var(--background))] rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
+              <div className="relative">
                 <img 
                   src={figure.imageUrl} 
                   alt={figure.name} 
-                  className="w-full h-48 object-cover"
+                  className="w-full h-56 object-cover"
                 />
-                <div className="p-4 flex flex-col flex-grow">
-                  <h3 className="font-['Playfair_Display'] font-bold text-xl text-[hsl(var(--primary))]">
-                    {figure.name}
-                  </h3>
-                  <p className="text-[hsl(var(--foreground))]">{figure.lifespan}</p>
-                  <div className="mt-2 flex">
-                    <span className="bg-[hsl(var(--primary))] text-white px-3 py-1 rounded-full text-sm">
-                      {figure.period}
-                    </span>
-                  </div>
-                  <div className="mt-auto pt-3">
-                    <Link href={`/nhan-vat/${figure.id}/${slugify(figure.name)}`} className="inline-flex items-center text-[hsl(var(--primary))] hover:underline">
-                      Xem chi tiết
-                      <ChevronRight className="ml-1 h-4 w-4" />
-                    </Link>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                  <div>
+                    <h3 className="font-['Playfair_Display'] font-bold text-xl text-white">
+                      {figure.name}
+                    </h3>
+                    <p className="text-gray-200 text-sm">{figure.lifespan}</p>
                   </div>
                 </div>
+                <div className="absolute top-3 right-3 bg-[#4527A0] text-white px-3 py-1 rounded-full text-xs font-medium">
+                  {figure.period}
+                </div>
               </div>
-              <div className="card-back bg-[hsl(var(--primary))] text-white rounded-lg shadow-lg p-6 flex flex-col h-full">
-                <h3 className="font-['Playfair_Display'] font-bold text-xl mb-2">{figure.name}</h3>
-                <p className="mb-2 text-sm">{figure.description}</p>
+              
+              <div className="p-5 flex-grow flex flex-col">
+                <p className="text-gray-600 line-clamp-3 text-sm mb-4">{figure.description}</p>
+                
                 {figure.achievements && figure.achievements.length > 0 && (
-                  <div className="mt-2">
-                    <h4 className="font-bold text-sm mb-1">Chiến công tiêu biểu:</h4>
-                    <ul className="list-disc list-inside text-sm">
-                      {figure.achievements.slice(0, 3).map((achievement, index) => (
-                        <li key={index}>{achievement.title}</li>
+                  <div className="mt-auto">
+                    <h4 className="font-medium text-sm flex items-center text-[#C62828] mb-2">
+                      <Award className="h-4 w-4 mr-2" /> 
+                      Chiến công tiêu biểu:
+                    </h4>
+                    <ul className="text-gray-600 text-sm space-y-1">
+                      {figure.achievements.slice(0, 2).map((achievement, idx) => (
+                        <li key={idx} className="flex items-start">
+                          <span className="inline-block h-1.5 w-1.5 rounded-full bg-gray-500 mt-1.5 mr-2"></span>
+                          <span className="line-clamp-1">{achievement.title}</span>
+                        </li>
                       ))}
                     </ul>
                   </div>
                 )}
-                <div className="mt-auto pt-3">
-                  <Link href={`/nhan-vat/${figure.id}/${slugify(figure.name)}`} className="inline-flex items-center bg-black text-white px-4 py-2 rounded-md hover:bg-opacity-80 transition-colors">
-                    Xem chi tiết
-                    <ChevronRight className="ml-1 h-4 w-4" />
+                
+                <div className="mt-4 pt-3 border-t border-gray-100">
+                  <Link href={`/nhan-vat/${figure.id}/${slugify(figure.name)}`}>
+                    <div className="flex justify-between items-center group cursor-pointer">
+                      <span className="text-[#4527A0] font-medium text-sm group-hover:underline">Xem chi tiết</span>
+                      <ChevronRight className="h-5 w-5 text-[#4527A0] group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </Link>
                 </div>
               </div>
@@ -115,9 +132,10 @@ export default function HistoricalFiguresSection() {
           <div className="text-center mt-12">
             <button 
               onClick={handleLoadMore}
-              className="inline-block bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] px-8 py-3 rounded-full font-['Montserrat'] text-lg hover:bg-opacity-90 transition-colors duration-300"
+              className="bg-[#4527A0] hover:bg-[#311B92] text-white px-8 py-3 rounded-md font-['Montserrat'] text-lg transition-colors shadow-md hover:shadow-lg flex mx-auto items-center gap-2"
             >
               Xem Thêm Nhân Vật
+              <UserIcon className="h-5 w-5" />
             </button>
           </div>
         )}
