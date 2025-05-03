@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import TimelineSection from '@/components/TimelineSection';
 import HistoricalFiguresSection from '@/components/HistoricalFiguresSection';
+import HistoricalSitesSection from '@/components/HistoricalSitesSection';
 import SearchOverlay from '@/components/SearchOverlay';
 import Footer from '@/components/Footer';
 
@@ -23,6 +24,7 @@ export default function Home() {
       <HeroSection />
       <TimelineSection />
       <HistoricalFiguresSection />
+      <HistoricalSitesSection />
       <Footer />
       
       <SearchOverlay 

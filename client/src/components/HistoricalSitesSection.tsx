@@ -1,16 +1,26 @@
 import { useState, useEffect } from 'react';
 import { HistoricalSite } from '../lib/types';
 import { API_ENDPOINTS, DEFAULT_IMAGE } from '../lib/constants';
-import { apiRequest } from '../lib/queryClient';
-import { useQuery } from '@tanstack/react-query';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Info, Building, Landmark } from "lucide-react";
 
 export default function HistoricalSitesSection() {
-  const { isLoading, error, data } = useQuery({
+  const { isLoading, error, data } = useQuery<HistoricalSite[]>({
     queryKey: [API_ENDPOINTS.HISTORICAL_SITES],
-    queryFn: () => apiRequest<HistoricalSite[]>(API_ENDPOINTS.HISTORICAL_SITES)
+    queryFn: async () => {
+      const response = await fetch(API_ENDPOINTS.HISTORICAL_SITES, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    }
   });
 
   if (isLoading) {
