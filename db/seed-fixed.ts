@@ -2,6 +2,11 @@ import { db } from "./index";
 import * as schema from "@shared/schema";
 import { eq } from "drizzle-orm";
 
+// Interface for seed data with eventType field
+interface EventSeedData extends Omit<schema.InsertEvent, 'id'> {
+  eventType?: string;
+}
+
 async function seed() {
   try {
     console.log("Starting to seed database with Vietnamese history data...");
@@ -139,7 +144,7 @@ async function seed() {
     
     // Seed historical events
     console.log("Seeding historical events...");
-    const eventsData: schema.InsertEvent[] = [
+    const eventsData: EventSeedData[] = [
       // Prehistoric era
       {
         periodId: periodMap['prehistoric'],
@@ -420,14 +425,113 @@ async function seed() {
       }
     ];
     
+    // Seed event types
+    console.log("Seeding event types...");
+    const eventTypesData: schema.InsertEventType[] = [
+      {
+        name: "Chính trị",
+        slug: "chinh-tri",
+        description: "Các sự kiện liên quan đến chính trị, ngoại giao và quản lý nhà nước",
+        color: "#ff5722"
+      },
+      {
+        name: "Quân sự",
+        slug: "quan-su",
+        description: "Các chiến dịch, chiến thắng và sự kiện quân sự quan trọng", 
+        color: "#d50000"
+      },
+      {
+        name: "Văn hóa",
+        slug: "van-hoa",
+        description: "Các sự kiện liên quan đến văn hóa, nghệ thuật, tôn giáo và giáo dục",
+        color: "#2196f3"
+      },
+      {
+        name: "Truyền thuyết",
+        slug: "truyen-thuyet",
+        description: "Các câu chuyện, truyền thuyết trong lịch sử Việt Nam",
+        color: "#673ab7"
+      },
+      {
+        name: "Di sản",
+        slug: "di-san",
+        description: "Các di sản văn hóa, lịch sử được công nhận",
+        color: "#009688"
+      }
+    ];
+    
+    // Insert event types
+    for (const eventType of eventTypesData) {
+      const existingEventType = await db.query.eventTypes.findFirst({
+        where: eq(schema.eventTypes.slug, eventType.slug)
+      });
+      
+      if (!existingEventType) {
+        await db.insert(schema.eventTypes).values(eventType);
+      }
+    }
+    
+    // Get all event types after insertion to get their IDs
+    const insertedEventTypes = await db.query.eventTypes.findMany({});
+    
+    // Create a mapping of slug to event type ID
+    const eventTypeMap: Record<string, number> = {};
+    insertedEventTypes.forEach(eventType => {
+      eventTypeMap[eventType.slug] = eventType.id;
+    });
+    
     // Insert events
     for (const event of eventsData) {
+      // Extract eventType field and remove it from the object to avoid DB schema conflicts
+      const { eventType, ...eventWithoutType } = event as any;
+      
       const existingEvents = await db.query.events.findMany({
         where: eq(schema.events.title, event.title)
       });
       
+      let eventId: number;
+      
       if (existingEvents.length === 0) {
-        await db.insert(schema.events).values(event);
+        // Insert the event
+        const result = await db.insert(schema.events).values(eventWithoutType).returning({ id: schema.events.id });
+        eventId = result[0].id;
+      } else {
+        eventId = existingEvents[0].id;
+      }
+      
+      // If event type was specified, link it to the event
+      if (eventType) {
+        // Map common event types to our slug format
+        let typeSlug = '';
+        switch(eventType) {
+          case 'Truyền thuyết':
+            typeSlug = 'truyen-thuyet';
+            break;
+          case 'Di sản văn hóa':
+            typeSlug = 'di-san';
+            break;
+          default:
+            // For others, default to cultural events
+            typeSlug = 'van-hoa';
+        }
+        
+        if (eventTypeMap[typeSlug]) {
+          // Check if relation already exists
+          const existingRelation = await db.query.eventToEventType.findFirst({
+            where: (relations) => {
+              return eq(schema.eventToEventType.eventId, eventId) && 
+                     eq(schema.eventToEventType.eventTypeId, eventTypeMap[typeSlug]);
+            }
+          });
+          
+          if (!existingRelation) {
+            // Create relation if it doesn't exist
+            await db.insert(schema.eventToEventType).values({
+              eventId: eventId,
+              eventTypeId: eventTypeMap[typeSlug]
+            });
+          }
+        }
       }
     }
     

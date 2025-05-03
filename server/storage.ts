@@ -311,10 +311,9 @@ export const storage = {
         }
         
         if (eventTypeFilter && eventIdsByType.length > 0) {
-          conditions.push((fields: any) => {
-            const eventIdConditions = eventIdsByType.map(id => eq(fields.id, id));
-            return or(...eventIdConditions);
-          });
+          // Create a SQL condition for matching event IDs
+          const eventIdSql = or(...eventIdsByType.map(id => eq(events.id, id)));
+          conditions.push(eventIdSql);
         } else if (eventTypeFilter && eventIdsByType.length === 0) {
           // If we've filtered by event type but no events match, return empty array
           return {
@@ -327,7 +326,7 @@ export const storage = {
         
         if (conditions.length > 0) {
           const baseEvents = await eventsQuery.findMany({
-            where: and(...conditions || []),
+            where: and(...conditions),
             orderBy: [asc(events.periodId), asc(events.sortOrder)]
           });
           
