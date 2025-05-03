@@ -5,10 +5,12 @@ import {
   historicalFigures,
   eventTypes,
   eventToEventType,
+  historicalSites,
   type Period,
   type Event,
   type HistoricalFigure,
-  type EventType
+  type EventType,
+  type HistoricalSite
 } from "@shared/schema";
 import { eq, like, and, or, desc, asc } from "drizzle-orm";
 
@@ -228,12 +230,49 @@ export const storage = {
     }
   },
   
+  // Historical Sites methods
+  getAllHistoricalSites: async (): Promise<HistoricalSite[]> => {
+    try {
+      return await db.query.historicalSites.findMany({
+        orderBy: asc(historicalSites.sortOrder)
+      });
+    } catch (error) {
+      handleDbError(error, "getAllHistoricalSites");
+      return [];
+    }
+  },
+  
+  getHistoricalSiteById: async (id: number): Promise<HistoricalSite | null> => {
+    try {
+      const result = await db.query.historicalSites.findFirst({
+        where: eq(historicalSites.id, id)
+      });
+      return result || null;
+    } catch (error) {
+      handleDbError(error, "getHistoricalSiteById");
+      return null;
+    }
+  },
+  
+  getHistoricalSitesByPeriod: async (periodId: number): Promise<HistoricalSite[]> => {
+    try {
+      return await db.query.historicalSites.findMany({
+        where: eq(historicalSites.periodId, periodId),
+        orderBy: asc(historicalSites.sortOrder)
+      });
+    } catch (error) {
+      handleDbError(error, "getHistoricalSitesByPeriod");
+      return [];
+    }
+  },
+  
   // Search functionality
   search: async (term?: string, periodSlug?: string, eventTypeSlug?: string): Promise<{
     periods: Period[],
     events: (Event & { eventTypes?: EventType[] })[],
     figures: HistoricalFigure[],
-    eventTypes: EventType[]
+    eventTypes: EventType[],
+    sites: HistoricalSite[]
   }> => {
     try {
       let filteredPeriods: Period[] = [];
@@ -323,7 +362,8 @@ export const storage = {
             periods: filteredPeriods,
             events: [],
             figures: [],
-            eventTypes: filteredEventTypes
+            eventTypes: filteredEventTypes,
+            sites: []
           };
         }
         
@@ -380,15 +420,44 @@ export const storage = {
         }
       }
       
+      // Search terms for historical sites
+      let filteredSites: HistoricalSite[] = [];
+      if (term || periodFilter || noFilters) {
+        let sitesQuery = db.query.historicalSites;
+        const conditions = [];
+        
+        if (term) {
+          conditions.push(
+            or(
+              like(historicalSites.name, `%${term}%`),
+              like(historicalSites.location, `%${term}%`),
+              like(historicalSites.description, `%${term}%`)
+            )
+          );
+        }
+        
+        if (periodFilter) {
+          conditions.push(eq(historicalSites.periodId, periodFilter.id));
+        }
+        
+        if (conditions.length > 0 || noFilters) {
+          filteredSites = await sitesQuery.findMany({
+            where: conditions.length > 0 ? and(...conditions) : undefined,
+            orderBy: asc(historicalSites.sortOrder)
+          });
+        }
+      }
+      
       return {
         periods: filteredPeriods,
         events: filteredEvents,
         figures: filteredFigures,
-        eventTypes: filteredEventTypes
+        eventTypes: filteredEventTypes,
+        sites: filteredSites
       };
     } catch (error) {
       handleDbError(error, "search");
-      return { periods: [], events: [], figures: [], eventTypes: [] };
+      return { periods: [], events: [], figures: [], eventTypes: [], sites: [] };
     }
   }
 };
