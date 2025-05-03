@@ -133,9 +133,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { term, period, eventType } = req.query;
       
-      if (!term && !period && !eventType) {
-        return res.status(400).json({ error: 'Search term, period, or event type is required' });
-      }
+      // Bỏ yêu cầu phải có ít nhất một trong các tham số
+      // để cho phép tìm kiếm chỉ với bộ lọc hoặc không có điều kiện
       
       const results = await storage.search(
         term ? String(term) : undefined,

@@ -241,6 +241,9 @@ export const storage = {
       let filteredFigures: HistoricalFigure[] = [];
       let filteredEventTypes: EventType[] = [];
       
+      // Nếu không có tham số tìm kiếm nào, lấy tất cả dữ liệu
+      const noFilters = !term && !periodSlug && !eventTypeSlug;
+      
       // Get all event types for the dropdown
       filteredEventTypes = await db.query.eventTypes.findMany({
         orderBy: asc(eventTypes.name)
@@ -293,7 +296,7 @@ export const storage = {
       }
       
       // Search terms for events
-      if (term || periodFilter || eventTypeFilter) {
+      if (term || periodFilter || eventTypeFilter || noFilters) {
         let eventsQuery = db.query.events;
         const conditions = [];
         
@@ -324,9 +327,9 @@ export const storage = {
           };
         }
         
-        if (conditions.length > 0) {
+        if (conditions.length > 0 || noFilters) {
           const baseEvents = await eventsQuery.findMany({
-            where: and(...conditions),
+            where: conditions.length > 0 ? and(...conditions) : undefined,
             orderBy: [asc(events.periodId), asc(events.sortOrder)]
           });
           
@@ -352,7 +355,7 @@ export const storage = {
       }
       
       // Search terms for historical figures
-      if (term || periodFilter) {
+      if (term || periodFilter || noFilters) {
         let figuresQuery = db.query.historicalFigures;
         const conditions = [];
         
@@ -369,9 +372,9 @@ export const storage = {
           conditions.push(like(historicalFigures.period, `%${periodFilter.name}%`));
         }
         
-        if (conditions.length > 0) {
+        if (conditions.length > 0 || noFilters) {
           filteredFigures = await figuresQuery.findMany({
-            where: and(...conditions),
+            where: conditions.length > 0 ? and(...conditions) : undefined,
             orderBy: asc(historicalFigures.sortOrder)
           });
         }
