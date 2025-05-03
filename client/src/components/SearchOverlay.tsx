@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { PeriodData, EventData, HistoricalFigure, SearchResult } from '@/lib/types';
+import { PeriodData, EventData, HistoricalFigure, SearchResult, EventType } from '@/lib/types';
 import { slugify } from '@/lib/utils';
 
 interface SearchOverlayProps {
@@ -11,6 +11,7 @@ interface SearchOverlayProps {
 export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState<string>('');
+  const [selectedEventType, setSelectedEventType] = useState<string>('');
   const [results, setResults] = useState<SearchResult[]>([]);
   
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -26,6 +27,10 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   
   const { data: figures } = useQuery<HistoricalFigure[]>({
     queryKey: ['/api/historical-figures'],
+  });
+  
+  const { data: eventTypes } = useQuery<EventType[]>({
+    queryKey: ['/api/event-types'],
   });
   
   // Focus input when overlay opens
@@ -56,64 +61,58 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     };
   }, [isOpen, onClose]);
   
-  // Handle search
+  // Handle search with API
+  const { data: searchResults } = useQuery<{
+    events: EventData[],
+    figures: HistoricalFigure[],
+    periods: PeriodData[],
+    eventTypes: EventType[]
+  }>({
+    queryKey: ['/api/search', searchTerm, selectedPeriod, selectedEventType],
+    enabled: !!(searchTerm || selectedPeriod || selectedEventType),
+  });
+  
+  // Process search results
   useEffect(() => {
-    if (!searchTerm && !selectedPeriod) {
+    if (!searchTerm && !selectedPeriod && !selectedEventType) {
       setResults([]);
       return;
     }
     
-    const searchResults: SearchResult[] = [];
+    if (!searchResults) return;
     
-    // Search in events
-    if (events) {
-      events.forEach(event => {
-        const matchesTerm = searchTerm && (
-          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.description.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        
-        const matchesPeriod = !selectedPeriod || 
-          (periods?.find(p => p.id === event.periodId)?.slug === selectedPeriod);
-        
-        if ((matchesTerm || !searchTerm) && matchesPeriod) {
-          searchResults.push({
-            id: `event-${event.id}`,
-            type: 'event',
-            title: event.title,
-            subtitle: periods?.find(p => p.id === event.periodId)?.name || '',
-            link: `/su-kien/${event.id}/${slugify(event.title)}`,
-            icon: 'event'
-          });
-        }
+    const results: SearchResult[] = [];
+    
+    // Process events
+    if (searchResults.events) {
+      searchResults.events.forEach(event => {
+        results.push({
+          id: `event-${event.id}`,
+          type: 'event',
+          title: event.title,
+          subtitle: periods?.find(p => p.id === event.periodId)?.name || '',
+          link: `/su-kien/${event.id}/${slugify(event.title)}`,
+          icon: 'event'
+        });
       });
     }
     
-    // Search in historical figures
-    if (figures) {
-      figures.forEach(figure => {
-        const matchesTerm = searchTerm && (
-          figure.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          figure.description.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        
-        const matchesPeriod = !selectedPeriod || figure.period.toLowerCase().includes(selectedPeriod.toLowerCase());
-        
-        if ((matchesTerm || !searchTerm) && matchesPeriod) {
-          searchResults.push({
-            id: `figure-${figure.id}`,
-            type: 'figure',
-            title: figure.name,
-            subtitle: figure.period,
-            link: `/nhan-vat/${figure.id}/${slugify(figure.name)}`,
-            icon: 'person'
-          });
-        }
+    // Process historical figures
+    if (searchResults.figures) {
+      searchResults.figures.forEach(figure => {
+        results.push({
+          id: `figure-${figure.id}`,
+          type: 'figure',
+          title: figure.name,
+          subtitle: figure.period,
+          link: `/nhan-vat/${figure.id}/${slugify(figure.name)}`,
+          icon: 'person'
+        });
       });
     }
     
-    setResults(searchResults);
-  }, [searchTerm, selectedPeriod, events, figures, periods]);
+    setResults(results);
+  }, [searchResults, searchTerm, selectedPeriod, selectedEventType, periods]);
   
   if (!isOpen) return null;
   
@@ -161,7 +160,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           </div>
         </div>
         
-        <div className="mb-6">
+        <div className="mb-4">
           <h4 className="font-['Montserrat'] font-bold mb-3 text-[hsl(var(--foreground))]">
             Lọc theo thời kỳ:
           </h4>
@@ -180,6 +179,34 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 onClick={() => setSelectedPeriod(period.slug)}
               >
                 {period.name}
+              </span>
+            ))}
+          </div>
+        </div>
+        
+        <div className="mb-6">
+          <h4 className="font-['Montserrat'] font-bold mb-3 text-[hsl(var(--foreground))]">
+            Lọc theo loại sự kiện:
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            <span 
+              className={`px-3 py-1 ${selectedEventType === '' ? 'bg-black text-white' : 'bg-red-600 text-white'} rounded-full text-sm cursor-pointer hover:bg-black hover:text-white transition-colors`}
+              onClick={() => setSelectedEventType('')}
+            >
+              Tất cả
+            </span>
+            
+            {eventTypes?.map(type => (
+              <span 
+                key={type.id}
+                className={`px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-black hover:text-white transition-colors`}
+                style={{
+                  backgroundColor: selectedEventType === type.slug ? '#000' : type.color || '#ff5722',
+                  color: 'white'
+                }}
+                onClick={() => setSelectedEventType(type.slug)}
+              >
+                {type.name}
               </span>
             ))}
           </div>
@@ -211,7 +238,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
               ))}
             </div>
           </div>
-        ) : searchTerm || selectedPeriod ? (
+        ) : searchTerm || selectedPeriod || selectedEventType ? (
           <div className="text-center py-8 text-gray-500">
             Không tìm thấy kết quả phù hợp
           </div>

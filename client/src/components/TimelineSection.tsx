@@ -126,11 +126,17 @@ export default function TimelineSection() {
                         )}
                         
                         <div className="flex justify-between items-center mt-4">
-                          {event.eventType && (
-                            <span className="inline-block bg-[hsl(var(--primary))] text-white px-3 py-1 rounded-full text-sm">
-                              {event.eventType}
-                            </span>
-                          )}
+                          <div className="flex flex-wrap gap-2">
+                            {event.eventTypes && event.eventTypes.map(type => (
+                              <span 
+                                key={type.id}
+                                className="inline-block text-white px-3 py-1 rounded-full text-sm"
+                                style={{ backgroundColor: type.color || '#ff5722' }}
+                              >
+                                {type.name}
+                              </span>
+                            ))}
+                          </div>
                           <Link href={`/su-kien/${event.id}/${slugify(event.title)}`}>
                             <span className="text-[hsl(var(--secondary))] font-medium text-sm underline cursor-pointer hover:text-opacity-80">Xem chi tiết</span>
                           </Link>
