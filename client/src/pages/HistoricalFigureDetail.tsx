@@ -3,6 +3,7 @@ import { useParams, Link } from 'wouter';
 import { HistoricalFigure, EventData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, MapPin, Award, ExternalLink } from 'lucide-react';
+import { slugify } from '@/lib/utils';
 
 export default function HistoricalFigureDetail() {
   const { figureId } = useParams();
@@ -110,7 +111,7 @@ export default function HistoricalFigureDetail() {
                           <div className="font-medium">{achievement.title}</div>
                           {achievement.year && <div className="text-sm text-gray-600 mt-1">Năm: {achievement.year}</div>}
                           {achievement.eventId && (
-                            <Link href={`/events/${achievement.eventId}`} className="inline-flex items-center text-[hsl(var(--primary))] text-sm mt-2 hover:underline">
+                            <Link href={`/su-kien/${achievement.eventId}`} className="inline-flex items-center text-[hsl(var(--primary))] text-sm mt-2 hover:underline">
                               Xem sự kiện liên quan
                               <ExternalLink className="h-3 w-3 ml-1" />
                             </Link>

@@ -50,31 +50,23 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#overview">
-                  <a className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
-                    Trang Chủ
-                  </a>
+                <Link href="#overview" className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
+                  Trang Chủ
                 </Link>
               </li>
               <li>
-                <Link href="#timeline">
-                  <a className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
-                    Dòng Thời Gian
-                  </a>
+                <Link href="#timeline" className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
+                  Dòng Thời Gian
                 </Link>
               </li>
               <li>
-                <Link href="#figures">
-                  <a className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
-                    Nhân Vật Lịch Sử
-                  </a>
+                <Link href="#figures" className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
+                  Nhân Vật Lịch Sử
                 </Link>
               </li>
               <li>
-                <Link href="#about">
-                  <a className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
-                    Giới Thiệu
-                  </a>
+                <Link href="#about" className="hover:text-[hsl(var(--secondary))] transition-colors duration-300">
+                  Giới Thiệu
                 </Link>
               </li>
             </ul>

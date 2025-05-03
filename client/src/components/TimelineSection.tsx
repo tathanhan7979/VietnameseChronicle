@@ -131,7 +131,7 @@ export default function TimelineSection() {
                               {event.eventType}
                             </span>
                           )}
-                          <Link href={`/events/${event.id}`}>
+                          <Link href={`/su-kien/${event.id}/${slugify(event.title)}`}>
                             <span className="text-[hsl(var(--secondary))] font-medium text-sm underline cursor-pointer hover:text-opacity-80">Xem chi tiết</span>
                           </Link>
                         </div>

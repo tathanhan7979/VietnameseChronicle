@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { HistoricalFigure } from '@/lib/types';
 import { ChevronRight } from 'lucide-react';
+import { slugify } from '@/lib/utils';
 
 export default function HistoricalFiguresSection() {
   const [visibleCount, setVisibleCount] = useState(6);
@@ -79,7 +80,7 @@ export default function HistoricalFiguresSection() {
                     </span>
                   </div>
                   <div className="mt-4">
-                    <Link href={`/historical-figure/${figure.id}`} className="inline-flex items-center text-[hsl(var(--primary))] hover:underline">
+                    <Link href={`/nhan-vat/${figure.id}/${slugify(figure.name)}`} className="inline-flex items-center text-[hsl(var(--primary))] hover:underline">
                       Xem chi tiết
                       <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>
@@ -100,7 +101,7 @@ export default function HistoricalFiguresSection() {
                   </div>
                 )}
                 <div className="mt-6">
-                  <Link href={`/historical-figure/${figure.id}`} className="inline-flex items-center text-white hover:underline">
+                  <Link href={`/nhan-vat/${figure.id}/${slugify(figure.name)}`} className="inline-flex items-center text-white hover:underline">
                     Xem chi tiết
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Link>
