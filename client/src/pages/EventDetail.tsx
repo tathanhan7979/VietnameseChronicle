@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'wouter';
 import { EventData, PeriodData } from '@/lib/types';
@@ -9,10 +10,12 @@ import { ArrowLeft, Calendar, MapPin, ScrollText, Clock, Share2, ChevronRight, I
 import { PERIOD_ICONS } from '@/lib/constants';
 import { slugify } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
 
 export default function EventDetail() {
   const { eventId } = useParams();
   const isMobile = useMobile();
+  const { toast } = useToast();
   
   // Fetch the specific event
   const { data: event, isLoading: isLoadingEvent, error: eventError } = useQuery<EventData>({
@@ -105,12 +108,14 @@ export default function EventDetail() {
             <div className="absolute inset-0 z-20">
               <div className="container mx-auto px-4 h-full flex flex-col justify-end pb-10">
                 <div className="max-w-3xl">
-                  <Link href="/#timeline">
-                    <Button variant="ghost" className="mb-6 text-white hover:bg-white/10">
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Trở về dòng thời gian
-                    </Button>
-                  </Link>
+                  <Button 
+                    variant="ghost" 
+                    className="mb-6 text-white hover:bg-white/10"
+                    onClick={() => window.location.href = '/#timeline'}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Trở về dòng thời gian
+                  </Button>
                   
                   <motion.h1 
                     initial={{ opacity: 0, y: 20 }} 
@@ -152,12 +157,14 @@ export default function EventDetail() {
         ) : (
           <div className="bg-gradient-to-r from-red-600 to-amber-700 py-16">
             <div className="container mx-auto px-4">
-              <Link href="/#timeline">
-                <Button variant="ghost" className="mb-6 text-white hover:bg-white/10">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Trở về dòng thời gian
-                </Button>
-              </Link>
+              <Button 
+                variant="ghost" 
+                className="mb-6 text-white hover:bg-white/10"
+                onClick={() => window.location.href = '/#timeline'}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Trở về dòng thời gian
+              </Button>
               
               <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">{event.title}</h1>
               
@@ -267,12 +274,26 @@ export default function EventDetail() {
                     <p className="mb-2 text-gray-700">{period.description}</p>
                     <p className="text-sm text-gray-600">Khung thời gian: <span className="font-medium">{period.timeframe}</span></p>
                     <div className="mt-4">
-                      <Link href={`/#period-${period.slug}`}>
-                        <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50">
-                          Xem các sự kiện khác
-                          <ChevronRight className="ml-1 h-4 w-4" />
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-red-600 border-red-200 hover:bg-red-50"
+                        onClick={() => {
+                          toast({
+                            title: "Chuyển đến thời kỳ",
+                            description: `Đang tải thời kỳ ${period.name}...`,
+                          });
+                          
+                          // First navigate to homepage
+                          window.location.href = '/';
+                          
+                          // Then save the target period to localStorage
+                          localStorage.setItem('scrollToPeriod', period.slug);
+                        }}
+                      >
+                        Xem các sự kiện khác
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </div>
