@@ -86,8 +86,8 @@ export default function HistoricalFigureDetail() {
                   <h3 className="text-xl font-semibold my-4 text-[hsl(var(--primary))]">
                     Cuộc đời và sự nghiệp
                   </h3>
-                  <div className="text-lg mb-6 whitespace-pre-line">
-                    {figure.detailedDescription}
+                  <div className="text-lg mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: figure.detailedDescription || '' }} />
                   </div>
                 </div>
               ) : (

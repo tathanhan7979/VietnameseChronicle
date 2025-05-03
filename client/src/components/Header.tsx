@@ -7,14 +7,9 @@ interface HeaderProps {
 
 export default function Header({ onOpenSearch }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   
   const toggleMenu = useCallback(() => {
     setIsMenuOpen(prev => !prev);
-  }, []);
-  
-  const toggleLanguageDropdown = useCallback(() => {
-    setIsLanguageDropdownOpen(prev => !prev);
   }, []);
   
   return (
@@ -44,25 +39,17 @@ export default function Header({ onOpenSearch }: HeaderProps) {
         </div>
         
         <nav className="hidden md:flex items-center space-x-8">
-          <Link href="#overview">
-            <a className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
-              Tổng Quan
-            </a>
+          <Link href="#overview" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
+            Tổng Quan
           </Link>
-          <Link href="#timeline">
-            <a className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
-              Dòng Thời Gian
-            </a>
+          <Link href="#timeline" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
+            Dòng Thời Gian
           </Link>
-          <Link href="#figures">
-            <a className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
-              Nhân Vật
-            </a>
+          <Link href="#figures" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
+            Nhân Vật
           </Link>
-          <Link href="#about">
-            <a className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
-              Giới Thiệu
-            </a>
+          <Link href="#about" className="font-['Montserrat'] text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))] transition-colors duration-300">
+            Giới Thiệu
           </Link>
         </nav>
         
@@ -73,27 +60,6 @@ export default function Header({ onOpenSearch }: HeaderProps) {
           >
             <span className="material-icons">search</span>
           </button>
-          
-          <div className="relative">
-            <button 
-              onClick={toggleLanguageDropdown}
-              className="flex items-center space-x-1 rounded-full py-1 px-3 border border-[hsl(var(--primary))] text-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))] hover:text-white transition-colors duration-300"
-            >
-              <span>VI</span>
-              <span className="material-icons text-sm">keyboard_arrow_down</span>
-            </button>
-            
-            {isLanguageDropdownOpen && (
-              <div className="absolute top-full right-0 mt-1 bg-white shadow-lg rounded-md py-2 w-24">
-                <a href="#" className="block px-4 py-2 hover:bg-[hsl(var(--background))] transition-colors duration-300 text-[hsl(var(--primary))] font-bold">
-                  Tiếng Việt
-                </a>
-                <a href="#" className="block px-4 py-2 hover:bg-[hsl(var(--background))] transition-colors duration-300">
-                  English
-                </a>
-              </div>
-            )}
-          </div>
           
           <button 
             onClick={toggleMenu}

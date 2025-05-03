@@ -120,8 +120,8 @@ export default function EventDetail() {
                   <h3 className="text-xl font-semibold my-4 text-[hsl(var(--primary))]">
                     Chi tiết
                   </h3>
-                  <div className="text-lg mb-6 whitespace-pre-line">
-                    {event.detailedDescription}
+                  <div className="text-lg mb-6">
+                    <div dangerouslySetInnerHTML={{ __html: event.detailedDescription }} />
                   </div>
                 </div>
               ) : (
