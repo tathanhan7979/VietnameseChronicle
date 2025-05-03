@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'wouter';
-import { CalendarIcon, ArrowRight, Clock10Icon, ChevronRightIcon } from 'lucide-react';
+import { Clock10Icon } from 'lucide-react';
 import { slugify } from '@/lib/utils';
 import { PeriodData, EventData } from '@/lib/types';
+import '../styles/timeline.css';
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -19,7 +20,6 @@ export default function TimelineSection({
   onPeriodSelect 
 }: TimelineSectionProps) {
   const [activeSection, setActiveSection] = useState<string | null>(activePeriodSlug);
-  const timelineRef = useRef<HTMLDivElement>(null);
 
   // Set active period from props
   useEffect(() => {
@@ -40,9 +40,9 @@ export default function TimelineSection({
       // Scroll to element if no parent handler
       const element = document.getElementById(`period-${slug}`);
       if (element) {
-        const offset = 120; // Header height + some padding
+        const offset = 100; // Header height + some padding
         const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        const offsetPosition = elementPosition + window.scrollY - offset;
         
         window.scrollTo({
           top: offsetPosition,
@@ -55,7 +55,7 @@ export default function TimelineSection({
   // Loading state
   if (periods.length === 0 || events.length === 0) {
     return (
-      <section id="timeline" className="bg-white py-24">
+      <section id="timeline" className="bg-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#C62828] mb-16">
             Đang tải dữ liệu lịch sử...
@@ -69,7 +69,7 @@ export default function TimelineSection({
   }
 
   return (
-    <section id="timeline" className="bg-white py-24">
+    <section id="timeline" className="bg-white py-20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#C62828] inline-flex items-center justify-center gap-3">
@@ -81,10 +81,10 @@ export default function TimelineSection({
           </p>
         </div>
         
-        <div className="flex flex-col lg:flex-row">
-          {/* Time Period Navigation - Fixed position on desktop */}
-          <div className="lg:w-1/4 mb-8 lg:mb-0 lg:pr-8">
-            <div className="sticky top-24 bg-white p-4 rounded-lg shadow-md">
+        <div className="flex flex-col md:flex-row">
+          {/* Time Period Navigation */}
+          <div className="md:w-1/4 mb-8 md:mb-0 md:pr-8">
+            <div className="sticky top-24">
               <h3 className="font-['Playfair_Display'] font-bold text-xl mb-6 text-[#C62828] border-b-2 border-[#4527A0] pb-2">
                 Các Thời Kỳ
               </h3>
@@ -92,16 +92,13 @@ export default function TimelineSection({
                 {periods.map((period) => (
                   <li 
                     key={period.id}
-                    className={`transition-all duration-300 rounded-md overflow-hidden ${activeSection === period.slug ? 'shadow-md' : ''}`}
+                    className={activeSection === period.slug ? 'active' : ''}
                   >
                     <a 
                       href={`#period-${period.slug}`} 
-                      className={`flex items-center py-3 px-4 ${activeSection === period.slug 
-                        ? 'bg-red-100 text-[#C62828] font-medium border-l-4 border-[#C62828]' 
-                        : 'text-gray-700 hover:bg-gray-100 border-l-4 border-transparent hover:border-gray-300'}`}
                       onClick={(e) => handlePeriodClick(period.slug, e)}
+                      className="block py-2 px-4 transition-all duration-300"
                     >
-                      {activeSection === period.slug && <ChevronRightIcon className="h-4 w-4 mr-2 inline-block" />}
                       {period.name}
                     </a>
                   </li>
@@ -111,50 +108,39 @@ export default function TimelineSection({
           </div>
           
           {/* Timeline Content */}
-          <div className="lg:w-3/4 timeline-content relative" ref={timelineRef}>
-            {/* Vertical timeline line */}
-            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 hidden lg:block"></div>
-            
+          <div className="md:w-3/4 timeline-content">
             {periods.map((period) => {
               const periodEvents = events.filter(event => event.periodId === period.id);
               
               return (
-                <div id={`period-${period.slug}`} key={period.id} className="mb-24">
-                  <motion.div 
-                    className="period-header relative z-10 mb-12 bg-white p-6 rounded-lg shadow-lg lg:ml-8"
-                    initial={{ opacity: 0, y: -20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <div className="period-icon bg-[#4527A0] w-12 h-12 rounded-full flex items-center justify-center text-white absolute -left-6 top-1/2 transform -translate-y-1/2 hidden lg:flex">
-                      <CalendarIcon className="h-6 w-6" />
-                    </div>
-                    <h3 className="font-['Playfair_Display'] font-bold text-2xl md:text-3xl text-[#C62828] lg:ml-8">
+                <div id={`period-${period.slug}`} key={period.id} className="mb-16 relative">
+                  <div className="period-header mb-12">
+                    <h3 className="font-['Playfair_Display'] font-bold text-2xl md:text-3xl text-[#C62828] mb-2">
                       {period.name}
                     </h3>
-                    <p className="text-gray-600 lg:ml-8">{period.timeframe}</p>
-                  </motion.div>
+                    <p className="text-gray-600">{period.timeframe}</p>
+                  </div>
                   
                   {/* Timeline items for this period */}
-                  <div className="space-y-8 lg:ml-8">
+                  <div className="space-y-8">
                     {periodEvents.map((event, index) => (
                       <motion.div 
-                        className="timeline-item relative pl-6 lg:pl-8"
+                        className="timeline-item relative pl-8"
                         key={event.id}
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: index * 0.1 }}
                       >
-                        <div className="timeline-dot absolute left-0 top-6 transform -translate-x-1/2 w-4 h-4 rounded-full bg-[#C62828] z-10 hidden lg:block"></div>
-                        
                         <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
-                          <Link href={`/su-kien/${event.id}/${slugify(event.title)}`}>
-                            <h4 className="font-['Playfair_Display'] font-bold text-xl text-[#4527A0] mb-3 hover:text-[#C62828] transition-colors">
-                              {event.title} <span className="text-gray-500 text-sm">({event.year})</span>
-                            </h4>
-                          </Link>
+                          <div className="flex justify-between">
+                            <Link href={`/su-kien/${event.id}/${slugify(event.title)}`}>
+                              <h4 className="font-['Playfair_Display'] font-bold text-xl text-[#4527A0] mb-3 hover:text-[#C62828] transition-colors">
+                                {event.title}
+                              </h4>
+                            </Link>
+                            <span className="text-gray-500 text-sm">{event.year}</span>
+                          </div>
                           
                           <p className="text-gray-600 mb-4">{event.description}</p>
                           
@@ -168,7 +154,7 @@ export default function TimelineSection({
                             </div>
                           )}
                           
-                          <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
                             <div className="flex flex-wrap gap-2">
                               {event.eventTypes && event.eventTypes.map(type => (
                                 <span 
@@ -182,9 +168,8 @@ export default function TimelineSection({
                             </div>
                             
                             <Link href={`/su-kien/${event.id}/${slugify(event.title)}`}>
-                              <div className="text-[#C62828] font-medium text-sm hover:underline cursor-pointer flex items-center">
+                              <div className="text-[#C62828] font-medium text-sm hover:underline cursor-pointer">
                                 Xem chi tiết
-                                <ArrowRight className="h-4 w-4 ml-1" />
                               </div>
                             </Link>
                           </div>
