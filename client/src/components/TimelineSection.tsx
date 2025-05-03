@@ -4,6 +4,7 @@ import { Link } from "wouter";
 import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
+import { ChevronRight } from "lucide-react";
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -229,9 +230,10 @@ export default function TimelineSection({
                               <Link
                                 href={`/su-kien/${event.id}/${slugify(event.title)}`}
                               >
-                                <span className="view-details">
-                                  Xem chi tiết
-                                </span>
+                                <div className="view-details">
+                                  <span>Xem chi tiết</span>
+                                  <ChevronRight className="h-5 w-5 transition-transform" />
+                                </div>
                               </Link>
                             </div>
                           </div>

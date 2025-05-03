@@ -217,8 +217,13 @@ body {
   color: #666;
   font-size: 0.9rem;
   margin-bottom: 10px;
-  display: block;
+  display: inline-block;
   text-align: left;
+  background-color: #f7f0ff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-weight: 500;
+  color: #4527A0;
 }
 
 .event-description {
@@ -265,18 +270,25 @@ body {
 
 /* View details button */
 .view-details {
-  color: var(--color-gold);
-  font-size: 0.9rem;
-  text-decoration: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #4527A0;
+  font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.3s ease;
-  display: block;
-  text-align: right;
-  margin-top: 10px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  cursor: pointer;
 }
 
-.view-details:hover {
+.view-details:hover span {
   text-decoration: underline;
+}
+
+.view-details:hover svg {
+  transform: translateX(4px);
 }
 
 /* Responsive styles */
