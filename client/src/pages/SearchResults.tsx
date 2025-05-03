@@ -187,6 +187,8 @@ export default function SearchResults() {
         return <Badge className="bg-[#4527A0]">Nhân vật</Badge>;
       case 'site':
         return <Badge className="bg-[#00796B]">Di tích</Badge>;
+      case 'period':
+        return <Badge className="bg-[#4CAF50]">Thời kỳ</Badge>;
       default:
         return <Badge>Khác</Badge>;
     }
