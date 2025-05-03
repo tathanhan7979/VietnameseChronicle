@@ -124,11 +124,13 @@
     z-index: 2;
     background: hsl(var(--secondary));
     border: 4px solid hsl(var(--primary));
+    top: 10px;
   }
   
   .timeline-item {
     position: relative;
     margin-bottom: 50px;
+    padding-top: 10px;
   }
   
   .timeline-content {
@@ -179,22 +181,22 @@
   
   @media (max-width: 768px) {
     .timeline-vertical::before {
-      left: 40px;
+      left: 20px;
     }
     .timeline-dot {
-      left: 40px;
+      left: 20px;
       margin-left: 0;
     }
     .timeline-content {
-      width: calc(100% - 80px);
-      left: 80px !important;
+      width: calc(100% - 60px);
+      left: 60px !important;
     }
     .era-marker {
-      left: 40px;
+      left: 20px;
     }
     .timeline-vertical h3 {
       text-align: left !important;
-      padding-left: 60px !important;
+      padding-left: 50px !important;
       width: 100%;
     }
   }

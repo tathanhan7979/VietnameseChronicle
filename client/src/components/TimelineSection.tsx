@@ -99,7 +99,7 @@ export default function TimelineSection() {
                   
                   {/* Timeline items for this period */}
                   {periodEvents.map((event, index) => (
-                    <div className="timeline-item" key={event.id}>
+                    <div className="timeline-item relative" key={event.id}>
                       <div className="timeline-dot"></div>
                       <motion.div 
                         className="timeline-content bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-300"
