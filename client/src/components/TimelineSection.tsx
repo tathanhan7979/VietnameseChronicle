@@ -74,20 +74,7 @@ export default function TimelineSection() {
                     key={period.id}
                     className={`pl-4 py-2 cursor-pointer transition-all duration-300 rounded-r-md ${activeSection === period.slug ? 'active' : ''}`}
                   >
-                    <a 
-                      href={`#period-${period.slug}`} 
-                      className="block font-['Montserrat']"
-                      onClick={(e) => {
-                        // Đảm bảo ID tồn tại trước khi chuyển hướng
-                        const targetId = `period-${period.slug}`;
-                        const el = document.getElementById(targetId);
-                        if (!el) {
-                          e.preventDefault();
-                          // Log ra để debug
-                          console.log(`Element with ID ${targetId} not found`);
-                        }
-                      }}
-                    >
+                    <a href={`#period-${period.slug}`} className="block font-['Montserrat']">
                       {period.name}
                     </a>
                   </li>
@@ -102,7 +89,7 @@ export default function TimelineSection() {
               const periodEvents = events.filter(event => event.periodId === period.id);
               
               return (
-                <div id={`period-${period.slug}`} key={period.id} className="mb-24 pt-12" data-period-name={period.name}>
+                <div id={`period-${period.slug}`} key={period.id} className="mb-24 pt-12">
                   <div className="era-marker" style={{ top: "0px" }}>
                     <span className="material-icons">{period.icon}</span>
                   </div>
