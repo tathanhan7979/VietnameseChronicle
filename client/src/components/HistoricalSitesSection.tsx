@@ -6,6 +6,7 @@ import { useLocation } from 'wouter';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, Info, Building, Landmark } from "lucide-react";
+import { slugify } from "../lib/utils";
 
 export default function HistoricalSitesSection() {
   const [, navigate] = useLocation();
@@ -108,7 +109,7 @@ export default function HistoricalSitesSection() {
                   
                   <button 
                     className="flex items-center text-blue-600 hover:text-blue-800"
-                    onClick={() => navigate(`/historical-sites/${site.id}`)}
+                    onClick={() => navigate(`/di-tich/${site.id}/${slugify(site.name)}`)}
                   >
                     <Info size={16} className="mr-1" />
                     <span className="text-sm">Chi tiết</span>

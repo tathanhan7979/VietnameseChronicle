@@ -1,36 +1,75 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
-import { HistoricalSite } from "../lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CalendarDays, MapPin, ArrowLeft, Info, Clock, Home } from "lucide-react";
+import { CalendarDays, MapPin, ArrowLeft, Home } from "lucide-react";
 import { API_ENDPOINTS } from "@/lib/constants";
-import { HISTORY_PERIODS } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
+import { slugify } from "../lib/utils";
 
 export default function HistoricalSiteDetail() {
-  const params = useParams<{ id: string }>();
+  // Trạng thái của component
+  const [site, setSite] = useState<any>(null);
+  const [period, setPeriod] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<any>(null);
+
+  // Hooks
+  const params = useParams<{ id: string; slug?: string }>();
   const [, setLocation] = useLocation();
   const siteId = parseInt(params.id, 10);
 
-  const { data: site, isLoading, error } = useQuery<HistoricalSite>({
-    queryKey: [`${API_ENDPOINTS.HISTORICAL_SITES}/${siteId}`],
-    queryFn: async () => {
-      const response = await fetch(`${API_ENDPOINTS.HISTORICAL_SITES}/${siteId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+  // Tải dữ liệu khi component được render
+  useEffect(() => {
+    const fetchData = async () => {
+      if (isNaN(siteId)) {
+        setError(new Error("ID không hợp lệ"));
+        setIsLoading(false);
+        return;
       }
-      return response.json();
-    },
-    enabled: !isNaN(siteId),
-  });
 
+      try {
+        // 1. Tải thông tin di tích
+        const siteResponse = await fetch(`${API_ENDPOINTS.HISTORICAL_SITES}/${siteId}`);
+        if (!siteResponse.ok) {
+          throw new Error('Lỗi khi tải dữ liệu di tích');
+        }
+        const siteData = await siteResponse.json();
+        setSite(siteData);
+
+        // 2. Tải thông tin thời kỳ nếu di tích có liên kết với thời kỳ
+        if (siteData.periodId) {
+          const periodsResponse = await fetch(API_ENDPOINTS.PERIODS);
+          if (periodsResponse.ok) {
+            const periodsData = await periodsResponse.json();
+            const foundPeriod = periodsData.find((p: any) => p.id === siteData.periodId);
+            if (foundPeriod) {
+              setPeriod(foundPeriod.name);
+            }
+          }
+        }
+
+        // 3. Chuyển hướng URL thân thiện nếu slug không đúng
+        if (siteData.name) {
+          const correctSlug = slugify(siteData.name);
+          if (!params.slug && correctSlug) {
+            setLocation(`/di-tich/${siteId}/${correctSlug}`, { replace: true });
+          }
+        }
+
+        setIsLoading(false);
+      } catch (err) {
+        console.error("Lỗi:", err);
+        setError(err);
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [siteId, params.slug, setLocation]);
+
+  // Hiển thị trạng thái loading
   if (isLoading) {
     return (
       <div className="container mx-auto py-8 px-4">
@@ -54,18 +93,7 @@ export default function HistoricalSiteDetail() {
     );
   }
 
-  // Lấy thông tin thời kỳ từ API periods
-  const { data: periods } = useQuery<any[]>({
-    queryKey: [API_ENDPOINTS.PERIODS],
-    queryFn: async () => {
-      const response = await fetch(API_ENDPOINTS.PERIODS);
-      if (!response.ok) {
-        throw new Error('Failed to fetch periods');
-      }
-      return response.json();
-    },
-  });
-
+  // Hiển thị lỗi
   if (error || !site) {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
@@ -77,10 +105,8 @@ export default function HistoricalSiteDetail() {
       </div>
     );
   }
-  
-  // Tìm tên thời kỳ dựa vào periodId
-  const period = periods?.find(p => p.id === site.periodId)?.name;
 
+  // Hiển thị thông tin di tích
   return (
     <div className="container mx-auto py-8 px-4">
       {/* Nút quay lại */}
