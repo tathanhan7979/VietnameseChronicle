@@ -1040,7 +1040,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         success: true,
-        message: `Đã chuyển tất cả sự kiện và di tích từ "${sourcePeriod.name}" sang "${targetPeriod.name}"`
+        message: `Đã chuyển tất cả sự kiện, nhân vật và di tích từ "${sourcePeriod.name}" sang "${targetPeriod.name}"`
       });
     } catch (error) {
       console.error('Error reassigning items:', error);
@@ -1082,7 +1082,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         success: true,
-        message: `Đã xóa tất cả sự kiện và di tích liên kết với thời kỳ "${period.name}"`
+        message: `Đã xóa tất cả sự kiện, nhân vật và di tích liên kết với thời kỳ "${period.name}"`
       });
     } catch (error) {
       console.error('Error deleting related items:', error);
