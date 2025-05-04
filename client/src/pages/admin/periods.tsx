@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
-import { Clock, Edit, MoreHorizontal, Plus, Trash } from 'lucide-react';
+import { Clock, Edit, MoreHorizontal, Plus, Trash, GripVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { type Period } from '@shared/schema';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import {
   Dialog,
   DialogContent,
@@ -53,12 +54,21 @@ export default function PeriodsAdmin() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [deletingPeriodId, setDeletingPeriodId] = useState<number | null>(null);
+  const [periodsState, setPeriodsState] = useState<Period[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Lấy danh sách các thời kỳ
   const { data: periods, isLoading, refetch } = useQuery<Period[]>({
     queryKey: ['/api/admin/periods'],
     queryFn: getQueryFn({ on401: 'throw' }),
   });
+  
+  // Cập nhật state periodsState khi periods thay đổi
+  useEffect(() => {
+    if (periods) {
+      setPeriodsState([...periods].sort((a, b) => a.sortOrder - b.sortOrder));
+    }
+  }, [periods]);
 
   // Form tạo mới
   const createForm = useForm<PeriodFormValues>({
@@ -225,6 +235,40 @@ export default function PeriodsAdmin() {
     }
   };
 
+  // Xử lý sự kiện kéo thả hoàn tất
+  const handleDragEnd = (result: any) => {
+    setIsDragging(false);
+    
+    // Nếu không có điểm đến hợp lệ hoặc không di chuyển
+    if (!result.destination || result.destination.index === result.source.index) {
+      return;
+    }
+    
+    // Tạo một bản sao của mảng để cập nhật
+    const updatedPeriods = [...periodsState];
+    
+    // Lấy item được kéo
+    const draggedItem = updatedPeriods[result.source.index];
+    
+    // Xóa item khỏi vị trí cũ
+    updatedPeriods.splice(result.source.index, 1);
+    
+    // Thêm item vào vị trí mới
+    updatedPeriods.splice(result.destination.index, 0, draggedItem);
+    
+    // Cập nhật state
+    setPeriodsState(updatedPeriods);
+    
+    // Gửi yêu cầu cập nhật thứ tự lên server
+    const orderedIds = updatedPeriods.map(period => period.id);
+    reorderMutation.mutate(orderedIds);
+  };
+  
+  // Bắt đầu kéo thả
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
   return (
     <AdminLayout title="Quản lý thời kỳ lịch sử">
       {/* Header */}
@@ -245,47 +289,8 @@ export default function PeriodsAdmin() {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {periods?.map((period) => (
-            <Card key={period.id} className="overflow-hidden">
-              <CardHeader className="bg-blue-50 py-3">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg font-medium text-blue-900">
-                    {period.name}
-                  </CardTitle>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-5 w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => handleEditPeriod(period)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Chỉnh sửa
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => handleDeletePeriod(period.id)}
-                        className="text-red-600"
-                      >
-                        <Trash className="mr-2 h-4 w-4" />
-                        Xóa
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="flex items-center text-gray-500 mb-2">
-                  <Clock className="h-4 w-4 mr-1" />
-                  <span className="text-sm">{period.timeframe}</span>
-                </div>
-                <p className="text-gray-600 line-clamp-3">{period.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-          {(!periods || periods.length === 0) && (
+        <>
+          {(!periodsState || periodsState.length === 0) ? (
             <div className="col-span-full text-center py-12 bg-gray-50 rounded-lg">
               <Clock className="h-12 w-12 mx-auto text-gray-400 mb-3" />
               <h3 className="text-lg font-medium text-gray-600 mb-1">
@@ -298,8 +303,86 @@ export default function PeriodsAdmin() {
                 <Plus className="mr-2 h-4 w-4" /> Thêm thời kỳ mới
               </Button>
             </div>
+          ) : (
+            <div className="mb-6">
+              <p className="text-gray-500 mb-4 italic">
+                Kéo và thả các thẻ để sắp xếp thứ tự hiển thị thời kỳ trên trang chủ và các danh sách.
+              </p>
+              
+              <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+                <Droppable droppableId="periods-list">
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                    >
+                      {periodsState.map((period, index) => (
+                        <Draggable
+                          key={period.id.toString()}
+                          draggableId={period.id.toString()}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className={`${snapshot.isDragging ? 'z-50' : ''}`}
+                            >
+                              <Card className={`overflow-hidden ${snapshot.isDragging ? 'shadow-lg ring-2 ring-primary' : ''}`}>
+                                <CardHeader className="bg-blue-50 py-3">
+                                  <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-2">
+                                      <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-1">
+                                        <GripVertical className="h-5 w-5 text-gray-400" />
+                                      </div>
+                                      <CardTitle className="text-lg font-medium text-blue-900">
+                                        {period.name}
+                                      </CardTitle>
+                                    </div>
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon">
+                                          <MoreHorizontal className="h-5 w-5" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                        <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
+                                        <DropdownMenuItem onClick={() => handleEditPeriod(period)}>
+                                          <Edit className="mr-2 h-4 w-4" />
+                                          Chỉnh sửa
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem 
+                                          onClick={() => handleDeletePeriod(period.id)}
+                                          className="text-red-600"
+                                        >
+                                          <Trash className="mr-2 h-4 w-4" />
+                                          Xóa
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </div>
+                                </CardHeader>
+                                <CardContent className="p-4">
+                                  <div className="flex items-center text-gray-500 mb-2">
+                                    <Clock className="h-4 w-4 mr-1" />
+                                    <span className="text-sm">{period.timeframe}</span>
+                                  </div>
+                                  <p className="text-gray-600 line-clamp-3">{period.description}</p>
+                                </CardContent>
+                              </Card>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </div>
           )}
-        </div>
+        </>
       )}
 
       {/* Tạo thời kỳ mới */}
