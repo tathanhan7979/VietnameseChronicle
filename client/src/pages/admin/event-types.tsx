@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
-import { Tag, Edit, MoreHorizontal, Plus, Trash, GripVertical, AlertTriangle } from 'lucide-react';
+import { Tag, Edit, MoreHorizontal, Plus, Trash, GripVertical, AlertTriangle, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -368,6 +368,17 @@ export default function EventTypesAdmin() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <a 
+                    href={`/event-types/${eventType.slug}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center cursor-pointer"
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Xem chi tiết
+                  </a>
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleEditEventType(eventType)}>
                   <Edit className="mr-2 h-4 w-4" />
                   Chỉnh sửa

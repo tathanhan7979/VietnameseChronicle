@@ -20,7 +20,7 @@ import {
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Grid, Pencil, Trash2, GripVertical, Check, ChevronDown } from 'lucide-react';
+import { Grid, Pencil, Trash2, GripVertical, Check, ChevronDown, ExternalLink } from 'lucide-react';
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -130,7 +130,7 @@ function SortableFigureItem({ figure, onEdit, onDelete }: SortableFigureItemProp
           rel="noopener noreferrer" 
           className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
         >
-          <Grid className="h-4 w-4" />
+          <ExternalLink className="h-4 w-4" />
         </a>
         <Button 
           variant="ghost" 
