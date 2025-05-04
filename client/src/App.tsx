@@ -12,11 +12,17 @@ import HistoricalSitesList from "@/pages/HistoricalSitesList";
 import PeriodDetail from "@/pages/PeriodDetail";
 import SearchResults from "@/pages/SearchResults";
 import NotFound from "@/pages/not-found";
+import AdminLogin from "@/pages/admin/login";
+import AdminDashboard from "@/pages/admin/dashboard";
+import PeriodsAdmin from "@/pages/admin/periods";
 import { useState, useEffect } from "react";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "@/lib/protected-route";
 
 function Router() {
   return (
     <Switch>
+      {/* Public routes */}
       <Route path="/" component={Home} />
       <Route path="/thoi-ky/:periodSlug" component={PeriodDetail} />
       <Route path="/su-kien/:eventId" component={EventDetail} />
@@ -28,6 +34,13 @@ function Router() {
       <Route path="/di-tich/:id" component={HistoricalSiteDetail} />
       <Route path="/di-tich/:id/:slug" component={HistoricalSiteDetail} />
       <Route path="/tim-kiem" component={SearchResults} />
+      
+      {/* Admin routes */}
+      <Route path="/admin/login" component={AdminLogin} />
+      <ProtectedRoute path="/admin" component={AdminDashboard} adminOnly={true} />
+      <ProtectedRoute path="/admin/periods" component={PeriodsAdmin} adminOnly={true} />
+      
+      {/* Catch all route for 404 */}
       <Route component={NotFound} />
     </Switch>
   );
@@ -60,9 +73,11 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
-      <Toaster />
-      <BackToTop />
+      <AuthProvider>
+        <Router />
+        <Toaster />
+        <BackToTop />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

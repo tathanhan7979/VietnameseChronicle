@@ -253,6 +253,69 @@ export const storage = {
     }
   },
   
+  createEventType: async (typeData: Omit<EventType, 'id'>): Promise<EventType> => {
+    try {
+      const [result] = await db.insert(eventTypes).values(typeData).returning();
+      return result;
+    } catch (error) {
+      handleDbError(error, "createEventType");
+      throw error;
+    }
+  },
+  
+  updateEventType: async (id: number, typeData: Partial<EventType>): Promise<EventType | null> => {
+    try {
+      const [updated] = await db
+        .update(eventTypes)
+        .set(typeData)
+        .where(eq(eventTypes.id, id))
+        .returning();
+      return updated || null;
+    } catch (error) {
+      handleDbError(error, "updateEventType");
+      return null;
+    }
+  },
+  
+  getEventsUsingEventType: async (typeId: number): Promise<number[]> => {
+    try {
+      const relations = await db.query.eventToEventType.findMany({
+        where: eq(eventToEventType.eventTypeId, typeId),
+      });
+      return relations.map(rel => rel.eventId);
+    } catch (error) {
+      handleDbError(error, "getEventsUsingEventType");
+      return [];
+    }
+  },
+  
+  deleteEventType: async (id: number): Promise<boolean> => {
+    try {
+      await db
+        .delete(eventTypes)
+        .where(eq(eventTypes.id, id));
+      return true;
+    } catch (error) {
+      handleDbError(error, "deleteEventType");
+      return false;
+    }
+  },
+  
+  reorderEventTypes: async (orderedIds: number[]): Promise<boolean> => {
+    try {
+      for (let i = 0; i < orderedIds.length; i++) {
+        await db
+          .update(eventTypes)
+          .set({ sortOrder: i })
+          .where(eq(eventTypes.id, orderedIds[i]));
+      }
+      return true;
+    } catch (error) {
+      handleDbError(error, "reorderEventTypes");
+      return false;
+    }
+  },
+  
   getEventTypeBySlug: async (slug: string): Promise<EventType | null> => {
     try {
       const result = await db.query.eventTypes.findFirst({
@@ -304,6 +367,59 @@ export const storage = {
     } catch (error) {
       handleDbError(error, "getAllPeriods");
       return [];
+    }
+  },
+  
+  createPeriod: async (periodData: Omit<Period, 'id'>): Promise<Period> => {
+    try {
+      const [result] = await db.insert(periods).values(periodData).returning();
+      return result;
+    } catch (error) {
+      handleDbError(error, "createPeriod");
+      throw error;
+    }
+  },
+  
+  updatePeriod: async (id: number, periodData: Partial<Period>): Promise<Period | null> => {
+    try {
+      const [updated] = await db
+        .update(periods)
+        .set(periodData)
+        .where(eq(periods.id, id))
+        .returning();
+      return updated || null;
+    } catch (error) {
+      handleDbError(error, "updatePeriod");
+      return null;
+    }
+  },
+  
+  deletePeriod: async (id: number): Promise<boolean> => {
+    try {
+      await db
+        .delete(periods)
+        .where(eq(periods.id, id));
+      return true;
+    } catch (error) {
+      handleDbError(error, "deletePeriod");
+      return false;
+    }
+  },
+  
+  reorderPeriods: async (orderedIds: number[]): Promise<boolean> => {
+    try {
+      // Bắt đầu một transaction để đảm bảo tính nhất quán
+      // Tích hợp các ID theo thứ tự mới
+      for (let i = 0; i < orderedIds.length; i++) {
+        await db
+          .update(periods)
+          .set({ sortOrder: i })
+          .where(eq(periods.id, orderedIds[i]));
+      }
+      return true;
+    } catch (error) {
+      handleDbError(error, "reorderPeriods");
+      return false;
     }
   },
   
