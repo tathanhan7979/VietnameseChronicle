@@ -80,6 +80,29 @@ const requireAdmin = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
+// Hàm xóa tập tin - chức năng chung
+function deleteFile(filePath: string): boolean {
+  try {
+    if (!filePath) return false;
+    if (filePath.startsWith('http')) return false; // Skip external URLs
+    
+    // Chuyển đổi đường dẫn URL thành đường dẫn hệ thống tập tin
+    const systemPath = path.join(process.cwd(), filePath.replace(/^\//, ''));
+    
+    if (fs.existsSync(systemPath)) {
+      fs.unlinkSync(systemPath);
+      console.log(`Đã xóa tập tin thành công: ${systemPath}`);
+      return true;
+    } else {
+      console.warn(`Tập tin không tồn tại: ${systemPath}`);
+      return false;
+    }
+  } catch (error) {
+    console.error(`Lỗi khi xóa tập tin ${filePath}:`, error);
+    return false;
+  }
+}
+
 // Cấu hình multer để lưu trữ tập tin
 const uploadsDir = path.join(process.cwd(), 'uploads');
 const faviconStorage = multer.diskStorage({
