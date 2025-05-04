@@ -953,7 +953,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Lấy vị trí sắp xếp cuối cùng (+1) cho sự kiện trong cùng thời kỳ
-      const eventsInPeriod = await storage.getEventsByPeriod(parseInt(eventData.periodId));
+      const eventsInPeriod = await storage.getEventsByPeriod(parseInt(eventData.periodId.toString()));
       const maxSortOrder = eventsInPeriod.length > 0 ? 
         Math.max(...eventsInPeriod.map(e => e.sortOrder || 0)) : -1;
       eventData.sortOrder = maxSortOrder + 1;

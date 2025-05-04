@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
-import { LayoutList, Edit, MoreHorizontal, Plus, Trash, GripVertical, Upload, Image, X } from 'lucide-react';
+import { LayoutList, Edit, MoreHorizontal, Plus, Trash, GripVertical, Image, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -737,7 +737,7 @@ export default function EventsAdmin() {
                         <span className="font-medium text-blue-800">Hướng dẫn:</span>
                       </div>
                       <p className="text-gray-700 mt-1">
-                        Kéo và thả các thẻ để thay đổi thứ tự hiển thị sự kiện trong thời kỳ "{selectedPeriod.name}". Thay đổi sẽ được áp dụng trên trang chi tiết thời kỳ và timeline.
+                        Kéo và thả các thẻ để thay đổi thứ tự hiển thị sự kiện trong thời kỳ {selectedPeriod.name}. Thay đổi sẽ được áp dụng trên trang chi tiết thời kỳ và timeline.
                       </p>
                     </div>
                     
