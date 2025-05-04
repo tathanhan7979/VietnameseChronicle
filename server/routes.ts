@@ -1638,6 +1638,247 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+    // API upload hình ảnh
+  // Cấu hình lưu trữ cho hình ảnh sự kiện
+  const eventImageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      const dir = path.join(uploadsDir, 'events');
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+      const uniquePrefix = randomUUID();
+      const ext = path.extname(file.originalname);
+      cb(null, uniquePrefix + ext);
+    }
+  });
+
+  const uploadEventImage = multer({ 
+    storage: eventImageStorage,
+    limits: {
+      fileSize: 50 * 1024 * 1024 // 50MB
+    },
+    fileFilter: function (req, file, cb) {
+      const filetypes = /jpeg|jpg|png|gif|webp/;
+      const mimetype = filetypes.test(file.mimetype);
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+      if (mimetype && extname) {
+        return cb(null, true);
+      }
+      cb(new Error("Chỉ chấp nhận tập tin hình ảnh (jpeg, jpg, png, gif, webp)"));
+    }
+  });
+
+  // Cấu hình lưu trữ cho hình ảnh nhân vật
+  const figureImageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      const dir = path.join(uploadsDir, 'figures');
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+      const uniquePrefix = randomUUID();
+      const ext = path.extname(file.originalname);
+      cb(null, uniquePrefix + ext);
+    }
+  });
+
+  const uploadFigureImage = multer({ 
+    storage: figureImageStorage,
+    limits: {
+      fileSize: 50 * 1024 * 1024 // 50MB
+    },
+    fileFilter: function (req, file, cb) {
+      const filetypes = /jpeg|jpg|png|gif|webp/;
+      const mimetype = filetypes.test(file.mimetype);
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+      if (mimetype && extname) {
+        return cb(null, true);
+      }
+      cb(new Error("Chỉ chấp nhận tập tin hình ảnh (jpeg, jpg, png, gif, webp)"));
+    }
+  });
+
+  // Cấu hình lưu trữ cho hình ảnh địa danh
+  const siteImageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      const dir = path.join(uploadsDir, 'sites');
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+      const uniquePrefix = randomUUID();
+      const ext = path.extname(file.originalname);
+      cb(null, uniquePrefix + ext);
+    }
+  });
+
+  const uploadSiteImage = multer({ 
+    storage: siteImageStorage,
+    limits: {
+      fileSize: 50 * 1024 * 1024 // 50MB
+    },
+    fileFilter: function (req, file, cb) {
+      const filetypes = /jpeg|jpg|png|gif|webp/;
+      const mimetype = filetypes.test(file.mimetype);
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+      if (mimetype && extname) {
+        return cb(null, true);
+      }
+      cb(new Error("Chỉ chấp nhận tập tin hình ảnh (jpeg, jpg, png, gif, webp)"));
+    }
+  });
+
+  // Cấu hình lưu trữ cho hình ảnh nền
+  const backgroundImageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      const dir = path.join(uploadsDir, 'backgrounds');
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+      const uniquePrefix = randomUUID();
+      const ext = path.extname(file.originalname);
+      cb(null, uniquePrefix + ext);
+    }
+  });
+
+  const uploadBackgroundImage = multer({ 
+    storage: backgroundImageStorage,
+    limits: {
+      fileSize: 50 * 1024 * 1024 // 50MB
+    },
+    fileFilter: function (req, file, cb) {
+      const filetypes = /jpeg|jpg|png|gif|webp/;
+      const mimetype = filetypes.test(file.mimetype);
+      const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+      if (mimetype && extname) {
+        return cb(null, true);
+      }
+      cb(new Error("Chỉ chấp nhận tập tin hình ảnh (jpeg, jpg, png, gif, webp)"));
+    }
+  });
+
+  // API endpoint tải lên hình ảnh sự kiện
+  app.post(`${apiPrefix}/upload/events`, requireAuth, requireAdmin, uploadEventImage.single('file'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không có tập tin được tải lên'
+        });
+      }
+
+      const filePath = req.file.path.replace(/\\/g, '/');
+      const urlPath = '/' + filePath.split('/').slice(1).join('/');
+
+      res.json({
+        success: true,
+        url: urlPath,
+        message: 'Tải lên hình ảnh thành công'
+      });
+    } catch (error) {
+      console.error('Error uploading event image:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi tải lên hình ảnh'
+      });
+    }
+  });
+
+  // API endpoint tải lên hình ảnh nhân vật
+  app.post(`${apiPrefix}/upload/figures`, requireAuth, requireAdmin, uploadFigureImage.single('file'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không có tập tin được tải lên'
+        });
+      }
+
+      const filePath = req.file.path.replace(/\\/g, '/');
+      const urlPath = '/' + filePath.split('/').slice(1).join('/');
+
+      res.json({
+        success: true,
+        url: urlPath,
+        message: 'Tải lên hình ảnh thành công'
+      });
+    } catch (error) {
+      console.error('Error uploading figure image:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi tải lên hình ảnh'
+      });
+    }
+  });
+
+  // API endpoint tải lên hình ảnh địa danh
+  app.post(`${apiPrefix}/upload/sites`, requireAuth, requireAdmin, uploadSiteImage.single('file'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không có tập tin được tải lên'
+        });
+      }
+
+      const filePath = req.file.path.replace(/\\/g, '/');
+      const urlPath = '/' + filePath.split('/').slice(1).join('/');
+
+      res.json({
+        success: true,
+        url: urlPath,
+        message: 'Tải lên hình ảnh thành công'
+      });
+    } catch (error) {
+      console.error('Error uploading site image:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi tải lên hình ảnh'
+      });
+    }
+  });
+
+  // API endpoint tải lên hình ảnh nền
+  app.post(`${apiPrefix}/upload/backgrounds`, requireAuth, requireAdmin, uploadBackgroundImage.single('file'), (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không có tập tin được tải lên'
+        });
+      }
+
+      const filePath = req.file.path.replace(/\\/g, '/');
+      const urlPath = '/' + filePath.split('/').slice(1).join('/');
+
+      res.json({
+        success: true,
+        url: urlPath,
+        message: 'Tải lên hình ảnh thành công'
+      });
+    } catch (error) {
+      console.error('Error uploading background image:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi tải lên hình ảnh'
+      });
+    }
+  });
+
   // API quản lý feedback
   app.get(`${apiPrefix}/admin/feedback`, requireAuth, requireAdmin, async (req, res) => {
     try {
