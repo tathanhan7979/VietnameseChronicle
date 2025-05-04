@@ -139,8 +139,10 @@ export default function Home() {
   
   return (
     <div className="min-h-screen bg-white">
-      <Header onOpenSearch={openSearch} activeSection={activeSection} onSectionSelect={scrollToSection} />
-      <HeroSection onStartExplore={() => scrollToSection('timeline')} />
+      <div className="pt-16"> {/* Thêm padding-top để header không đè lên nội dung */}
+        <Header onOpenSearch={openSearch} activeSection={activeSection} onSectionSelect={scrollToSection} />
+        <HeroSection onStartExplore={() => scrollToSection('timeline')} />
+      </div>
       <TimelineSection 
         periods={periods || []} 
         events={events || []} 

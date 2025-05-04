@@ -36,6 +36,25 @@ export default function SearchResults() {
     }
   }, [location]);
   
+  // Debounce cho tìm kiếm tự động
+  useEffect(() => {
+    // Không tìm kiếm khi lần đầu tiên load trang (để tránh tìm kiếm lại khi mới vào trang)
+    if (!searchTerm) return;
+    
+    const delayDebounceFn = setTimeout(() => {
+      // Cập nhật URL với các tham số hiện tại
+      const params = new URLSearchParams();
+      if (searchTerm) params.set('q', searchTerm);
+      if (periodFilter !== 'all') params.set('period', periodFilter);
+      if (eventTypeFilter !== 'all') params.set('eventType', eventTypeFilter);
+      
+      navigate(`/tim-kiem?${params.toString()}`);
+      performSearch(searchTerm, periodFilter, eventTypeFilter);
+    }, 300); // Debounce 300ms
+    
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, periodFilter, eventTypeFilter]);
+  
   // Fetch periods and event types for filters
   const { data: periods } = useQuery<PeriodData[]>({
     queryKey: [API_ENDPOINTS.PERIODS],
@@ -150,24 +169,7 @@ export default function SearchResults() {
     }
   };
   
-  // Auto-search when filters change
-  useEffect(() => {
-    // Throttle function to limit API calls
-    const delayTimer = setTimeout(() => {
-      if (searchTerm.trim()) {
-        // Update URL with search params
-        const params = new URLSearchParams();
-        if (searchTerm) params.set('q', searchTerm);
-        if (periodFilter !== 'all') params.set('period', periodFilter);
-        if (eventTypeFilter !== 'all') params.set('eventType', eventTypeFilter);
-        
-        navigate(`/tim-kiem?${params.toString()}`, { replace: true });
-        performSearch(searchTerm, periodFilter, eventTypeFilter);
-      }
-    }, 300); // 300ms delay for throttling
-    
-    return () => clearTimeout(delayTimer);
-  }, [searchTerm, periodFilter, eventTypeFilter]);
+  // Xóa useEffect thừa vì đã có debounce ở trên
   
   // Handle form submission (keeping this for the Enter key functionality)
   const handleSubmit = (e: React.FormEvent) => {

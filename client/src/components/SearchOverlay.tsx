@@ -341,8 +341,20 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 onClick={() => {
                   const params = new URLSearchParams();
                   if (searchTerm) params.set('q', searchTerm);
-                  if (selectedPeriod) params.set('period', selectedPeriod);
-                  if (selectedEventType) params.set('eventType', selectedEventType);
+                  // Chuyển đổi slug thành id khi tìm kiếm
+                  if (selectedPeriod && periods) {
+                    const selectedPeriodObj = periods.find(p => p.slug === selectedPeriod);
+                    if (selectedPeriodObj) {
+                      params.set('period', selectedPeriodObj.id.toString());
+                    }
+                  }
+                  // Chuyển đổi slug thành id với loại sự kiện
+                  if (selectedEventType && eventTypes) {
+                    const selectedEventTypeObj = eventTypes.find(t => t.slug === selectedEventType);
+                    if (selectedEventTypeObj) {
+                      params.set('eventType', selectedEventTypeObj.id.toString());
+                    }
+                  }
                   
                   navigate(`/tim-kiem?${params.toString()}`);
                   onClose();
@@ -361,8 +373,20 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
               onClick={() => {
                 const params = new URLSearchParams();
                 if (searchTerm) params.set('q', searchTerm);
-                if (selectedPeriod) params.set('period', selectedPeriod);
-                if (selectedEventType) params.set('eventType', selectedEventType);
+                // Chuyển đổi slug thành id khi tìm kiếm
+                if (selectedPeriod && periods) {
+                  const selectedPeriodObj = periods.find(p => p.slug === selectedPeriod);
+                  if (selectedPeriodObj) {
+                    params.set('period', selectedPeriodObj.id.toString());
+                  }
+                }
+                // Chuyển đổi slug thành id với loại sự kiện
+                if (selectedEventType && eventTypes) {
+                  const selectedEventTypeObj = eventTypes.find(t => t.slug === selectedEventType);
+                  if (selectedEventTypeObj) {
+                    params.set('eventType', selectedEventTypeObj.id.toString());
+                  }
+                }
                 
                 navigate(`/tim-kiem?${params.toString()}`);
                 onClose();
