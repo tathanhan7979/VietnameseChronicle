@@ -75,13 +75,102 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     enabled: !!(searchTerm || selectedPeriod || selectedEventType),
   });
   
-  // Process search results
+  // Thực hiện tìm kiếm khi người dùng nhập
   useEffect(() => {
-    if (!searchTerm && !selectedPeriod && !selectedEventType) {
-      setResults([]);
-      return;
-    }
+    // Tạo một bộ đếm thời gian để trì hoãn tìm kiếm
+    const delayTimer = setTimeout(() => {
+      if (!searchTerm && !selectedPeriod && !selectedEventType) {
+        setResults([]);
+        return;
+      }
+      
+      // Nếu chưa có searchResults, tạm thời bỏ qua
+      if (!periods || !events || !figures) return;
+      
+      // Tạo kết quả tìm kiếm dựa trên dữ liệu hiện có
+      const newResults: SearchResult[] = [];
+      
+      // Lọc sự kiện
+      if (events) {
+        events
+          .filter(event => {
+            const matchesTerm = !searchTerm || 
+              event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (event.description && event.description.toLowerCase().includes(searchTerm.toLowerCase()));
+            
+            const matchesPeriod = !selectedPeriod || 
+              periods.find(p => p.id === event.periodId)?.slug === selectedPeriod;
+            
+            return matchesTerm && matchesPeriod;
+          })
+          .slice(0, 5)
+          .forEach(event => {
+            newResults.push({
+              id: `event-${event.id}`,
+              type: 'event',
+              title: event.title,
+              subtitle: periods?.find(p => p.id === event.periodId)?.name || '',
+              link: `/su-kien/${event.id}/${slugify(event.title)}`,
+              icon: 'event'
+            });
+          });
+      }
+      
+      // Lọc nhân vật lịch sử
+      if (figures) {
+        figures
+          .filter(figure => {
+            const matchesTerm = !searchTerm || 
+              figure.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (figure.description && figure.description.toLowerCase().includes(searchTerm.toLowerCase()));
+            
+            const matchesPeriod = !selectedPeriod || 
+              periods?.find(p => p.id === figure.periodId)?.slug === selectedPeriod;
+            
+            return matchesTerm && matchesPeriod;
+          })
+          .slice(0, 5)
+          .forEach(figure => {
+            newResults.push({
+              id: `figure-${figure.id}`,
+              type: 'figure',
+              title: figure.name,
+              subtitle: figure.lifespan || periods?.find(p => p.id === figure.periodId)?.name || '',
+              link: `/nhan-vat/${figure.id}/${slugify(figure.name)}`,
+              icon: 'user'
+            });
+          });
+      }
+      
+      // Lọc thời kỳ
+      if (periods) {
+        periods
+          .filter(period => {
+            return !searchTerm || 
+              period.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (period.description && period.description.toLowerCase().includes(searchTerm.toLowerCase()));
+          })
+          .slice(0, 3)
+          .forEach(period => {
+            newResults.push({
+              id: `period-${period.id}`,
+              type: 'period',
+              title: period.name,
+              subtitle: period.timeframe,
+              link: `/thoi-ky/${period.slug}`,
+              icon: 'clock'
+            });
+          });
+      }
+      
+      setResults(newResults);
+    }, 300); // 300ms là thời gian trì hoãn phù hợp
     
+    return () => clearTimeout(delayTimer);
+  }, [searchTerm, selectedPeriod, selectedEventType, periods, events, figures]);
+  
+  // Process API search results
+  useEffect(() => {
     if (!searchResults) return;
     
     const results: SearchResult[] = [];
