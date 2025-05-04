@@ -324,7 +324,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                           Nhấp để chọn ảnh hoặc kéo và thả ảnh vào đây
                         </div>
                         <div className="text-xs text-gray-400">
-                          PNG, JPG, GIF lên đến 10MB
+                          PNG, JPG, GIF lên đến 50MB
                         </div>
                       </div>
                     </div>
