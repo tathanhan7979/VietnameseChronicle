@@ -186,10 +186,19 @@ export default function PeriodsAdmin() {
       try {
         setError(null); // Xóa lỗi trước khi gọi API
         
-        // Đảm bảo gửi dữ liệu đúng định dạng object có thuộc tính orderedIds
-        console.log('Sending body to API:', JSON.stringify(data));
+        // Đảm bảo dữ liệu gửi đi đúng định dạng
+        if (!data || !data.orderedIds || !Array.isArray(data.orderedIds)) {
+          throw new Error('Dữ liệu không đúng định dạng. Vui lòng thử lại.');
+        }
         
-        const res = await apiRequest('PUT', '/api/admin/periods/reorder', data);
+        // Đảm bảo các ID là số nguyên
+        const cleanData = {
+          orderedIds: data.orderedIds.map(id => typeof id === 'string' ? parseInt(id, 10) : id)
+        };
+        
+        console.log('Sending body to API:', JSON.stringify(cleanData));
+        
+        const res = await apiRequest('PUT', '/api/admin/periods/reorder', cleanData);
         console.log('API response status:', res.status);
         
         if (!res.ok) {
@@ -218,12 +227,8 @@ export default function PeriodsAdmin() {
       refetch();
     },
     onError: (error: Error) => {
-      // Không cần hiển thị toast nữa vì đã có component
-      // toast({
-      //   title: 'Không thể sắp xếp thời kỳ',
-      //   description: error.message,
-      //   variant: 'destructive',
-      // });
+      // Log lỗi để debug
+      console.error('Mutation error:', error);
     },
   });
 

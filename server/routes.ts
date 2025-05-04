@@ -577,63 +577,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Thêm các log chi tiết hơn để debug
       console.log('--------------------------------------------------------');
       console.log('REORDER PERIODS REQUEST DEBUG INFO:');
-      console.log('Request headers:', JSON.stringify(req.headers, null, 2));
       console.log('Request method:', req.method);
       console.log('Request URL:', req.url);
       console.log('Request body (raw):', req.body);
-      console.log('Request body type:', typeof req.body);
       
-      // Log chi tiết hơn về body nếu là object
-      if (typeof req.body === 'object' && req.body !== null) {
-        console.log('Body keys:', Object.keys(req.body));
-        for (const key in req.body) {
-          console.log(`Body[${key}] =`, req.body[key], `(type: ${typeof req.body[key]})`);
-          if (key === 'orderedIds' && Array.isArray(req.body[key])) {
-            console.log('orderedIds array length:', req.body[key].length);
-            console.log('orderedIds array values:', req.body[key]);
+      // Xử lý dữ liệu đầu vào từ client
+      let orderedIds: number[] = [];
+      
+      // Trường hợp 1: Kiểm tra nếu req.body là object có thuộc tính orderedIds
+      if (req.body && typeof req.body === 'object' && 'orderedIds' in req.body) {
+        if (Array.isArray(req.body.orderedIds)) {
+          orderedIds = req.body.orderedIds;
+        } else if (typeof req.body.orderedIds === 'string') {
+          // Nếu không phải mảng, thử chuyển từ JSON string sang mảng
+          try {
+            const parsed = JSON.parse(req.body.orderedIds);
+            if (Array.isArray(parsed)) {
+              orderedIds = parsed;
+            }
+          } catch (e) {
+            // Không phải JSON string, bỏ qua
           }
+        }
+      } 
+      // Trường hợp 2: Kiểm tra nếu req.body bản thân là mảng
+      else if (Array.isArray(req.body)) {
+        orderedIds = req.body;
+      }
+      // Trường hợp 3: Kiểm tra nếu req.body là chuỗi JSON
+      else if (typeof req.body === 'string') {
+        try {
+          const parsed = JSON.parse(req.body);
+          if (Array.isArray(parsed)) {
+            orderedIds = parsed;
+          } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.orderedIds)) {
+            orderedIds = parsed.orderedIds;
+          }
+        } catch (e) {
+          // Không phải JSON string, bỏ qua
         }
       }
       
-      // Check cụ thể cho orderedIds
-      const { orderedIds } = req.body || {};
       console.log('Extracted orderedIds:', orderedIds);
-      console.log('Type of orderedIds:', typeof orderedIds);
       console.log('Is Array?', Array.isArray(orderedIds));
+      console.log('Array length:', orderedIds.length);
       
-      // Kiểm tra orderedIds có tồn tại không
-      if (orderedIds === undefined || orderedIds === null) {
-        console.log('ERROR: orderedIds is undefined or null');
-        return res.status(400).json({
-          success: false,
-          message: 'Thiếu thông tin. Vui lòng điền đầy đủ các trường.'
-        });
-      }
-      
-      // Kiểm tra orderedIds có phải là mảng không
-      if (!Array.isArray(orderedIds)) {
-        console.log('ERROR: orderedIds is not an array, type:', typeof orderedIds);
-        return res.status(400).json({
-          success: false,
-          message: 'Sai định dạng dữ liệu. orderedIds phải là một mảng.'
-        });
-      }
-      
-      // Kiểm tra orderedIds có rỗng không
+      // Kiểm tra danh sách rỗng
       if (orderedIds.length === 0) {
-        console.log('ERROR: orderedIds is an empty array');
+        console.log('ERROR: Empty or invalid orderedIds array');
         return res.status(400).json({
           success: false,
-          message: 'Danh sách orderedIds không được rỗng.'
+          message: 'Danh sách ID không hợp lệ hoặc rỗng.'
         });
       }
       
-      // Nếu orderedIds hợp lệ, tiếp tục xử lý
-      console.log('Valid orderedIds array:', orderedIds);
-      
-      // Chuyển đổi các ID từ string sang number nếu cần
+      // Chuyển đổi tất cả ID sang số nguyên
       const numericIds = orderedIds.map(id => typeof id === 'string' ? parseInt(id, 10) : id);
       console.log('Numeric orderedIds:', numericIds);
+      
+      // Kiểm tra số lượng ID đủ không
+      const allPeriods = await storage.getAllPeriods();
+      if (numericIds.length !== allPeriods.length) {
+        console.log(`WARNING: Number of IDs (${numericIds.length}) doesn't match number of periods (${allPeriods.length})`);
+        // Bổ sung cảnh báo nhưng vẫn tiếp tục xử lý
+      }
       
       // Gọi hàm storage để cập nhật thứ tự
       const success = await storage.reorderPeriods(numericIds);
