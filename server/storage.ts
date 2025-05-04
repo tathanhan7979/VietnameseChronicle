@@ -11,6 +11,7 @@ import {
   type Period,
   type Event,
   type HistoricalFigure,
+  type InsertHistoricalFigure,
   type EventType,
   type HistoricalSite,
   type Feedback,
@@ -18,7 +19,7 @@ import {
   type Setting,
   type InsertSetting
 } from "@shared/schema";
-import { eq, like, and, or, desc, asc } from "drizzle-orm";
+import { eq, and, or, like, sql, desc, asc, count, max } from "drizzle-orm";
 
 // Helper to handle database errors
 const handleDbError = (error: unknown, operation: string) => {

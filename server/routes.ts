@@ -1113,6 +1113,147 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API Quản lý nhân vật lịch sử
+  app.get(`${apiPrefix}/admin/historical-figures`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const figures = await storage.getAllHistoricalFigures();
+      res.json(figures);
+    } catch (error) {
+      console.error('Error fetching historical figures for admin:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  app.post(`${apiPrefix}/admin/historical-figures`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const figureData = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!figureData || !figureData.name || !figureData.period) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Thiếu thông tin bắt buộc' 
+        });
+      }
+      
+      const newFigure = await storage.createHistoricalFigure(figureData);
+      
+      if (!newFigure) {
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Không thể tạo nhân vật' 
+        });
+      }
+      
+      res.status(201).json({
+        success: true,
+        message: 'Tạo nhân vật lịch sử thành công',
+        figure: newFigure
+      });
+    } catch (error) {
+      console.error('Error creating historical figure:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi tạo nhân vật lịch sử' 
+      });
+    }
+  });
+  
+  app.put(`${apiPrefix}/admin/historical-figures/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const figureId = parseInt(req.params.id);
+      const figureData = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!figureData) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Thiếu dữ liệu cập nhật' 
+        });
+      }
+      
+      const updatedFigure = await storage.updateHistoricalFigure(figureId, figureData);
+      
+      if (!updatedFigure) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy nhân vật lịch sử' 
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Cập nhật nhân vật lịch sử thành công',
+        figure: updatedFigure
+      });
+    } catch (error) {
+      console.error('Error updating historical figure:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi cập nhật nhân vật lịch sử' 
+      });
+    }
+  });
+  
+  app.delete(`${apiPrefix}/admin/historical-figures/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const figureId = parseInt(req.params.id);
+      
+      const deleted = await storage.deleteHistoricalFigure(figureId);
+      
+      if (!deleted) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy nhân vật lịch sử' 
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Xóa nhân vật lịch sử thành công'
+      });
+    } catch (error) {
+      console.error('Error deleting historical figure:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi xóa nhân vật lịch sử' 
+      });
+    }
+  });
+  
+  app.post(`${apiPrefix}/admin/historical-figures/reorder`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { orderedIds } = req.body;
+      
+      if (!Array.isArray(orderedIds)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Sai định dạng dữ liệu. Cần cung cấp mảng ID.'
+        });
+      }
+      
+      const success = await storage.reorderHistoricalFigures(orderedIds);
+      
+      if (!success) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không thể sắp xếp lại thứ tự.'
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Cập nhật thứ tự thành công'
+      });
+    } catch (error) {
+      console.error('Error reordering historical figures:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi sắp xếp lại thứ tự'
+      });
+    }
+  });
+
   // API quản lý feedback
   app.get(`${apiPrefix}/admin/feedback`, requireAuth, requireAdmin, async (req, res) => {
     try {

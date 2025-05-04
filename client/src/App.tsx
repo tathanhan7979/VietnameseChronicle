@@ -17,6 +17,7 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import PeriodsAdmin from "@/pages/admin/periods";
 import EventTypesAdmin from "@/pages/admin/event-types";
 import EventsAdmin from "@/pages/admin/events";
+import HistoricalFiguresAdmin from "@/pages/admin/historical-figures";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
