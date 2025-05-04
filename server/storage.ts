@@ -183,6 +183,64 @@ export const storage = {
       throw error; // Rethrow để xử lý ở tầng controller
     }
   },
+  
+  getAllFeedback: async (): Promise<Feedback[]> => {
+    try {
+      return await db.query.feedback.findMany({
+        orderBy: [
+          // Hiển thị các feedback chưa xử lý lên đầu
+          asc(feedback.resolved),
+          // Sắp xếp theo thời gian tạo, mới nhất lên đầu
+          desc(feedback.createdAt)
+        ]
+      });
+    } catch (error) {
+      handleDbError(error, "getAllFeedback");
+      return [];
+    }
+  },
+  
+  getFeedbackById: async (id: number): Promise<Feedback | null> => {
+    try {
+      const result = await db.query.feedback.findFirst({
+        where: eq(feedback.id, id)
+      });
+      return result || null;
+    } catch (error) {
+      handleDbError(error, "getFeedbackById");
+      return null;
+    }
+  },
+  
+  updateFeedbackStatus: async (id: number, resolved: boolean, response?: string): Promise<Feedback | null> => {
+    try {
+      const [updated] = await db
+        .update(feedback)
+        .set({ 
+          resolved,
+          response,
+          respondedAt: resolved ? new Date() : null
+        })
+        .where(eq(feedback.id, id))
+        .returning();
+      return updated || null;
+    } catch (error) {
+      handleDbError(error, "updateFeedbackStatus");
+      return null;
+    }
+  },
+  
+  getPendingFeedbackCount: async (): Promise<number> => {
+    try {
+      const pendingFeedback = await db.query.feedback.findMany({
+        where: eq(feedback.resolved, false)
+      });
+      return pendingFeedback.length;
+    } catch (error) {
+      handleDbError(error, "getPendingFeedbackCount");
+      return 0;
+    }
+  },
   // Event Type methods
   getAllEventTypes: async (): Promise<EventType[]> => {
     try {

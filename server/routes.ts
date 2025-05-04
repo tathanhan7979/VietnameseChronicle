@@ -1,8 +1,52 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { createInitialAdminUser, loginUser, registerUser, getUserFromToken, generateToken } from "./auth";
+import { type User } from "@shared/schema";
+
+// Middleware kiểm tra xác thực
+const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const authToken = req.headers.authorization?.split(' ')[1];
+    
+    if (!authToken) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    const user = await getUserFromToken(authToken);
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    // Lưu thông tin user vào req để sử dụng ở các route handler
+    (req as any).user = user;
+    next();
+  } catch (error) {
+    console.error('Authentication error:', error);
+    res.status(401).json({ error: 'Unauthorized' });
+  }
+};
+
+// Middleware kiểm tra quyền admin
+const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = (req as any).user as User;
+    
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    next();
+  } catch (error) {
+    console.error('Authorization error:', error);
+    res.status(403).json({ error: 'Forbidden' });
+  }
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Tạo tài khoản admin mặc định khi khởi động
+  await createInitialAdminUser();
   // API prefix
   const apiPrefix = '/api';
   
@@ -303,6 +347,480 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error initializing settings:', error);
       res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Auth API routes
+  // Đăng nhập
+  app.post(`${apiPrefix}/auth/login`, async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Vui lòng nhập tên đăng nhập và mật khẩu' 
+        });
+      }
+      
+      const result = await loginUser(username, password);
+      
+      if (!result.success) {
+        return res.status(401).json(result);
+      }
+      
+      // Tạo token cho phiên đăng nhập
+      const token = generateToken(result.user!);
+      
+      res.json({
+        success: true,
+        message: 'Đăng nhập thành công',
+        user: result.user,
+        token
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi đăng nhập' 
+      });
+    }
+  });
+  
+  // Lấy thông tin người dùng hiện tại
+  app.get(`${apiPrefix}/auth/user`, requireAuth, (req, res) => {
+    const user = (req as any).user;
+    res.json({ user });
+  });
+  
+  // API Stats - yêu cầu quyền Admin
+  app.get(`${apiPrefix}/admin/stats`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      // Đếm tổng số các mục
+      const periodsCount = (await storage.getAllPeriods()).length;
+      const eventsCount = (await storage.getAllEvents()).length;
+      const figuresCount = (await storage.getAllHistoricalFigures()).length;
+      const sitesCount = (await storage.getAllHistoricalSites()).length;
+      const eventTypesCount = (await storage.getAllEventTypes()).length;
+      
+      // Feedback chưa được xử lý
+      const pendingFeedbackCount = await storage.getPendingFeedbackCount();
+      
+      res.json({
+        periodsCount,
+        eventsCount,
+        figuresCount,
+        sitesCount,
+        eventTypesCount,
+        pendingFeedbackCount,
+        // Các số liệu thống kê giả lập vì chưa có thông tin thực tế
+        visitsCount: 1245,
+        searchCount: 532
+      });
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // API Quản lý thời kỳ
+  app.get(`${apiPrefix}/admin/periods`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const periods = await storage.getAllPeriods();
+      res.json(periods);
+    } catch (error) {
+      console.error('Error fetching periods for admin:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  app.post(`${apiPrefix}/admin/periods`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const periodData = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!periodData || !periodData.name || !periodData.timeframe || !periodData.description) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Thiếu thông tin. Vui lòng điền đầy đủ các trường.' 
+        });
+      }
+      
+      // Tạo slug từ tên nếu chưa có
+      if (!periodData.slug) {
+        periodData.slug = periodData.name
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^\w\s-]/g, "")
+          .replace(/[\s_-]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+      
+      // Lấy vị trí sắp xếp cuối cùng (+1)
+      const periods = await storage.getAllPeriods();
+      const maxSortOrder = periods.length > 0 ? Math.max(...periods.map(p => p.sortOrder)) : -1;
+      periodData.sortOrder = maxSortOrder + 1;
+      
+      // Lưu vào database
+      const newPeriod = await storage.createPeriod(periodData);
+      
+      res.status(201).json({
+        success: true,
+        message: 'Thêm thời kỳ thành công',
+        period: newPeriod
+      });
+    } catch (error) {
+      console.error('Error creating period:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi tạo thời kỳ mới' 
+      });
+    }
+  });
+  
+  app.put(`${apiPrefix}/admin/periods/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const periodId = parseInt(req.params.id);
+      const periodData = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!periodData || !periodData.name || !periodData.timeframe || !periodData.description) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Thiếu thông tin. Vui lòng điền đầy đủ các trường.' 
+        });
+      }
+      
+      // Cập nhật slug nếu cần
+      if (!periodData.slug) {
+        periodData.slug = periodData.name
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^\w\s-]/g, "")
+          .replace(/[\s_-]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+      
+      // Cập nhật vào database
+      const updatedPeriod = await storage.updatePeriod(periodId, periodData);
+      
+      if (!updatedPeriod) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy thời kỳ' 
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Cập nhật thời kỳ thành công',
+        period: updatedPeriod
+      });
+    } catch (error) {
+      console.error('Error updating period:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi cập nhật thời kỳ' 
+      });
+    }
+  });
+  
+  app.delete(`${apiPrefix}/admin/periods/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const periodId = parseInt(req.params.id);
+      
+      // Kiểm tra xem có sự kiện nào liên kết với thời kỳ này không
+      const eventsInPeriod = await storage.getEventsByPeriod(periodId);
+      if (eventsInPeriod.length > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Không thể xóa thời kỳ này vì có các sự kiện liên kết. Vui lòng xóa các sự kiện trước.' 
+        });
+      }
+      
+      // Kiểm tra các di tích liên kết
+      const sitesInPeriod = await storage.getHistoricalSitesByPeriod(periodId);
+      if (sitesInPeriod.length > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Không thể xóa thời kỳ này vì có các di tích liên kết. Vui lòng xóa các di tích trước.' 
+        });
+      }
+      
+      // Xóa thời kỳ
+      const deleted = await storage.deletePeriod(periodId);
+      
+      if (!deleted) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy thời kỳ' 
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Xóa thời kỳ thành công'
+      });
+    } catch (error) {
+      console.error('Error deleting period:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi xóa thời kỳ' 
+      });
+    }
+  });
+  
+  app.put(`${apiPrefix}/admin/periods/reorder`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { orderedIds } = req.body;
+      
+      if (!Array.isArray(orderedIds)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Sai định dạng dữ liệu. Cần cung cấp mảng ID.'
+        });
+      }
+      
+      const success = await storage.reorderPeriods(orderedIds);
+      
+      if (!success) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không thể sắp xếp lại thứ tự.'
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Cập nhật thứ tự thành công'
+      });
+    } catch (error) {
+      console.error('Error reordering periods:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi sắp xếp lại thứ tự'
+      });
+    }
+  });
+  
+  // API Quản lý loại sự kiện
+  app.get(`${apiPrefix}/admin/event-types`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const eventTypes = await storage.getAllEventTypes();
+      res.json(eventTypes);
+    } catch (error) {
+      console.error('Error fetching event types for admin:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  app.post(`${apiPrefix}/admin/event-types`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const typeData = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!typeData || !typeData.name) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Thiếu tên loại sự kiện' 
+        });
+      }
+      
+      // Tạo slug từ tên nếu chưa có
+      if (!typeData.slug) {
+        typeData.slug = typeData.name
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^\w\s-]/g, "")
+          .replace(/[\s_-]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+      
+      // Lấy vị trí sắp xếp cuối cùng (+1)
+      const types = await storage.getAllEventTypes();
+      const maxSortOrder = types.length > 0 ? Math.max(...types.map(t => t.sortOrder)) : -1;
+      typeData.sortOrder = maxSortOrder + 1;
+      
+      // Lưu vào database
+      const newType = await storage.createEventType(typeData);
+      
+      res.status(201).json({
+        success: true,
+        message: 'Thêm loại sự kiện thành công',
+        eventType: newType
+      });
+    } catch (error) {
+      console.error('Error creating event type:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi tạo loại sự kiện mới' 
+      });
+    }
+  });
+  
+  app.put(`${apiPrefix}/admin/event-types/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const typeId = parseInt(req.params.id);
+      const typeData = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!typeData || !typeData.name) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Thiếu tên loại sự kiện' 
+        });
+      }
+      
+      // Cập nhật slug nếu cần
+      if (!typeData.slug) {
+        typeData.slug = typeData.name
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^\w\s-]/g, "")
+          .replace(/[\s_-]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+      
+      // Cập nhật vào database
+      const updatedType = await storage.updateEventType(typeId, typeData);
+      
+      if (!updatedType) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy loại sự kiện' 
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Cập nhật loại sự kiện thành công',
+        eventType: updatedType
+      });
+    } catch (error) {
+      console.error('Error updating event type:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi cập nhật loại sự kiện' 
+      });
+    }
+  });
+  
+  app.delete(`${apiPrefix}/admin/event-types/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const typeId = parseInt(req.params.id);
+      
+      // Kiểm tra xem có sự kiện nào sử dụng loại này không
+      const relatedEvents = await storage.getEventsUsingEventType(typeId);
+      if (relatedEvents.length > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Không thể xóa loại sự kiện này vì có các sự kiện sử dụng. Vui lòng gỡ liên kết trước.' 
+        });
+      }
+      
+      // Xóa loại sự kiện
+      const deleted = await storage.deleteEventType(typeId);
+      
+      if (!deleted) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy loại sự kiện' 
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Xóa loại sự kiện thành công'
+      });
+    } catch (error) {
+      console.error('Error deleting event type:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi xóa loại sự kiện' 
+      });
+    }
+  });
+  
+  app.put(`${apiPrefix}/admin/event-types/reorder`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { orderedIds } = req.body;
+      
+      if (!Array.isArray(orderedIds)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Sai định dạng dữ liệu. Cần cung cấp mảng ID.'
+        });
+      }
+      
+      const success = await storage.reorderEventTypes(orderedIds);
+      
+      if (!success) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không thể sắp xếp lại thứ tự.'
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Cập nhật thứ tự thành công'
+      });
+    } catch (error) {
+      console.error('Error reordering event types:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi sắp xếp lại thứ tự'
+      });
+    }
+  });
+  
+  // API quản lý feedback
+  app.get(`${apiPrefix}/admin/feedback`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const feedbacks = await storage.getAllFeedback();
+      res.json(feedbacks);
+    } catch (error) {
+      console.error('Error fetching feedback for admin:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  app.put(`${apiPrefix}/admin/feedback/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const feedbackId = parseInt(req.params.id);
+      const { resolved, response } = req.body;
+      
+      if (resolved === undefined) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Thiếu trạng thái xử lý' 
+        });
+      }
+      
+      const updatedFeedback = await storage.updateFeedbackStatus(feedbackId, resolved, response);
+      
+      if (!updatedFeedback) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy phản hồi' 
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Cập nhật trạng thái phản hồi thành công',
+        feedback: updatedFeedback
+      });
+    } catch (error) {
+      console.error('Error updating feedback status:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi cập nhật trạng thái phản hồi' 
+      });
     }
   });
 
