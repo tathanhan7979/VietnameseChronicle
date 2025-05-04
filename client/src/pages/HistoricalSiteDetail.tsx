@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useLocation } from "wouter";
+import { useParams, useLocation, Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,6 +14,7 @@ export default function HistoricalSiteDetail() {
   // Trạng thái của component
   const [site, setSite] = useState<any>(null);
   const [period, setPeriod] = useState<string | null>(null);
+  const [periodSlug, setPeriodSlug] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<any>(null);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
@@ -75,6 +76,7 @@ export default function HistoricalSiteDetail() {
             const foundPeriod = periodsData.find((p: any) => p.id === siteData.periodId);
             if (foundPeriod) {
               setPeriod(foundPeriod.name);
+              setPeriodSlug(foundPeriod.slug); // Lưu slug của thời kỳ để sử dụng cho link
               
               // 2.1 Tải các di tích khác trong cùng thời kỳ sử dụng slug
               // Sử dụng API endpoint mới cho slug của thời kỳ
