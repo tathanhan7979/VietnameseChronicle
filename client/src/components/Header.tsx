@@ -17,7 +17,6 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
   const navigationItems = [
     { id: 'home', name: 'Trang Chủ', icon: HomeIcon, href: '/' },
     { id: 'timeline', name: 'Dòng Thời Gian', icon: Clock10Icon, href: '/#timeline' },
-    { id: 'featured-periods', name: 'Triều Đại Nổi Bật', icon: BookOpenIcon, href: '/#featured-periods' },
     { id: 'historical-figures', name: 'Nhân Vật Lịch Sử', icon: UserIcon, href: '/#historical-figures' },
     { id: 'historical-sites', name: 'Di Tích Lịch Sử', icon: LandmarkIcon, href: '/#historical-sites' },
   ];

@@ -110,6 +110,7 @@ export default function TimelineSection({
             <History className="h-8 w-8 text-[#C62828]" />
             Dòng Thời Gian <span>Lịch Sử Việt Nam</span>
           </h2>
+          <p>Khám phá dòng thời gian lịch sử 4000 năm của Việt Nam</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -199,7 +200,7 @@ export default function TimelineSection({
                             </Link>
 
                             <span className="event-year">{event.year}</span>
-                          
+
                             <p className="event-description">
                               {event.description}
                             </p>

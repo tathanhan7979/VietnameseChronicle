@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowDownCircle, ArrowRight, Scroll, Users, MapPin, BookOpen } from "lucide-react";
+import { ArrowDownCircle, ArrowRight } from "lucide-react";
 
 interface HeroSectionProps {
   onStartExplore?: () => void;
@@ -12,29 +12,6 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
       onStartExplore();
     }
   };
-
-  const features = [
-    {
-      icon: <Scroll className="h-8 w-8" />,
-      title: "Dòng thời gian",
-      description: "Khám phá 4000 năm lịch sử Việt Nam qua dòng thời gian tương tác"
-    },
-    {
-      icon: <Users className="h-8 w-8" />,
-      title: "Nhân vật lịch sử",
-      description: "Tìm hiểu về các anh hùng, danh nhân đã góp phần xây dựng đất nước"
-    },
-    {
-      icon: <MapPin className="h-8 w-8" />,
-      title: "Di tích lịch sử",
-      description: "Khám phá các di tích văn hóa, lịch sử quan trọng trên khắp đất nước"
-    },
-    {
-      icon: <BookOpen className="h-8 w-8" />,
-      title: "Câu chuyện lịch sử",
-      description: "Đọc những câu chuyện chi tiết về các sự kiện quan trọng trong lịch sử"
-    }
-  ];
 
   return (
     <section id="home" className="relative overflow-hidden">
@@ -133,54 +110,6 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
           >
             <ArrowDownCircle className="h-10 w-10 text-white animate-bounce" />
           </motion.div>
-        </div>
-      </div>
-      
-      {/* Features Section */}
-      <div className="bg-gradient-to-b from-[#1A1A2E] to-[#16213E] py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <motion.h2 
-              className="font-['Playfair_Display'] text-3xl md:text-4xl font-bold text-white mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              Khám Phá Lịch Sử Việt Nam
-            </motion.h2>
-            <motion.div 
-              className="w-20 h-1 bg-red-600 mx-auto"
-              initial={{ width: 0 }}
-              animate={{ width: 80 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            ></motion.div>
-            <motion.p 
-              className="text-gray-300 mt-6 max-w-3xl mx-auto text-lg"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              Tìm hiểu lịch sử, văn hóa và con người Việt Nam qua hành trình 4000 năm dựng nước và giữ nước
-            </motion.p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <motion.div 
-                key={index}
-                className="bg-[#1E2746] border border-[#30395C] rounded-xl p-6 text-white shadow-xl hover:shadow-2xl transition-all hover:translate-y-[-5px] h-full flex flex-col"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-              >
-                <div className="bg-gradient-to-br from-red-600 to-red-800 w-16 h-16 rounded-lg flex items-center justify-center mb-5 shadow-lg">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-['Playfair_Display'] font-bold mb-3">{feature.title}</h3>
-                <p className="text-gray-300 flex-grow">{feature.description}</p>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </div>
     </section>
