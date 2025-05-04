@@ -61,6 +61,17 @@ export default function PeriodsAdmin() {
   const [periodsState, setPeriodsState] = useState<Period[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<{title: string; message: string; status?: number} | null>(null);
+  
+  // State cho modal xử lý các mục liên kết
+  const [isReassignModalOpen, setIsReassignModalOpen] = useState(false);
+  const [relatedItemsData, setRelatedItemsData] = useState<{
+    periodName: string;
+    events: any[];
+    sites: any[];
+    availablePeriods: Period[];
+  } | null>(null);
+  const [targetPeriodId, setTargetPeriodId] = useState<number | null>(null);
+  const [reassignLoading, setReassignLoading] = useState(false);
 
   // Lấy danh sách các thời kỳ
   const { data: periods, isLoading, refetch } = useQuery<Period[]>({
