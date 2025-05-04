@@ -170,6 +170,7 @@ export default function HistoricalFiguresAdmin() {
   
   const [figures, setFigures] = useState<HistoricalFigure[]>([]);
   const [periods, setPeriods] = useState<Period[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -190,7 +191,7 @@ export default function HistoricalFiguresAdmin() {
   const [isRemovingImage, setIsRemovingImage] = useState(false);
   
   // State cho achievements
-  const [achievements, setAchievements] = useState<Array<{id: string; title: string; year?: string}>>([]);
+  const [achievements, setAchievements] = useState<Array<{id: string; title: string; eventId?: number; year?: string}>>([]);
 
   // DnD setup
   const sensors = useSensors(
@@ -206,17 +207,20 @@ export default function HistoricalFiguresAdmin() {
       try {
         setIsLoading(true);
         
-        // Song song lấy cả hai dữ liệu để tối ưu thời gian
-        const [figuresResponse, periodsResponse] = await Promise.all([
+        // Song song lấy cả ba dữ liệu để tối ưu thời gian
+        const [figuresResponse, periodsResponse, eventsResponse] = await Promise.all([
           apiRequest('GET', '/api/admin/historical-figures'),
-          apiRequest('GET', '/api/admin/periods')
+          apiRequest('GET', '/api/admin/periods'),
+          apiRequest('GET', '/api/events')
         ]);
         
         const figuresData = await figuresResponse.json();
         const periodsData = await periodsResponse.json();
+        const eventsData = await eventsResponse.json();
         
         setFigures(figuresData);
         setPeriods(periodsData);
+        setEvents(eventsData);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -787,7 +791,7 @@ export default function HistoricalFiguresAdmin() {
                 <Label htmlFor="achievements">Thành tựu nổi bật</Label>
                 <div className="mt-3 space-y-3 border rounded-md p-4 bg-gray-50 dark:bg-zinc-900">
                   {achievements.map((achievement, index) => (
-                    <div key={achievement.id || index} className="flex items-center space-x-2">
+                    <div key={achievement.id || index} className="grid grid-cols-12 gap-2">
                       <Input
                         placeholder="Tên thành tựu"
                         value={achievement.title}
@@ -796,7 +800,7 @@ export default function HistoricalFiguresAdmin() {
                           newAchievements[index].title = e.target.value;
                           setAchievements(newAchievements);
                         }}
-                        className="flex-grow"
+                        className="col-span-5"
                       />
                       <Input
                         placeholder="Năm (nếu có)"
@@ -806,8 +810,28 @@ export default function HistoricalFiguresAdmin() {
                           newAchievements[index].year = e.target.value;
                           setAchievements(newAchievements);
                         }}
-                        className="w-24"
+                        className="col-span-2"
                       />
+                      <Select 
+                        value={achievement.eventId?.toString() || ''}
+                        onValueChange={(value) => {
+                          const newAchievements = [...achievements];
+                          newAchievements[index].eventId = value ? parseInt(value) : undefined;
+                          setAchievements(newAchievements);
+                        }}
+                      >
+                        <SelectTrigger className="col-span-4">
+                          <SelectValue placeholder="Liên kết sự kiện" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Không có sự kiện</SelectItem>
+                          {events.map((event) => (
+                            <SelectItem key={event.id} value={event.id.toString()}>
+                              {event.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <Button 
                         type="button" 
                         variant="destructive" 
@@ -817,6 +841,7 @@ export default function HistoricalFiguresAdmin() {
                           newAchievements.splice(index, 1);
                           setAchievements(newAchievements);
                         }}
+                        className="col-span-1"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
