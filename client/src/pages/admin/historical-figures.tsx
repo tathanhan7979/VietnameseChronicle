@@ -124,6 +124,14 @@ function SortableFigureItem({ figure, onEdit, onDelete }: SortableFigureItemProp
       </div>
       
       <div className="flex items-center gap-2">
+        <a 
+          href={`/historical-figures/${figure.id}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+        >
+          <Grid className="h-4 w-4" />
+        </a>
         <Button 
           variant="ghost" 
           size="icon" 
