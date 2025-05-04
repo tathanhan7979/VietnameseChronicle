@@ -2,14 +2,25 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
-import { Clock, Edit, MoreHorizontal, Plus, Trash, GripVertical, AlertTriangle } from 'lucide-react';
+import { Clock, Edit, MoreHorizontal, Plus, Trash, GripVertical, AlertTriangle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ToastError } from '@/components/ui/toast-error';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { type Period } from '@shared/schema';
 // Sử dụng thư viện DND-Kit để tránh cảnh báo defaultProps và có trải nghiệm kéo thả tốt hơn
 import { DndContext, MouseSensor, TouchSensor, KeyboardSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -76,6 +87,7 @@ export default function PeriodsAdmin() {
   } | null>(null);
   const [targetPeriodId, setTargetPeriodId] = useState<number | null>(null);
   const [reassignLoading, setReassignLoading] = useState(false);
+  const [reassignOption, setReassignOption] = useState<'reassign' | 'delete'>('reassign');
 
   // Lấy danh sách các thời kỳ
   const { data: periods, isLoading, refetch } = useQuery<Period[]>({
@@ -864,26 +876,42 @@ export default function PeriodsAdmin() {
                 </TabsContent>
               </Tabs>
               
-              {/* Phần chọn thời kỳ đích */}
-              {relatedItemsData.availablePeriods.length > 0 && (
-                <div>
-                  <Label htmlFor="targetPeriod" className="block mb-2">
-                    Chọn thời kỳ để chuyển nội dung đến:
-                  </Label>
-                  <Select value={targetPeriodId?.toString() || ''} onValueChange={(value) => setTargetPeriodId(parseInt(value))}>
-                    <SelectTrigger id="targetPeriod">
-                      <SelectValue placeholder="Chọn thời kỳ đích" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {relatedItemsData.availablePeriods.map((period) => (
-                        <SelectItem key={period.id} value={period.id.toString()}>
-                          {period.name} ({period.timeframe})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              {/* Phần lựa chọn cách xử lý */}
+              <div className="mt-4 space-y-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroup value={reassignOption} onValueChange={(val: 'reassign' | 'delete') => setReassignOption(val)}>
+                    <div className="flex items-center space-x-2 mb-3">
+                      <RadioGroupItem value="reassign" id="reassign" />
+                      <Label htmlFor="reassign">Chuyển sang thời kỳ khác</Label>
+                    </div>
+                    
+                    {reassignOption === 'reassign' && relatedItemsData.availablePeriods.length > 0 && (
+                      <div className="ml-6 mb-3">
+                        <Label htmlFor="targetPeriod" className="block mb-2">
+                          Chọn thời kỳ để chuyển nội dung đến:
+                        </Label>
+                        <Select value={targetPeriodId?.toString() || ''} onValueChange={(value) => setTargetPeriodId(parseInt(value))}>
+                          <SelectTrigger id="targetPeriod">
+                            <SelectValue placeholder="Chọn thời kỳ đích" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {relatedItemsData.availablePeriods.map((period) => (
+                              <SelectItem key={period.id} value={period.id.toString()}>
+                                {period.name} ({period.timeframe})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="delete" id="delete" />
+                      <Label htmlFor="delete">Xóa tất cả các mục liên kết</Label>
+                    </div>
+                  </RadioGroup>
                 </div>
-              )}
+              </div>
               
               <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mt-2">
                 <div className="flex items-start">
