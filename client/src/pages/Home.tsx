@@ -17,7 +17,12 @@ export default function Home() {
   
   // Fetch all data
   const { data: periods } = useQuery<PeriodData[]>({
-    queryKey: ['/api/periods'],
+    queryKey: ['/api/periods', { visible: true }],
+    queryFn: async () => {
+      const response = await fetch('/api/periods?visible=true');
+      if (!response.ok) throw new Error('Failed to fetch periods');
+      return response.json();
+    }
   });
 
   const { data: events } = useQuery<EventData[]>({
