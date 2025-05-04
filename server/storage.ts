@@ -1038,7 +1038,11 @@ export const storage = {
         }
         
         if (periodFilter) {
-          conditions.push(like(historicalFigures.period, `%${periodFilter.name}%`));
+          // Sử dụng periodId để tìm chính xác và sử dụng periodText như là backup
+          conditions.push(or(
+            eq(historicalFigures.periodId, periodFilter.id),
+            like(historicalFigures.periodText, `%${periodFilter.name}%`)
+          ));
         }
         
         if (conditions.length > 0 || noFilters) {

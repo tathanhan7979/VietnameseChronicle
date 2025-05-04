@@ -57,7 +57,8 @@ export type Event = typeof events.$inferSelect;
 export const historicalFigures = pgTable("historical_figures", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  period: text("period").notNull(),
+  periodId: integer("period_id").references(() => periods.id),
+  periodText: text("period").notNull(), // Giữ lại trường cũ cho tương thích ngược
   lifespan: text("lifespan").notNull(),
   description: text("description").notNull(),
   detailedDescription: text("detailed_description"),
@@ -143,10 +144,16 @@ export const historicalSitesRelations = relations(historicalSites, ({ one }) => 
   relatedEvent: one(events, { fields: [historicalSites.relatedEventId], references: [events.id] })
 }));
 
-// Update period relations to include historical sites
+// Update period relations to include historical sites and figures
 export const periodsRelationsWithSites = relations(periods, ({ many }) => ({
   events: many(events),
-  historicalSites: many(historicalSites)
+  historicalSites: many(historicalSites),
+  historicalFigures: many(historicalFigures)
+}));
+
+// Relations for Historical Figures
+export const historicalFiguresRelations = relations(historicalFigures, ({ one }) => ({
+  period: one(periods, { fields: [historicalFigures.periodId], references: [periods.id] })
 }));
 
 // Bảng lưu thông tin góp ý
