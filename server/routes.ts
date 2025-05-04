@@ -549,7 +549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Update a setting
-  app.put(`${apiPrefix}/settings/:key`, async (req, res) => {
+  app.put(`${apiPrefix}/settings/:key`, requireAuth, requireAdmin, async (req, res) => {
     try {
       const { value } = req.body;
       
@@ -570,7 +570,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Initialize default settings
-  app.post(`${apiPrefix}/settings/initialize`, async (req, res) => {
+  app.post(`${apiPrefix}/settings/initialize`, requireAuth, requireAdmin, async (req, res) => {
     try {
       await storage.initializeDefaultSettings();
       const allSettings = await storage.getAllSettings();
