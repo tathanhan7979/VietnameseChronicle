@@ -22,6 +22,12 @@ export default function EventDetail() {
     enabled: !!event,
   });
   
+  // Lấy các sự kiện thuộc cùng thời kỳ (dùng slug)
+  const { data: relatedEvents } = useQuery<EventData[]>({
+    queryKey: [`/api/events/period-slug/${period?.slug}`],
+    enabled: !!period?.slug,
+  });
+  
   if (isLoadingEvent || isLoadingPeriod) {
     return (
       <div className="container mx-auto px-4 py-12 min-h-screen flex items-center justify-center">
