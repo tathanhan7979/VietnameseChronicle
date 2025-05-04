@@ -7,13 +7,16 @@ import {
   eventToEventType,
   historicalSites,
   feedback,
+  settings,
   type Period,
   type Event,
   type HistoricalFigure,
   type EventType,
   type HistoricalSite,
   type Feedback,
-  type InsertFeedback
+  type InsertFeedback,
+  type Setting,
+  type InsertSetting
 } from "@shared/schema";
 import { eq, like, and, or, desc, asc } from "drizzle-orm";
 
@@ -24,6 +27,115 @@ const handleDbError = (error: unknown, operation: string) => {
 };
 
 export const storage = {
+  // Settings methods
+  getSetting: async (key: string): Promise<Setting | null> => {
+    try {
+      const result = await db.query.settings.findFirst({
+        where: eq(settings.key, key)
+      });
+      return result || null;
+    } catch (error) {
+      handleDbError(error, "getSetting");
+      return null;
+    }
+  },
+  
+  getAllSettings: async (): Promise<Setting[]> => {
+    try {
+      return await db.query.settings.findMany();
+    } catch (error) {
+      handleDbError(error, "getAllSettings");
+      return [];
+    }
+  },
+  
+  updateSetting: async (key: string, value: string): Promise<Setting | null> => {
+    try {
+      // Kiểm tra xem setting đã tồn tại chưa
+      const existingSetting = await db.query.settings.findFirst({
+        where: eq(settings.key, key)
+      });
+      
+      if (existingSetting) {
+        // Nếu đã tồn tại, cập nhật giá trị
+        const [updated] = await db
+          .update(settings)
+          .set({ value, updatedAt: new Date() })
+          .where(eq(settings.key, key))
+          .returning();
+        return updated;
+      } else {
+        // Nếu chưa tồn tại, tạo mới
+        const [created] = await db
+          .insert(settings)
+          .values({ key, value })
+          .returning();
+        return created;
+      }
+    } catch (error) {
+      handleDbError(error, "updateSetting");
+      return null;
+    }
+  },
+  
+  deleteSetting: async (key: string): Promise<boolean> => {
+    try {
+      await db
+        .delete(settings)
+        .where(eq(settings.key, key));
+      return true;
+    } catch (error) {
+      handleDbError(error, "deleteSetting");
+      return false;
+    }
+  },
+  
+  initializeDefaultSettings: async (): Promise<void> => {
+    try {
+      // Các thiết lập mặc định
+      const defaultSettings = [
+        {
+          key: "home_background_url",
+          value: "https://images.unsplash.com/photo-1624009582782-1be02fbb7f23?q=80&w=2071&auto=format&fit=crop",
+          description: "URL ảnh nền của trang chủ"
+        },
+        {
+          key: "telegram_bot_token",
+          value: "",
+          description: "Token của bot Telegram"
+        },
+        {
+          key: "telegram_chat_id",
+          value: "",
+          description: "ID nhóm chat Telegram"
+        },
+        {
+          key: "privacy_policy",
+          value: "<h2>Chính sách bảo mật</h2><p>Thông tin chi tiết về chính sách bảo mật...</p>",
+          description: "Nội dung chính sách bảo mật"
+        },
+        {
+          key: "terms_of_service",
+          value: "<h2>Điều khoản sử dụng</h2><p>Thông tin chi tiết về điều khoản sử dụng...</p>",
+          description: "Nội dung điều khoản sử dụng"
+        }
+      ];
+      
+      // Kiểm tra và tạo/cập nhật các thiết lập
+      for (const setting of defaultSettings) {
+        const existing = await db.query.settings.findFirst({
+          where: eq(settings.key, setting.key)
+        });
+        
+        if (!existing) {
+          await db.insert(settings).values(setting);
+        }
+      }
+    } catch (error) {
+      handleDbError(error, "initializeDefaultSettings");
+    }
+  },
+
   // Feedback methods
   createFeedback: async (data: InsertFeedback): Promise<Feedback> => {
     try {

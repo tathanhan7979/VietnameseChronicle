@@ -77,7 +77,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] md:max-w-[700px] p-6">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">Góp ý xây dựng</DialogTitle>
           <DialogDescription className="text-center">

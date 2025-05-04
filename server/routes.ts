@@ -221,6 +221,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Settings API routes
+  // Get a setting by key
+  app.get(`${apiPrefix}/settings/:key`, async (req, res) => {
+    try {
+      const setting = await storage.getSetting(req.params.key);
+      if (!setting) {
+        return res.status(404).json({ error: 'Thiết lập không tồn tại' });
+      }
+      res.json(setting);
+    } catch (error) {
+      console.error('Error fetching setting:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Get all settings
+  app.get(`${apiPrefix}/settings`, async (req, res) => {
+    try {
+      const allSettings = await storage.getAllSettings();
+      res.json(allSettings);
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Update a setting
+  app.put(`${apiPrefix}/settings/:key`, async (req, res) => {
+    try {
+      const { value } = req.body;
+      
+      if (value === undefined) {
+        return res.status(400).json({ error: 'Thiếu giá trị thiết lập' });
+      }
+      
+      const updated = await storage.updateSetting(req.params.key, value);
+      if (!updated) {
+        return res.status(404).json({ error: 'Không thể cập nhật thiết lập' });
+      }
+      
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating setting:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Initialize default settings
+  app.post(`${apiPrefix}/settings/initialize`, async (req, res) => {
+    try {
+      await storage.initializeDefaultSettings();
+      const allSettings = await storage.getAllSettings();
+      res.json({
+        success: true,
+        message: 'Các thiết lập mặc định đã được khởi tạo',
+        settings: allSettings
+      });
+    } catch (error) {
+      console.error('Error initializing settings:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
   // Create HTTP server
   const httpServer = createServer(app);
   

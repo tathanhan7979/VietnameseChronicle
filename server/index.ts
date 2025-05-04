@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { storage } from "./storage";
 
 const app = express();
 app.use(express.json());
@@ -37,6 +38,15 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Khởi tạo các thiết lập mặc định
+  try {
+    log('Initializing default settings...');
+    await storage.initializeDefaultSettings();
+    log('Default settings initialized successfully!');
+  } catch (error) {
+    console.error('Error initializing default settings:', error);
+  }
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
