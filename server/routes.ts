@@ -197,6 +197,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // API endpoint cho quan hệ giữa sự kiện và loại sự kiện
+  app.get(`${apiPrefix}/event-to-event-type`, async (req, res) => {
+    try {
+      const relationships = await storage.getAllEventToEventTypes();
+      res.json(relationships);
+    } catch (error) {
+      console.error('Error fetching event to event type relationships:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
   // Get all events
   app.get(`${apiPrefix}/events`, async (req, res) => {
     try {

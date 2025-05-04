@@ -28,6 +28,17 @@ const handleDbError = (error: unknown, operation: string) => {
 };
 
 export const storage = {
+  // Event to Event Type relations
+  getAllEventToEventTypes: async () => {
+    try {
+      const results = await db.select().from(eventToEventType);
+      return results;
+    } catch (error) {
+      handleDbError(error, "getAllEventToEventTypes");
+      return [];
+    }
+  },
+    
   // Users methods
   getUserById: async (id: number) => {
     try {
