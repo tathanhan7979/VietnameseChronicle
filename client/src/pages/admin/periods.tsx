@@ -6,6 +6,7 @@ import { Clock, Edit, MoreHorizontal, Plus, Trash, GripVertical, AlertTriangle, 
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from "@/components/ui/checkbox";
 import { ToastError } from '@/components/ui/toast-error';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -45,6 +46,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
