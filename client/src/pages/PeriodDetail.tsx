@@ -19,7 +19,7 @@ import {
   HistoricalFigure,
   HistoricalSite,
 } from "@/lib/types";
-import { PERIOD_ICONS } from "@/lib/constants";
+
 import { slugify } from "@/lib/utils";
 import { motion } from "framer-motion";
 

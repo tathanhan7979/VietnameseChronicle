@@ -4,7 +4,7 @@ import { EventData, PeriodData } from '@/lib/types';
 import { useMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, MapPin } from 'lucide-react';
-import { PERIOD_ICONS } from '@/lib/constants';
+
 import { slugify } from '@/lib/utils';
 
 export default function EventDetail() {
