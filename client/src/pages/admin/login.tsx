@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useAuth } from '@/hooks/use-auth';
-import { Loader2 } from 'lucide-react';
-import { Redirect } from 'wouter';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useAuth } from "@/hooks/use-auth";
+import { Loader2 } from "lucide-react";
+import { Redirect } from "wouter";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,12 +13,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 const loginFormSchema = z.object({
-  username: z.string().min(1, 'Vui lòng nhập tên đăng nhập'),
-  password: z.string().min(1, 'Vui lòng nhập mật khẩu'),
+  username: z.string().min(1, "Vui lòng nhập tên đăng nhập"),
+  password: z.string().min(1, "Vui lòng nhập mật khẩu"),
 });
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
@@ -30,8 +30,8 @@ export default function AdminLogin() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      username: '',
-      password: '',
+      username: "",
+      password: "",
     },
   });
 
@@ -54,10 +54,6 @@ export default function AdminLogin() {
                 VN
               </div>
               <h2 className="text-2xl font-bold mb-1">Đăng nhập Quản trị</h2>
-              <p className="text-gray-500 text-sm">
-                Tài khoản: <span className="font-semibold">TaThanhAnGroup</span><br/>
-                Mật khẩu: <span className="font-semibold">Hihihaha123@</span>
-              </p>
             </div>
 
             <Form {...form}>
