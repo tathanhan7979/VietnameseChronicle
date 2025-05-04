@@ -87,7 +87,7 @@ export default function HistoricalFigureDetail() {
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-2" />
                     <Link href={`/thoi-ky/${periods?.find(p => p.id === figure.periodId)?.slug || ''}`}>
-                      <span className="cursor-pointer hover:underline hover:text-white">Thời kỳ: {periods?.find(p => p.id === figure.periodId)?.name || figure.periodText}</span>
+                      <span className="cursor-pointer hover:underline hover:text-white">Thời kỳ: {periods?.find(p => p.id === figure.periodId)?.name || ""}</span>
                     </Link>
                   </div>
                 </div>
@@ -165,7 +165,7 @@ export default function HistoricalFigureDetail() {
             {/* Period info */}
             <div className="mt-12 pt-8 border-t border-gray-200">
               <h2 className="text-2xl font-bold font-['Playfair_Display'] text-[hsl(var(--primary))] mb-4">
-                Thời kỳ {periods?.find(p => p.id === figure.periodId)?.name || figure.periodText}
+                Thời kỳ {periods?.find(p => p.id === figure.periodId)?.name || ""}
               </h2>
               <div>
                 <p className="mb-4">Thời gian sống: {figure.lifespan}</p>

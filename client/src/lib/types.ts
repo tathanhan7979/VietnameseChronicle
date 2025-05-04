@@ -38,8 +38,8 @@ export interface Achievement {
 export interface HistoricalFigure {
   id: number;
   name: string;
-  period: string;
-  periodId?: number; // Liên kết trực tiếp với bảng periods
+  periodId: number; // Liên kết trực tiếp với bảng periods
+  periodText?: string; // Để tương thích ngược - sẽ bỏ dần
   lifespan: string;
   description: string;
   detailedDescription?: string;

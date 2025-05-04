@@ -59,10 +59,10 @@ export default function PeriodDetail() {
     },
   );
 
-  // Filter historical figures based on period name
+  // Filter historical figures based on periodId
   const figures =
     allFigures?.filter(
-      (figure) => period && figure.period.includes(period.name),
+      (figure) => period && figure.periodId === period.id,
     ) || [];
 
   const isLoading =

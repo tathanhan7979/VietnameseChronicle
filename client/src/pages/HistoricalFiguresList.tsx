@@ -28,8 +28,8 @@ export default function HistoricalFiguresList() {
       figure.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       figure.description.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Sử dụng periodId để kiểm tra lọc nếu có, nếu không thì dùng period text
-    const periodName = periods?.find(p => p.id === figure.periodId)?.name || figure.period;
+    // Sử dụng periodId để kiểm tra lọc
+    const periodName = periods?.find(p => p.id === figure.periodId)?.name || "";
     const matchesPeriod = periodFilter === 'all' || periodName.includes(periodFilter);
     
     return matchesSearch && matchesPeriod;
@@ -157,7 +157,7 @@ export default function HistoricalFiguresList() {
                 </div>
                 <Link href={`/thoi-ky/${periods?.find(p => p.id === figure.periodId)?.slug || 'unknown'}`}>
                   <div className="absolute top-3 right-3 bg-[#4527A0] text-white px-3 py-1 rounded-full text-xs font-medium cursor-pointer hover:bg-[#311B92] transition-colors">
-                    {periods?.find(p => p.id === figure.periodId)?.name || figure.period}
+                    {periods?.find(p => p.id === figure.periodId)?.name || ""}
                   </div>
                 </Link>
               </div>
