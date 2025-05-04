@@ -1282,6 +1282,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // === API Quản lý địa danh lịch sử ===
+
+  // Lấy tất cả địa danh lịch sử (cho admin)
+  app.get(`${apiPrefix}/admin/historical-sites`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const sites = await storage.getAllHistoricalSites();
+      return res.status(200).json(sites);
+    } catch (error) {
+      console.error('Error fetching historical sites:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi khi lấy danh sách địa danh lịch sử.'
+      });
+    }
+  });
+  
+  // Thêm địa danh lịch sử mới
+  app.post(`${apiPrefix}/admin/historical-sites`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const siteData = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!siteData || !siteData.name || !siteData.location || !siteData.description) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Thiếu thông tin. Vui lòng điền đầy đủ các trường.' 
+        });
+      }
+      
+      // Lấy số lượng địa danh hiện tại để làm sortOrder mặc định
+      const allSites = await storage.getAllHistoricalSites();
+      siteData.sortOrder = allSites.length;
+      
+      const newSite = await storage.createHistoricalSite(siteData);
+      
+      return res.status(201).json({
+        success: true,
+        message: 'Thêm địa danh lịch sử thành công.',
+        data: newSite
+      });
+    } catch (error) {
+      console.error('Error creating historical site:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi khi thêm địa danh lịch sử.'
+      });
+    }
+  });
+  
+  // Cập nhật địa danh lịch sử
+  app.put(`${apiPrefix}/admin/historical-sites/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const siteData = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!siteData || (!siteData.name && !siteData.location && !siteData.description && !siteData.imageUrl && 
+          !siteData.periodId && !siteData.detailedDescription && !siteData.mapUrl && !siteData.address && 
+          !siteData.yearBuilt && !siteData.relatedEventId)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Thiếu thông tin. Vui lòng cung cấp ít nhất một trường cần cập nhật.' 
+        });
+      }
+      
+      // Kiểm tra địa danh có tồn tại không
+      const existingSite = await storage.getHistoricalSiteById(parseInt(id));
+      if (!existingSite) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy địa danh lịch sử.'
+        });
+      }
+      
+      const updatedSite = await storage.updateHistoricalSite(parseInt(id), siteData);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Cập nhật địa danh lịch sử thành công.',
+        data: updatedSite
+      });
+    } catch (error) {
+      console.error('Error updating historical site:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi khi cập nhật địa danh lịch sử.'
+      });
+    }
+  });
+  
+  // Xóa địa danh lịch sử
+  app.delete(`${apiPrefix}/admin/historical-sites/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Kiểm tra địa danh có tồn tại không
+      const existingSite = await storage.getHistoricalSiteById(parseInt(id));
+      if (!existingSite) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy địa danh lịch sử.'
+        });
+      }
+      
+      await storage.deleteHistoricalSite(parseInt(id));
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Xóa địa danh lịch sử thành công.'
+      });
+    } catch (error) {
+      console.error('Error deleting historical site:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi khi xóa địa danh lịch sử.'
+      });
+    }
+  });
+  
+  // Sắp xếp lại thứ tự địa danh lịch sử
+  app.post(`${apiPrefix}/admin/historical-sites/reorder`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { orderedIds } = req.body;
+      
+      if (!Array.isArray(orderedIds)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Sai định dạng dữ liệu. Cần cung cấp mảng ID.'
+        });
+      }
+      
+      const success = await storage.reorderHistoricalSites(orderedIds);
+      
+      if (!success) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không thể sắp xếp lại thứ tự.'
+        });
+      }
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Cập nhật thứ tự hiển thị thành công.'
+      });
+    } catch (error) {
+      console.error('Error reordering historical sites:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi khi cập nhật thứ tự hiển thị.'
+      });
+    }
+  });
+  
   // API quản lý feedback
   app.get(`${apiPrefix}/admin/feedback`, requireAuth, requireAdmin, async (req, res) => {
     try {
