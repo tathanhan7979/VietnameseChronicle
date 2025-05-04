@@ -3,11 +3,52 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
 import path from "path";
+import session from "express-session";
+import passport from "passport";
+import connectPgSimple from "connect-pg-simple";
+import { pool } from "@db";
 
 const app = express();
 // Tăng giới hạn kích thước của request lên 50MB
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+
+// Cấu hình session store với PostgreSQL
+const PgSessionStore = connectPgSimple(session);
+const oneDay = 1000 * 60 * 60 * 24;
+
+app.use(session({
+  store: new PgSessionStore({ 
+    pool,
+    tableName: 'session', // Bảng lưu trữ session
+    createTableIfMissing: true // Tự động tạo bảng nếu chưa có
+  }),
+  secret: process.env.SESSION_SECRET || 'lichsuvietnam-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: oneDay 
+  }
+}));
+
+// Khởi tạo Passport.js
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Cấu hình Passport
+passport.serializeUser((user: any, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id: number, done) => {
+  try {
+    const user = await storage.getUserById(id);
+    done(null, user);
+  } catch (error) {
+    done(error, null);
+  }
+});
 
 // Phục vụ thư mục uploads dưới dạng static files
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));

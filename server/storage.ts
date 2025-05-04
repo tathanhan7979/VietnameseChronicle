@@ -28,6 +28,30 @@ const handleDbError = (error: unknown, operation: string) => {
 };
 
 export const storage = {
+  // Users methods
+  getUserById: async (id: number) => {
+    try {
+      const userResult = await db.query.users.findFirst({
+        where: eq(sql`id`, id)
+      });
+      return userResult || null;
+    } catch (error) {
+      handleDbError(error, "getUserById");
+      return null;
+    }
+  },
+  
+  getUserByUsername: async (username: string) => {
+    try {
+      const userResult = await db.query.users.findFirst({
+        where: eq(sql`username`, username)
+      });
+      return userResult || null;
+    } catch (error) {
+      handleDbError(error, "getUserByUsername");
+      return null;
+    }
+  },
   // Settings methods
   getSetting: async (key: string): Promise<Setting | null> => {
     try {
