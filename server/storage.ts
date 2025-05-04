@@ -920,6 +920,64 @@ export const storage = {
     }
   },
   
+  // Thêm các phương thức quản lý CRUD cho địa danh lịch sử
+  createHistoricalSite: async (siteData: Omit<HistoricalSite, 'id'>): Promise<HistoricalSite> => {
+    try {
+      const [result] = await db.insert(historicalSites).values(siteData).returning();
+      return result;
+    } catch (error) {
+      handleDbError(error, "createHistoricalSite");
+      throw error;
+    }
+  },
+  
+  updateHistoricalSite: async (id: number, siteData: Partial<HistoricalSite>): Promise<HistoricalSite | null> => {
+    try {
+      const [updated] = await db
+        .update(historicalSites)
+        .set(siteData)
+        .where(eq(historicalSites.id, id))
+        .returning();
+      return updated || null;
+    } catch (error) {
+      handleDbError(error, "updateHistoricalSite");
+      return null;
+    }
+  },
+  
+  deleteHistoricalSite: async (id: number): Promise<boolean> => {
+    try {
+      await db
+        .delete(historicalSites)
+        .where(eq(historicalSites.id, id));
+      return true;
+    } catch (error) {
+      handleDbError(error, "deleteHistoricalSite");
+      return false;
+    }
+  },
+  
+  reorderHistoricalSites: async (orderedIds: number[]): Promise<boolean> => {
+    try {
+      // Chuyển đổi tất cả ID sang số nguyên nếu cần
+      const numericIds = orderedIds.map(id => {
+        return typeof id === 'string' ? parseInt(id, 10) : Number(id);
+      }).filter(id => !isNaN(id) && id > 0);
+      
+      // Cập nhật thứ tự cho từng địa danh
+      for (let i = 0; i < numericIds.length; i++) {
+        await db
+          .update(historicalSites)
+          .set({ sortOrder: i })
+          .where(eq(historicalSites.id, numericIds[i]));
+      }
+      return true;
+    } catch (error) {
+      handleDbError(error, "reorderHistoricalSites");
+      return false;
+    }
+  },
+  
   // Search functionality
   search: async (term?: string, periodSlug?: string, eventTypeSlug?: string): Promise<{
     periods: Period[],
