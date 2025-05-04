@@ -172,6 +172,7 @@ export default function HistoricalFiguresAdmin() {
   const [periods, setPeriods] = useState<Period[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFigure, setCurrentFigure] = useState<HistoricalFigure | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [figureToDelete, setFigureToDelete] = useState<HistoricalFigure | null>(null);
@@ -277,6 +278,7 @@ export default function HistoricalFiguresAdmin() {
   // Open add/edit dialog
   const handleOpenDialog = (figure: HistoricalFigure | null = null) => {
     setCurrentFigure(figure);
+    setDialogOpen(true);
     
     if (figure) {
       // Edit mode
@@ -310,6 +312,7 @@ export default function HistoricalFiguresAdmin() {
   const handleCloseDialog = () => {
     setCurrentFigure(null);
     setIsEditing(false);
+    setDialogOpen(false);
   };
   
   // Handle image upload
