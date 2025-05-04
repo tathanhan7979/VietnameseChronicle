@@ -334,9 +334,7 @@ export default function HistoricalFiguresAdmin() {
         const response = await fetch('/api/upload/figures', {
           method: 'POST',
           body: formData,
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          },
+          credentials: 'include',
         });
         
         if (!response.ok) {

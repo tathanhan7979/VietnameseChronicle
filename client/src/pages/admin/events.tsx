@@ -434,9 +434,7 @@ export default function EventsAdmin() {
         const response = await fetch('/api/upload/events', {
           method: 'POST',
           body: formData,
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          },
+          credentials: 'include',
         });
         
         if (!response.ok) {
