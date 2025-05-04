@@ -770,6 +770,73 @@ export const storage = {
       return null;
     }
   },
+
+  createHistoricalFigure: async (figureData: Omit<InsertHistoricalFigure, 'id'>): Promise<HistoricalFigure | null> => {
+    try {
+      // Lấy giá trị sortOrder lớn nhất hiện tại
+      const maxSortOrder = await db
+        .select({ maxOrder: max(historicalFigures.sortOrder) })
+        .from(historicalFigures);
+      
+      const sortOrder = (maxSortOrder[0]?.maxOrder || 0) + 1;
+      
+      const [newFigure] = await db.insert(historicalFigures)
+        .values({
+          ...figureData,
+          sortOrder
+        })
+        .returning();
+        
+      return newFigure;
+    } catch (error) {
+      handleDbError(error, "createHistoricalFigure");
+      return null;
+    }
+  },
+  
+  updateHistoricalFigure: async (id: number, figureData: Partial<InsertHistoricalFigure>): Promise<HistoricalFigure | null> => {
+    try {
+      const [updatedFigure] = await db.update(historicalFigures)
+        .set(figureData)
+        .where(eq(historicalFigures.id, id))
+        .returning();
+        
+      return updatedFigure || null;
+    } catch (error) {
+      handleDbError(error, "updateHistoricalFigure");
+      return null;
+    }
+  },
+  
+  deleteHistoricalFigure: async (id: number): Promise<boolean> => {
+    try {
+      const result = await db.delete(historicalFigures)
+        .where(eq(historicalFigures.id, id));
+        
+      return true;
+    } catch (error) {
+      handleDbError(error, "deleteHistoricalFigure");
+      return false;
+    }
+  },
+  
+  reorderHistoricalFigures: async (orderedIds: number[]): Promise<boolean> => {
+    try {
+      // Cập nhật thứ tự của các nhân vật lịch sử dựa trên thứ tự id
+      await db.transaction(async (tx) => {
+        for (let i = 0; i < orderedIds.length; i++) {
+          await tx.update(historicalFigures)
+            .set({ sortOrder: i })
+            .where(eq(historicalFigures.id, orderedIds[i]));
+        }
+      });
+      
+      return true;
+    } catch (error) {
+      handleDbError(error, "reorderHistoricalFigures");
+      return false;
+    }
+  },
   
   // Historical Sites methods
   getAllHistoricalSites: async (): Promise<HistoricalSite[]> => {
