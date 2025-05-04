@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, jsonb, primaryKey, doublePrecision } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, primaryKey, doublePrecision, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -144,3 +144,17 @@ export const periodsRelationsWithSites = relations(periods, ({ many }) => ({
   events: many(events),
   historicalSites: many(historicalSites)
 }));
+
+// Bảng lưu thông tin góp ý
+export const feedback = pgTable("feedback", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull()
+});
+
+export const insertFeedbackSchema = createInsertSchema(feedback);
+export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
+export type Feedback = typeof feedback.$inferSelect;

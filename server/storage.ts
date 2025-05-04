@@ -6,11 +6,14 @@ import {
   eventTypes,
   eventToEventType,
   historicalSites,
+  feedback,
   type Period,
   type Event,
   type HistoricalFigure,
   type EventType,
-  type HistoricalSite
+  type HistoricalSite,
+  type Feedback,
+  type InsertFeedback
 } from "@shared/schema";
 import { eq, like, and, or, desc, asc } from "drizzle-orm";
 
@@ -21,6 +24,16 @@ const handleDbError = (error: unknown, operation: string) => {
 };
 
 export const storage = {
+  // Feedback methods
+  createFeedback: async (data: InsertFeedback): Promise<Feedback> => {
+    try {
+      const [result] = await db.insert(feedback).values(data).returning();
+      return result;
+    } catch (error) {
+      handleDbError(error, "createFeedback");
+      throw error; // Rethrow để xử lý ở tầng controller
+    }
+  },
   // Event Type methods
   getAllEventTypes: async (): Promise<EventType[]> => {
     try {
