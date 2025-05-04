@@ -5,11 +5,13 @@ import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
 import { Clock, Edit, MoreHorizontal, Plus, Trash, GripVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { ToastError } from '@/components/ui/toast-error';
 import { type Period } from '@shared/schema';
-// Sử dụng các wrapper component để tránh cảnh báo defaultProps
-import { DragDropContextWrapper as DragDropContext, DroppableWrapper as Droppable, DraggableWrapper as Draggable } from '@/components/ui/react-dnd-wrapper';
+// Sử dụng thư viện DND-Kit để tránh cảnh báo defaultProps và có trải nghiệm kéo thả tốt hơn
+import { DndContext, MouseSensor, TouchSensor, KeyboardSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   Dialog,
   DialogContent,
@@ -271,45 +273,119 @@ export default function PeriodsAdmin() {
     }
   };
 
-  // Xử lý sự kiện kéo thả hoàn tất
-  const handleDragEnd = (result: any) => {
+  // Cấu hình các sensors cho DnD-Kit
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      // Khuếch đại kéo thả để tránh nhấp lộn với click thường
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      // Để tránh kích hoạt khi cuộn trang
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Component con hiển thị một thời kỳ có thể kéo thả
+  const SortablePeriodItem = ({ period }: { period: Period }) => {
+    const {
+      attributes,
+      listeners, 
+      setNodeRef,
+      transform,
+      transition,
+      isDragging: isItemDragging
+    } = useSortable({ id: period.id.toString() });
+
+    const itemStyle = {
+      transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+      transition,
+      zIndex: isItemDragging ? 50 : 1,
+    };
+
+    return (
+      <div ref={setNodeRef} style={itemStyle} className="mb-2">
+        <Card className={`overflow-hidden ${isItemDragging ? 'shadow-lg ring-2 ring-primary' : ''} w-full`}>
+          <div className="p-3 flex items-center gap-3 bg-blue-50 border-b">
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1">
+              <GripVertical className="h-5 w-5 text-gray-400" />
+            </div>
+            
+            <div className="flex-1">
+              <h3 className="text-lg font-medium text-blue-900">{period.name}</h3>
+              <div className="flex items-center text-gray-500 text-sm mt-1">
+                <Clock className="h-4 w-4 mr-1" />
+                {period.timeframe}
+              </div>
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreHorizontal className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => handleEditPeriod(period)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Chỉnh sửa
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleDeletePeriod(period.id)}
+                  className="text-red-600"
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  Xóa
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="p-3 text-sm">
+            <p className="text-gray-600 line-clamp-2">{period.description}</p>
+          </div>
+        </Card>
+      </div>
+    );
+  };
+
+  // Xử lý sự kiện kéo thả hoàn tất với DnD-Kit
+  const handleDragEnd = (event: DragEndEvent) => {
     setIsDragging(false);
     
-    // Nếu không có điểm đến hợp lệ hoặc không di chuyển
-    if (!result.destination || result.destination.index === result.source.index) {
-      return;
-    }
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
     
-    // Tạo một bản sao của mảng để cập nhật
-    const updatedPeriods = [...periodsState];
-    
-    // Lấy item được kéo
-    const draggedItem = updatedPeriods[result.source.index];
-    
-    // Xóa item khỏi vị trí cũ
-    updatedPeriods.splice(result.source.index, 1);
-    
-    // Thêm item vào vị trí mới
-    updatedPeriods.splice(result.destination.index, 0, draggedItem);
-    
-    // Cập nhật state
-    setPeriodsState(updatedPeriods);
-    
-    try {
-      // Gửi yêu cầu cập nhật thứ tự lên server
-      // Tạo mảng ID chỉ chứa các ID theo thứ tự mới
-      const periodIds = updatedPeriods.map(period => period.id);
-      console.log('Danh sách ID thời kỳ mới:', periodIds);
+    setPeriodsState((items) => {
+      const oldIndex = items.findIndex(item => item.id.toString() === active.id);
+      const newIndex = items.findIndex(item => item.id.toString() === over.id);
       
-      // Gọi API mới - chỉ cần truyền mảng ID trực tiếp
-      reorderMutation.mutate(periodIds);
-    } catch (err) {
-      console.error('Lỗi khi chuẩn bị dữ liệu reorder:', err);
-      setError({
-        title: 'Lỗi kéo thả',
-        message: 'Có lỗi xảy ra khi chuẩn bị dữ liệu. Vui lòng thử lại.',
-      });
-    }
+      const updatedPeriods = arrayMove(items, oldIndex, newIndex);
+      
+      try {
+        // Gửi yêu cầu cập nhật thứ tự lên server
+        const periodIds = updatedPeriods.map(period => period.id);
+        console.log('Danh sách ID thời kỳ mới:', periodIds);
+        
+        // Gọi API mới - chỉ cần truyền mảng ID trực tiếp
+        reorderMutation.mutate(periodIds);
+      } catch (err) {
+        console.error('Lỗi khi chuẩn bị dữ liệu reorder:', err);
+        setError({
+          title: 'Lỗi kéo thả',
+          message: 'Có lỗi xảy ra khi chuẩn bị dữ liệu. Vui lòng thử lại.',
+        });
+      }
+      
+      return updatedPeriods;
+    });
   };
   
   // Bắt đầu kéo thả
@@ -373,75 +449,23 @@ export default function PeriodsAdmin() {
                 </p>
               </div>
               
-              <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-                <Droppable droppableId="periods-list">
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="flex flex-col gap-2 w-full"
-                    >
-                      {periodsState.map((period, index) => (
-                        <Draggable
-                          key={period.id.toString()}
-                          draggableId={period.id.toString()}
-                          index={index}
-                        >
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              className={`${snapshot.isDragging ? 'z-50' : ''}`}
-                            >
-                              <Card className={`overflow-hidden ${snapshot.isDragging ? 'shadow-lg ring-2 ring-primary' : ''} w-full`}>
-                                <div className="p-3 flex items-center gap-3 bg-blue-50 border-b">
-                                  <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-1">
-                                    <GripVertical className="h-5 w-5 text-gray-400" />
-                                  </div>
-                                  
-                                  <div className="flex-1">
-                                    <h3 className="text-lg font-medium text-blue-900">{period.name}</h3>
-                                    <div className="flex items-center text-gray-500 text-sm mt-1">
-                                      <Clock className="h-4 w-4 mr-1" />
-                                      {period.timeframe}
-                                    </div>
-                                  </div>
-                                  
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button variant="ghost" size="icon">
-                                        <MoreHorizontal className="h-5 w-5" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
-                                      <DropdownMenuItem onClick={() => handleEditPeriod(period)}>
-                                        <Edit className="mr-2 h-4 w-4" />
-                                        Chỉnh sửa
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem 
-                                        onClick={() => handleDeletePeriod(period.id)}
-                                        className="text-red-600"
-                                      >
-                                        <Trash className="mr-2 h-4 w-4" />
-                                        Xóa
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                </div>
-                                <div className="p-3 text-sm">
-                                  <p className="text-gray-600 line-clamp-2">{period.description}</p>
-                                </div>
-                              </Card>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
+              <DndContext 
+                sensors={sensors}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                modifiers={[restrictToVerticalAxis]}
+              >
+                <SortableContext 
+                  items={periodsState.map(period => period.id.toString())}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="flex flex-col w-full">
+                    {periodsState.map((period) => (
+                      <SortablePeriodItem key={period.id} period={period} />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             </div>
           )}
         </>
