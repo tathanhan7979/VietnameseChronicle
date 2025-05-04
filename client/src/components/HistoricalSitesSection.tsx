@@ -172,7 +172,7 @@ export default function HistoricalSitesSection({
 
         <div className="mt-12 text-center">
           <Button
-            className="rounded-md bg-[#4527A0] hover:bg-[#311B92] text-white px-8 py-3 text-lg shadow-md hover:shadow-lg transition-all"
+            className="rounded-md bg-[#4527A0] hover:bg-[#C62828] text-white px-8 py-3 text-lg shadow-md hover:shadow-lg transition-all"
             onClick={() => navigate("/di-tich")}
           >
             Xem tất cả di tích

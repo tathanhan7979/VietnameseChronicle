@@ -122,6 +122,12 @@ body {
   border-radius: 8px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(69, 39, 160, 0.08);
+  transition: all 0.3s ease;
+}
+
+.period-title h3:hover {
+  border: 1px solid #ffffff;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.15);
 }
 
 .period-title span {
