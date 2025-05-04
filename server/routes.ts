@@ -5,6 +5,10 @@ import { createInitialAdminUser, loginUser, registerUser, getUserFromToken, gene
 import { type User, periods, events, historicalSites } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { db } from "@db";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { randomUUID } from "crypto";
 
 // Middleware kiểm tra xác thực
 const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
@@ -46,11 +50,51 @@ const requireAdmin = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
+// Cấu hình multer để lưu trữ tập tin
+const uploadsDir = path.join(process.cwd(), 'uploads');
+const faviconStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = path.join(uploadsDir, 'favicons');
+    // Đảm bảo thư mục tồn tại
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    // Tạo tên file ngẫu nhiên với đuôi ban đầu
+    const uniquePrefix = randomUUID();
+    const ext = path.extname(file.originalname);
+    cb(null, uniquePrefix + ext);
+  }
+});
+
+const uploadFavicon = multer({ 
+  storage: faviconStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // giới hạn 5MB
+  },
+  fileFilter: function (req, file, cb) {
+    // Chỉ chấp nhận các định dạng hình ảnh phổ biến
+    const filetypes = /jpeg|jpg|png|gif|svg|ico/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error("Chỉ chấp nhận tập tin hình ảnh (jpeg, jpg, png, gif, svg, ico)"));
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Tạo tài khoản admin mặc định khi khởi động
   await createInitialAdminUser();
   // API prefix
   const apiPrefix = '/api';
+  
+  // Phục vụ thư mục uploads qua URL /uploads
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
   
   // Get all periods
   app.get(`${apiPrefix}/periods`, async (req, res) => {
