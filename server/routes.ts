@@ -1295,6 +1295,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Lấy thông tin sự kiện cũ để kiểm tra hình ảnh
+      const oldEvent = await storage.getEventById(eventId);
+      let oldImageUrl = oldEvent?.imageUrl;
+      
       // Xử lý eventTypes từ mảng ID thành mảng đối tượng liên kết
       const eventTypeIds = eventData.eventTypes || [];
       delete eventData.eventTypes; // Xóa trường eventTypes khỏi dữ liệu chính
@@ -1317,6 +1321,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Cập nhật sự kiện trong database
+      // Xóa hình ảnh cũ nếu có hình ảnh mới và khác với hình ảnh cũ
+      if (eventData.imageUrl && oldImageUrl && eventData.imageUrl !== oldImageUrl) {
+        // Bỏ qua URL bên ngoài (không phải /uploads/)
+        if (oldImageUrl.startsWith('/uploads/')) {
+          deleteFile(oldImageUrl);
+          console.log(`Xóa hình ảnh cũ của sự kiện: ${oldImageUrl}`);
+        }
+      }
+      
       const updatedEvent = await storage.updateEvent(eventId, eventData);
       
       if (!updatedEvent) {
@@ -1350,6 +1363,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const eventId = parseInt(req.params.id);
       
+      // Lấy thông tin sự kiện trước khi xóa để có đường dẫn hình ảnh nếu có
+      const event = await storage.getEventById(eventId);
+      const oldImageUrl = event?.imageUrl;
+      
       // Xóa các liên kết với loại sự kiện trước
       await storage.removeEventTypeAssociations(eventId);
       
@@ -1361,6 +1378,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           success: false, 
           message: 'Không tìm thấy sự kiện' 
         });
+      }
+      
+      // Xóa hình ảnh nếu có
+      if (oldImageUrl && oldImageUrl.startsWith('/uploads/')) {
+        deleteFile(oldImageUrl);
+        console.log(`Xóa hình ảnh của sự kiện: ${oldImageUrl}`);
       }
       
       res.json({
