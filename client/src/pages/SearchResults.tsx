@@ -113,7 +113,7 @@ export default function SearchResults() {
             
           const matchesEventType = eventType === 'all' || eventTypeIds.includes(Number(eventType));
           
-          console.log(`Event: ${event.title}, Period: ${event.periodId}, Period match: ${matchesPeriod}, EventTypes: ${eventTypeIds}, EventType match: ${matchesEventType}, Term match: ${matchesTerm}`);
+          // Loại bỏ log không cần thiết
           
           return matchesTerm && matchesPeriod && matchesEventType;
         })
@@ -131,11 +131,11 @@ export default function SearchResults() {
         .filter((figure: any) => {
           const matchesTerm = 
             figure.name.toLowerCase().includes(term.toLowerCase()) ||
-            figure.description.toLowerCase().includes(term.toLowerCase());
+            (figure.description && figure.description.toLowerCase().includes(term.toLowerCase())) ||
+            (figure.detailedDescription && figure.detailedDescription.toLowerCase().includes(term.toLowerCase()));
           
-          const matchesPeriod = period === 'all' || figure.period.toLowerCase().includes(
-            periods?.find(p => String(p.id) === period)?.name.toLowerCase() || ''
-          );
+          // Kiểm tra theo ID của thời kỳ
+          const matchesPeriod = period === 'all' || String(figure.periodId) === period;
           
           return matchesTerm && matchesPeriod;
         })
@@ -153,7 +153,8 @@ export default function SearchResults() {
         .filter((site: any) => {
           const matchesTerm = 
             site.name.toLowerCase().includes(term.toLowerCase()) ||
-            site.description.toLowerCase().includes(term.toLowerCase());
+            (site.description && site.description.toLowerCase().includes(term.toLowerCase())) ||
+            (site.detailedDescription && site.detailedDescription.toLowerCase().includes(term.toLowerCase()));
           
           const matchesPeriod = period === 'all' || String(site.periodId) === period;
           
