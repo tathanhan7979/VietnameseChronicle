@@ -532,32 +532,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(`${apiPrefix}/admin/periods/:id`, requireAuth, requireAdmin, async (req, res) => {
     try {
       const periodId = parseInt(req.params.id);
+      const period = await db.query.periods.findFirst({
+        where: eq(periods.id, periodId)
+      });
       
-      // Kiểm tra xem có sự kiện nào liên kết với thời kỳ này không
-      const eventsInPeriod = await storage.getEventsByPeriod(periodId);
-      if (eventsInPeriod.length > 0) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Không thể xóa thời kỳ này vì có các sự kiện liên kết. Vui lòng xóa các sự kiện trước.' 
-        });
-      }
-      
-      // Kiểm tra các di tích liên kết
-      const sitesInPeriod = await storage.getHistoricalSitesByPeriod(periodId);
-      if (sitesInPeriod.length > 0) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Không thể xóa thời kỳ này vì có các di tích liên kết. Vui lòng xóa các di tích trước.' 
-        });
-      }
-      
-      // Xóa thời kỳ
-      const deleted = await storage.deletePeriod(periodId);
-      
-      if (!deleted) {
+      if (!period) {
         return res.status(404).json({ 
           success: false, 
           message: 'Không tìm thấy thời kỳ' 
+        });
+      }
+      
+      // Kiểm tra xem có sự kiện nào liên kết với thời kỳ này không
+      const eventsInPeriod = await storage.getEventsByPeriod(periodId);
+      const hasEvents = eventsInPeriod.length > 0;
+      
+      // Kiểm tra các di tích liên kết
+      const sitesInPeriod = await storage.getHistoricalSitesByPeriod(periodId);
+      const hasSites = sitesInPeriod.length > 0;
+      
+      // Nếu có sự kiện hoặc di tích liên kết, trả về thông tin chi tiết
+      if (hasEvents || hasSites) {
+        // Lấy danh sách tất cả các thời kỳ để hiển thị trong dropdown
+        const allPeriods = await storage.getAllPeriods();
+        const otherPeriods = allPeriods.filter(p => p.id !== periodId);
+        
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Không thể xóa thời kỳ này vì có các mục liên kết.',
+          data: {
+            periodName: period.name,
+            events: eventsInPeriod,
+            sites: sitesInPeriod,
+            availablePeriods: otherPeriods
+          }
+        });
+      }
+      
+      // Xóa thời kỳ nếu không có mục liên kết
+      const deleted = await storage.deletePeriod(periodId);
+      
+      if (!deleted) {
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Lỗi khi xóa thời kỳ' 
         });
       }
       
