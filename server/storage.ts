@@ -182,10 +182,26 @@ export const storage = {
       const allEvents = await db.query.events.findMany({
         orderBy: asc(events.sortOrder),
         with: {
-          eventTypes: true
+          eventTypes: {
+            with: {
+              eventType: true
+            }
+          }
         }
       });
-      return allEvents;
+      
+      // Biến đổi dữ liệu để phù hợp với interface Event
+      const transformedEvents = allEvents.map(event => {
+        // Ánh xạ từ mối quan hệ eventTypes sang mảng EventType
+        const mappedEventTypes = event.eventTypes?.map(relation => relation.eventType);
+        
+        return {
+          ...event,
+          eventTypes: mappedEventTypes || []
+        };
+      });
+      
+      return transformedEvents;
     } catch (error) {
       console.error('Error getting all events with types:', error);
       return [];
