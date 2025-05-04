@@ -813,10 +813,10 @@ export default function HistoricalFiguresAdmin() {
                         className="col-span-2"
                       />
                       <Select 
-                        value={achievement.eventId?.toString() || ''}
+                        value={achievement.eventId?.toString() || 'none'}
                         onValueChange={(value) => {
                           const newAchievements = [...achievements];
-                          newAchievements[index].eventId = value ? parseInt(value) : undefined;
+                          newAchievements[index].eventId = value !== 'none' ? parseInt(value) : undefined;
                           setAchievements(newAchievements);
                         }}
                       >
@@ -824,7 +824,7 @@ export default function HistoricalFiguresAdmin() {
                           <SelectValue placeholder="Liên kết sự kiện" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Không có sự kiện</SelectItem>
+                          <SelectItem value="none">Không có sự kiện</SelectItem>
                           {events.map((event) => (
                             <SelectItem key={event.id} value={event.id.toString()}>
                               {event.title}
@@ -853,7 +853,7 @@ export default function HistoricalFiguresAdmin() {
                     variant="outline"
                     className="w-full mt-2"
                     onClick={() => {
-                      setAchievements([...achievements, { id: Date.now().toString(), title: '', year: '' }]);
+                      setAchievements([...achievements, { id: Date.now().toString(), title: '', year: '', eventId: undefined }]);
                     }}
                   >
                     Thêm thành tựu
