@@ -423,6 +423,19 @@ export const storage = {
     }
   },
   
+  getEventsByPeriod: async (periodId: number): Promise<Event[]> => {
+    try {
+      const result = await db.query.events.findMany({
+        where: eq(events.periodId, periodId),
+        orderBy: asc(events.sortOrder)
+      });
+      return result;
+    } catch (error) {
+      handleDbError(error, "getEventsByPeriod");
+      return [];
+    }
+  },
+
   getEventsByType: async (typeSlug: string): Promise<Event[]> => {
     try {
       // First get the event type
