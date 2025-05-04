@@ -410,43 +410,65 @@ export const storage = {
     try {
       console.log('Storage: Starting reorderPeriods with orderedIds:', orderedIds);
       
-      if (!Array.isArray(orderedIds)) {
-        console.error('Storage: orderedIds is not an array', typeof orderedIds);
+      // Kiểm tra và chuyển đổi tất cả ID sang số nguyên
+      const numericIds = orderedIds.map(id => {
+        // Đảm bảo tất cả là số nguyên dương
+        const numId = typeof id === 'string' ? parseInt(id, 10) : Number(id);
+        return isNaN(numId) ? 0 : numId;
+      }).filter(id => id > 0); // Lọc bỏ các ID không hợp lệ
+      
+      console.log('Storage: Using cleaned IDs:', numericIds);
+      
+      if (numericIds.length === 0) {
+        console.error('Storage: No valid IDs after cleaning');
         return false;
       }
       
-      if (orderedIds.length === 0) {
-        console.error('Storage: orderedIds is empty');
-        return false;
-      }
-      
-      // Kiểm tra tất cả các ID có tồn tại trong database không
+      // Lấy tất cả periods hiện có trong database
       const existingPeriods = await db.query.periods.findMany();
-      const existingIds = existingPeriods.map(p => p.id);
-      const allIdsExist = orderedIds.every(id => existingIds.includes(id));
+      console.log('Storage: Existing periods count:', existingPeriods.length);
       
-      if (!allIdsExist) {
-        console.error('Storage: Some period IDs do not exist in the database');
+      // Phân tích các ID
+      const existingIds = existingPeriods.map(p => p.id);
+      const missingIds = numericIds.filter(id => !existingIds.includes(id));
+      const extraIds = existingIds.filter(id => !numericIds.includes(id));
+      
+      if (missingIds.length > 0) {
+        console.warn('Storage: Some IDs from request do not exist in database:', missingIds);
+      }
+      
+      if (extraIds.length > 0) {
+        console.warn('Storage: Some periods in database are not in the request:', extraIds);
+      }
+      
+      // Thực hiện việc cập nhật thứ tự cho các period hợp lệ
+      const validIds = numericIds.filter(id => existingIds.includes(id));
+      console.log('Storage: Processing valid period IDs:', validIds);
+      
+      if (validIds.length === 0) {
+        console.error('Storage: No valid periods to reorder');
         return false;
       }
       
-      // Bắt đầu một transaction để đảm bảo tính nhất quán
-      console.log('Storage: Starting to update sort orders for', orderedIds.length, 'periods');
-      
-      // Cập nhật lần lượt từng period
-      for (let i = 0; i < orderedIds.length; i++) {
-        const id = orderedIds[i];
+      // Cập nhật lần lượt từng period có trong cả request và database
+      for (let i = 0; i < validIds.length; i++) {
+        const id = validIds[i];
         console.log(`Storage: Setting sortOrder=${i} for period id=${id}`);
         
-        const result = await db
-          .update(periods)
-          .set({ sortOrder: i })
-          .where(eq(periods.id, id));
-          
-        console.log('Storage: Update result:', result);
+        try {
+          const result = await db
+            .update(periods)
+            .set({ sortOrder: i })
+            .where(eq(periods.id, id));
+            
+          console.log(`Storage: Updated period id=${id} to sortOrder=${i}`);
+        } catch (err) {
+          console.error(`Storage: Error updating period id=${id}:`, err);
+          // Tiếp tục với ID tiếp theo thay vì bỏ cuộc
+        }
       }
       
-      console.log('Storage: Successfully reordered all periods');
+      console.log('Storage: Successfully reordered periods');
       return true;
     } catch (error) {
       console.error('Storage: Error in reorderPeriods:', error);

@@ -287,18 +287,28 @@ export default function PeriodsAdmin() {
     // Cập nhật state
     setPeriodsState(updatedPeriods);
     
-    // Gửi yêu cầu cập nhật thứ tự lên server
-    // Tạo một mảng orderedIds chứa các ID của thời kỳ theo thứ tự mới
-    const orderedIds = updatedPeriods.map(period => period.id);
-    console.log('Gửi yêu cầu reorder:', { orderedIds });
-    
-    // Gửi dữ liệu với định dạng object có thuộc tính orderedIds
-    const requestData = { orderedIds };
-    console.log('Request data:', requestData);
-    
-    // Đảm bảo gửi dữ liệu đúng format cần thiết đến API
-    // Truyền requestData vào hàm mutation
-    reorderMutation.mutate(requestData);
+    try {
+      // Gửi yêu cầu cập nhật thứ tự lên server
+      // Tạo một mảng orderedIds chứa các ID của thời kỳ theo thứ tự mới
+      // Chuyển tất cả ID sang số nguyên
+      const orderedIds = updatedPeriods.map(period => parseInt(String(period.id), 10));
+      console.log('Gửi yêu cầu reorder:', { orderedIds });
+      
+      // Gửi dữ liệu với định dạng object có thuộc tính orderedIds
+      const requestData = { orderedIds };
+      console.log('Request data:', requestData);
+      console.log('Tất cả đều là số:', orderedIds.every(id => typeof id === 'number'));
+      
+      // Đảm bảo gửi dữ liệu đúng format cần thiết đến API
+      // Truyền requestData vào hàm mutation
+      reorderMutation.mutate(requestData);
+    } catch (err) {
+      console.error('Lỗi khi chuẩn bị dữ liệu reorder:', err);
+      setError({
+        title: 'Lỗi kéo thả',
+        message: 'Có lỗi xảy ra khi chuẩn bị dữ liệu. Vui lòng thử lại.',
+      });
+    }
   };
   
   // Bắt đầu kéo thả
