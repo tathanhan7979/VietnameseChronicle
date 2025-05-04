@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
@@ -23,6 +23,30 @@ export default function TimelineSection({
     activePeriodSlug,
   );
   const timelineRef = useRef<HTMLDivElement>(null);
+  const [location] = useLocation();
+  
+  // Lấy tham số period từ URL khi quay lại trang chủ
+  useEffect(() => {
+    if (location.includes('?period=')) {
+      const periodSlug = location.split('?period=')[1];
+      setActiveSection(periodSlug);
+      
+      // Cuộn đến thời kỳ đã chọn
+      setTimeout(() => {
+        const element = document.getElementById(`period-${periodSlug}`);
+        if (element) {
+          const offset = 100; // Header height + some padding
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - offset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      }, 500);
+    }
+  }, [location]);
 
   // Set active period from props
   useEffect(() => {
