@@ -1225,29 +1225,35 @@ export const storage = {
   }> => {
     try {
       // Lấy tất cả các sự kiện thuộc thời kỳ này
-      const events = await db.query.events.findMany({
+      const eventsData = await db.query.events.findMany({
         where: eq(events.periodId, periodId),
         orderBy: asc(events.sortOrder)
       });
       
       // Lấy tất cả nhân vật lịch sử thuộc thời kỳ này
-      const figures = await db.query.historicalFigures.findMany({
+      const figuresData = await db.query.historicalFigures.findMany({
         where: eq(historicalFigures.periodId, periodId),
         orderBy: asc(historicalFigures.sortOrder)
       });
       
       // Lấy tất cả địa danh lịch sử thuộc thời kỳ này
-      const sites = await db.query.historicalSites.findMany({
+      const sitesData = await db.query.historicalSites.findMany({
         where: eq(historicalSites.periodId, periodId),
         orderBy: asc(historicalSites.sortOrder)
       });
       
-      return { events, figures, sites };
+      return { 
+        events: eventsData, 
+        figures: figuresData, 
+        sites: sitesData 
+      };
     } catch (error) {
       handleDbError(error, "getPeriodRelatedEntities");
       return { events: [], figures: [], sites: [] };
     }
   },
+  
+
   
   // Cập nhật thời kỳ cho một loạt sự kiện
   updateEventsPeriod: async (eventIds: number[], newPeriodId: number): Promise<boolean> => {
