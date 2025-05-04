@@ -3,16 +3,20 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
-// Users table from the original
+// Users table for authentication
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  isAdmin: boolean("is_admin").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastLoginAt: timestamp("last_login_at")
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
+  isAdmin: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -25,8 +29,7 @@ export const periods = pgTable("periods", {
   slug: text("slug").notNull().unique(),
   timeframe: text("timeframe").notNull(),
   description: text("description").notNull(),
-  icon: text("icon").notNull(),
-  sortOrder: integer("sort_order").notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
 });
 
 export const insertPeriodSchema = createInsertSchema(periods);
@@ -43,7 +46,7 @@ export const events = pgTable("events", {
   year: text("year").notNull(),
   imageUrl: text("image_url"),
   // eventType field is removed, using many-to-many relationship instead
-  sortOrder: integer("sort_order").notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
 });
 
 export const insertEventSchema = createInsertSchema(events);
@@ -60,7 +63,7 @@ export const historicalFigures = pgTable("historical_figures", {
   detailedDescription: text("detailed_description"),
   imageUrl: text("image_url").notNull(),
   achievements: jsonb("achievements"),
-  sortOrder: integer("sort_order").notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
 });
 
 export const insertHistoricalFigureSchema = createInsertSchema(historicalFigures);
@@ -74,6 +77,7 @@ export const eventTypes = pgTable("event_types", {
   slug: text("slug").notNull().unique(),
   description: text("description"),
   color: text("color"),
+  sortOrder: integer("sort_order").default(0).notNull(),
 });
 
 export const insertEventTypeSchema = createInsertSchema(eventTypes);
@@ -126,7 +130,7 @@ export const historicalSites = pgTable("historical_sites", {
   address: text("address"),
   yearBuilt: text("year_built"),
   relatedEventId: integer("related_event_id").references(() => events.id),
-  sortOrder: integer("sort_order").notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
 });
 
 export const insertHistoricalSiteSchema = createInsertSchema(historicalSites);
@@ -152,6 +156,9 @@ export const feedback = pgTable("feedback", {
   phone: text("phone").notNull(),
   email: text("email").notNull(),
   content: text("content").notNull(),
+  resolved: boolean("resolved").default(false).notNull(),
+  response: text("response"),
+  respondedAt: timestamp("responded_at"),
   createdAt: timestamp("created_at").defaultNow().notNull()
 });
 
@@ -165,6 +172,10 @@ export const settings = pgTable("settings", {
   key: text("key").notNull().unique(),
   value: text("value"),
   description: text("description"),
+  category: text("category").default("general").notNull(), // general, social, analytics, etc.
+  displayName: text("display_name").notNull(),
+  inputType: text("input_type").default("text").notNull(), // text, textarea, number, file, etc.
+  sortOrder: integer("sort_order").default(0).notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
 
