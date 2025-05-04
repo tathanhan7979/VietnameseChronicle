@@ -39,6 +39,7 @@ export interface HistoricalFigure {
   id: number;
   name: string;
   period: string;
+  periodId?: number; // Liên kết trực tiếp với bảng periods
   lifespan: string;
   description: string;
   detailedDescription?: string;
