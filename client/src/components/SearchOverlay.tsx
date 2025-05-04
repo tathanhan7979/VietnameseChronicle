@@ -119,6 +119,12 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   
   if (!isOpen) return null;
   
+  const handlePopularSearchClick = (search: {title: string, icon: string, link: string}) => {
+    // Chuyển đến trang chi tiết tương ứng
+    navigate(search.link);
+    onClose();
+  };
+  
   const popularSearches = [
     { title: 'Vua Lê Lợi', icon: 'person', link: '/nhan-vat/3/le-loi' },
     { title: 'Chiến thắng Bạch Đằng', icon: 'event', link: '/su-kien/8/chien-thang-bach-dang' },
@@ -222,13 +228,13 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {results.map(result => (
-                <a 
+                <div
                   key={result.id} 
-                  href={result.link}
                   onClick={() => {
+                    navigate(result.link);
                     onClose();
                   }}
-                  className="flex items-center p-3 bg-[hsl(var(--background))] rounded-md hover:bg-[hsl(var(--primary))] hover:bg-opacity-10 transition-colors duration-300"
+                  className="flex items-center p-3 bg-[hsl(var(--background))] rounded-md hover:bg-[hsl(var(--primary))] hover:bg-opacity-10 transition-colors duration-300 cursor-pointer"
                 >
                   <span className="material-icons mr-3 text-[hsl(var(--primary))]">
                     {result.icon}
@@ -237,7 +243,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     <div>{result.title}</div>
                     <div className="text-sm text-gray-500">{result.subtitle}</div>
                   </div>
-                </a>
+                </div>
               ))}
             </div>
             
@@ -286,17 +292,16 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {popularSearches.map((item, index) => (
-                <a 
-                  key={index} 
-                  href={item.link}
-                  onClick={onClose}
-                  className="flex items-center p-3 bg-[hsl(var(--background))] rounded-md hover:bg-[hsl(var(--primary))] hover:bg-opacity-10 transition-colors duration-300"
+                <div
+                  key={index}
+                  onClick={() => handlePopularSearchClick(item)}
+                  className="flex items-center p-3 bg-[hsl(var(--background))] rounded-md hover:bg-[hsl(var(--primary))] hover:bg-opacity-10 transition-colors duration-300 cursor-pointer"
                 >
                   <span className="material-icons mr-3 text-[hsl(var(--primary))]">
                     {item.icon}
                   </span>
                   <span>{item.title}</span>
-                </a>
+                </div>
               ))}
             </div>
           </div>
