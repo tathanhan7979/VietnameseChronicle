@@ -109,12 +109,19 @@ export async function createInitialAdminUser(): Promise<void> {
     
     if (!existingAdmin) {
       // Tạo tài khoản admin mặc định
-      await registerUser({
+      // Hash password trước khi tạo người dùng trực tiếp thay vì qua hàm registerUser
+      const hashedPassword = await hashPassword('Hihihaha123@');
+      
+      const [newUser] = await db.insert(users).values({
         username: 'TaThanhAnGroup',
-        password: 'Hihihaha123@',
-        isAdmin: true
-      });
-      console.log('Tài khoản admin mặc định đã được tạo');
+        password: hashedPassword,
+        isAdmin: true,
+        createdAt: new Date()
+      }).returning();
+      
+      console.log('Tài khoản admin mặc định đã được tạo', { username: newUser.username });
+    } else {
+      console.log('Tài khoản admin đã tồn tại', { username: existingAdmin.username });
     }
   } catch (error) {
     console.error('Error creating initial admin user:', error);

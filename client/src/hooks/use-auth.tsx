@@ -40,12 +40,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Đăng nhập
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("POST", "/api/auth/login", credentials);
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.message || "Đăng nhập thất bại");
+      try {
+        const res = await apiRequest("POST", "/api/auth/login", credentials);
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.message || "Đăng nhập thất bại");
+        }
+        return data;
+      } catch (error: any) {
+        // Xử lý lỗi từ response để không hiển thị JSON
+        if (error.message.includes('401')) {
+          throw new Error('Tên đăng nhập hoặc mật khẩu không đúng');
+        }
+        throw new Error(error.message || "Đăng nhập thất bại");
       }
-      return data;
     },
     onSuccess: (data) => {
       // Lưu token vào localStorage
