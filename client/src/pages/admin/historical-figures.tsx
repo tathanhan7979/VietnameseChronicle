@@ -20,13 +20,20 @@ import {
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Grid, Pencil, Trash2, GripVertical } from 'lucide-react';
+import { Grid, Pencil, Trash2, GripVertical, Check, ChevronDown } from 'lucide-react';
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -111,7 +118,7 @@ function SortableFigureItem({ figure, onEdit, onDelete }: SortableFigureItemProp
         
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-medium text-gray-800 dark:text-white truncate">{figure.name}</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{figure.period} • {figure.lifespan}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{figure.periodText || figure.period} • {figure.lifespan}</p>
         </div>
       </div>
       
@@ -181,27 +188,36 @@ export default function HistoricalFiguresAdmin() {
     })
   );
   
-  // Fetch historical figures
+  // Fetch historical figures and periods
   useEffect(() => {
-    const fetchFigures = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await apiRequest('GET', '/api/admin/historical-figures');
-        const data = await response.json();
-        setFigures(data);
+        
+        // Song song lấy cả hai dữ liệu để tối ưu thời gian
+        const [figuresResponse, periodsResponse] = await Promise.all([
+          apiRequest('GET', '/api/admin/historical-figures'),
+          apiRequest('GET', '/api/admin/periods')
+        ]);
+        
+        const figuresData = await figuresResponse.json();
+        const periodsData = await periodsResponse.json();
+        
+        setFigures(figuresData);
+        setPeriods(periodsData);
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching historical figures:', error);
+        console.error('Error fetching data:', error);
         toast({
           title: 'Lỗi',
-          description: 'Không thể tải danh sách nhân vật lịch sử',
+          description: 'Không thể tải dữ liệu',
           variant: 'destructive',
         });
         setIsLoading(false);
       }
     };
     
-    fetchFigures();
+    fetchData();
   }, [toast]);
   
   // Figure ID array for sorting
@@ -258,7 +274,8 @@ export default function HistoricalFiguresAdmin() {
       // Edit mode
       setIsEditing(true);
       setName(figure.name);
-      setPeriod(figure.period);
+      setPeriodId(figure.periodId);
+      setPeriod(figure.period || figure.periodText || ''); // Giữ lại tương thích
       setLifespan(figure.lifespan);
       setDescription(figure.description);
       setDetailedDescription(figure.detailedDescription || '');
@@ -269,6 +286,7 @@ export default function HistoricalFiguresAdmin() {
       // Add mode
       setIsEditing(false);
       setName('');
+      setPeriodId(undefined);
       setPeriod('');
       setLifespan('');
       setDescription('');
@@ -324,7 +342,7 @@ export default function HistoricalFiguresAdmin() {
   // Save historical figure
   const handleSaveFigure = async () => {
     // Validate form
-    if (!name || !period || !lifespan || !description) {
+    if (!name || (!periodId && !period) || !lifespan || !description) {
       toast({
         title: 'Lỗi',
         description: 'Vui lòng điền đầy đủ thông tin bắt buộc',
@@ -337,11 +355,20 @@ export default function HistoricalFiguresAdmin() {
       // Prepare data
       const figureData: any = {
         name,
-        period,
         lifespan,
         description,
         detailedDescription: detailedDescription || null,
       };
+      
+      // Thêm periodId nếu có
+      if (periodId) {
+        figureData.periodId = periodId;
+      }
+      
+      // Giữ lại trường period cho tương thích ngược
+      if (period) {
+        figureData.period = period;
+      }
       
       // Handle image
       if (isRemovingImage) {
@@ -487,7 +514,7 @@ export default function HistoricalFiguresAdmin() {
       
       {/* Add/Edit Dialog */}
       <Dialog open={currentFigure !== null} onOpenChange={handleCloseDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Chỉnh sửa nhân vật lịch sử' : 'Thêm nhân vật lịch sử'}</DialogTitle>
             <DialogDescription>
@@ -510,13 +537,29 @@ export default function HistoricalFiguresAdmin() {
               
               <div className="mb-4">
                 <Label htmlFor="period">Thời kỳ *</Label>
-                <Input
-                  id="period"
-                  placeholder="Thời kỳ sống (ví dụ: Thời Lý)"
-                  value={period}
-                  onChange={(e) => setPeriod(e.target.value)}
-                  className="mt-1"
-                />
+                <Select 
+                  value={periodId?.toString()} 
+                  onValueChange={(value) => {
+                    const id = parseInt(value);
+                    setPeriodId(id);
+                    // Cập nhật cả giá trị period cho tương thích ngược
+                    const selectedPeriod = periods.find(p => p.id === id);
+                    if (selectedPeriod) {
+                      setPeriod(selectedPeriod.name);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Chọn thời kỳ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {periods.sort((a, b) => a.sortOrder - b.sortOrder).map((period) => (
+                      <SelectItem key={period.id} value={period.id.toString()}>
+                        {period.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               
               <div className="mb-4">
@@ -612,7 +655,7 @@ export default function HistoricalFiguresAdmin() {
                         ['clean']
                       ]
                     }}
-                    className="min-h-[300px]"
+                    className="min-h-[400px]"
                   />
                 </div>
               </div>
