@@ -10,9 +10,31 @@ import path from "path";
 import fs from "fs";
 import { randomUUID } from "crypto";
 
-// Middleware kiểm tra xác thực
+// Thêm các định nghĩa type cho express-session
+declare module "express-session" {
+  interface SessionData {
+    passport: { user: number };
+  }
+}
+
+declare module "express" {
+  interface Request {
+    user?: User;
+    isAuthenticated(): boolean;
+    login(user: User, callback: (err: any) => void): void;
+    logout(callback: (err: any) => void): void;
+  }
+}
+
+// Middleware kiểm tra xác thực (hỗ trợ cả JWT token và session cookie)
 const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Kiểm tra nếu user đã được xác thực thông qua session (express-session)
+    if (req.isAuthenticated?.()) {
+      return next();
+    }
+    
+    // Nếu không có session, thử kiểm tra JWT token
     const authToken = req.headers.authorization?.split(' ')[1];
     
     if (!authToken) {
@@ -37,7 +59,15 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 // Middleware kiểm tra quyền admin
 const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = (req as any).user as User;
+    let user: User | null = null;
+    
+    // Trường hợp sử dụng session
+    if (req.isAuthenticated?.()) {
+      user = req.user as User;
+    } else {
+      // Trường hợp sử dụng JWT token
+      user = (req as any).user as User;
+    }
     
     if (!user || !user.isAdmin) {
       return res.status(403).json({ error: 'Forbidden' });
