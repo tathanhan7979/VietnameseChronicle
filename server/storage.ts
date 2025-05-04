@@ -104,13 +104,22 @@ export const storage = {
       // Các thiết lập mặc định
       const defaultSettings = [
         {
+          key: "site_favicon",
+          value: "",
+          description: "Icon hiển thị trên thẻ trình duyệt (favicon)",
+          displayName: "Icon trang web",
+          category: "general",
+          inputType: "text",
+          sortOrder: 0
+        },
+        {
           key: "home_background_url",
           value: "https://images.unsplash.com/photo-1624009582782-1be02fbb7f23?q=80&w=2071&auto=format&fit=crop",
           description: "URL ảnh nền của trang chủ",
           displayName: "Ảnh nền trang chủ",
           category: "general",
           inputType: "text",
-          sortOrder: 0
+          sortOrder: 1
         },
         {
           key: "telegram_bot_token",

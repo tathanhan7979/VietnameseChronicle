@@ -240,7 +240,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
   };
 
   // Determine if this setting is an image setting
-  const isImageSetting = setting.key === 'home_background_url';
+  const isImageSetting = setting.key === 'home_background_url' || setting.key === 'site_favicon';
 
   // Determine if this setting should use the rich text editor
   const shouldUseRichText = setting.inputType === 'textarea' && 
@@ -289,7 +289,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                     name="value"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>URL ảnh nền</FormLabel>
+                        <FormLabel>{setting.key === 'home_background_url' ? 'URL ảnh nền' : 'URL hoặc mã base64 của icon'}</FormLabel>
                         <FormControl>
                           <Input 
                             placeholder="https://example.com/image.jpg" 
@@ -298,7 +298,9 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                           />
                         </FormControl>
                         <FormDescription>
-                          Nhập URL hình ảnh từ internet
+                          {setting.key === 'home_background_url' 
+                            ? 'Nhập URL hình ảnh từ internet' 
+                            : 'Nhập URL hình ảnh hoặc mã base64 cho favicon'}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
