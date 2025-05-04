@@ -180,25 +180,24 @@ export default function PeriodsAdmin() {
     },
   });
 
-  // Sắp xếp thứ tự thời kỳ
+  // Sắp xếp thứ tự thời kỳ - API mới dùng POST đơn giản
   const reorderMutation = useMutation({
-    mutationFn: async (data: { orderedIds: number[] }) => {
+    mutationFn: async (idsArray: number[]) => {
       try {
         setError(null); // Xóa lỗi trước khi gọi API
         
-        // Đảm bảo dữ liệu gửi đi đúng định dạng
-        if (!data || !data.orderedIds || !Array.isArray(data.orderedIds)) {
-          throw new Error('Dữ liệu không đúng định dạng. Vui lòng thử lại.');
+        // Kiểm tra dữ liệu
+        if (!Array.isArray(idsArray) || idsArray.length === 0) {
+          throw new Error('Danh sách ID không hợp lệ');
         }
         
-        // Đảm bảo các ID là số nguyên
-        const cleanData = {
-          orderedIds: data.orderedIds.map(id => typeof id === 'string' ? parseInt(id, 10) : id)
-        };
+        // Chuyển đổi ID sang số nguyên
+        const numericIds = idsArray.map(id => typeof id === 'string' ? parseInt(id, 10) : id);
         
-        console.log('Sending body to API:', JSON.stringify(cleanData));
+        console.log('Danh sách ID gửi đi:', numericIds);
         
-        const res = await apiRequest('PUT', '/api/admin/periods/reorder', cleanData);
+        // Gọi API mới với POST request trực tiếp mảng ID
+        const res = await apiRequest('POST', '/api/periods/sort', numericIds);
         console.log('API response status:', res.status);
         
         if (!res.ok) {
@@ -206,9 +205,10 @@ export default function PeriodsAdmin() {
           console.log('Error data:', errorData);
           throw new Error(errorData.message || 'Lỗi khi sắp xếp thứ tự');
         }
+        
         return res.json();
       } catch (error: any) {
-        console.error('Lỗi khi gọi API reorder:', error);
+        console.error('Lỗi khi gọi API sort:', error);
         // Lưu lỗi để hiển thị component lỗi
         setError({
           title: 'Không thể sắp xếp thời kỳ',
@@ -289,19 +289,12 @@ export default function PeriodsAdmin() {
     
     try {
       // Gửi yêu cầu cập nhật thứ tự lên server
-      // Tạo một mảng orderedIds chứa các ID của thời kỳ theo thứ tự mới
-      // Chuyển tất cả ID sang số nguyên
-      const orderedIds = updatedPeriods.map(period => parseInt(String(period.id), 10));
-      console.log('Gửi yêu cầu reorder:', { orderedIds });
+      // Tạo mảng ID chỉ chứa các ID theo thứ tự mới
+      const periodIds = updatedPeriods.map(period => period.id);
+      console.log('Danh sách ID thời kỳ mới:', periodIds);
       
-      // Gửi dữ liệu với định dạng object có thuộc tính orderedIds
-      const requestData = { orderedIds };
-      console.log('Request data:', requestData);
-      console.log('Tất cả đều là số:', orderedIds.every(id => typeof id === 'number'));
-      
-      // Đảm bảo gửi dữ liệu đúng format cần thiết đến API
-      // Truyền requestData vào hàm mutation
-      reorderMutation.mutate(requestData);
+      // Gọi API mới - chỉ cần truyền mảng ID trực tiếp
+      reorderMutation.mutate(periodIds);
     } catch (err) {
       console.error('Lỗi khi chuẩn bị dữ liệu reorder:', err);
       setError({

@@ -574,53 +574,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.put(`${apiPrefix}/admin/periods/reorder`, requireAuth, requireAdmin, async (req, res) => {
+  // API Reorder Periods - tạo mới hoàn toàn, tiếp cận đơn giản hơn
+  app.post(`${apiPrefix}/periods/sort`, requireAuth, requireAdmin, async (req, res) => {
     try {
-      console.log('REORDER REQUEST:', req.body);
+      console.log('PERIOD SORT REQUEST:', req.body);
       
-      // Thực hiện cách đơn giản nhất để nhận mảng các ID
-      if (!req.body || !req.body.orderedIds) {
+      // Kiểm tra dữ liệu đầu vào là mảng
+      if (!Array.isArray(req.body)) {
         return res.status(400).json({
           success: false,
-          message: 'Thiếu dữ liệu: cần mảng orderedIds'
+          message: 'Yêu cầu dữ liệu là mảng các ID'
         });
       }
       
-      // Chắc chắn là mảng
-      if (!Array.isArray(req.body.orderedIds)) {
+      // Biến mảng ID thành số nguyên
+      const periodIds = req.body.map(id => typeof id === 'string' ? parseInt(id, 10) : Number(id));
+      
+      console.log('Processed IDs for sorting:', periodIds);
+      
+      // Kiểm tra có ID hợp lệ không
+      if (periodIds.some(id => isNaN(id) || id <= 0)) {
         return res.status(400).json({
           success: false,
-          message: 'orderedIds phải là mảng'
+          message: 'Danh sách chứa ID không hợp lệ'
         });
       }
-
-      // Lấy tất cả periods để cập nhật
-      const allPeriods = await storage.getAllPeriods();
-      const existingIds = allPeriods.map(p => p.id);
       
-      // Update lại sắp xếp cho từng ID
-      for (let i = 0; i < req.body.orderedIds.length; i++) {
-        const periodId = parseInt(req.body.orderedIds[i].toString(), 10);
-        
-        if (isNaN(periodId) || !existingIds.includes(periodId)) {
-          continue; // Bỏ qua ID không hợp lệ
-        }
-        
-        // Cập nhật trực tiếp sortOrder
+      // Cập nhật từng period một
+      for (let i = 0; i < periodIds.length; i++) {
         await db.update(periods)
-              .set({ sortOrder: i })
-              .where(eq(periods.id, periodId));
+               .set({ sortOrder: i })
+               .where(eq(periods.id, periodIds[i]));
+        
+        console.log(`Updated period ${periodIds[i]} with sortOrder ${i}`);
       }
       
       return res.json({
         success: true,
         message: 'Cập nhật thứ tự thành công'
       });
+      
     } catch (error) {
-      console.error('Error reordering periods:', error);
+      console.error('Error sorting periods:', error);
       return res.status(500).json({
         success: false,
-        message: 'Lỗi khi sắp xếp lại thứ tự. Vui lòng thử lại sau.'
+        message: 'Lỗi khi sắp xếp thời kỳ.'
       });
     }
   });
