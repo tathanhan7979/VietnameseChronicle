@@ -18,7 +18,7 @@ export default function HistoricalFiguresList() {
     queryKey: ['/api/historical-figures'],
   });
 
-  const { data: periods } = useQuery<any[]>({
+  const { data: periods } = useQuery<{id: number, name: string, slug: string}[]>({
     queryKey: ['/api/periods'],
   });
   
@@ -28,7 +28,9 @@ export default function HistoricalFiguresList() {
       figure.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       figure.description.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesPeriod = periodFilter === 'all' || figure.period.includes(periodFilter);
+    // Sử dụng periodId để kiểm tra lọc nếu có, nếu không thì dùng period text
+    const periodName = periods?.find(p => p.id === figure.periodId)?.name || figure.period;
+    const matchesPeriod = periodFilter === 'all' || periodName.includes(periodFilter);
     
     return matchesSearch && matchesPeriod;
   }) : [];
@@ -154,7 +156,7 @@ export default function HistoricalFiguresList() {
                   </div>
                 </div>
                 <div className="absolute top-3 right-3 bg-[#4527A0] text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {figure.period}
+                  {periods?.find(p => p.id === figure.periodId)?.name || figure.period}
                 </div>
               </div>
               
