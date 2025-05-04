@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowDownCircle, ArrowRight } from "lucide-react";
+import { ArrowRight, Clock, MapPin, Users } from "lucide-react";
 
 interface HeroSectionProps {
   onStartExplore?: () => void;
@@ -13,104 +13,117 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
     }
   };
 
+  // Quick navigation cards for important sections
+  const quickNavItems = [
+    {
+      icon: <Clock className="h-6 w-6" />,
+      title: "Dòng thời gian",
+      link: "#timeline",
+      color: "from-red-600 to-red-800"
+    },
+    {
+      icon: <Users className="h-6 w-6" />,
+      title: "Nhân vật lịch sử",
+      link: "#historical-figures",
+      color: "from-indigo-600 to-indigo-900"
+    },
+    {
+      icon: <MapPin className="h-6 w-6" />,
+      title: "Di tích lịch sử",
+      link: "#historical-sites",
+      color: "from-amber-500 to-amber-700"
+    }
+  ];
+
   return (
     <section id="home" className="relative overflow-hidden">
-      {/* Hero Main */}
-      <div className="relative min-h-screen pt-20 md:pt-24 flex items-center">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40 z-10"></div>
-        
-        {/* Hero Background */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center z-0"
-          style={{ 
-            backgroundImage: "url('https://images.unsplash.com/photo-1551634979-2b11f8c218a7?q=80&w=1974&auto=format&fit=crop')" 
-          }}
-        ></div>
-        
-        <div className="container mx-auto px-4 py-16 flex flex-col justify-center relative z-20 text-white md:text-left min-h-[calc(100vh-6rem)]">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            <div>
-              <motion.div
-                className="text-sm font-medium mb-3 inline-block rounded-full bg-red-600/20 px-3 py-1 border border-red-500/20"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <span className="text-red-200">Di Sản Văn Hóa Việt Nam</span>
-              </motion.div>
-              
-              <motion.h1 
-                className="font-['Playfair_Display'] font-bold text-4xl md:text-6xl lg:text-7xl mb-6 leading-tight"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1 }}
-              >
-                Hành Trình <span className="text-[#F44336]">4000 Năm</span> Lịch Sử Việt Nam
-              </motion.h1>
-              
-              <motion.p 
-                className="font-['Montserrat'] text-lg md:text-xl max-w-2xl mb-10 text-gray-100"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-              >
-                Từ thời đại các Vua Hùng dựng nước đến nền cộng hòa hiện đại — khám phá hành trình lịch sử hào hùng của dân tộc Việt Nam qua các triều đại và sự kiện quan trọng.
-              </motion.p>
-              
-              <motion.div
-                className="flex flex-col sm:flex-row gap-4"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-              >
-                <a 
-                  href="#timeline" 
-                  onClick={handleExploreClick}
-                  className="bg-[#C62828] hover:bg-[#B71C1C] text-white px-8 py-3 rounded-md font-['Montserrat'] text-lg transition-all flex items-center justify-center sm:justify-start gap-2 shadow-lg hover:shadow-xl transform hover:translate-y-[-2px]"
-                >
-                  Khám Phá Ngay
-                  <ArrowRight className="h-5 w-5" />
-                </a>
-                
-                <a 
-                  href="#historical-figures" 
-                  className="bg-transparent text-white border-2 border-white px-8 py-3 rounded-md font-['Montserrat'] text-lg hover:bg-white/10 transition-all flex items-center justify-center sm:justify-start gap-2 transform hover:translate-y-[-2px]"
-                >
-                  Nhân Vật Lịch Sử
-                </a>
-              </motion.div>
-            </div>
-            
-            <motion.div 
-              className="hidden md:block"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1, delay: 0.5 }}
+      {/* Hero Section */}
+      <div className="relative h-screen">
+        {/* Background with parallax effect */}
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="absolute inset-0 bg-cover bg-center transform scale-110" 
+            style={{
+              backgroundImage: "url('https://images.unsplash.com/photo-1624009582782-1be02fbb7f23?q=80&w=2071&auto=format&fit=crop')",
+              filter: "brightness(0.6)",
+              transformOrigin: "center"
+            }}
+          ></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/80"></div>
+        </div>
+
+        {/* Hero content */}
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="container mx-auto px-4 pt-16 pb-8 flex flex-col justify-center items-center text-center">
+            <motion.div
+              className="mb-6 inline-flex items-center rounded-full bg-red-600/20 px-3 py-1 border border-red-500/20"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
-              <div className="relative rounded-lg overflow-hidden shadow-2xl border-2 border-white/10">
-                <img 
-                  src="https://images.unsplash.com/photo-1575340245098-740517a5944e?q=80&w=1770&auto=format&fit=crop" 
-                  alt="Hình ảnh lịch sử Việt Nam" 
-                  className="object-cover rounded-lg h-[400px] w-full"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <h3 className="text-2xl font-['Playfair_Display'] font-bold">Di Sản Văn Hóa Phi Vật Thể</h3>
-                  <p className="text-gray-200 mt-1">Khám phá những giá trị văn hóa phi vật thể đã được UNESCO công nhận</p>
-                </div>
-              </div>
+              <span className="text-red-200 text-sm font-medium">Di Sản Văn Hóa Việt Nam</span>
+            </motion.div>
+            
+            <motion.h1 
+              className="font-['Playfair_Display'] font-bold text-4xl md:text-7xl text-white mb-6 max-w-5xl leading-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              Hành Trình <span className="text-red-500">4000 Năm</span> <br />Lịch Sử Việt Nam
+            </motion.h1>
+            
+            <motion.p 
+              className="font-['Montserrat'] text-xl text-gray-200 max-w-2xl mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              Khám phá hành trình vẻ vang từ thời Vua Hùng dựng nước đến nền cộng hòa hiện đại
+            </motion.p>
+            
+            <motion.div
+              className="flex flex-col md:flex-row gap-6 justify-center mt-6 mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <a 
+                href="#timeline" 
+                onClick={handleExploreClick}
+                className="bg-gradient-to-r from-red-700 to-red-900 hover:from-red-800 hover:to-red-950 text-white px-8 py-4 rounded-md font-['Montserrat'] text-lg transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                Khám Phá Ngay
+                <ArrowRight className="h-5 w-5 ml-1" />
+              </a>
+            </motion.div>
+            
+            {/* Quick navigation cards */}
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl mx-auto mt-4"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+            >
+              {quickNavItems.map((item, index) => (
+                <a 
+                  key={index}
+                  href={item.link}
+                  className="bg-white/10 backdrop-blur-sm border border-white/20 p-4 rounded-xl group hover:bg-white/20 transition-all duration-300 flex items-center gap-3"
+                >
+                  <div className={`bg-gradient-to-br ${item.color} w-12 h-12 rounded-lg flex items-center justify-center shrink-0`}>
+                    {item.icon}
+                  </div>
+                  <span className="text-white font-medium">{item.title}</span>
+                  <ArrowRight className="h-4 w-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white" />
+                </a>
+              ))}
             </motion.div>
           </div>
-          
-          <motion.div 
-            className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5, duration: 1 }}
-          >
-            <ArrowDownCircle className="h-10 w-10 text-white animate-bounce" />
-          </motion.div>
         </div>
+
+        {/* Overlay decoration - pattern */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48cGF0aCBkPSJNMzAgMGEzMCAzMCAwIDEgMCAwIDYwIDMwIDMwIDAgMCAwIDAtNjB6TTEwIDMwYTIwIDIwIDAgMSAxIDQwIDAgMjAgMjAgMCAwIDEtNDAgMHoiIG9wYWNpdHk9Ii4wNSIgLz48L3N2Zz4=')] opacity-30 pointer-events-none z-5"></div>
       </div>
     </section>
   );

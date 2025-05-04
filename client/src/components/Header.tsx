@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import { Clock10Icon, UserIcon, LandmarkIcon, HomeIcon, BookOpenIcon, SearchIcon, MenuIcon, XIcon } from 'lucide-react';
+import { Clock, User, Landmark, Home, Search, Menu, X } from 'lucide-react';
 import { useMobile } from '@/hooks/use-mobile';
 
 interface HeaderProps {
@@ -15,23 +15,20 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const navigationItems = [
-    { id: 'home', name: 'Trang Chủ', icon: HomeIcon, href: '/' },
-    { id: 'timeline', name: 'Dòng Thời Gian', icon: Clock10Icon, href: '/#timeline' },
-    { id: 'historical-figures', name: 'Nhân Vật Lịch Sử', icon: UserIcon, href: '/#historical-figures' },
-    { id: 'historical-sites', name: 'Di Tích Lịch Sử', icon: LandmarkIcon, href: '/#historical-sites' },
+    { id: 'home', name: 'Trang Chủ', icon: Home, href: '/' },
+    { id: 'timeline', name: 'Dòng Thời Gian', icon: Clock, href: '/#timeline' },
+    { id: 'historical-figures', name: 'Nhân Vật', icon: User, href: '/#historical-figures' },
+    { id: 'historical-sites', name: 'Di Tích', icon: Landmark, href: '/#historical-sites' },
   ];
   
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 50);
+      setIsScrolled(scrollTop > 10);
     };
     
     window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
   // Handle navigation click
@@ -50,18 +47,18 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
   
   return (
     <header 
-      className={`fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 shadow-md' : 'bg-white/90 backdrop-blur-sm'}`}
+      className={`fixed w-full top-0 z-50 transition-all duration-300 backdrop-blur-md ${isScrolled ? 'bg-black/80 shadow-lg' : 'bg-black/50'}`}
     >
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/">
-            <div className="flex items-center cursor-pointer">
-              <div className="h-10 w-10 mr-3 bg-[#C62828] rounded-full flex items-center justify-center text-white font-bold font-['Playfair_Display'] text-lg">
+            <div className="flex items-center cursor-pointer group">
+              <div className="h-10 w-10 mr-3 bg-gradient-to-br from-red-600 to-red-700 rounded-lg flex items-center justify-center text-white font-bold font-['Playfair_Display'] text-lg transition-transform duration-300 group-hover:scale-105 shadow-md">
                 VN
               </div>
-              <h1 className="font-['Playfair_Display'] font-bold text-xl md:text-2xl text-[#C62828] tracking-wider">
-                LỊCH SỬ VIỆT NAM
+              <h1 className="font-['Playfair_Display'] font-bold text-xl md:text-2xl text-white tracking-wider">
+                LỊCH SỬ <span className="text-red-500">VIỆT NAM</span>
               </h1>
             </div>
           </Link>
@@ -71,17 +68,17 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
             <div className="flex items-center">
               <button
                 onClick={onOpenSearch}
-                className="p-2 mr-2 text-gray-600 hover:text-[#C62828] transition-colors"
+                className="p-2 mr-2 text-white/80 hover:text-white transition-colors"
                 aria-label="Tìm kiếm"
               >
-                <SearchIcon className="h-6 w-6" />
+                <Search className="h-6 w-6" />
               </button>
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-gray-600 hover:text-[#C62828] transition-colors"
+                className="p-2 text-white/80 hover:text-white transition-colors"
                 aria-label="Menu"
               >
-                {isMobileMenuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
             </div>
           )}
@@ -94,7 +91,7 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
                   key={item.id} 
                   href={item.href}
                   onClick={(e) => handleNavClick(item.id, e)}
-                  className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-colors hover:bg-red-50 hover:text-[#C62828] ${activeSection === item.id ? 'text-[#C62828] bg-red-50' : 'text-gray-700'}`}
+                  className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-all hover:bg-white/10 ${activeSection === item.id ? 'text-red-400 bg-white/10' : 'text-white/90 hover:text-white'}`}
                 >
                   <item.icon className="h-4 w-4 mr-2" />
                   {item.name}
@@ -102,34 +99,47 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
               ))}
               <button
                 onClick={onOpenSearch}
-                className="flex items-center px-4 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-red-50 hover:text-[#C62828] transition-colors cursor-pointer ml-2"
+                className="flex items-center ml-2 px-4 py-2 rounded-md text-base font-medium text-white/90 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
                 aria-label="Tìm kiếm"
               >
-                <SearchIcon className="h-4 w-4 mr-2" />
+                <Search className="h-4 w-4 mr-2" />
                 Tìm Kiếm
               </button>
             </nav>
           )}
         </div>
         
-        {/* Mobile Menu Dropdown */}
-        {isMobile && isMobileMenuOpen && (
-          <nav className="mt-4 py-4 border-t border-gray-200">
-            <ul className="space-y-2">
-              {navigationItems.map((item) => (
-                <li key={item.id}>
-                  <Link 
-                    href={item.href}
-                    onClick={(e) => handleNavClick(item.id, e)}
-                    className={`flex items-center py-2 px-3 rounded-md font-medium hover:bg-red-50 hover:text-[#C62828] transition-colors ${activeSection === item.id ? 'text-[#C62828] bg-red-50' : 'text-gray-700'}`}
+        {/* Mobile Menu Dropdown - slide down animation */}
+        {isMobile && (
+          <div 
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-64 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}
+          >
+            <nav className="py-4 border-t border-white/20">
+              <ul className="space-y-2">
+                {navigationItems.map((item) => (
+                  <li key={item.id}>
+                    <Link 
+                      href={item.href}
+                      onClick={(e) => handleNavClick(item.id, e)}
+                      className={`flex items-center py-3 px-4 rounded-md font-medium transition-colors hover:bg-white/10 ${activeSection === item.id ? 'text-red-400 bg-white/10' : 'text-white/90 hover:text-white'}`}
+                    >
+                      <item.icon className="h-5 w-5 mr-3" />
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <button
+                    onClick={onOpenSearch}
+                    className="w-full flex items-center py-3 px-4 rounded-md font-medium text-white/90 hover:text-white hover:bg-white/10 transition-colors"
                   >
-                    <item.icon className="h-5 w-5 mr-3" />
-                    {item.name}
-                  </Link>
+                    <Search className="h-5 w-5 mr-3" />
+                    Tìm Kiếm
+                  </button>
                 </li>
-              ))}
-            </ul>
-          </nav>
+              </ul>
+            </nav>
+          </div>
         )}
       </div>
     </header>
