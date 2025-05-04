@@ -538,6 +538,19 @@ export const storage = {
     }
   },
   
+  // Lấy tất cả thời kỳ có isShow = true cho trang chủ
+  getVisiblePeriods: async (): Promise<Period[]> => {
+    try {
+      return await db.query.periods.findMany({
+        where: eq(periods.isShow, true),
+        orderBy: asc(periods.sortOrder)
+      });
+    } catch (error) {
+      handleDbError(error, "getVisiblePeriods");
+      return [];
+    }
+  },
+  
   createPeriod: async (periodData: Omit<Period, 'id'>): Promise<Period> => {
     try {
       const [result] = await db.insert(periods).values(periodData).returning();

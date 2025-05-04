@@ -154,6 +154,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all periods
   app.get(`${apiPrefix}/periods`, async (req, res) => {
     try {
+      // Nếu có query parameter ?visible=true thì chỉ lấy thời kỳ có isShow=true
+      if (req.query.visible === 'true') {
+        const periods = await storage.getVisiblePeriods();
+        return res.json(periods);
+      }
+      
+      // Nếu không có parameter, lấy tất cả thời kỳ
       const periods = await storage.getAllPeriods();
       res.json(periods);
     } catch (error) {
