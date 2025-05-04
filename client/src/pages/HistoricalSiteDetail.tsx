@@ -188,10 +188,12 @@ export default function HistoricalSiteDetail() {
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-md">{site.name}</h1>
             
             <div className="flex flex-wrap gap-2 items-center">
-              {period && (
-                <Badge className="bg-primary/90 hover:bg-primary text-white px-3 py-1 text-sm">
-                  {period}
-                </Badge>
+              {period && periodSlug && (
+                <Link href={`/thoi-ky/${periodSlug}`}>
+                  <Badge className="bg-primary/90 hover:bg-primary text-white px-3 py-1 text-sm cursor-pointer">
+                    {period}
+                  </Badge>
+                </Link>
               )}
               {site.yearBuilt && (
                 <Badge variant="outline" className="bg-white/70 hover:bg-white px-3 py-1">

@@ -164,10 +164,12 @@ export default function TimelineSection({
                   {/* Period title */}
                   <div className="period-title">
                     <h3>
-                      <div className="flex items-center gap-2 justify-center">
-                        <CalendarDays className="h-5 w-5 text-[#4527A0]" />
-                        {period.name} <span>({period.timeframe})</span>
-                      </div>
+                      <Link href={`/thoi-ky/${period.slug}`} className="hover:underline hover:text-[hsl(var(--primary))]">
+                        <div className="flex items-center gap-2 justify-center">
+                          <CalendarDays className="h-5 w-5 text-[#4527A0]" />
+                          {period.name} <span>({period.timeframe})</span>
+                        </div>
+                      </Link>
                     </h3>
                   </div>
 
