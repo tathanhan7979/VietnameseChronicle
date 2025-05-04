@@ -174,6 +174,101 @@ export const storage = {
   },
 
   // Feedback methods
+  // ======= Quản lý sự kiện =======
+  
+  getAllEventsWithTypes: async (): Promise<Event[]> => {
+    try {
+      const allEvents = await db.query.events.findMany({
+        orderBy: asc(events.sortOrder),
+        with: {
+          eventTypes: true
+        }
+      });
+      return allEvents;
+    } catch (error) {
+      console.error('Error getting all events with types:', error);
+      return [];
+    }
+  },
+  
+  createEvent: async (data: Omit<InsertEvent, 'id'>): Promise<Event> => {
+    try {
+      const [newEvent] = await db.insert(events).values(data).returning();
+      return newEvent;
+    } catch (error) {
+      console.error('Error creating event:', error);
+      throw error;
+    }
+  },
+  
+  updateEvent: async (id: number, data: Partial<InsertEvent>): Promise<Event | null> => {
+    try {
+      const [updatedEvent] = await db.update(events)
+        .set(data)
+        .where(eq(events.id, id))
+        .returning();
+      return updatedEvent || null;
+    } catch (error) {
+      console.error(`Error updating event ${id}:`, error);
+      throw error;
+    }
+  },
+  
+  deleteEvent: async (id: number): Promise<boolean> => {
+    try {
+      const result = await db.delete(events)
+        .where(eq(events.id, id));
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error(`Error deleting event ${id}:`, error);
+      throw error;
+    }
+  },
+  
+  associateEventWithTypes: async (eventId: number, typeIds: (number | string)[]): Promise<void> => {
+    try {
+      // Convert to numbers if they are strings
+      const numericTypeIds = typeIds.map(id => typeof id === 'string' ? parseInt(id, 10) : id);
+      
+      // Create association records
+      const associations = numericTypeIds.map(typeId => ({
+        eventId,
+        eventTypeId: typeId
+      }));
+      
+      await db.insert(eventToEventType).values(associations);
+    } catch (error) {
+      console.error(`Error associating event ${eventId} with types:`, error);
+      throw error;
+    }
+  },
+  
+  removeEventTypeAssociations: async (eventId: number): Promise<void> => {
+    try {
+      await db.delete(eventToEventType)
+        .where(eq(eventToEventType.eventId, eventId));
+    } catch (error) {
+      console.error(`Error removing event type associations for event ${eventId}:`, error);
+      throw error;
+    }
+  },
+  
+  reorderEvents: async (orderedIds: number[]): Promise<boolean> => {
+    try {
+      for (let i = 0; i < orderedIds.length; i++) {
+        await db.update(events)
+          .set({ sortOrder: i })
+          .where(eq(events.id, orderedIds[i]));
+      }
+      return true;
+    } catch (error) {
+      console.error('Error reordering events:', error);
+      return false;
+    }
+  },
+  
+  // ======= Quản lý feedback =======
+  
   createFeedback: async (data: InsertFeedback): Promise<Feedback> => {
     try {
       const [result] = await db.insert(feedback).values(data).returning();

@@ -913,6 +913,206 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // API quản lý sự kiện cho admin
+  app.get(`${apiPrefix}/admin/events`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      // Lấy danh sách sự kiện kèm theo thông tin loại sự kiện
+      const allEvents = await storage.getAllEventsWithTypes();
+      res.json(allEvents);
+    } catch (error) {
+      console.error('Error fetching events for admin:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  app.post(`${apiPrefix}/admin/events`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const eventData = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!eventData || !eventData.title || !eventData.periodId) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Dữ liệu không hợp lệ' 
+        });
+      }
+      
+      // Xử lý eventTypes từ mảng ID thành mảng đối tượng liên kết
+      const eventTypeIds = eventData.eventTypes || [];
+      delete eventData.eventTypes; // Xóa trường eventTypes khỏi dữ liệu chính
+      
+      // Tạo slug từ title nếu chưa có
+      if (!eventData.slug) {
+        eventData.slug = eventData.title
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^\w\s-]/g, "")
+          .replace(/[\s_-]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+      
+      // Lấy vị trí sắp xếp cuối cùng (+1) cho sự kiện trong cùng thời kỳ
+      const eventsInPeriod = await storage.getEventsByPeriod(parseInt(eventData.periodId));
+      const maxSortOrder = eventsInPeriod.length > 0 ? 
+        Math.max(...eventsInPeriod.map(e => e.sortOrder || 0)) : -1;
+      eventData.sortOrder = maxSortOrder + 1;
+      
+      // Xử lý hình ảnh base64 nếu có
+      if (eventData.imageUrl && eventData.imageUrl.startsWith('data:image')) {
+        // Xử lý upload hình ảnh base64 - đoạn này nên có logic lưu hình ảnh vào server
+        // Giữ nguyên chuỗi base64 cho demo
+      }
+      
+      // Lưu sự kiện vào database
+      const newEvent = await storage.createEvent(eventData);
+      
+      // Lưu các liên kết với loại sự kiện
+      if (eventTypeIds.length > 0) {
+        await storage.associateEventWithTypes(newEvent.id, eventTypeIds);
+      }
+      
+      res.status(201).json({
+        success: true,
+        message: 'Thêm sự kiện thành công',
+        event: newEvent
+      });
+    } catch (error) {
+      console.error('Error creating event:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi tạo sự kiện mới' 
+      });
+    }
+  });
+  
+  app.put(`${apiPrefix}/admin/events/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const eventId = parseInt(req.params.id);
+      const eventData = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!eventData || !eventData.title || !eventData.periodId) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Dữ liệu không hợp lệ' 
+        });
+      }
+      
+      // Xử lý eventTypes từ mảng ID thành mảng đối tượng liên kết
+      const eventTypeIds = eventData.eventTypes || [];
+      delete eventData.eventTypes; // Xóa trường eventTypes khỏi dữ liệu chính
+      
+      // Cập nhật slug từ title nếu cần
+      if (!eventData.slug) {
+        eventData.slug = eventData.title
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^\w\s-]/g, "")
+          .replace(/[\s_-]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+      
+      // Xử lý hình ảnh base64 nếu có
+      if (eventData.imageUrl && eventData.imageUrl.startsWith('data:image')) {
+        // Xử lý upload hình ảnh base64 - đoạn này nên có logic lưu hình ảnh vào server
+        // Giữ nguyên chuỗi base64 cho demo
+      }
+      
+      // Cập nhật sự kiện trong database
+      const updatedEvent = await storage.updateEvent(eventId, eventData);
+      
+      if (!updatedEvent) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy sự kiện' 
+        });
+      }
+      
+      // Cập nhật các liên kết với loại sự kiện
+      await storage.removeEventTypeAssociations(eventId); // Xóa liên kết hiện tại
+      if (eventTypeIds.length > 0) {
+        await storage.associateEventWithTypes(eventId, eventTypeIds); // Thêm liên kết mới
+      }
+      
+      res.json({
+        success: true,
+        message: 'Cập nhật sự kiện thành công',
+        event: updatedEvent
+      });
+    } catch (error) {
+      console.error('Error updating event:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi cập nhật sự kiện' 
+      });
+    }
+  });
+  
+  app.delete(`${apiPrefix}/admin/events/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const eventId = parseInt(req.params.id);
+      
+      // Xóa các liên kết với loại sự kiện trước
+      await storage.removeEventTypeAssociations(eventId);
+      
+      // Xóa sự kiện
+      const deleted = await storage.deleteEvent(eventId);
+      
+      if (!deleted) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy sự kiện' 
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Xóa sự kiện thành công'
+      });
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi xóa sự kiện' 
+      });
+    }
+  });
+  
+  app.post(`${apiPrefix}/admin/events/reorder`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { orderedIds } = req.body;
+      
+      if (!Array.isArray(orderedIds)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Sai định dạng dữ liệu. Cần cung cấp mảng ID.'
+        });
+      }
+      
+      const success = await storage.reorderEvents(orderedIds);
+      
+      if (!success) {
+        return res.status(400).json({
+          success: false,
+          message: 'Không thể sắp xếp lại thứ tự.'
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: 'Cập nhật thứ tự thành công'
+      });
+    } catch (error) {
+      console.error('Error reordering events:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi sắp xếp lại thứ tự'
+      });
+    }
+  });
+
   // API quản lý feedback
   app.get(`${apiPrefix}/admin/feedback`, requireAuth, requireAdmin, async (req, res) => {
     try {

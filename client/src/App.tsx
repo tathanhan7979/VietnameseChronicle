@@ -16,6 +16,7 @@ import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
 import PeriodsAdmin from "@/pages/admin/periods";
 import EventTypesAdmin from "@/pages/admin/event-types";
+import EventsAdmin from "@/pages/admin/events";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
@@ -41,6 +42,7 @@ function Router() {
       <ProtectedRoute path="/admin" component={AdminDashboard} adminOnly={true} />
       <ProtectedRoute path="/admin/periods" component={PeriodsAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/event-types" component={EventTypesAdmin} adminOnly={true} />
+      <ProtectedRoute path="/admin/events" component={EventsAdmin} adminOnly={true} />
       
       {/* Catch all route for 404 */}
       <Route component={NotFound} />
