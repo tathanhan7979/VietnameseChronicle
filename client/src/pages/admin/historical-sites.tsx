@@ -20,7 +20,7 @@ import {
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Grid, Pencil, Trash2, GripVertical, Check, ChevronDown, MapPin, Map } from 'lucide-react';
+import { Grid, Pencil, Trash2, GripVertical, Check, ChevronDown, MapPin, Map, ExternalLink } from 'lucide-react';
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -139,6 +139,14 @@ function SortableSiteItem({ site, onEdit, onDelete }: SortableSiteItemProps) {
       </div>
       
       <div className="flex items-center gap-2">
+        <a 
+          href={`/historical-sites/${site.id}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+        >
+          <ExternalLink className="h-4 w-4" />
+        </a>
         <Button 
           variant="ghost" 
           size="icon" 

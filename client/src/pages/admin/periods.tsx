@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
-import { Clock, Edit, MoreHorizontal, Plus, Trash, GripVertical, AlertTriangle, Loader2 } from 'lucide-react';
+import { Clock, Edit, MoreHorizontal, Plus, Trash, GripVertical, AlertTriangle, Loader2, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -451,6 +451,15 @@ export default function PeriodsAdmin() {
                 {period.timeframe}
               </div>
             </div>
+            
+            <a 
+              href={`/periods/${period.slug}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
