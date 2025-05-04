@@ -292,7 +292,7 @@ interface SiteCardProps {
 
 function SiteCard({ site, isFavorite, periodName, onToggleFavorite, onShare, onClick }: SiteCardProps) {
   return (
-    <Card className="overflow-hidden h-full bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group">
+    <Card className="overflow-hidden flex flex-col bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group">
       <div className="h-56 overflow-hidden relative cursor-pointer" onClick={onClick}>
         <img 
           src={site.imageUrl || DEFAULT_IMAGE}
@@ -342,7 +342,7 @@ function SiteCard({ site, isFavorite, periodName, onToggleFavorite, onShare, onC
         </Button>
       </div>
       
-      <div className="p-5 flex flex-col h-full">
+      <div className="p-5 flex flex-col flex-grow">
         <div onClick={onClick} style={{ cursor: 'pointer' }}>
           <h3 className="text-xl font-bold mb-2 text-gray-900 group-hover:text-primary">{site.name}</h3>
           <p className="text-gray-600 text-sm mb-4 line-clamp-3">{site.description}</p>

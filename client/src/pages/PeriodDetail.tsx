@@ -240,8 +240,8 @@ export default function PeriodDetail() {
       {/* Header with background */}
       <div className="bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] py-16 text-white">
         <div className="container mx-auto px-4">
-          <Link href={`/#timeline?period=${period.slug}`}>
-            <Button variant="outline" className="mb-6 text-black border-white bg-white/90 hover:bg-white hover:text-primary">
+          <Link href={`/?period=${period.slug}#timeline`}>
+            <Button variant="outline" className="mb-6 text-black border-white bg-white/90 hover:bg-primary hover:text-white hover:border-transparent">
               <ArrowLeft className="mr-2" />
               Trở về dòng thời gian
             </Button>

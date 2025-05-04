@@ -28,7 +28,14 @@ export default function TimelineSection({
   // Lấy tham số period từ URL khi quay lại trang chủ
   useEffect(() => {
     if (location.includes('?period=')) {
-      const periodSlug = location.split('?period=')[1];
+      // Tách lấy phần giữa ?period= và #
+      let periodSlug;
+      if (location.includes('#')) {
+        periodSlug = location.split('?period=')[1].split('#')[0];
+      } else {
+        periodSlug = location.split('?period=')[1];
+      }
+      
       setActiveSection(periodSlug);
       
       // Cuộn đến thời kỳ đã chọn
