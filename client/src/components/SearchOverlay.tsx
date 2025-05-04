@@ -234,14 +234,14 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     navigate(result.link);
                     onClose();
                   }}
-                  className="flex items-center p-3 bg-[hsl(var(--background))] rounded-md hover:bg-[hsl(var(--primary))] hover:bg-opacity-10 transition-colors duration-300 cursor-pointer"
+                  className="flex items-center p-3 bg-[hsl(var(--background))] rounded-md hover:bg-[hsl(var(--primary))] hover:text-white transition-all duration-300 cursor-pointer group"
                 >
-                  <span className="material-icons mr-3 text-[hsl(var(--primary))]">
+                  <span className="material-icons mr-3 text-[hsl(var(--primary))] group-hover:text-white transition-colors duration-300">
                     {result.icon}
                   </span>
                   <div>
                     <div>{result.title}</div>
-                    <div className="text-sm text-gray-500">{result.subtitle}</div>
+                    <div className="text-sm text-gray-500 group-hover:text-white transition-colors duration-300">{result.subtitle}</div>
                   </div>
                 </div>
               ))}
@@ -295,9 +295,9 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 <div
                   key={index}
                   onClick={() => handlePopularSearchClick(item)}
-                  className="flex items-center p-3 bg-[hsl(var(--background))] rounded-md hover:bg-[hsl(var(--primary))] hover:bg-opacity-10 transition-colors duration-300 cursor-pointer"
+                  className="flex items-center p-3 bg-[hsl(var(--background))] rounded-md hover:bg-[hsl(var(--primary))] hover:text-white transition-all duration-300 cursor-pointer group"
                 >
-                  <span className="material-icons mr-3 text-[hsl(var(--primary))]">
+                  <span className="material-icons mr-3 text-[hsl(var(--primary))] group-hover:text-white transition-colors duration-300">
                     {item.icon}
                   </span>
                   <span>{item.title}</span>
