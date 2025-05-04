@@ -291,8 +291,9 @@ export default function PeriodsAdmin() {
       const data = await res.json();
 
       // Kiểm tra nếu có lỗi vì có mục liên kết
-      console.log('Response data:', data);
-      if (!res.ok && data.data) {
+      console.log('Response data:', data, 'Status:', res.status);
+      // Nếu có lỗi 400 và có dữ liệu trả về, hiển thị modal 
+      if (res.status === 400 && data.data) {
         // Đóng modal xác nhận xóa và mở modal quản lý mục liên kết
         setIsConfirmDeleteOpen(false);
         setRelatedItemsData(data.data);
