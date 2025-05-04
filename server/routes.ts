@@ -359,10 +359,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Cấu hình lưu trữ cho favicon
-  const faviconStorage = multer.diskStorage({
+  // Cấu hình lưu trữ cho tập tin ảnh
+  const imageStorage = multer.diskStorage({
     destination: function (req, file, cb) {
-      const dir = './uploads/favicons';
+      // Xác định thư mục dựa trên loại tập tin
+      let dir = './uploads/images';
+      
+      if (req.path.includes('/favicon')) {
+        dir = './uploads/favicons';
+      } else if (req.path.includes('/backgrounds')) {
+        dir = './uploads/backgrounds';
+      } else if (req.path.includes('/events')) {
+        dir = './uploads/events';
+      } else if (req.path.includes('/figures')) {
+        dir = './uploads/figures';
+      } else if (req.path.includes('/sites')) {
+        dir = './uploads/sites';
+      }
+      
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
@@ -370,17 +384,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
     filename: function (req, file, cb) {
       const uniqueSuffix = randomUUID();
-      cb(null, 'favicon-' + uniqueSuffix + path.extname(file.originalname));
+      let prefix = 'image';
+      
+      if (req.path.includes('/favicon')) {
+        prefix = 'favicon';
+      } else if (req.path.includes('/backgrounds')) {
+        prefix = 'bg';
+      } else if (req.path.includes('/events')) {
+        prefix = 'event';
+      } else if (req.path.includes('/figures')) {
+        prefix = 'figure';
+      } else if (req.path.includes('/sites')) {
+        prefix = 'site';
+      }
+      
+      cb(null, prefix + '-' + uniqueSuffix + path.extname(file.originalname));
     }
   });
   
-  const uploadFavicon = multer({ 
-    storage: faviconStorage,
+  const uploadImage = multer({ 
+    storage: imageStorage,
     limits: { fileSize: 50 * 1024 * 1024 } // 50MB
   });
+  
+  // Đồng bộ với công cụ tải lên cũ
+  const uploadFavicon = uploadImage;
 
   // Upload favicon
-  app.post(`${apiPrefix}/upload/favicon`, requireAuth, requireAdmin, uploadFavicon.single('file'), async (req, res) => {
+  app.post(`${apiPrefix}/upload/favicon`, requireAuth, requireAdmin, uploadImage.single('file'), async (req, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ success: false, error: 'Không có tập tin được tải lên' });
@@ -400,6 +431,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error uploading favicon:', error);
       res.status(500).json({ success: false, error: 'Lỗi khi tải lên favicon' });
+    }
+  });
+
+  // Upload background image
+  app.post(`${apiPrefix}/upload/backgrounds`, requireAuth, requireAdmin, uploadImage.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'Không có tập tin được tải lên' });
+      }
+
+      // Tạo URL cho tập tin
+      const fileUrl = `/uploads/backgrounds/${req.file.filename}`;
+      
+      // Cập nhật setting home_background_url với URL của tập tin
+      const updated = await storage.updateSetting('home_background_url', fileUrl);
+      
+      res.status(200).json({
+        success: true,
+        url: fileUrl,
+        setting: updated
+      });
+    } catch (error) {
+      console.error('Error uploading background image:', error);
+      res.status(500).json({ success: false, error: 'Lỗi khi tải lên hình nền' });
+    }
+  });
+  
+  // Upload hình ảnh cho sự kiện
+  app.post(`${apiPrefix}/upload/events`, requireAuth, requireAdmin, uploadImage.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'Không có tập tin được tải lên' });
+      }
+
+      // Tạo URL cho tập tin
+      const fileUrl = `/uploads/events/${req.file.filename}`;
+      
+      res.status(200).json({
+        success: true,
+        url: fileUrl
+      });
+    } catch (error) {
+      console.error('Error uploading event image:', error);
+      res.status(500).json({ success: false, error: 'Lỗi khi tải lên hình ảnh sự kiện' });
+    }
+  });
+  
+  // Upload hình ảnh cho nhân vật lịch sử
+  app.post(`${apiPrefix}/upload/figures`, requireAuth, requireAdmin, uploadImage.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'Không có tập tin được tải lên' });
+      }
+
+      // Tạo URL cho tập tin
+      const fileUrl = `/uploads/figures/${req.file.filename}`;
+      
+      res.status(200).json({
+        success: true,
+        url: fileUrl
+      });
+    } catch (error) {
+      console.error('Error uploading figure image:', error);
+      res.status(500).json({ success: false, error: 'Lỗi khi tải lên hình ảnh nhân vật' });
+    }
+  });
+  
+  // Upload hình ảnh cho di tích lịch sử
+  app.post(`${apiPrefix}/upload/sites`, requireAuth, requireAdmin, uploadImage.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'Không có tập tin được tải lên' });
+      }
+
+      // Tạo URL cho tập tin
+      const fileUrl = `/uploads/sites/${req.file.filename}`;
+      
+      res.status(200).json({
+        success: true,
+        url: fileUrl
+      });
+    } catch (error) {
+      console.error('Error uploading site image:', error);
+      res.status(500).json({ success: false, error: 'Lỗi khi tải lên hình ảnh di tích' });
     }
   });
   

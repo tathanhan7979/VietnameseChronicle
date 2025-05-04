@@ -215,44 +215,43 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
     const localPreviewUrl = URL.createObjectURL(file);
     setImagePreview(localPreviewUrl);
 
+    // Xác định endpoint tải lên dựa trên loại hình ảnh
+    let uploadEndpoint = '/api/upload/images';
+    
     if (setting.key === 'site_favicon') {
-      // Với favicon, tải lên thông qua API mới
-      const formData = new FormData();
-      formData.append('file', file);
+      uploadEndpoint = '/api/upload/favicon';
+    } else if (setting.key === 'home_background_url') {
+      uploadEndpoint = '/api/upload/backgrounds';
+    }
+    
+    // Tải lên thông qua API
+    const formData = new FormData();
+    formData.append('file', file);
 
-      try {
-        const response = await fetch('/api/upload/favicon', {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          },
-        });
+    try {
+      const response = await fetch(uploadEndpoint, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error('Lỗi khi tải lên favicon');
-        }
-
-        const data = await response.json();
-        if (data.success) {
-          // Cập nhật giá trị với URL của tập tin đã tải lên
-          form.setValue('value', data.url);
-        }
-      } catch (error) {
-        console.error('Lỗi tải lên favicon:', error);
-      } finally {
-        // Giải phóng URL đối tượng để tránh rò rỉ bộ nhớ
-        URL.revokeObjectURL(localPreviewUrl);
+      if (!response.ok) {
+        throw new Error(`Lỗi khi tải lên hình ảnh: ${response.statusText}`);
       }
-    } else {
-      // Đối với các loại hình ảnh khác (như home_background_url), tiếp tục sử dụng base64
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setImagePreview(base64String);
-        form.setValue('value', base64String);
-      };
-      reader.readAsDataURL(file);
+
+      const data = await response.json();
+      if (data.success) {
+        // Cập nhật giá trị với URL của tập tin đã tải lên
+        form.setValue('value', data.url);
+        console.log('Tải lên hình ảnh thành công. URL: ' + data.url);
+      }
+    } catch (error) {
+      console.error('Lỗi tải lên hình ảnh:', error);
+    } finally {
+      // Giải phóng URL đối tượng để tránh rò rỉ bộ nhớ
+      URL.revokeObjectURL(localPreviewUrl);
     }
   };
 
