@@ -10,12 +10,18 @@ export default function HistoricalFigureDetail() {
 
   // Fetch the specific historical figure
   // Lấy dữ liệu nhân vật và các thời kỳ
+  // Lấy dữ liệu nhân vật
   const {
     data: figure,
     isLoading,
     error,
   } = useQuery<HistoricalFigure>({
     queryKey: [`/api/historical-figures/${figureId}`],
+  });
+  
+  // Lấy dữ liệu về các thời kỳ
+  const { data: periods } = useQuery<{id: number, name: string, slug: string}[]>({
+    queryKey: ['/api/periods'],
   });
 
   if (isLoading) {
@@ -80,8 +86,8 @@ export default function HistoricalFigureDetail() {
                   </div>
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-2" />
-                    <Link href={`/thoi-ky/${slugify(figure.period)}`}>
-                      <span className="cursor-pointer hover:underline hover:text-white">Thời kỳ: {figure.period}</span>
+                    <Link href={`/thoi-ky/${periods?.find(p => p.id === figure.periodId)?.slug || ''}`}>
+                      <span className="cursor-pointer hover:underline hover:text-white">Thời kỳ: {periods?.find(p => p.id === figure.periodId)?.name || figure.periodText}</span>
                     </Link>
                   </div>
                 </div>
@@ -159,15 +165,15 @@ export default function HistoricalFigureDetail() {
             {/* Period info */}
             <div className="mt-12 pt-8 border-t border-gray-200">
               <h2 className="text-2xl font-bold font-['Playfair_Display'] text-[hsl(var(--primary))] mb-4">
-                Thời kỳ {figure.period}
+                Thời kỳ {periods?.find(p => p.id === figure.periodId)?.name || figure.periodText}
               </h2>
               <div>
                 <p className="mb-4">Thời gian sống: {figure.lifespan}</p>
                 <Link
-                  href={`/thoi-ky/${figure.period ? slugify(figure.period) : ""}`}
+                  href={`/thoi-ky/${periods?.find(p => p.id === figure.periodId)?.slug || ""}`}
                 >
                   <Button variant="outline" size="sm">
-                    Xem thời kỳ {figure.period}
+                    Xem thời kỳ {periods?.find(p => p.id === figure.periodId)?.name || ""}
                   </Button>
                 </Link>
               </div>
