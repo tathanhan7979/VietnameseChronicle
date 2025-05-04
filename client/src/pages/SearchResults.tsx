@@ -150,7 +150,26 @@ export default function SearchResults() {
     }
   };
   
-  // Handle form submission
+  // Auto-search when filters change
+  useEffect(() => {
+    // Throttle function to limit API calls
+    const delayTimer = setTimeout(() => {
+      if (searchTerm.trim()) {
+        // Update URL with search params
+        const params = new URLSearchParams();
+        if (searchTerm) params.set('q', searchTerm);
+        if (periodFilter !== 'all') params.set('period', periodFilter);
+        if (eventTypeFilter !== 'all') params.set('eventType', eventTypeFilter);
+        
+        navigate(`/tim-kiem?${params.toString()}`, { replace: true });
+        performSearch(searchTerm, periodFilter, eventTypeFilter);
+      }
+    }, 300); // 300ms delay for throttling
+    
+    return () => clearTimeout(delayTimer);
+  }, [searchTerm, periodFilter, eventTypeFilter]);
+  
+  // Handle form submission (keeping this for the Enter key functionality)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -200,7 +219,7 @@ export default function SearchResults() {
       <div className="container mx-auto px-4 pt-6">
         <Button 
           variant="ghost" 
-          className="flex items-center text-gray-600 hover:text-red-700 mb-4"
+          className="flex items-center text-gray-600 hover:text-[#ffffff] mb-4"
           onClick={() => navigate('/')}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
