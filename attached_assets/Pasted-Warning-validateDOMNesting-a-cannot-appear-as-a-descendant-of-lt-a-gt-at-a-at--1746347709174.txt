@@ -1,0 +1,37 @@
+Warning: validateDOMNesting(...): <a> cannot appear as a descendant of &lt;a&gt;.
+    at a
+    at a
+    at https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=956fc984:294:18
+    at nav
+    at div
+    at aside
+    at div
+    at AdminLayout (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/src/components/admin/AdminLayout.tsx:35:39)
+    at AdminDashboard (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/src/pages/admin/dashboard.tsx:33:45)
+    at Route (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=956fc984:280:16)
+    at ProtectedRoute (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/src/lib/protected-route.tsx:22:3)
+    at Switch (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=956fc984:336:17)
+    at Router
+    at AuthProvider (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/src/hooks/use-auth.tsx:26:32)
+    at QueryClientProvider (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=956fc984:2879:3)
+    at App (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/src/App.tsx?v=C1PIOmntjRohdsaz_EDif:124:37)
+at a
+at a
+at https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=956fc984:294:18
+at nav
+at div
+at aside
+at div
+at AdminLayout (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/src/components/admin/AdminLayout.tsx:35:39)
+at AdminDashboard (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/src/pages/admin/dashboard.tsx:33:45)
+at Route (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=956fc984:280:16)
+at ProtectedRoute (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/src/lib/protected-route.tsx:22:3)
+at Switch (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=956fc984:336:17)
+at Router
+at AuthProvider (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/src/hooks/use-auth.tsx:26:32)
+at QueryClientProvider (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=956fc984:2879:3)
+at App (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/src/App.tsx?v=C1PIOmntjRohdsaz_EDif:124:37)
+at t.value (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400

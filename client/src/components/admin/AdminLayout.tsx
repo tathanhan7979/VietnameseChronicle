@@ -78,19 +78,17 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
             {menuItems.map((item) => {
               const isActive = location === item.path;
               return (
-                <Link key={item.path} href={item.path}>
-                  <a
-                    className={`
-                      flex items-center px-4 py-2.5 text-sm font-medium rounded-md 
-                      ${isActive 
-                        ? 'bg-blue-50 text-blue-700' 
-                        : 'text-gray-700 hover:bg-gray-100'}
-                    `}
-                  >
-                    <span className="mr-3">{item.icon}</span>
-                    {item.label}
-                  </a>
-                </Link>
+                <Link key={item.path} href={item.path}
+                className={`
+                  flex items-center px-4 py-2.5 text-sm font-medium rounded-md 
+                  ${isActive 
+                    ? 'bg-blue-50 text-blue-700' 
+                    : 'text-gray-700 hover:bg-gray-100'}
+                `}
+              >
+                <span className="mr-3">{item.icon}</span>
+                {item.label}
+              </Link>
               );
             })}
           </nav>
@@ -125,10 +123,10 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
               <div className="flex-1 flex items-center justify-between">
                 <h1 className="text-xl font-semibold text-gray-800">{title}</h1>
                 <div className="flex items-center">
-                  <Link href="/" target="_blank">
-                    <a className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                      Xem website
-                    </a>
+                  <Link href="/"
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
+                    Xem website
                   </Link>
                 </div>
               </div>
