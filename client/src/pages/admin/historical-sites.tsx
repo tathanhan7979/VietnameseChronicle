@@ -187,6 +187,7 @@ export default function HistoricalSitesAdmin() {
   const [periods, setPeriods] = useState<Period[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [currentSite, setCurrentSite] = useState<HistoricalSite | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [siteToDelete, setSiteToDelete] = useState<HistoricalSite | null>(null);
@@ -295,6 +296,7 @@ export default function HistoricalSitesAdmin() {
   // Open add/edit dialog
   const handleOpenDialog = (site: HistoricalSite | null = null) => {
     setCurrentSite(site);
+    setDialogOpen(true);
     
     if (site) {
       // Edit mode
@@ -334,6 +336,7 @@ export default function HistoricalSitesAdmin() {
   const handleCloseDialog = () => {
     setCurrentSite(null);
     setIsEditing(false);
+    setDialogOpen(false);
   };
   
   // Handle image upload
