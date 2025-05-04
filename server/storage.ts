@@ -408,16 +408,48 @@ export const storage = {
   
   reorderPeriods: async (orderedIds: number[]): Promise<boolean> => {
     try {
+      console.log('Storage: Starting reorderPeriods with orderedIds:', orderedIds);
+      
+      if (!Array.isArray(orderedIds)) {
+        console.error('Storage: orderedIds is not an array', typeof orderedIds);
+        return false;
+      }
+      
+      if (orderedIds.length === 0) {
+        console.error('Storage: orderedIds is empty');
+        return false;
+      }
+      
+      // Kiểm tra tất cả các ID có tồn tại trong database không
+      const existingPeriods = await db.query.periods.findMany();
+      const existingIds = existingPeriods.map(p => p.id);
+      const allIdsExist = orderedIds.every(id => existingIds.includes(id));
+      
+      if (!allIdsExist) {
+        console.error('Storage: Some period IDs do not exist in the database');
+        return false;
+      }
+      
       // Bắt đầu một transaction để đảm bảo tính nhất quán
-      // Tích hợp các ID theo thứ tự mới
+      console.log('Storage: Starting to update sort orders for', orderedIds.length, 'periods');
+      
+      // Cập nhật lần lượt từng period
       for (let i = 0; i < orderedIds.length; i++) {
-        await db
+        const id = orderedIds[i];
+        console.log(`Storage: Setting sortOrder=${i} for period id=${id}`);
+        
+        const result = await db
           .update(periods)
           .set({ sortOrder: i })
-          .where(eq(periods.id, orderedIds[i]));
+          .where(eq(periods.id, id));
+          
+        console.log('Storage: Update result:', result);
       }
+      
+      console.log('Storage: Successfully reordered all periods');
       return true;
     } catch (error) {
+      console.error('Storage: Error in reorderPeriods:', error);
       handleDbError(error, "reorderPeriods");
       return false;
     }

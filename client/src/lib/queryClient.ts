@@ -12,22 +12,57 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Lấy token từ localStorage nếu có
-  const token = localStorage.getItem('authToken');
-  const headers: Record<string, string> = {
-    ...(data ? { "Content-Type": "application/json" } : {}),
-    ...(token ? { "Authorization": `Bearer ${token}` } : {})
-  };
+  try {
+    // Log chi tiết request
+    console.log(`API Request: ${method} ${url}`);
+    if (data) {
+      console.log('Request body:', data);
+      console.log('Request body (JSON):', JSON.stringify(data));
+    }
+    
+    // Lấy token từ localStorage nếu có
+    const token = localStorage.getItem('authToken');
+    const headers: Record<string, string> = {
+      ...(data ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { "Authorization": `Bearer ${token}` } : {})
+    };
 
-  const res = await fetch(url, {
-    method,
-    headers,
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
-
-  await throwIfResNotOk(res);
-  return res;
+    const res = await fetch(url, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
+    
+    // Log response status
+    console.log(`API Response: ${res.status} ${res.statusText}`);
+    
+    // Nếu lỗi, log chi tiết hơn
+    if (!res.ok) {
+      console.error(`API Error: ${res.status} ${res.statusText}`);
+      try {
+        // Clone response để có thể đọc nội dung mà không làm mất response gốc
+        const errorText = await res.clone().text();
+        console.error('Error response text:', errorText);
+        
+        try {
+          // Thử parse thành JSON nếu có thể
+          const errorJson = JSON.parse(errorText);
+          console.error('Error response JSON:', errorJson);
+        } catch (e) {
+          // Không phải JSON, đã log text ở trên
+        }
+      } catch (e) {
+        console.error('Could not read error response');
+      }
+    }
+    
+    await throwIfResNotOk(res);
+    return res;
+  } catch (error) {
+    console.error('API Request failed:', error);
+    throw error;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

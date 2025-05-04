@@ -574,54 +574,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.put(`${apiPrefix}/admin/periods/reorder`, requireAuth, requireAdmin, async (req, res) => {
     try {
-      // Log chi tiết request để debug
-      console.log('Reorder periods - Headers:', req.headers);
-      console.log('Reorder periods - Full Body:', req.body);
-      console.log('Body type:', typeof req.body);
+      // Thêm các log chi tiết hơn để debug
+      console.log('--------------------------------------------------------');
+      console.log('REORDER PERIODS REQUEST DEBUG INFO:');
+      console.log('Request headers:', JSON.stringify(req.headers, null, 2));
+      console.log('Request method:', req.method);
+      console.log('Request URL:', req.url);
+      console.log('Request body (raw):', req.body);
+      console.log('Request body type:', typeof req.body);
       
-      const { orderedIds } = req.body;
+      // Log chi tiết hơn về body nếu là object
+      if (typeof req.body === 'object' && req.body !== null) {
+        console.log('Body keys:', Object.keys(req.body));
+        for (const key in req.body) {
+          console.log(`Body[${key}] =`, req.body[key], `(type: ${typeof req.body[key]})`);
+          if (key === 'orderedIds' && Array.isArray(req.body[key])) {
+            console.log('orderedIds array length:', req.body[key].length);
+            console.log('orderedIds array values:', req.body[key]);
+          }
+        }
+      }
       
+      // Check cụ thể cho orderedIds
+      const { orderedIds } = req.body || {};
       console.log('Extracted orderedIds:', orderedIds);
       console.log('Type of orderedIds:', typeof orderedIds);
+      console.log('Is Array?', Array.isArray(orderedIds));
       
-      // Validation check của orderedIds
-      if (!orderedIds) {
-        console.log('Missing orderedIds parameter');
+      // Kiểm tra orderedIds có tồn tại không
+      if (orderedIds === undefined || orderedIds === null) {
+        console.log('ERROR: orderedIds is undefined or null');
         return res.status(400).json({
           success: false,
           message: 'Thiếu thông tin. Vui lòng điền đầy đủ các trường.'
         });
       }
       
+      // Kiểm tra orderedIds có phải là mảng không
       if (!Array.isArray(orderedIds)) {
-        console.log('orderedIds is not an array, type:', typeof orderedIds);
+        console.log('ERROR: orderedIds is not an array, type:', typeof orderedIds);
         return res.status(400).json({
           success: false,
           message: 'Sai định dạng dữ liệu. orderedIds phải là một mảng.'
         });
       }
       
+      // Kiểm tra orderedIds có rỗng không
       if (orderedIds.length === 0) {
-        console.log('orderedIds is an empty array');
+        console.log('ERROR: orderedIds is an empty array');
         return res.status(400).json({
           success: false,
           message: 'Danh sách orderedIds không được rỗng.'
         });
       }
       
+      // Nếu orderedIds hợp lệ, tiếp tục xử lý
       console.log('Valid orderedIds array:', orderedIds);
       
-      const success = await storage.reorderPeriods(orderedIds);
+      // Chuyển đổi các ID từ string sang number nếu cần
+      const numericIds = orderedIds.map(id => typeof id === 'string' ? parseInt(id, 10) : id);
+      console.log('Numeric orderedIds:', numericIds);
+      
+      // Gọi hàm storage để cập nhật thứ tự
+      const success = await storage.reorderPeriods(numericIds);
       
       if (!success) {
-        console.log('Failed to reorder periods in storage');
+        console.log('ERROR: Failed to reorder periods in storage');
         return res.status(400).json({
           success: false,
           message: 'Không thể sắp xếp lại thứ tự. Hãy thử lại sau.'
         });
       }
       
-      console.log('Successfully reordered periods!');
+      console.log('Success: Periods reordered successfully!');
+      console.log('--------------------------------------------------------');
+      
       return res.json({
         success: true,
         message: 'Cập nhật thứ tự thành công'

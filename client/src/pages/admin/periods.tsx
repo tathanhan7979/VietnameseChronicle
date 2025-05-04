@@ -182,15 +182,14 @@ export default function PeriodsAdmin() {
 
   // Sắp xếp thứ tự thời kỳ
   const reorderMutation = useMutation({
-    mutationFn: async (orderedIds: number[]) => {
+    mutationFn: async (data: { orderedIds: number[] }) => {
       try {
         setError(null); // Xóa lỗi trước khi gọi API
         
-        // Đảm bảo gửi dữ liệu với orderedIds là một mảng
-        const requestBody = { orderedIds };
-        console.log('Sending body to API:', JSON.stringify(requestBody));
+        // Đảm bảo gửi dữ liệu đúng định dạng object có thuộc tính orderedIds
+        console.log('Sending body to API:', JSON.stringify(data));
         
-        const res = await apiRequest('PUT', '/api/admin/periods/reorder', requestBody);
+        const res = await apiRequest('PUT', '/api/admin/periods/reorder', data);
         console.log('API response status:', res.status);
         
         if (!res.ok) {
@@ -287,8 +286,14 @@ export default function PeriodsAdmin() {
     // Tạo một mảng orderedIds chứa các ID của thời kỳ theo thứ tự mới
     const orderedIds = updatedPeriods.map(period => period.id);
     console.log('Gửi yêu cầu reorder:', { orderedIds });
+    
+    // Gửi dữ liệu với định dạng object có thuộc tính orderedIds
+    const requestData = { orderedIds };
+    console.log('Request data:', requestData);
+    
     // Đảm bảo gửi dữ liệu đúng format cần thiết đến API
-    reorderMutation.mutate(orderedIds);
+    // Truyền requestData vào hàm mutation
+    reorderMutation.mutate(requestData);
   };
   
   // Bắt đầu kéo thả
