@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Clock, MapPin, Users, MessageSquare } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import FeedbackModal from "./FeedbackModal";
 
 interface HeroSectionProps {
@@ -9,6 +10,31 @@ interface HeroSectionProps {
 
 export default function HeroSection({ onStartExplore }: HeroSectionProps) {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [backgroundUrl, setBackgroundUrl] = useState(
+    "https://images.unsplash.com/photo-1624009582782-1be02fbb7f23?q=80&w=2071&auto=format&fit=crop"
+  );
+
+  // Lấy URL ảnh nền từ settings
+  const { data: homeBgSetting } = useQuery({
+    queryKey: ["/api/settings/home_background_url"],
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/settings/home_background_url");
+        if (!response.ok) return null;
+        return await response.json();
+      } catch (error) {
+        console.error("Không thể lấy URL ảnh nền:", error);
+        return null;
+      }
+    }
+  });
+
+  // Cập nhật URL ảnh nền khi có dữ liệu từ settings
+  useEffect(() => {
+    if (homeBgSetting?.value) {
+      setBackgroundUrl(homeBgSetting.value);
+    }
+  }, [homeBgSetting]);
 
   const handleFeedbackClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -59,8 +85,7 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
           <div
             className="absolute inset-0 bg-cover bg-center transform scale-110"
             style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1624009582782-1be02fbb7f23?q=80&w=2071&auto=format&fit=crop')",
+              backgroundImage: `url('${backgroundUrl}')`,
               filter: "brightness(0.6)",
               transformOrigin: "center",
             }}
