@@ -607,12 +607,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Tạo token cho phiên đăng nhập
       const token = generateToken(result.user!);
       
-      res.json({
-        success: true,
-        message: 'Đăng nhập thành công',
-        user: result.user,
-        token
-      });
+      // Tiến hành đăng nhập vào session
+      if (req.login) {
+        req.login(result.user!, (err) => {
+          if (err) {
+            console.error('Session login error:', err);
+            return res.status(500).json({ 
+              success: false, 
+              message: 'Lỗi đăng nhập session' 
+            });
+          }
+          
+          res.json({
+            success: true,
+            message: 'Đăng nhập thành công',
+            user: result.user,
+            token
+          });
+        });
+      } else {
+        res.json({
+          success: true,
+          message: 'Đăng nhập thành công (chế độ JWT)',
+          user: result.user,
+          token
+        });
+      }
     } catch (error) {
       console.error('Login error:', error);
       res.status(500).json({ 
@@ -623,9 +643,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Lấy thông tin người dùng hiện tại
-  app.get(`${apiPrefix}/auth/user`, requireAuth, (req, res) => {
-    const user = (req as any).user;
-    res.json(user);
+  app.get(`${apiPrefix}/auth/user`, async (req, res) => {
+    // Phương pháp 1: Kiểm tra sessions passport.js
+    if (req.isAuthenticated?.()) {
+      return res.json(req.user);
+    }
+    
+    // Phương pháp 2: Kiểm tra JWT token (dùng cho API calls)
+    const authToken = req.headers.authorization?.split(' ')[1];
+    
+    if (authToken) {
+      try {
+        const user = await getUserFromToken(authToken);
+        if (user) {
+          return res.json(user);
+        }
+      } catch (error) {
+        console.error('Error getting user from token:', error);
+      }
+    }
+    
+    // Nếu không có xác thực nào hợp lệ
+    return res.status(401).json({ error: 'Unauthorized' });
   });
   
   // API Stats - yêu cầu quyền Admin
