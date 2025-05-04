@@ -155,9 +155,11 @@ export default function HistoricalFiguresList() {
                     <p className="text-gray-200 text-sm">{figure.lifespan}</p>
                   </div>
                 </div>
-                <div className="absolute top-3 right-3 bg-[#4527A0] text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {periods?.find(p => p.id === figure.periodId)?.name || figure.period}
-                </div>
+                <Link href={`/thoi-ky/${periods?.find(p => p.id === figure.periodId)?.slug || 'unknown'}`}>
+                  <div className="absolute top-3 right-3 bg-[#4527A0] text-white px-3 py-1 rounded-full text-xs font-medium cursor-pointer hover:bg-[#311B92] transition-colors">
+                    {periods?.find(p => p.id === figure.periodId)?.name || figure.period}
+                  </div>
+                </Link>
               </div>
               
               <div className="p-5 flex-grow flex flex-col">

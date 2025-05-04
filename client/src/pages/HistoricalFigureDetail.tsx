@@ -9,6 +9,7 @@ export default function HistoricalFigureDetail() {
   const { figureId } = useParams();
 
   // Fetch the specific historical figure
+  // Lấy dữ liệu nhân vật và các thời kỳ
   const {
     data: figure,
     isLoading,
@@ -79,7 +80,9 @@ export default function HistoricalFigureDetail() {
                   </div>
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-2" />
-                    <span>Thời kỳ: {figure.period}</span>
+                    <Link href={`/thoi-ky/${slugify(figure.period)}`}>
+                      <span className="cursor-pointer hover:underline hover:text-white">Thời kỳ: {figure.period}</span>
+                    </Link>
                   </div>
                 </div>
               </div>
