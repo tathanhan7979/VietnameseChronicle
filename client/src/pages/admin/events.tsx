@@ -8,8 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ToastError } from '@/components/ui/toast-error';
-import { Switch } from '@/components/ui/switch';
-import { TabsList, TabsTrigger, Tabs, TabsContent } from '@/components/ui/tabs';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -526,11 +524,11 @@ export default function EventsAdmin() {
                 <div>
                   <h3 className="text-lg font-medium line-clamp-1">{event.title}</h3>
                   <div className="text-sm text-gray-500 flex items-center mt-1 space-x-2">
-                    <span>{event.year}</span>
+                    <span key="year">{event.year}</span>
                     {periodInfo && (
                       <>
-                        <span>•</span>
-                        <span>{periodInfo.name}</span>
+                        <span key="bullet">•</span>
+                        <span key="period-name">{periodInfo.name}</span>
                       </>
                     )}
                   </div>
@@ -636,6 +634,9 @@ export default function EventsAdmin() {
     ? eventsState.filter(event => event.periodId.toString() === selectedPeriodTab)
     : eventsState;
 
+  // Thời kỳ được chọn hiện tại
+  const selectedPeriod = periods?.find(p => p.id.toString() === selectedPeriodTab);
+
   // React Quill modules
   const quillModules = {
     toolbar: [
@@ -707,34 +708,36 @@ export default function EventsAdmin() {
               </div>
             </div>
           ) : (
-            <>
-              {/* Tabs thời kỳ */}
-              <Tabs 
-                defaultValue={selectedPeriodTab || periods[0].id.toString()} 
-                onValueChange={setSelectedPeriodTab}
-                className="mb-6"
-              >
-                <TabsList className="mb-2 flex flex-wrap overflow-x-auto">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* Danh sách thời kỳ theo cột dọc */}
+              <div className="md:col-span-1 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h3 className="font-medium text-gray-800 mb-3">Danh sách thời kỳ</h3>
+                <div className="space-y-2">
                   {periods.map(period => (
-                    <TabsTrigger 
-                      key={period.id} 
-                      value={period.id.toString()}
-                      className="whitespace-nowrap"
+                    <div 
+                      key={period.id}
+                      onClick={() => setSelectedPeriodTab(period.id.toString())}
+                      className={`p-2 rounded cursor-pointer transition-colors ${selectedPeriodTab === period.id.toString() 
+                        ? 'bg-blue-100 text-blue-800 font-medium' 
+                        : 'hover:bg-gray-100'}`}
                     >
                       {period.name}
-                    </TabsTrigger>
+                    </div>
                   ))}
-                </TabsList>
-
-                {periods.map(period => (
-                  <TabsContent key={period.id} value={period.id.toString()}>
+                </div>
+              </div>
+              
+              {/* Nội dung sự kiện */}
+              <div className="md:col-span-3">
+                {selectedPeriodTab && selectedPeriod ? (
+                  <div>
                     <div className="bg-blue-50 p-3 mb-4 rounded-lg border border-blue-200">
                       <div className="flex items-center gap-2">
                         <GripVertical className="h-5 w-5 text-blue-500" />
                         <span className="font-medium text-blue-800">Hướng dẫn:</span>
                       </div>
                       <p className="text-gray-700 mt-1">
-                        Kéo và thả các thẻ để thay đổi thứ tự hiển thị sự kiện trong thời kỳ này. Thay đổi sẽ được áp dụng trên trang chi tiết thời kỳ và timeline.
+                        Kéo và thả các thẻ để thay đổi thứ tự hiển thị sự kiện trong thời kỳ "{selectedPeriod.name}". Thay đổi sẽ được áp dụng trên trang chi tiết thời kỳ và timeline.
                       </p>
                     </div>
                     
@@ -745,7 +748,7 @@ export default function EventsAdmin() {
                           Chưa có sự kiện nào trong thời kỳ này
                         </h3>
                         <p className="text-gray-500 mb-4">
-                          Bắt đầu bằng cách thêm sự kiện đầu tiên cho thời kỳ {period.name}.
+                          Bắt đầu bằng cách thêm sự kiện đầu tiên cho thời kỳ {selectedPeriod.name}.
                         </p>
                         <Button onClick={() => setIsCreateDialogOpen(true)}>
                           <Plus className="mr-2 h-4 w-4" /> Thêm sự kiện mới
@@ -770,10 +773,16 @@ export default function EventsAdmin() {
                         </SortableContext>
                       </DndContext>
                     )}
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <h3 className="text-lg font-medium text-gray-600 mb-1">
+                      Vui lòng chọn một thời kỳ từ danh sách bên trái
+                    </h3>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </>
       )}
