@@ -1129,11 +1129,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const figureData = req.body;
       
       // Kiểm tra dữ liệu đầu vào
-      if (!figureData || !figureData.name || !figureData.period) {
+      if (!figureData || !figureData.name || (!figureData.periodId && !figureData.period)) {
         return res.status(400).json({ 
           success: false, 
           message: 'Thiếu thông tin bắt buộc' 
         });
+      }
+      
+      // Đảm bảo tương thích ngược
+      if (figureData.periodId) {
+        // Nếu có periodId, tìm tên period và lưu vào periodText
+        const period = await storage.getPeriodById(figureData.periodId);
+        if (period) {
+          figureData.periodText = period.name;
+        } else {
+          figureData.periodText = figureData.period || 'Không xác định';
+        }
+      } else if (figureData.period) {
+        // Nếu không có periodId nhưng có period text
+        figureData.periodText = figureData.period;
       }
       
       const newFigure = await storage.createHistoricalFigure(figureData);
@@ -1170,6 +1184,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           success: false, 
           message: 'Thiếu dữ liệu cập nhật' 
         });
+      }
+      
+      // Đảm bảo tương thích ngược
+      if (figureData.periodId) {
+        // Nếu có periodId, tìm tên period và lưu vào periodText
+        const period = await storage.getPeriodById(figureData.periodId);
+        if (period) {
+          figureData.periodText = period.name;
+        } else {
+          figureData.periodText = figureData.period || 'Không xác định';
+        }
+      } else if (figureData.period) {
+        // Nếu không có periodId nhưng có period text
+        figureData.periodText = figureData.period;
       }
       
       const updatedFigure = await storage.updateHistoricalFigure(figureId, figureData);

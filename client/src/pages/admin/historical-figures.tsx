@@ -53,7 +53,9 @@ import { useAuth } from '@/hooks/use-auth';
 interface HistoricalFigure {
   id: number;
   name: string;
-  period: string;
+  periodId?: number;
+  periodText: string; // Tương thích với trường period cũ
+  period?: string;   // Cho tương thích ngược
   lifespan: string;
   description: string;
   detailedDescription?: string;
@@ -135,12 +137,24 @@ function SortableFigureItem({ figure, onEdit, onDelete }: SortableFigureItemProp
   );
 }
 
+// Định nghĩa interface cho thời kỳ
+interface Period {
+  id: number;
+  name: string;
+  slug: string;
+  timeframe: string;
+  description: string;
+  icon: string;
+  sortOrder: number;
+}
+
 export default function HistoricalFiguresAdmin() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
   const [figures, setFigures] = useState<HistoricalFigure[]>([]);
+  const [periods, setPeriods] = useState<Period[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [currentFigure, setCurrentFigure] = useState<HistoricalFigure | null>(null);
@@ -149,7 +163,8 @@ export default function HistoricalFiguresAdmin() {
   
   // Form state
   const [name, setName] = useState('');
-  const [period, setPeriod] = useState('');
+  const [periodId, setPeriodId] = useState<number | undefined>(undefined);
+  const [period, setPeriod] = useState(''); // Giữ lại cho tương thích
   const [lifespan, setLifespan] = useState('');
   const [description, setDescription] = useState('');
   const [detailedDescription, setDetailedDescription] = useState('');
