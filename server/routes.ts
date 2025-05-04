@@ -826,13 +826,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // API để lấy danh sách các thực thể liên quan đến thời kỳ
+  app.get(`${apiPrefix}/admin/periods/:id/related-entities`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const periodId = parseInt(req.params.id);
+      
+      // Kiểm tra thời kỳ có tồn tại không
+      const period = await storage.getPeriodById(periodId);
+      if (!period) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy thời kỳ'
+        });
+      }
+      
+      // Lấy tất cả các thực thể liên quan
+      const relatedEntities = await storage.getPeriodRelatedEntities(periodId);
+      
+      // Lấy danh sách các thời kỳ khác để lựa chọn
+      const allPeriods = await storage.getAllPeriods();
+      const otherPeriods = allPeriods.filter(p => p.id !== periodId);
+      
+      res.json({
+        success: true,
+        data: {
+          periodName: period.name,
+          events: relatedEntities.events,
+          figures: relatedEntities.figures,
+          sites: relatedEntities.sites,
+          availablePeriods: otherPeriods
+        }
+      });
+    } catch (error) {
+      console.error('Error getting related entities:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi lấy dữ liệu liên quan'
+      });
+    }
+  });
+  
+  // API để cập nhật thời kỳ cho các thực thể
+  app.post(`${apiPrefix}/admin/periods/reassign-entities`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { newPeriodId, eventIds, figureIds, siteIds } = req.body;
+      
+      if (!newPeriodId || ((!eventIds || eventIds.length === 0) && (!figureIds || figureIds.length === 0) && (!siteIds || siteIds.length === 0))) {
+        return res.status(400).json({
+          success: false,
+          message: 'Dữ liệu không hợp lệ. Cần cung cấp ID thời kỳ mới và ít nhất một danh sách ID thực thể.'
+        });
+      }
+      
+      // Kiểm tra thời kỳ mới có tồn tại không
+      const newPeriod = await storage.getPeriodById(newPeriodId);
+      if (!newPeriod) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy thời kỳ mới'
+        });
+      }
+      
+      // Cập nhật thời kỳ cho từng loại thực thể
+      const results = {
+        events: false,
+        figures: false,
+        sites: false
+      };
+      
+      if (eventIds && eventIds.length > 0) {
+        results.events = await storage.updateEventsPeriod(eventIds, newPeriodId);
+      }
+      
+      if (figureIds && figureIds.length > 0) {
+        results.figures = await storage.updateHistoricalFiguresPeriod(figureIds, newPeriodId);
+      }
+      
+      if (siteIds && siteIds.length > 0) {
+        results.sites = await storage.updateHistoricalSitesPeriod(siteIds, newPeriodId);
+      }
+      
+      res.json({
+        success: true,
+        message: 'Cập nhật thời kỳ cho các thực thể thành công',
+        results
+      });
+    } catch (error) {
+      console.error('Error reassigning entities:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi khi cập nhật thời kỳ cho các thực thể'
+      });
+    }
+  });
+  
   app.delete(`${apiPrefix}/admin/periods/:id`, requireAuth, requireAdmin, async (req, res) => {
     try {
       const periodId = parseInt(req.params.id);
-      const period = await db.query.periods.findFirst({
-        where: eq(periods.id, periodId)
-      });
       
+      // Kiểm tra thời kỳ có tồn tại không
+      const period = await storage.getPeriodById(periodId);
       if (!period) {
         return res.status(404).json({ 
           success: false, 
@@ -840,33 +933,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Kiểm tra xem có sự kiện nào liên kết với thời kỳ này không
-      const eventsInPeriod = await storage.getEventsByPeriod(periodId);
-      const hasEvents = eventsInPeriod.length > 0;
+      // Kiểm tra có thực thể nào liên quan đến thời kỳ này không
+      const relatedEntities = await storage.getPeriodRelatedEntities(periodId);
+      const hasRelatedEntities = (
+        relatedEntities.events.length > 0 || 
+        relatedEntities.figures.length > 0 || 
+        relatedEntities.sites.length > 0
+      );
       
-      // Kiểm tra các di tích liên kết
-      const sitesInPeriod = await storage.getHistoricalSitesByPeriod(periodId);
-      const hasSites = sitesInPeriod.length > 0;
-      
-      // Nếu có sự kiện hoặc di tích liên kết, trả về thông tin chi tiết
-      if (hasEvents || hasSites) {
+      if (hasRelatedEntities) {
         // Lấy danh sách tất cả các thời kỳ để hiển thị trong dropdown
         const allPeriods = await storage.getAllPeriods();
         const otherPeriods = allPeriods.filter(p => p.id !== periodId);
         
         return res.status(400).json({ 
           success: false, 
-          message: 'Không thể xóa thời kỳ này vì có các mục liên kết.',
+          message: 'Không thể xóa thời kỳ này vì có các thực thể liên quan. Vui lòng chuyển chúng sang thời kỳ khác trước.',
           data: {
             periodName: period.name,
-            events: eventsInPeriod,
-            sites: sitesInPeriod,
+            events: relatedEntities.events,
+            figures: relatedEntities.figures,
+            sites: relatedEntities.sites,
             availablePeriods: otherPeriods
           }
         });
       }
       
-      // Xóa thời kỳ nếu không có mục liên kết
+      // Xóa thời kỳ nếu không có thực thể liên quan
       const deleted = await storage.deletePeriod(periodId);
       
       if (!deleted) {

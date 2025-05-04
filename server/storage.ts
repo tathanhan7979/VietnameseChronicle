@@ -1215,5 +1215,92 @@ export const storage = {
       handleDbError(error, "search");
       return { periods: [], events: [], figures: [], eventTypes: [], sites: [] };
     }
+  },
+  
+  // Lấy tất cả các thực thể liên quan đến một thời kỳ
+  getPeriodRelatedEntities: async (periodId: number): Promise<{
+    events: Event[], 
+    figures: HistoricalFigure[], 
+    sites: HistoricalSite[]
+  }> => {
+    try {
+      // Lấy tất cả các sự kiện thuộc thời kỳ này
+      const events = await db.query.events.findMany({
+        where: eq(events.periodId, periodId),
+        orderBy: asc(events.sortOrder)
+      });
+      
+      // Lấy tất cả nhân vật lịch sử thuộc thời kỳ này
+      const figures = await db.query.historicalFigures.findMany({
+        where: eq(historicalFigures.periodId, periodId),
+        orderBy: asc(historicalFigures.sortOrder)
+      });
+      
+      // Lấy tất cả địa danh lịch sử thuộc thời kỳ này
+      const sites = await db.query.historicalSites.findMany({
+        where: eq(historicalSites.periodId, periodId),
+        orderBy: asc(historicalSites.sortOrder)
+      });
+      
+      return { events, figures, sites };
+    } catch (error) {
+      handleDbError(error, "getPeriodRelatedEntities");
+      return { events: [], figures: [], sites: [] };
+    }
+  },
+  
+  // Cập nhật thời kỳ cho một loạt sự kiện
+  updateEventsPeriod: async (eventIds: number[], newPeriodId: number): Promise<boolean> => {
+    try {
+      for (const eventId of eventIds) {
+        await db.update(events)
+          .set({ periodId: newPeriodId })
+          .where(eq(events.id, eventId));
+      }
+      return true;
+    } catch (error) {
+      handleDbError(error, "updateEventsPeriod");
+      return false;
+    }
+  },
+  
+  // Cập nhật thời kỳ cho một loạt nhân vật lịch sử
+  updateHistoricalFiguresPeriod: async (figureIds: number[], newPeriodId: number): Promise<boolean> => {
+    try {
+      // Lấy thông tin thời kỳ mới để cập nhật periodText
+      const period = await db.query.periods.findFirst({
+        where: eq(periods.id, newPeriodId)
+      });
+      
+      if (!period) return false;
+      
+      for (const figureId of figureIds) {
+        await db.update(historicalFigures)
+          .set({ 
+            periodId: newPeriodId,
+            periodText: period.name // Cập nhật cả periodText để tương thích ngược
+          })
+          .where(eq(historicalFigures.id, figureId));
+      }
+      return true;
+    } catch (error) {
+      handleDbError(error, "updateHistoricalFiguresPeriod");
+      return false;
+    }
+  },
+  
+  // Cập nhật thời kỳ cho một loạt địa danh lịch sử
+  updateHistoricalSitesPeriod: async (siteIds: number[], newPeriodId: number): Promise<boolean> => {
+    try {
+      for (const siteId of siteIds) {
+        await db.update(historicalSites)
+          .set({ periodId: newPeriodId })
+          .where(eq(historicalSites.id, siteId));
+      }
+      return true;
+    } catch (error) {
+      handleDbError(error, "updateHistoricalSitesPeriod");
+      return false;
+    }
   }
 };
