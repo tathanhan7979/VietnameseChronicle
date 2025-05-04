@@ -497,29 +497,98 @@ export default function HistoricalFiguresAdmin() {
           </Button>
         </div>
       ) : (
-        <div className="bg-white dark:bg-zinc-800 rounded-lg shadow">
-          <div className="p-4">
-            <HistoricalFiguresContext.Provider value={{ periods }}>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-                modifiers={[restrictToVerticalAxis]}
-              >
-                <SortableContext items={figureIds} strategy={verticalListSortingStrategy}>
-                  {figures.map(figure => (
-                    <SortableFigureItem
-                      key={figure.id}
-                      figure={figure}
-                      onEdit={handleOpenDialog}
-                      onDelete={handleOpenDeleteDialog}
-                    />
-                  ))}
-                </SortableContext>
-              </DndContext>
-            </HistoricalFiguresContext.Provider>
+        <HistoricalFiguresContext.Provider value={{ periods }}>
+          {/* Phân loại theo thời kỳ */}
+          <div className="grid gap-6">
+            {periods.map(period => {
+              // Lọc nhân vật theo thời kỳ
+              const periodFigures = figures.filter(figure => figure.periodId === period.id);
+              
+              // Chỉ hiển thị nhóm thời kỳ nếu có nhân vật
+              if (periodFigures.length === 0) return null;
+              
+              return (
+                <div key={period.id} className="bg-white dark:bg-zinc-800 rounded-lg shadow overflow-hidden">
+                  {/* Tiêu đề thời kỳ */}
+                  <div className="bg-blue-50 dark:bg-blue-900 p-3 border-b border-blue-100 dark:border-blue-800">
+                    <h2 className="text-lg font-semibold text-blue-800 dark:text-blue-100 flex items-center gap-2">
+                      <span className="w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-200">
+                        {periodFigures.length}
+                      </span>
+                      {period.name} ({period.timeframe})
+                    </h2>
+                  </div>
+                  
+                  {/* Danh sách nhân vật thuộc thời kỳ */}
+                  <div className="p-4">
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                      modifiers={[restrictToVerticalAxis]}
+                    >
+                      <SortableContext 
+                        items={periodFigures.map(fig => fig.id)} 
+                        strategy={verticalListSortingStrategy}
+                      >
+                        {periodFigures.map(figure => (
+                          <SortableFigureItem
+                            key={figure.id}
+                            figure={figure}
+                            onEdit={handleOpenDialog}
+                            onDelete={handleOpenDeleteDialog}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  </div>
+                </div>
+              );
+            })}
+            
+            {/* Nhóm nhân vật chưa có thời kỳ */}
+            {(() => {
+              const unassignedFigures = figures.filter(figure => !figure.periodId);
+              if (unassignedFigures.length === 0) return null;
+              
+              return (
+                <div className="bg-white dark:bg-zinc-800 rounded-lg shadow overflow-hidden">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 border-b border-gray-100 dark:border-gray-700">
+                    <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                      <span className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                        {unassignedFigures.length}
+                      </span>
+                      Chưa phân loại
+                    </h2>
+                  </div>
+                  
+                  <div className="p-4">
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                      modifiers={[restrictToVerticalAxis]}
+                    >
+                      <SortableContext 
+                        items={unassignedFigures.map(fig => fig.id)} 
+                        strategy={verticalListSortingStrategy}
+                      >
+                        {unassignedFigures.map(figure => (
+                          <SortableFigureItem
+                            key={figure.id}
+                            figure={figure}
+                            onEdit={handleOpenDialog}
+                            onDelete={handleOpenDeleteDialog}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
-        </div>
+        </HistoricalFiguresContext.Provider>
       )}
       
       {/* Add/Edit Dialog */}
