@@ -330,6 +330,48 @@ export const storage = {
       return [];
     }
   },
+
+  // Lấy sự kiện theo slug của thời kỳ
+  getEventsByPeriodSlug: async (periodSlug: string): Promise<(Event & { eventTypes?: EventType[] })[]> => {
+    try {
+      // Đầu tiên tìm thời kỳ theo slug
+      const period = await db.query.periods.findFirst({
+        where: eq(periods.slug, periodSlug)
+      });
+      
+      if (!period) return [];
+      
+      // Sau đó lấy các sự kiện theo periodId
+      const periodEvents = await db.query.events.findMany({
+        where: eq(events.periodId, period.id),
+        orderBy: asc(events.sortOrder)
+      });
+      
+      // For each event, load its event types
+      const eventsWithTypes = await Promise.all(periodEvents.map(async (event) => {
+        // Get event types for this event
+        const relations = await db.query.eventToEventType.findMany({
+          where: eq(eventToEventType.eventId, event.id),
+          with: {
+            eventType: true
+          }
+        });
+        
+        // Map to event types
+        const types = relations.map(rel => rel.eventType);
+        
+        return {
+          ...event,
+          eventTypes: types
+        };
+      }));
+      
+      return eventsWithTypes;
+    } catch (error) {
+      handleDbError(error, "getEventsByPeriodSlug");
+      return [];
+    }
+  },
   
   // Historical Figure methods
   getAllHistoricalFigures: async (): Promise<HistoricalFigure[]> => {
@@ -387,6 +429,26 @@ export const storage = {
       });
     } catch (error) {
       handleDbError(error, "getHistoricalSitesByPeriod");
+      return [];
+    }
+  },
+  
+  getHistoricalSitesByPeriodSlug: async (periodSlug: string): Promise<HistoricalSite[]> => {
+    try {
+      // Đầu tiên tìm thời kỳ theo slug
+      const period = await db.query.periods.findFirst({
+        where: eq(periods.slug, periodSlug)
+      });
+      
+      if (!period) return [];
+      
+      // Sau đó lấy các di tích theo periodId
+      return await db.query.historicalSites.findMany({
+        where: eq(historicalSites.periodId, period.id),
+        orderBy: asc(historicalSites.sortOrder)
+      });
+    } catch (error) {
+      handleDbError(error, "getHistoricalSitesByPeriodSlug");
       return [];
     }
   },

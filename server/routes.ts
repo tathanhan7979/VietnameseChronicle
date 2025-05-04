@@ -56,19 +56,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get events by period
+  // Get events by period (using slug) - đặt route này trước route có pattern /:id
+  app.get(`${apiPrefix}/events/period-slug/:slug`, async (req, res) => {
+    try {
+      const events = await storage.getEventsByPeriodSlug(req.params.slug);
+      res.json(events);
+    } catch (error) {
+      console.error('Error fetching events by period slug:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Get events by period (using ID)
   app.get(`${apiPrefix}/events/period/:periodId`, async (req, res) => {
     try {
       const events = await storage.getEventsByPeriod(parseInt(req.params.periodId));
       res.json(events);
     } catch (error) {
-      console.error('Error fetching events by period:', error);
+      console.error('Error fetching events by period ID:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
   
-  // Get event by ID
-  app.get(`${apiPrefix}/events/:id`, async (req, res) => {
+  // Get event by ID - đặt cuối cùng vì có pattern chung chung nhất
+  app.get(`${apiPrefix}/events/:id([0-9]+)`, async (req, res) => {
     try {
       const event = await storage.getEventById(parseInt(req.params.id));
       if (!event) {
@@ -216,7 +227,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sites = await storage.getHistoricalSitesByPeriod(parseInt(req.params.periodId));
       res.json(sites);
     } catch (error) {
-      console.error('Error fetching historical sites by period:', error);
+      console.error('Error fetching historical sites by period ID:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Get historical sites by period slug
+  app.get(`${apiPrefix}/periods-slug/:slug/historical-sites`, async (req, res) => {
+    try {
+      const sites = await storage.getHistoricalSitesByPeriodSlug(req.params.slug);
+      res.json(sites);
+    } catch (error) {
+      console.error('Error fetching historical sites by period slug:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
