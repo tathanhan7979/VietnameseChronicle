@@ -6,6 +6,7 @@ import { Clock, Edit, MoreHorizontal, Plus, Trash, GripVertical } from 'lucide-r
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ToastError } from '@/components/ui/toast-error';
 import { type Period } from '@shared/schema';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import {
@@ -56,6 +57,7 @@ export default function PeriodsAdmin() {
   const [deletingPeriodId, setDeletingPeriodId] = useState<number | null>(null);
   const [periodsState, setPeriodsState] = useState<Period[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [error, setError] = useState<{title: string; message: string; status?: number} | null>(null);
 
   // Lấy danh sách các thời kỳ
   const { data: periods, isLoading, refetch } = useQuery<Period[]>({
@@ -181,14 +183,31 @@ export default function PeriodsAdmin() {
   // Sắp xếp thứ tự thời kỳ
   const reorderMutation = useMutation({
     mutationFn: async (orderedIds: number[]) => {
-      const res = await apiRequest('PUT', '/api/admin/periods/reorder', { orderedIds });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Lỗi khi sắp xếp thứ tự');
+      try {
+        setError(null); // Xóa lỗi trước khi gọi API
+        
+        const res = await apiRequest('PUT', '/api/admin/periods/reorder', { orderedIds });
+        console.log('API response status:', res.status);
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.log('Error data:', errorData);
+          throw new Error(errorData.message || 'Lỗi khi sắp xếp thứ tự');
+        }
+        return res.json();
+      } catch (error: any) {
+        console.error('Lỗi khi gọi API reorder:', error);
+        // Lưu lỗi để hiển thị component lỗi
+        setError({
+          title: 'Không thể sắp xếp thời kỳ',
+          message: error.message || 'Có lỗi xảy ra khi sắp xếp thứ tự',
+          status: error.status || 400
+        });
+        throw error;
       }
-      return res.json();
     },
     onSuccess: () => {
+      setError(null);
       toast({
         title: 'Thành công',
         description: 'Cập nhật thứ tự thành công',
@@ -196,11 +215,12 @@ export default function PeriodsAdmin() {
       refetch();
     },
     onError: (error: Error) => {
-      toast({
-        title: 'Lỗi',
-        description: error.message,
-        variant: 'destructive',
-      });
+      // Không cần hiển thị toast nữa vì đã có component
+      // toast({
+      //   title: 'Không thể sắp xếp thời kỳ',
+      //   description: error.message,
+      //   variant: 'destructive',
+      // });
     },
   });
 
@@ -260,7 +280,9 @@ export default function PeriodsAdmin() {
     setPeriodsState(updatedPeriods);
     
     // Gửi yêu cầu cập nhật thứ tự lên server
+    // Tạo một mảng orderedIds chứa các ID của thời kỳ theo thứ tự mới
     const orderedIds = updatedPeriods.map(period => period.id);
+    console.log('Gửi yêu cầu reorder:', { orderedIds });
     reorderMutation.mutate(orderedIds);
   };
   
@@ -271,6 +293,16 @@ export default function PeriodsAdmin() {
 
   return (
     <AdminLayout title="Quản lý thời kỳ lịch sử">
+      {/* Hiển thị lỗi nếu có */}
+      {error && (
+        <ToastError
+          title={error.title}
+          message={error.message}
+          status={error.status}
+          onClose={() => setError(null)}
+        />
+      )}
+      
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>

@@ -4,8 +4,21 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { CalendarDays, MapPin, ArrowLeft, Home, Share2, Bookmark } from "lucide-react";
-import { FaFacebook, FaTwitter, FaLinkedin, FaPinterest, FaReddit } from "react-icons/fa";
+import {
+  CalendarDays,
+  MapPin,
+  ArrowLeft,
+  Home,
+  Share2,
+  Bookmark,
+} from "lucide-react";
+import {
+  FaFacebook,
+  FaTwitter,
+  FaLinkedin,
+  FaPinterest,
+  FaReddit,
+} from "react-icons/fa";
 import { API_ENDPOINTS } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { slugify } from "../lib/utils";
@@ -18,20 +31,20 @@ export default function HistoricalSiteDetail() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<any>(null);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
-  
+
   // Toggle bookmark/favorite status
   const toggleFavorite = () => {
     const newStatus = !isFavorite;
     setIsFavorite(newStatus);
-    
+
     // Save to localStorage
-    const savedFavorites = localStorage.getItem('favoriteSites');
+    const savedFavorites = localStorage.getItem("favoriteSites");
     let favorites: number[] = [];
-    
+
     if (savedFavorites) {
       favorites = JSON.parse(savedFavorites);
     }
-    
+
     if (newStatus) {
       // Add to favorites if not already present
       if (!favorites.includes(siteId)) {
@@ -39,10 +52,10 @@ export default function HistoricalSiteDetail() {
       }
     } else {
       // Remove from favorites
-      favorites = favorites.filter(id => id !== siteId);
+      favorites = favorites.filter((id) => id !== siteId);
     }
-    
-    localStorage.setItem('favoriteSites', JSON.stringify(favorites));
+
+    localStorage.setItem("favoriteSites", JSON.stringify(favorites));
   };
 
   // Hooks
@@ -61,9 +74,11 @@ export default function HistoricalSiteDetail() {
 
       try {
         // 1. Tải thông tin di tích
-        const siteResponse = await fetch(`${API_ENDPOINTS.HISTORICAL_SITES}/${siteId}`);
+        const siteResponse = await fetch(
+          `${API_ENDPOINTS.HISTORICAL_SITES}/${siteId}`,
+        );
         if (!siteResponse.ok) {
-          throw new Error('Lỗi khi tải dữ liệu di tích');
+          throw new Error("Lỗi khi tải dữ liệu di tích");
         }
         const siteData = await siteResponse.json();
         setSite(siteData);
@@ -73,22 +88,26 @@ export default function HistoricalSiteDetail() {
           const periodsResponse = await fetch(API_ENDPOINTS.PERIODS);
           if (periodsResponse.ok) {
             const periodsData = await periodsResponse.json();
-            const foundPeriod = periodsData.find((p: any) => p.id === siteData.periodId);
+            const foundPeriod = periodsData.find(
+              (p: any) => p.id === siteData.periodId,
+            );
             if (foundPeriod) {
               setPeriod(foundPeriod.name);
               setPeriodSlug(foundPeriod.slug); // Lưu slug của thời kỳ để sử dụng cho link
-              
+
               // 2.1 Tải các di tích khác trong cùng thời kỳ sử dụng slug
               // Sử dụng API endpoint mới cho slug của thời kỳ
               if (foundPeriod.slug) {
                 try {
-                  const relatedSitesResponse = await fetch(`/api/periods-slug/${foundPeriod.slug}/historical-sites`);
+                  const relatedSitesResponse = await fetch(
+                    `/api/periods-slug/${foundPeriod.slug}/historical-sites`,
+                  );
                   if (relatedSitesResponse.ok) {
                     // Có thể xử lý dữ liệu di tích liên quan ở đây nếu cần
-                    console.log('Đã tải các di tích liên quan thành công');
+                    console.log("Đã tải các di tích liên quan thành công");
                   }
                 } catch (err) {
-                  console.error('Lỗi khi tải di tích liên quan:', err);
+                  console.error("Lỗi khi tải di tích liên quan:", err);
                 }
               }
             }
@@ -104,7 +123,7 @@ export default function HistoricalSiteDetail() {
         }
 
         // 4. Kiểm tra trạng thái yêu thích
-        const savedFavorites = localStorage.getItem('favoriteSites');
+        const savedFavorites = localStorage.getItem("favoriteSites");
         if (savedFavorites) {
           const favorites = JSON.parse(savedFavorites);
           if (favorites.includes(siteId)) {
@@ -152,8 +171,10 @@ export default function HistoricalSiteDetail() {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
         <h1 className="text-2xl font-bold mb-4 text-red-600">Đã xảy ra lỗi</h1>
-        <p className="mb-6">Không thể tải thông tin di tích lịch sử. Vui lòng thử lại sau.</p>
-        <Button onClick={() => setLocation('/')}>
+        <p className="mb-6">
+          Không thể tải thông tin di tích lịch sử. Vui lòng thử lại sau.
+        </p>
+        <Button onClick={() => setLocation("/")}>
           <Home className="mr-2 h-4 w-4" /> Về trang chủ
         </Button>
       </div>
@@ -168,9 +189,9 @@ export default function HistoricalSiteDetail() {
         {site.imageUrl && (
           <div className="absolute inset-0 z-0 h-[350px] overflow-hidden">
             <div className="absolute inset-0 bg-black/40 z-10" />
-            <img 
-              src={site.imageUrl} 
-              alt={site.name} 
+            <img
+              src={site.imageUrl}
+              alt={site.name}
               className="w-full h-full object-cover object-center"
             />
           </div>
@@ -178,17 +199,19 @@ export default function HistoricalSiteDetail() {
 
         {/* Content overlay */}
         <div className="container mx-auto relative z-20 pt-12 px-4">
-          <Button 
-            variant="outline" 
-            className="mb-6 bg-white/90 hover:bg-white"
-            onClick={() => setLocation('/')}
+          <Button
+            variant="outline"
+            className="mb-6 bg-white/90 hover:bg-[#C81E3AC6] hover:text-[#ffffff]"
+            onClick={() => setLocation("/")}
           >
             <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
           </Button>
 
           <div className="pb-16 pt-8">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-md">{site.name}</h1>
-            
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-md">
+              {site.name}
+            </h1>
+
             <div className="flex flex-wrap gap-2 items-center">
               {period && periodSlug && (
                 <Link href={`/thoi-ky/${periodSlug}`}>
@@ -198,12 +221,18 @@ export default function HistoricalSiteDetail() {
                 </Link>
               )}
               {site.yearBuilt && (
-                <Badge variant="outline" className="bg-white/70 hover:bg-white px-3 py-1">
+                <Badge
+                  variant="outline"
+                  className="bg-white/70 hover:bg-white px-3 py-1"
+                >
                   <CalendarDays className="h-3.5 w-3.5 mr-1" />
                   {site.yearBuilt}
                 </Badge>
               )}
-              <Badge variant="outline" className="bg-white/70 hover:bg-white px-3 py-1">
+              <Badge
+                variant="outline"
+                className="bg-white/70 hover:bg-white px-3 py-1"
+              >
                 <MapPin className="h-3.5 w-3.5 mr-1" />
                 {site.location}
               </Badge>
@@ -218,14 +247,20 @@ export default function HistoricalSiteDetail() {
           {/* Cột thông tin chi tiết */}
           <div className="md:col-span-2">
             <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-semibold mb-6 pb-4 border-b text-primary">Giới thiệu</h2>
+              <h2 className="text-2xl font-semibold mb-6 pb-4 border-b text-primary">
+                Giới thiệu
+              </h2>
               <div className="prose prose-lg max-w-none dark:prose-invert prose-img:rounded-md prose-headings:text-primary prose-a:text-blue-600">
-                <p className="text-gray-700 leading-relaxed">{site.description}</p>
+                <p className="text-gray-700 leading-relaxed">
+                  {site.description}
+                </p>
 
                 {site.detailedDescription && (
-                  <div 
-                    className="mt-8" 
-                    dangerouslySetInnerHTML={{ __html: site.detailedDescription }}
+                  <div
+                    className="mt-8"
+                    dangerouslySetInnerHTML={{
+                      __html: site.detailedDescription,
+                    }}
                   />
                 )}
               </div>
@@ -235,8 +270,10 @@ export default function HistoricalSiteDetail() {
           {/* Cột thông tin bổ sung */}
           <div>
             <Card className="p-6 shadow-md bg-white">
-              <h3 className="text-xl font-semibold mb-6 pb-3 border-b">Thông tin chi tiết</h3>
-              
+              <h3 className="text-xl font-semibold mb-6 pb-3 border-b">
+                Thông tin chi tiết
+              </h3>
+
               <div className="space-y-6">
                 <div className="flex items-start">
                   <div className="bg-gray-100 p-3 rounded-full mr-4">
@@ -245,7 +282,11 @@ export default function HistoricalSiteDetail() {
                   <div>
                     <h4 className="font-medium text-gray-900">Địa điểm</h4>
                     <p className="text-gray-700">{site.location}</p>
-                    {site.address && <p className="text-sm text-gray-600 mt-1">{site.address}</p>}
+                    {site.address && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        {site.address}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -255,18 +296,20 @@ export default function HistoricalSiteDetail() {
                       <CalendarDays className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Năm xây dựng</h4>
+                      <h4 className="font-medium text-gray-900">
+                        Năm xây dựng
+                      </h4>
                       <p className="text-gray-700">{site.yearBuilt}</p>
                     </div>
                   </div>
                 )}
-                
+
                 {/* Google Maps button */}
                 {site.mapUrl && (
                   <div className="mt-8">
-                    <Button 
+                    <Button
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={() => window.open(site.mapUrl, '_blank')}
+                      onClick={() => window.open(site.mapUrl, "_blank")}
                     >
                       <MapPin className="mr-2 h-4 w-4" />
                       Xem trên Google Maps
@@ -279,103 +322,139 @@ export default function HistoricalSiteDetail() {
             {/* Chia sẻ và đánh dấu */}
             <Card className="p-6 shadow-md bg-white mt-6">
               <h3 className="text-lg font-semibold mb-4">Tác vụ</h3>
-              
+
               {/* Đánh dấu Bookmark */}
-              <Button 
+              <Button
                 variant={isFavorite ? "default" : "outline"}
-                size="sm" 
+                size="sm"
                 className="w-full flex items-center justify-center mb-4"
                 onClick={toggleFavorite}
               >
-                <Bookmark className={`mr-2 h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
-                {isFavorite ? 'Đã lưu' : 'Đánh dấu vào yêu thích'}
+                <Bookmark
+                  className={`mr-2 h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
+                />
+                {isFavorite ? "Đã lưu" : "Đánh dấu vào yêu thích"}
               </Button>
-              
+
               {/* Bookmark trình duyệt */}
-              <Button 
+              <Button
                 variant="outline"
-                size="sm" 
+                size="sm"
                 className="w-full flex items-center justify-center mb-4"
                 onClick={() => {
                   // Modern browsers don't support these legacy methods anymore
                   // Using simple alert instead
-                  alert('Để lưu trang này, hãy nhấn ' + 
-                    (navigator.userAgent.toLowerCase().indexOf('mac') !== -1 ? 'Command/Cmd' : 'Ctrl') + 
-                    '+D trên bàn phím.');
+                  alert(
+                    "Để lưu trang này, hãy nhấn " +
+                      (navigator.userAgent.toLowerCase().indexOf("mac") !== -1
+                        ? "Command/Cmd"
+                        : "Ctrl") +
+                      "+D trên bàn phím.",
+                  );
                 }}
               >
                 <Bookmark className="mr-2 h-4 w-4" />
                 Đánh dấu trình duyệt
               </Button>
-              
+
               <Separator className="my-4" />
-              
+
               {/* Chia sẻ */}
-              <h4 className="text-sm font-medium mb-3">Chia sẻ lên mạng xã hội</h4>
+              <h4 className="text-sm font-medium mb-3">
+                Chia sẻ lên mạng xã hội
+              </h4>
               <div className="flex flex-wrap gap-2 justify-center">
                 {/* Facebook */}
                 <Button
                   variant="outline"
                   size="icon"
                   className="bg-[#3b5998] hover:bg-[#3b5998]/90 text-white rounded-full w-10 h-10 p-2"
-                  onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
+                      "_blank",
+                    )
+                  }
                 >
                   <FaFacebook className="w-5 h-5" />
                 </Button>
-                
+
                 {/* Twitter */}
                 <Button
                   variant="outline"
                   size="icon"
                   className="bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white rounded-full w-10 h-10 p-2"
-                  onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(site.name)}&url=${encodeURIComponent(window.location.href)}`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `https://twitter.com/intent/tweet?text=${encodeURIComponent(site.name)}&url=${encodeURIComponent(window.location.href)}`,
+                      "_blank",
+                    )
+                  }
                 >
                   <FaTwitter className="w-5 h-5" />
                 </Button>
-                
+
                 {/* LinkedIn */}
                 <Button
                   variant="outline"
                   size="icon"
                   className="bg-[#0077b5] hover:bg-[#0077b5]/90 text-white rounded-full w-10 h-10 p-2"
-                  onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`,
+                      "_blank",
+                    )
+                  }
                 >
                   <FaLinkedin className="w-5 h-5" />
                 </Button>
-                
+
                 {/* Pinterest */}
                 <Button
                   variant="outline"
                   size="icon"
                   className="bg-[#E60023] hover:bg-[#E60023]/90 text-white rounded-full w-10 h-10 p-2"
                   onClick={() => {
-                    const media = site.imageUrl ? `&media=${encodeURIComponent(site.imageUrl)}` : '';
-                    window.open(`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(window.location.href)}&description=${encodeURIComponent(site.name)}${media}`, '_blank');
+                    const media = site.imageUrl
+                      ? `&media=${encodeURIComponent(site.imageUrl)}`
+                      : "";
+                    window.open(
+                      `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(window.location.href)}&description=${encodeURIComponent(site.name)}${media}`,
+                      "_blank",
+                    );
                   }}
                 >
                   <FaPinterest className="w-5 h-5" />
                 </Button>
-                
+
                 {/* Reddit */}
                 <Button
                   variant="outline"
                   size="icon"
                   className="bg-[#FF4500] hover:bg-[#FF4500]/90 text-white rounded-full w-10 h-10 p-2"
-                  onClick={() => window.open(`https://www.reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(site.name)}`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `https://www.reddit.com/submit?url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(site.name)}`,
+                      "_blank",
+                    )
+                  }
                 >
                   <FaReddit className="w-5 h-5" />
                 </Button>
               </div>
-              
+
               {/* Copy link */}
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="w-full flex items-center justify-center mt-4"
                 onClick={() => {
-                  navigator.clipboard.writeText(window.location.href)
-                    .then(() => alert('Đường dẫn đã được sao chép!'))
-                    .catch(err => console.error('Không thể sao chép đường dẫn', err));
+                  navigator.clipboard
+                    .writeText(window.location.href)
+                    .then(() => alert("Đường dẫn đã được sao chép!"))
+                    .catch((err) =>
+                      console.error("Không thể sao chép đường dẫn", err),
+                    );
                 }}
               >
                 <Share2 className="mr-2 h-4 w-4" /> Sao chép liên kết

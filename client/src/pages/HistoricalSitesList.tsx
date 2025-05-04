@@ -145,7 +145,7 @@ export default function HistoricalSitesList() {
       <div className="container mx-auto px-4 pt-6">
         <Button 
           variant="ghost" 
-          className="flex items-center text-gray-600 hover:text-red-700 mb-4"
+          className="flex items-center text-gray-600 hover:text-[#ffffff] mb-4 hover:bg-[#C62828]"
           onClick={() => navigate('/')}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />

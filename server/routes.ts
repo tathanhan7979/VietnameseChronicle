@@ -576,31 +576,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { orderedIds } = req.body;
       
+      // Validation check của orderedIds
+      if (!orderedIds) {
+        return res.status(400).json({
+          success: false,
+          message: 'Thiếu dữ liệu orderedIds'
+        });
+      }
+      
       if (!Array.isArray(orderedIds)) {
         return res.status(400).json({
           success: false,
-          message: 'Sai định dạng dữ liệu. Cần cung cấp mảng ID.'
+          message: 'Sai định dạng dữ liệu. orderedIds phải là một mảng.'
         });
       }
+      
+      if (orderedIds.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Danh sách orderedIds không được rỗng.'
+        });
+      }
+      
+      // Log request body để debug
+      console.log('Received reorder request:', {
+        orderedIds,
+        bodyContent: req.body,
+      });
       
       const success = await storage.reorderPeriods(orderedIds);
       
       if (!success) {
         return res.status(400).json({
           success: false,
-          message: 'Không thể sắp xếp lại thứ tự.'
+          message: 'Không thể sắp xếp lại thứ tự. Hãy thử lại sau.'
         });
       }
       
-      res.json({
+      return res.json({
         success: true,
         message: 'Cập nhật thứ tự thành công'
       });
     } catch (error) {
       console.error('Error reordering periods:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
-        message: 'Lỗi khi sắp xếp lại thứ tự'
+        message: 'Lỗi khi sắp xếp lại thứ tự. Vui lòng thử lại sau.'
       });
     }
   });
