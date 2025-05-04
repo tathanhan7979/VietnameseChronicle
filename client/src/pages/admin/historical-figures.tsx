@@ -619,12 +619,17 @@ export default function HistoricalFiguresAdmin() {
                 <Select 
                   value={periodId?.toString()} 
                   onValueChange={(value) => {
-                    const id = parseInt(value);
-                    setPeriodId(id);
-                    // Cập nhật cả giá trị period cho tương thích ngược
-                    const selectedPeriod = periods.find(p => p.id === id);
-                    if (selectedPeriod) {
-                      setPeriod(selectedPeriod.name);
+                    if (value === 'none') {
+                      setPeriodId(undefined);
+                      setPeriod('');
+                    } else {
+                      const id = parseInt(value);
+                      setPeriodId(id);
+                      // Cập nhật cả giá trị period cho tương thích ngược
+                      const selectedPeriod = periods.find(p => p.id === id);
+                      if (selectedPeriod) {
+                        setPeriod(selectedPeriod.name);
+                      }
                     }
                   }}
                 >
@@ -632,6 +637,7 @@ export default function HistoricalFiguresAdmin() {
                     <SelectValue placeholder="Chọn thời kỳ" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">Không phân loại</SelectItem>
                     {periods.sort((a, b) => a.sortOrder - b.sortOrder).map((period) => (
                       <SelectItem key={period.id} value={period.id.toString()}>
                         {period.name}
