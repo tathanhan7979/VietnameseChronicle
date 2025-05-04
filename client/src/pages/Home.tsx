@@ -142,7 +142,7 @@ export default function Home() {
         activePeriodSlug={activePeriod} 
         onPeriodSelect={handlePeriodSelect} 
       />
-      <HistoricalFiguresSection figures={figures} />
+      <HistoricalFiguresSection figures={figures} periods={periods} />
       <HistoricalSitesSection sites={sites} />
       <Footer />
       <BackToTop />

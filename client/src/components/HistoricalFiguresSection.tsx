@@ -2,20 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
-import { HistoricalFigure } from '@/lib/types';
+import { HistoricalFigure, PeriodData } from '@/lib/types';
 import { ChevronRight, UserIcon, Award, Users } from 'lucide-react';
 import { slugify } from '@/lib/utils';
 
 interface HistoricalFiguresSectionProps {
   figures?: HistoricalFigure[];
+  periods?: PeriodData[];
 }
 
-export default function HistoricalFiguresSection({ figures: propFigures }: HistoricalFiguresSectionProps = {}) {
+export default function HistoricalFiguresSection({ figures: propFigures, periods: propPeriods }: HistoricalFiguresSectionProps = {}) {
   const [visibleCount] = useState(6);
   const [, navigate] = useLocation();
   
-  const { data: queryFigures, isLoading } = useQuery<HistoricalFigure[]>({
+  const { data: queryFigures, isLoading: isLoadingFigures } = useQuery<HistoricalFigure[]>({
     queryKey: ['/api/historical-figures'],
+  });
+  
+  const { data: queryPeriods, isLoading: isLoadingPeriods } = useQuery<PeriodData[]>({
+    queryKey: ['/api/periods'],
   });
 
   // Use provided figures or query results and randomize them
@@ -43,7 +48,10 @@ export default function HistoricalFiguresSection({ figures: propFigures }: Histo
     navigate('/nhan-vat');
   };
   
-  if (isLoading && !propFigures) {
+  const isLoading = isLoadingFigures || isLoadingPeriods;
+  const periods = propPeriods || queryPeriods || [];
+  
+  if ((isLoadingFigures && !propFigures) || (isLoadingPeriods && !propPeriods)) {
     return (
       <section id="historical-figures" className="bg-gray-100 py-24">
         <div className="container mx-auto px-4 text-center">
@@ -110,7 +118,7 @@ export default function HistoricalFiguresSection({ figures: propFigures }: Histo
                   </div>
                 </div>
                 <div className="absolute top-3 right-3 bg-[#4527A0] text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {figure.period}
+                  {periods.find(p => p.id === figure.periodId)?.name || figure.period}
                 </div>
               </div>
               
