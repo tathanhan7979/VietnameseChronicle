@@ -224,6 +224,7 @@ export const storage = {
     }
   },
   
+  // Lấy thời kỳ theo slug
   getPeriodBySlug: async (slug: string): Promise<Period | null> => {
     try {
       const result = await db.query.periods.findFirst({
