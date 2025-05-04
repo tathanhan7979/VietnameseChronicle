@@ -137,9 +137,9 @@ export default function TimelineSection({
     <section id="timeline" className="timeline-container py-16">
       <div className="container mx-auto px-4">
         <div className="timeline-heading">
-          <h2 className="flex items-center justify-center gap-3">
-            <History className="h-8 w-8 text-[#C62828]" />
-            Dòng Thời Gian <span>Lịch Sử Việt Nam</span>
+          <h2 className="flex items-center justify-center gap-3 flex-nowrap">
+            <History className="h-10 w-10 text-[#C62828]" />
+            <span className="whitespace-nowrap">Dòng Thời Gian Lịch Sử Việt Nam</span>
           </h2>
           <p>Khám phá dòng thời gian lịch sử 4000 năm của Việt Nam</p>
         </div>

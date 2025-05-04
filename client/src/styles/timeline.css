@@ -308,24 +308,36 @@ body {
 
 /* Responsive styles */
 @media (max-width: 768px) {
+  /* Cập nhật vị trí timeline trên mobile */
   .timeline-line {
-    left: 80px;
+    left: 20px; /* Di chuyển đường dọc về bên trái */
+    width: 4px; /* Đường dọc dày hơn */
   }
   
   .event-dot {
-    left: 80px;
+    left: 20px; /* Di chuyển nút tròn về bên trái */
+    width: 18px; /* Làm to hơn chút */
+    height: 18px;
+    border-width: 4px;
   }
   
-  .timeline-event {
-    justify-content: flex-end;
+  /* Tất cả event card về phía bên phải */
+  .timeline-event,
+  .timeline-event.left,
+  .timeline-event.right {
+    justify-content: flex-start;
+    padding-left: 20px; /* Thêm khoảng cách bên trái */
   }
   
   .event-card {
-    width: calc(100% - 100px);
+    width: calc(100% - 50px);
+    margin-left: 30px;
     text-align: left;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Shadow rõ ràng hơn */
   }
   
-  .right .event-card {
+  .right .event-card,
+  .left .event-card {
     text-align: left;
   }
   
@@ -336,26 +348,64 @@ body {
     text-align: left;
   }
   
+  /* Điều chỉnh connector line */
   .event-connector {
     width: 30px;
+    height: 3px; /* Đường kết nối dày hơn */
+    background-color: var(--color-primary);
   }
   
-  .left .event-connector {
-    left: 88px;
+  .left .event-connector,
+  .right .event-connector {
+    left: 28px; /* Căn chỉnh kết nối với đường dọc */
     right: auto;
   }
   
-  .right .event-connector {
-    left: 88px;
+  /* Căn chỉnh vị trí dot trong các event */
+  .event-dot {
+    top: 30px; /* Di chuyển nút tròn xuống một chút để căn giữa với card */
   }
   
+  .event-connector {
+    top: 30px; /* Căn chỉnh đường kết nối trùng với nút */
+  }
+  
+  /* Căn chỉnh event tags */
   .left .event-tags,
   .right .event-tags {
     justify-content: flex-start;
   }
   
+  /* Đưa period marker về bên trái */
   .period-marker-circle {
-    margin-left: 80px;
+    margin-left: 20px;
     transform: translateX(-50%);
+    width: 50px; /* Tăng kích thước */
+    height: 50px; /* Tăng kích thước */
+    font-size: 1.25rem; /* Tăng cỡ chữ */
+  }
+  
+  /* Căn chỉnh tiêu đề thời kỳ */
+  .period-title h3 {
+    font-size: 1.5rem;
+    text-align: center;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Đảm bảo tiêu đề timeline không bị tách dòng */
+  .timeline-heading h2 {
+    font-size: 1.8rem;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+  }
+  
+  .timeline-heading h2 svg {
+    width: 28px; /* Icon lớn hơn */
+    height: 28px;
   }
 }
