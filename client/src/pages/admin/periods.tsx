@@ -782,9 +782,12 @@ export default function PeriodsAdmin() {
             <div className="grid gap-4 py-4">
               {/* Tab để hiển thị sự kiện và di tích */}
               <Tabs defaultValue="events" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="events" className="flex items-center">
                     <span className="ml-2">Sự kiện ({relatedItemsData.events.length})</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="figures" className="flex items-center">
+                    <span className="ml-2">Nhân vật ({relatedItemsData.figures.length})</span>
                   </TabsTrigger>
                   <TabsTrigger value="sites" className="flex items-center">
                     <span className="ml-2">Di tích ({relatedItemsData.sites.length})</span>
@@ -809,6 +812,28 @@ export default function PeriodsAdmin() {
                   ) : (
                     <div className="text-center py-6 text-muted-foreground">
                       Không có sự kiện nào liên kết với thời kỳ này
+                    </div>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="figures" className="mt-4">
+                  {relatedItemsData.figures.length > 0 ? (
+                    <div className="max-h-[300px] overflow-y-auto border rounded-md">
+                      <div className="p-3 bg-muted">
+                        <h4 className="font-medium">Danh sách nhân vật lịch sử</h4>
+                      </div>
+                      <div className="divide-y">
+                        {relatedItemsData.figures.map((figure) => (
+                          <div key={figure.id} className="p-3 hover:bg-muted/50">
+                            <div className="font-medium">{figure.name}</div>
+                            <div className="text-sm text-muted-foreground mt-1">{figure.lifespan}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-muted-foreground">
+                      Không có nhân vật nào liên kết với thời kỳ này
                     </div>
                   )}
                 </TabsContent>

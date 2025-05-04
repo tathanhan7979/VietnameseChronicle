@@ -647,10 +647,8 @@ export const storage = {
   
   getPeriodById: async (id: number): Promise<Period | null> => {
     try {
-      const result = await db.query.periods.findFirst({
-        where: eq(periods.id, id)
-      });
-      return result || null;
+      const periodData = await db.select().from(periods).where(eq(periods.id, id));
+      return periodData.length > 0 ? periodData[0] : null;
     } catch (error) {
       handleDbError(error, "getPeriodById");
       return null;
@@ -1225,22 +1223,13 @@ export const storage = {
   }> => {
     try {
       // Lấy tất cả các sự kiện thuộc thời kỳ này
-      const eventsData = await db.query.events.findMany({
-        where: eq(events.periodId, periodId),
-        orderBy: asc(events.sortOrder)
-      });
+      const eventsData = await db.select().from(events).where(eq(events.periodId, periodId));
       
       // Lấy tất cả nhân vật lịch sử thuộc thời kỳ này
-      const figuresData = await db.query.historicalFigures.findMany({
-        where: eq(historicalFigures.periodId, periodId),
-        orderBy: asc(historicalFigures.sortOrder)
-      });
+      const figuresData = await db.select().from(historicalFigures).where(eq(historicalFigures.periodId, periodId));
       
       // Lấy tất cả địa danh lịch sử thuộc thời kỳ này
-      const sitesData = await db.query.historicalSites.findMany({
-        where: eq(historicalSites.periodId, periodId),
-        orderBy: asc(historicalSites.sortOrder)
-      });
+      const sitesData = await db.select().from(historicalSites).where(eq(historicalSites.periodId, periodId));
       
       return { 
         events: eventsData, 
