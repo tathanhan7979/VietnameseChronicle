@@ -32,6 +32,40 @@ export default function Home() {
     queryKey: ['/api/historical-sites'],
   });
   
+  // Xử lý tham số period trong URL khi trang được tải
+  useEffect(() => {
+    // Lấy tham số period từ URL query string
+    const queryParams = new URLSearchParams(window.location.search);
+    const periodParam = queryParams.get('period');
+    
+    if (periodParam) {
+      // Nếu có tham số period, thiết lập active period và cuộn đến vị trí
+      setActivePeriod(periodParam);
+      setActiveSection('timeline');
+      
+      // Đợi sau 500ms để đảm bảo trang đã render xong
+      setTimeout(() => {
+        const timelineElement = document.getElementById('timeline');
+        if (timelineElement) {
+          // Cuộn đến timeline trước
+          const offset = 80; // Header height
+          const elementPosition = timelineElement.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - offset;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+          
+          // Sau đó đợi thêm 500ms để cuộn đến period cụ thể
+          setTimeout(() => {
+            handlePeriodSelect(periodParam);
+          }, 500);
+        }
+      }, 500);
+    }
+  }, []);
+  
   // Handle section visibility based on scroll
   useEffect(() => {
     const handleScroll = () => {

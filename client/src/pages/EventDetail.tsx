@@ -180,7 +180,7 @@ export default function EventDetail() {
                     <p className="mb-2">{period.description}</p>
                     <p className="text-sm text-gray-600">Khung thời gian: {period.timeframe}</p>
                     <div className="mt-4">
-                      <Link href={`/#period-${period.slug}`}>
+                      <Link href={`/?period=${period.slug}#timeline`}>
                         <Button variant="outline" size="sm">
                           Xem các sự kiện khác trong thời kỳ này
                         </Button>
