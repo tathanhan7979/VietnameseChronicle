@@ -49,7 +49,13 @@ export default function AdminLogin() {
       <div className="rounded-lg shadow-xl overflow-hidden max-w-6xl w-full grid md:grid-cols-2">
         <div className="bg-white p-8 flex flex-col justify-center">
           <div className="max-w-md mx-auto w-full">
-            <h2 className="text-2xl font-bold mb-6 text-center">Đăng nhập Quản trị</h2>
+            <div className="text-center mb-6">
+              <div className="mx-auto w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold mb-4">
+                VN
+              </div>
+              <h2 className="text-2xl font-bold mb-1">Đăng nhập Quản trị</h2>
+              <p className="text-gray-500 text-sm">Tài khoản: TaThanhAnGroup</p>
+            </div>
             
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

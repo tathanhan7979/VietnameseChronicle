@@ -12,9 +12,16 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  // Lấy token từ localStorage nếu có
+  const token = localStorage.getItem('authToken');
+  const headers: Record<string, string> = {
+    ...(data ? { "Content-Type": "application/json" } : {}),
+    ...(token ? { "Authorization": `Bearer ${token}` } : {})
+  };
+
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -56,8 +63,16 @@ export const getQueryFn: <T>(options: {
       if (queryString) {
         const finalUrl = `${url}?${queryString}`;
         console.log('Search URL:', finalUrl);
+
+        // Lấy token từ localStorage nếu có
+        const token = localStorage.getItem('authToken');
+        const headers: Record<string, string> = token 
+          ? { "Authorization": `Bearer ${token}` } 
+          : {};
+
         const res = await fetch(finalUrl, {
           credentials: "include",
+          headers
         });
         
         if (unauthorizedBehavior === "returnNull" && res.status === 401) {
@@ -70,8 +85,15 @@ export const getQueryFn: <T>(options: {
     }
     
     // Nếu không có tham số hoặc tất cả tham số đều rỗng
+    // Lấy token từ localStorage nếu có
+    const token = localStorage.getItem('authToken');
+    const headers: Record<string, string> = token 
+      ? { "Authorization": `Bearer ${token}` } 
+      : {};
+
     const res = await fetch(url, {
       credentials: "include",
+      headers
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {

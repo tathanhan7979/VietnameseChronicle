@@ -390,7 +390,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Lấy thông tin người dùng hiện tại
   app.get(`${apiPrefix}/auth/user`, requireAuth, (req, res) => {
     const user = (req as any).user;
-    res.json({ user });
+    res.json(user);
   });
   
   // API Stats - yêu cầu quyền Admin
