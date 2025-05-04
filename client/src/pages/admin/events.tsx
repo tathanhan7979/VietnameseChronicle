@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
-import { LayoutList, Edit, MoreHorizontal, Plus, Trash, GripVertical, Image, X } from 'lucide-react';
+import { LayoutList, Edit, MoreHorizontal, Plus, Trash, GripVertical, Image, X, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -585,6 +585,15 @@ export default function EventsAdmin() {
                   <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1">
                     <GripVertical className="h-5 w-5 text-gray-400" />
                   </div>
+                  
+                  <a 
+                    href={`/events/${event.id}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
