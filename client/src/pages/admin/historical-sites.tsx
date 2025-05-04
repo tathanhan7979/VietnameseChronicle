@@ -614,7 +614,7 @@ export default function HistoricalSitesAdmin() {
       )}
       
       {/* Add/Edit Dialog */}
-      <Dialog open={currentSite !== null} onOpenChange={handleCloseDialog}>
+      <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Chỉnh sửa địa danh lịch sử' : 'Thêm địa danh lịch sử'}</DialogTitle>
