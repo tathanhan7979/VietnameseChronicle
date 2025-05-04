@@ -1505,6 +1505,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Lấy thông tin cũ của nhân vật để lấy hình ảnh cũ (nếu có)
+      const oldFigure = await storage.getHistoricalFigureById(figureId);
+      const oldImageUrl = oldFigure?.imageUrl;
+      
       // Đảm bảo tương thích ngược
       if (figureData.periodId) {
         // Nếu có periodId, tìm tên period và lưu vào periodText
@@ -1517,6 +1521,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else if (figureData.period) {
         // Nếu không có periodId nhưng có period text
         figureData.periodText = figureData.period;
+      }
+      
+      // Xóa hình ảnh cũ nếu có hình ảnh mới và khác với hình ảnh cũ
+      if (figureData.imageUrl && oldImageUrl && figureData.imageUrl !== oldImageUrl) {
+        // Bỏ qua URL bên ngoài (không phải /uploads/)
+        if (oldImageUrl.startsWith('/uploads/')) {
+          deleteFile(oldImageUrl);
+          console.log(`Xóa hình ảnh cũ của nhân vật: ${oldImageUrl}`);
+        }
       }
       
       const updatedFigure = await storage.updateHistoricalFigure(figureId, figureData);
@@ -1546,6 +1559,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const figureId = parseInt(req.params.id);
       
+      // Lấy thông tin nhân vật để kiểm tra hình ảnh
+      const figure = await storage.getHistoricalFigureById(figureId);
+      const oldImageUrl = figure?.imageUrl;
+      
       const deleted = await storage.deleteHistoricalFigure(figureId);
       
       if (!deleted) {
@@ -1553,6 +1570,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           success: false, 
           message: 'Không tìm thấy nhân vật lịch sử' 
         });
+      }
+      
+      // Xóa hình ảnh nếu có
+      if (oldImageUrl && oldImageUrl.startsWith('/uploads/')) {
+        deleteFile(oldImageUrl);
+        console.log(`Xóa hình ảnh của nhân vật: ${oldImageUrl}`);
       }
       
       res.json({
@@ -1675,6 +1698,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Kiểm tra hình ảnh cũ
+      const oldImageUrl = existingSite.imageUrl;
+      
+      // Xóa hình ảnh cũ nếu có hình ảnh mới và khác với hình ảnh cũ
+      if (siteData.imageUrl && oldImageUrl && siteData.imageUrl !== oldImageUrl) {
+        // Bỏ qua URL bên ngoài (không phải /uploads/)
+        if (oldImageUrl.startsWith('/uploads/')) {
+          deleteFile(oldImageUrl);
+          console.log(`Xóa hình ảnh cũ của địa danh: ${oldImageUrl}`);
+        }
+      }
+      
       const updatedSite = await storage.updateHistoricalSite(parseInt(id), siteData);
       
       return res.status(200).json({
@@ -1705,7 +1740,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Lấy đường dẫn hình ảnh nếu có
+      const oldImageUrl = existingSite.imageUrl;
+      
       await storage.deleteHistoricalSite(parseInt(id));
+      
+      // Xóa hình ảnh nếu có
+      if (oldImageUrl && oldImageUrl.startsWith('/uploads/')) {
+        deleteFile(oldImageUrl);
+        console.log(`Xóa hình ảnh của địa danh: ${oldImageUrl}`);
+      }
       
       return res.status(200).json({
         success: true,
