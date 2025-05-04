@@ -358,9 +358,7 @@ export default function HistoricalSitesAdmin() {
         const response = await fetch('/api/upload/sites', {
           method: 'POST',
           body: formData,
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          },
+          credentials: 'include',
         });
         
         if (!response.ok) {
