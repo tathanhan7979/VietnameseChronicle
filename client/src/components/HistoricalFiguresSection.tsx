@@ -119,7 +119,7 @@ export default function HistoricalFiguresSection({ figures: propFigures, periods
                 </div>
                 <Link href={`/thoi-ky/${periods.find(p => p.id === figure.periodId)?.slug || 'unknown'}`}>
                   <div className="absolute top-3 right-3 bg-[#4527A0] text-white px-3 py-1 rounded-full text-xs font-medium cursor-pointer hover:bg-[#311B92] transition-colors">
-                    {periods.find(p => p.id === figure.periodId)?.name || figure.period}
+                    {periods.find(p => p.id === figure.periodId)?.name || ""}
                   </div>
                 </Link>
               </div>

@@ -758,11 +758,7 @@ export const storage = {
         }
       });
       
-      // Đảm bảo trường periodText có giá trị nếu chưa có
-      return figures.map(figure => ({
-        ...figure,
-        periodText: figure.periodText || figure.period?.name || '' // Sử dụng tên thời kỳ nếu trường periodText trống
-      }));
+      return figures;
     } catch (error) {
       handleDbError(error, "getAllHistoricalFigures");
       return [];
@@ -778,15 +774,7 @@ export const storage = {
         }
       });
       
-      if (result) {
-        // Đảm bảo trường periodText có giá trị
-        return {
-          ...result,
-          periodText: result.periodText || result.period?.name || ''
-        };
-      }
-      
-      return null;
+      return result || null;
     } catch (error) {
       handleDbError(error, "getHistoricalFigureById");
       return null;
@@ -1059,11 +1047,8 @@ export const storage = {
         }
         
         if (periodFilter) {
-          // Sử dụng periodId để tìm chính xác và sử dụng periodText như là backup
-          conditions.push(or(
-            eq(historicalFigures.periodId, periodFilter.id),
-            like(historicalFigures.periodText, `%${periodFilter.name}%`)
-          ));
+          // Sử dụng periodId để tìm chính xác
+          conditions.push(eq(historicalFigures.periodId, periodFilter.id));
         }
         
         if (conditions.length > 0 || noFilters) {

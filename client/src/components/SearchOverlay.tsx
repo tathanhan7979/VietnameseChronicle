@@ -107,7 +107,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           id: `figure-${figure.id}`,
           type: 'figure',
           title: figure.name,
-          subtitle: figure.period,
+          subtitle: periods?.find(p => p.id === figure.periodId)?.name || "",
           link: `/nhan-vat/${figure.id}/${slugify(figure.name)}`,
           icon: 'person'
         });
