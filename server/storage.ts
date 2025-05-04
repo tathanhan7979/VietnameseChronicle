@@ -751,9 +751,18 @@ export const storage = {
   // Historical Figure methods
   getAllHistoricalFigures: async (): Promise<HistoricalFigure[]> => {
     try {
-      return await db.query.historicalFigures.findMany({
-        orderBy: asc(historicalFigures.sortOrder)
+      const figures = await db.query.historicalFigures.findMany({
+        orderBy: asc(historicalFigures.sortOrder),
+        with: {
+          period: true
+        }
       });
+      
+      // Đảm bảo trường periodText có giá trị nếu chưa có
+      return figures.map(figure => ({
+        ...figure,
+        periodText: figure.periodText || figure.period?.name || '' // Sử dụng tên thời kỳ nếu trường periodText trống
+      }));
     } catch (error) {
       handleDbError(error, "getAllHistoricalFigures");
       return [];
@@ -763,9 +772,21 @@ export const storage = {
   getHistoricalFigureById: async (id: number): Promise<HistoricalFigure | null> => {
     try {
       const result = await db.query.historicalFigures.findFirst({
-        where: eq(historicalFigures.id, id)
+        where: eq(historicalFigures.id, id),
+        with: {
+          period: true
+        }
       });
-      return result || null;
+      
+      if (result) {
+        // Đảm bảo trường periodText có giá trị
+        return {
+          ...result,
+          periodText: result.periodText || result.period?.name || ''
+        };
+      }
+      
+      return null;
     } catch (error) {
       handleDbError(error, "getHistoricalFigureById");
       return null;

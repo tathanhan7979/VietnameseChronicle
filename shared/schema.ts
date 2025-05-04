@@ -57,8 +57,8 @@ export type Event = typeof events.$inferSelect;
 export const historicalFigures = pgTable("historical_figures", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  periodId: integer("period_id").references(() => periods.id),
-  periodText: text("period").notNull(), // Giữ lại trường cũ cho tương thích ngược
+  periodId: integer("period_id").references(() => periods.id).notNull(), // Làm cho periodId bắt buộc
+  periodText: text("period"), // Để lại trường nhưng không bắt buộc - sẽ dần dần loại bỏ
   lifespan: text("lifespan").notNull(),
   description: text("description").notNull(),
   detailedDescription: text("detailed_description"),
