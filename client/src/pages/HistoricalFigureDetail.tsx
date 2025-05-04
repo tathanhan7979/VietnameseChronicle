@@ -129,7 +129,7 @@ export default function HistoricalFigureDetail() {
               <h2 className="text-2xl font-bold font-['Playfair_Display'] text-[hsl(var(--primary))] mb-4">Thời kỳ {figure.period}</h2>
               <div>
                 <p className="mb-4">Thời gian sống: {figure.lifespan}</p>
-                <Link href="/">
+                <Link href={`/?period=${figure.period ? slugify(figure.period) : ''}#timeline`}>
                   <Button variant="outline" size="sm">
                     Xem thêm về thời kỳ này
                   </Button>

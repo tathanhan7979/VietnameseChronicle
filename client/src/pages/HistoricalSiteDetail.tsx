@@ -75,6 +75,20 @@ export default function HistoricalSiteDetail() {
             const foundPeriod = periodsData.find((p: any) => p.id === siteData.periodId);
             if (foundPeriod) {
               setPeriod(foundPeriod.name);
+              
+              // 2.1 Tải các di tích khác trong cùng thời kỳ sử dụng slug
+              // Sử dụng API endpoint mới cho slug của thời kỳ
+              if (foundPeriod.slug) {
+                try {
+                  const relatedSitesResponse = await fetch(`/api/periods-slug/${foundPeriod.slug}/historical-sites`);
+                  if (relatedSitesResponse.ok) {
+                    // Có thể xử lý dữ liệu di tích liên quan ở đây nếu cần
+                    console.log('Đã tải các di tích liên quan thành công');
+                  }
+                } catch (err) {
+                  console.error('Lỗi khi tải di tích liên quan:', err);
+                }
+              }
             }
           }
         }
@@ -279,15 +293,11 @@ export default function HistoricalSiteDetail() {
                 size="sm" 
                 className="w-full flex items-center justify-center mb-4"
                 onClick={() => {
-                  if (window.sidebar && window.sidebar.addPanel) { // Firefox <23
-                    window.sidebar.addPanel(site.name, window.location.href, '');
-                  } else if(window.external && ('AddFavorite' in window.external)) { // IE
-                    window.external.AddFavorite(window.location.href, site.name);
-                  } else { // Chrome, Safari, Firefox 23+
-                    alert('Để lưu trang này, hãy nhấn ' + 
-                      (navigator.userAgent.toLowerCase().indexOf('mac') !== -1 ? 'Command/Cmd' : 'Ctrl') + 
-                      '+D trên bàn phím.');
-                  }
+                  // Modern browsers don't support these legacy methods anymore
+                  // Using simple alert instead
+                  alert('Để lưu trang này, hãy nhấn ' + 
+                    (navigator.userAgent.toLowerCase().indexOf('mac') !== -1 ? 'Command/Cmd' : 'Ctrl') + 
+                    '+D trên bàn phím.');
                 }}
               >
                 <Bookmark className="mr-2 h-4 w-4" />
