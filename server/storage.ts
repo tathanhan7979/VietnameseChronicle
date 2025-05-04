@@ -68,7 +68,15 @@ export const storage = {
         // Nếu chưa tồn tại, tạo mới
         const [created] = await db
           .insert(settings)
-          .values({ key, value })
+          .values({ 
+            key, 
+            value,
+            displayName: key,
+            description: '',
+            category: 'general',
+            inputType: 'text',
+            sortOrder: 0
+          })
           .returning();
         return created;
       }
@@ -97,27 +105,56 @@ export const storage = {
         {
           key: "home_background_url",
           value: "https://images.unsplash.com/photo-1624009582782-1be02fbb7f23?q=80&w=2071&auto=format&fit=crop",
-          description: "URL ảnh nền của trang chủ"
+          description: "URL ảnh nền của trang chủ",
+          displayName: "Ảnh nền trang chủ",
+          category: "general",
+          inputType: "text",
+          sortOrder: 0
         },
         {
           key: "telegram_bot_token",
           value: "",
-          description: "Token của bot Telegram"
+          description: "Token của bot Telegram",
+          displayName: "Token Telegram Bot",
+          category: "notifications",
+          inputType: "text",
+          sortOrder: 0
         },
         {
           key: "telegram_chat_id",
           value: "",
-          description: "ID nhóm chat Telegram"
+          description: "ID nhóm chat Telegram",
+          displayName: "Chat ID Telegram",
+          category: "notifications",
+          inputType: "text",
+          sortOrder: 1
+        },
+        {
+          key: "facebook_app_id",
+          value: "",
+          description: "ID ứng dụng Facebook để tích hợp chia sẻ",
+          displayName: "Facebook App ID",
+          category: "social",
+          inputType: "text",
+          sortOrder: 0
         },
         {
           key: "privacy_policy",
           value: "<h2>Chính sách bảo mật</h2><p>Thông tin chi tiết về chính sách bảo mật...</p>",
-          description: "Nội dung chính sách bảo mật"
+          description: "Nội dung chính sách bảo mật",
+          displayName: "Chính sách bảo mật",
+          category: "legal",
+          inputType: "textarea",
+          sortOrder: 0
         },
         {
           key: "terms_of_service",
           value: "<h2>Điều khoản sử dụng</h2><p>Thông tin chi tiết về điều khoản sử dụng...</p>",
-          description: "Nội dung điều khoản sử dụng"
+          description: "Nội dung điều khoản sử dụng",
+          displayName: "Điều khoản sử dụng",
+          category: "legal",
+          inputType: "textarea",
+          sortOrder: 1
         }
       ];
       
