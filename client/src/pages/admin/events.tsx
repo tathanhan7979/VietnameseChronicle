@@ -603,6 +603,17 @@ export default function EventsAdmin() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <a 
+                          href={`/events/${event.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center cursor-pointer"
+                        >
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          Xem chi tiết
+                        </a>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleEditEvent(event)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Chỉnh sửa
