@@ -1147,11 +1147,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Kiểm tra xem có sự kiện nào sử dụng loại này không
       const relatedEvents = await storage.getEventsUsingEventType(typeId);
+      
+      // Tự động gỡ bỏ các liên kết trước khi xóa loại sự kiện
       if (relatedEvents.length > 0) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Không thể xóa loại sự kiện này vì có các sự kiện sử dụng. Vui lòng gỡ liên kết trước.' 
-        });
+        console.log(`Xóa tự động ${relatedEvents.length} liên kết cho loại sự kiện ID ${typeId}`);
+        await storage.removeEventTypeAssociationsByType(typeId);
       }
       
       // Xóa loại sự kiện
@@ -1166,7 +1166,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         success: true,
-        message: 'Xóa loại sự kiện thành công'
+        message: relatedEvents.length > 0 
+          ? `Xóa loại sự kiện thành công (đã gỡ bỏ ${relatedEvents.length} liên kết)` 
+          : 'Xóa loại sự kiện thành công'
       });
     } catch (error) {
       console.error('Error deleting event type:', error);
