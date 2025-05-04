@@ -208,6 +208,18 @@
       padding-left: 40px !important;
       width: 100%;
     }
+
+    .period-marker {
+      justify-content: flex-start;
+    }
+
+    .event-connector {
+      top: 38px;
+    }
+
+    .period-title {
+      text-align: unset;
+    }
   }
 
   .scroll-indicator {
@@ -240,4 +252,8 @@
 
 .max-w-2xl {
   max-width: 50rem;
+}
+
+.custom-important-text {
+  color: #C62828 !important;
 }

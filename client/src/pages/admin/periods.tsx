@@ -186,7 +186,11 @@ export default function PeriodsAdmin() {
       try {
         setError(null); // Xóa lỗi trước khi gọi API
         
-        const res = await apiRequest('PUT', '/api/admin/periods/reorder', { orderedIds });
+        // Đảm bảo gửi dữ liệu với orderedIds là một mảng
+        const requestBody = { orderedIds };
+        console.log('Sending body to API:', JSON.stringify(requestBody));
+        
+        const res = await apiRequest('PUT', '/api/admin/periods/reorder', requestBody);
         console.log('API response status:', res.status);
         
         if (!res.ok) {
@@ -283,6 +287,7 @@ export default function PeriodsAdmin() {
     // Tạo một mảng orderedIds chứa các ID của thời kỳ theo thứ tự mới
     const orderedIds = updatedPeriods.map(period => period.id);
     console.log('Gửi yêu cầu reorder:', { orderedIds });
+    // Đảm bảo gửi dữ liệu đúng format cần thiết đến API
     reorderMutation.mutate(orderedIds);
   };
   

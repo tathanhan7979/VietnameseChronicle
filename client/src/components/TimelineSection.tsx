@@ -24,20 +24,20 @@ export default function TimelineSection({
   );
   const timelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
-  
+
   // Lấy tham số period từ URL khi quay lại trang chủ
   useEffect(() => {
-    if (location.includes('?period=')) {
+    if (location.includes("?period=")) {
       // Tách lấy phần giữa ?period= và #
       let periodSlug;
-      if (location.includes('#')) {
-        periodSlug = location.split('?period=')[1].split('#')[0];
+      if (location.includes("#")) {
+        periodSlug = location.split("?period=")[1].split("#")[0];
       } else {
-        periodSlug = location.split('?period=')[1];
+        periodSlug = location.split("?period=")[1];
       }
-      
+
       setActiveSection(periodSlug);
-      
+
       // Cuộn đến thời kỳ đã chọn
       setTimeout(() => {
         const element = document.getElementById(`period-${periodSlug}`);
@@ -139,7 +139,10 @@ export default function TimelineSection({
         <div className="timeline-heading">
           <h2 className="flex items-center justify-center gap-3 flex-nowrap">
             <History className="h-10 w-10 text-[#C62828]" />
-            <span className="whitespace-nowrap">Dòng Thời Gian Lịch Sử Việt Nam</span>
+            <span className="whitespace-nowrap">
+              Dòng Thời Gian{" "}
+              <span className="custom-important-text">Lịch Sử Việt Nam</span>
+            </span>
           </h2>
           <p>Khám phá dòng thời gian lịch sử 4000 năm của Việt Nam</p>
         </div>
@@ -195,10 +198,12 @@ export default function TimelineSection({
                   {/* Period title */}
                   <div className="period-title">
                     <h3>
-                      <Link href={`/thoi-ky/${period.slug}`} className="hover:underline hover:text-[hsl(var(--primary))]">
-                        <div className="flex items-center gap-2 justify-center">
-                          <CalendarDays className="h-5 w-5 text-[#4527A0]" />
-                          {period.name} <span>({period.timeframe})</span>
+                      <Link
+                        href={`/thoi-ky/${period.slug}`}
+                        className="hover:underline hover:text-[hsl(var(--primary))]"
+                      >
+                        <div className="items-center gap-2 justify-center">
+                          📅 {period.name} <span>({period.timeframe})</span>
                         </div>
                       </Link>
                     </h3>

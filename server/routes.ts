@@ -574,17 +574,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.put(`${apiPrefix}/admin/periods/reorder`, requireAuth, requireAdmin, async (req, res) => {
     try {
+      // Log chi tiết request để debug
+      console.log('Reorder periods - Headers:', req.headers);
+      console.log('Reorder periods - Full Body:', req.body);
+      console.log('Body type:', typeof req.body);
+      
       const { orderedIds } = req.body;
+      
+      console.log('Extracted orderedIds:', orderedIds);
+      console.log('Type of orderedIds:', typeof orderedIds);
       
       // Validation check của orderedIds
       if (!orderedIds) {
+        console.log('Missing orderedIds parameter');
         return res.status(400).json({
           success: false,
-          message: 'Thiếu dữ liệu orderedIds'
+          message: 'Thiếu thông tin. Vui lòng điền đầy đủ các trường.'
         });
       }
       
       if (!Array.isArray(orderedIds)) {
+        console.log('orderedIds is not an array, type:', typeof orderedIds);
         return res.status(400).json({
           success: false,
           message: 'Sai định dạng dữ liệu. orderedIds phải là một mảng.'
@@ -592,27 +602,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       if (orderedIds.length === 0) {
+        console.log('orderedIds is an empty array');
         return res.status(400).json({
           success: false,
           message: 'Danh sách orderedIds không được rỗng.'
         });
       }
       
-      // Log request body để debug
-      console.log('Received reorder request:', {
-        orderedIds,
-        bodyContent: req.body,
-      });
+      console.log('Valid orderedIds array:', orderedIds);
       
       const success = await storage.reorderPeriods(orderedIds);
       
       if (!success) {
+        console.log('Failed to reorder periods in storage');
         return res.status(400).json({
           success: false,
           message: 'Không thể sắp xếp lại thứ tự. Hãy thử lại sau.'
         });
       }
       
+      console.log('Successfully reordered periods!');
       return res.json({
         success: true,
         message: 'Cập nhật thứ tự thành công'
