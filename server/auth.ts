@@ -59,10 +59,10 @@ export async function registerUser(userData: InsertUser): Promise<AuthResult> {
 
 export async function loginUser(username: string, password: string): Promise<AuthResult> {
   try {
-    // Tìm người dùng theo username
-    const user = await db.query.users.findFirst({
-      where: eq(users.username, username)
-    });
+    // Tìm người dùng theo username, không phân biệt chữ hoa/thường
+    const lowerUsername = username.toLowerCase();
+    const allUsers = await db.query.users.findMany();
+    const user = allUsers.find(u => u.username.toLowerCase() === lowerUsername);
     
     if (!user) {
       return {
@@ -136,9 +136,10 @@ export async function getUserFromToken(token: string): Promise<User | null> {
     
     if (!username) return null;
     
-    const user = await db.query.users.findFirst({
-      where: eq(users.username, username)
-    });
+    // Tìm người dùng không phân biệt chữ hoa/thường
+    const lowerUsername = username.toLowerCase();
+    const allUsers = await db.query.users.findMany();
+    const user = allUsers.find(u => u.username.toLowerCase() === lowerUsername);
     
     return user || null;
   } catch (error) {

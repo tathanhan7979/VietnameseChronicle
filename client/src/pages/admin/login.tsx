@@ -54,11 +54,17 @@ export default function AdminLogin() {
                 VN
               </div>
               <h2 className="text-2xl font-bold mb-1">Đăng nhập Quản trị</h2>
-              <p className="text-gray-500 text-sm">Tài khoản: TaThanhAnGroup</p>
+              <p className="text-gray-500 text-sm">
+                Tài khoản: <span className="font-semibold">TaThanhAnGroup</span><br/>
+                Mật khẩu: <span className="font-semibold">Hihihaha123@</span>
+              </p>
             </div>
-            
+
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="username"
@@ -72,7 +78,7 @@ export default function AdminLogin() {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="password"
@@ -81,12 +87,12 @@ export default function AdminLogin() {
                       <FormLabel>Mật khẩu</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input 
-                            type={showPassword ? "text" : "password"} 
-                            placeholder="Nhập mật khẩu" 
-                            {...field} 
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Nhập mật khẩu"
+                            {...field}
                           />
-                          <button 
+                          <button
                             type="button"
                             className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
                             onClick={() => setShowPassword(!showPassword)}
@@ -99,10 +105,10 @@ export default function AdminLogin() {
                     </FormItem>
                   )}
                 />
-                
-                <Button 
-                  type="submit" 
-                  className="w-full mt-6" 
+
+                <Button
+                  type="submit"
+                  className="w-full mt-6"
                   disabled={loginMutation.isPending}
                 >
                   {loginMutation.isPending ? (
@@ -110,38 +116,54 @@ export default function AdminLogin() {
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Đang đăng nhập...
                     </>
-                  ) : "Đăng nhập"}
+                  ) : (
+                    "Đăng nhập"
+                  )}
                 </Button>
               </form>
             </Form>
           </div>
         </div>
-        
+
         <div className="bg-blue-600 p-8 text-white flex flex-col justify-center">
           <div className="max-w-md mx-auto">
-            <h3 className="text-2xl font-bold mb-4">Điều khiển trang Lịch sử Việt Nam</h3>
+            <h3 className="text-2xl font-bold mb-4">
+              Điều khiển trang Lịch sử Việt Nam
+            </h3>
             <p className="mb-6">
-              Truy cập vào khu vực quản trị để quản lý nội dung về lịch sử, sự kiện, nhân vật lịch sử, di tích và các thiết lập khác của trang web.
+              Truy cập vào khu vực quản trị để quản lý nội dung về lịch sử, sự
+              kiện, nhân vật lịch sử, di tích và các thiết lập khác của trang
+              web.
             </p>
             <div className="space-y-3">
               <div className="flex items-start">
-                <span className="flex items-center justify-center bg-blue-500 rounded-full w-6 h-6 mr-3">✓</span>
+                <span className="flex items-center justify-center bg-blue-500 rounded-full w-6 h-6 mr-3">
+                  ✓
+                </span>
                 <p>Quản lý các thời kỳ lịch sử</p>
               </div>
               <div className="flex items-start">
-                <span className="flex items-center justify-center bg-blue-500 rounded-full w-6 h-6 mr-3">✓</span>
+                <span className="flex items-center justify-center bg-blue-500 rounded-full w-6 h-6 mr-3">
+                  ✓
+                </span>
                 <p>Cập nhật sự kiện quan trọng</p>
               </div>
               <div className="flex items-start">
-                <span className="flex items-center justify-center bg-blue-500 rounded-full w-6 h-6 mr-3">✓</span>
+                <span className="flex items-center justify-center bg-blue-500 rounded-full w-6 h-6 mr-3">
+                  ✓
+                </span>
                 <p>Thêm và chỉnh sửa thông tin nhân vật lịch sử</p>
               </div>
               <div className="flex items-start">
-                <span className="flex items-center justify-center bg-blue-500 rounded-full w-6 h-6 mr-3">✓</span>
+                <span className="flex items-center justify-center bg-blue-500 rounded-full w-6 h-6 mr-3">
+                  ✓
+                </span>
                 <p>Quản lý di tích lịch sử</p>
               </div>
               <div className="flex items-start">
-                <span className="flex items-center justify-center bg-blue-500 rounded-full w-6 h-6 mr-3">✓</span>
+                <span className="flex items-center justify-center bg-blue-500 rounded-full w-6 h-6 mr-3">
+                  ✓
+                </span>
                 <p>Xem phản hồi của người dùng</p>
               </div>
             </div>
