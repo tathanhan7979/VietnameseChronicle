@@ -207,13 +207,12 @@ export default function EventsAdmin() {
   // Tạo sự kiện mới
   const createMutation = useMutation({
     mutationFn: async (data: EventFormValues) => {
-      // Xử lý tải lên hình ảnh nếu có
+      // Xử lý hình ảnh dựa trên phương thức tải lên
       let finalData = { ...data };
       
-      if (imageUploadMode === 'upload' && uploadedImage) {
-        // Convert file to base64 for the API request
-        const base64 = await convertFileToBase64(uploadedImage);
-        finalData.imageUrl = base64;
+      // Nếu đã tải lên hình ảnh thông qua API, sử dụng URL đã lưu
+      if (imageUploadMode === 'upload' && imageUrlValue) {
+        finalData.imageUrl = imageUrlValue;
       }
       
       const res = await apiRequest('POST', '/api/admin/events', finalData);
@@ -247,13 +246,12 @@ export default function EventsAdmin() {
   // Cập nhật sự kiện
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: EventFormValues }) => {
-      // Xử lý tải lên hình ảnh nếu có
+      // Xử lý hình ảnh dựa trên phương thức tải lên
       let finalData = { ...data };
       
-      if (imageUploadMode === 'upload' && uploadedImage) {
-        // Convert file to base64 for the API request
-        const base64 = await convertFileToBase64(uploadedImage);
-        finalData.imageUrl = base64;
+      // Nếu đã tải lên hình ảnh thông qua API, sử dụng URL đã lưu
+      if (imageUploadMode === 'upload' && imageUrlValue) {
+        finalData.imageUrl = imageUrlValue;
       }
       
       const res = await apiRequest('PUT', `/api/admin/events/${id}`, finalData);
@@ -400,15 +398,6 @@ export default function EventsAdmin() {
     deleteMutation.mutate(deletingEventId);
   };
 
-  // Hàm chuyển đổi File thành base64
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
-    });
-  };
 
   // Xử lý thay đổi chế độ tải lên hình ảnh
   const handleImageModeChange = (mode: 'url' | 'upload') => {
@@ -427,7 +416,7 @@ export default function EventsAdmin() {
   };
 
   // Xử lý khi người dùng chọn tệp hình ảnh
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
@@ -437,11 +426,46 @@ export default function EventsAdmin() {
       const objectUrl = URL.createObjectURL(file);
       setImagePreview(objectUrl);
       
-      // Cập nhật giá trị imageUrl trong form
-      const currentForm = isEditDialogOpen ? editForm : createForm;
-      currentForm.setValue('imageUrl', 'uploaded_file'); // Giá trị tạm thời
-      
-      return () => URL.revokeObjectURL(objectUrl);
+      try {
+        // Tải lên hình ảnh thông qua API mới
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/api/upload/events', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Lỗi khi tải lên hình ảnh: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        if (data.success) {
+          // Lưu URL của tập tin đã tải lên 
+          const uploadedUrl = data.url;
+          setImageUrlValue(uploadedUrl);
+          
+          // Cập nhật giá trị imageUrl trong form
+          const currentForm = isEditDialogOpen ? editForm : createForm;
+          currentForm.setValue('imageUrl', uploadedUrl);
+          
+          console.log('Tải lên hình ảnh thành công:', uploadedUrl);
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải lên hình ảnh:', error);
+        toast({
+          title: 'Lỗi tải lên',
+          description: 'Không thể tải lên hình ảnh. Vui lòng thử lại.',
+          variant: 'destructive',
+        });
+      } finally {
+        // Giải phóng URL đối tượng khi không cần nữa
+        URL.revokeObjectURL(objectUrl);
+      }
     }
   };
 

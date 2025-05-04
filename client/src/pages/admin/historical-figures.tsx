@@ -316,18 +316,49 @@ export default function HistoricalFiguresAdmin() {
   };
   
   // Handle image upload
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setUploadedImage(file);
       setImageUrl(''); // Clear imageUrl when uploading
       
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      // Tạo URL tạm thời để hiển thị xem trước
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewImage(objectUrl);
+      
+      try {
+        // Tải lên hình ảnh thông qua API mới
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/api/upload/figures', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Lỗi khi tải lên hình ảnh: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        if (data.success) {
+          // Lưu URL của tập tin đã tải lên 
+          const uploadedUrl = data.url;
+          setImageUrl(uploadedUrl); // Lưu URL để sử dụng trong form
+          
+          console.log('Tải lên hình ảnh thành công:', uploadedUrl);
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải lên hình ảnh:', error);
+        toast({
+          title: 'Lỗi tải lên',
+          description: 'Không thể tải lên hình ảnh. Vui lòng thử lại.',
+          variant: 'destructive',
+        });
+      }
       
       setIsRemovingImage(false);
     }
@@ -381,23 +412,17 @@ export default function HistoricalFiguresAdmin() {
         figureData.period = period;
       }
       
-      // Handle image
+      // Xử lý hình ảnh
       if (isRemovingImage) {
         figureData.imageUrl = ''; // Empty string to indicate removal
-      } else if (uploadedImage) {
-        // TODO: Upload image to server and get URL
-        // For now, use a placeholder or keep existing
-        if (isEditing && currentFigure) {
-          figureData.imageUrl = currentFigure.imageUrl;
-        } else {
-          figureData.imageUrl = previewImage; // This would be temporary until proper upload
-        }
       } else if (imageUrl) {
+        // Sử dụng URL đã tải lên hoặc nhập vào
         figureData.imageUrl = imageUrl;
       } else if (isEditing && currentFigure) {
+        // Giữ nguyên URL hiện tại nếu đang chỉnh sửa và không có thay đổi
         figureData.imageUrl = currentFigure.imageUrl;
       } else {
-        // Default placeholder if no image provided
+        // Mặc định nếu không có hình ảnh
         figureData.imageUrl = '';
       }
       
