@@ -221,12 +221,6 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
       formData.append('file', file);
 
       try {
-        // Hiển thị thông báo đang tải lên
-        toast({
-          title: 'Đang tải lên...',
-          description: 'Vui lòng đợi trong khi hình ảnh đang được tải lên.',
-        });
-
         const response = await fetch('/api/upload/favicon', {
           method: 'POST',
           body: formData,
@@ -243,18 +237,9 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
         if (data.success) {
           // Cập nhật giá trị với URL của tập tin đã tải lên
           form.setValue('value', data.url);
-          toast({
-            title: 'Tải lên thành công',
-            description: 'Favicon đã được cập nhật.',
-          });
         }
       } catch (error) {
         console.error('Lỗi tải lên favicon:', error);
-        toast({
-          title: 'Lỗi tải lên',
-          description: error instanceof Error ? error.message : 'Có lỗi xảy ra khi tải lên favicon',
-          variant: 'destructive',
-        });
       } finally {
         // Giải phóng URL đối tượng để tránh rò rỉ bộ nhớ
         URL.revokeObjectURL(localPreviewUrl);

@@ -359,6 +359,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Cấu hình lưu trữ cho favicon
+  const faviconStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      const dir = './uploads/favicons';
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = randomUUID();
+      cb(null, 'favicon-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  });
+  
+  const uploadFavicon = multer({ 
+    storage: faviconStorage,
+    limits: { fileSize: 50 * 1024 * 1024 } // 50MB
+  });
+
   // Upload favicon
   app.post(`${apiPrefix}/upload/favicon`, requireAuth, requireAdmin, uploadFavicon.single('file'), async (req, res) => {
     try {
