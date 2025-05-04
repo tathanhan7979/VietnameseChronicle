@@ -207,17 +207,68 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
   };
 
   // Handle image file upload
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      setImagePreview(base64String);
-      form.setValue('value', base64String);
-    };
-    reader.readAsDataURL(file);
+    // Tạo preview ngay lập tức để người dùng thấy
+    const localPreviewUrl = URL.createObjectURL(file);
+    setImagePreview(localPreviewUrl);
+
+    if (setting.key === 'site_favicon') {
+      // Với favicon, tải lên thông qua API mới
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // Hiển thị thông báo đang tải lên
+        toast({
+          title: 'Đang tải lên...',
+          description: 'Vui lòng đợi trong khi hình ảnh đang được tải lên.',
+        });
+
+        const response = await fetch('/api/upload/favicon', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Lỗi khi tải lên favicon');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+          // Cập nhật giá trị với URL của tập tin đã tải lên
+          form.setValue('value', data.url);
+          toast({
+            title: 'Tải lên thành công',
+            description: 'Favicon đã được cập nhật.',
+          });
+        }
+      } catch (error) {
+        console.error('Lỗi tải lên favicon:', error);
+        toast({
+          title: 'Lỗi tải lên',
+          description: error instanceof Error ? error.message : 'Có lỗi xảy ra khi tải lên favicon',
+          variant: 'destructive',
+        });
+      } finally {
+        // Giải phóng URL đối tượng để tránh rò rỉ bộ nhớ
+        URL.revokeObjectURL(localPreviewUrl);
+      }
+    } else {
+      // Đối với các loại hình ảnh khác (như home_background_url), tiếp tục sử dụng base64
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setImagePreview(base64String);
+        form.setValue('value', base64String);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Handle image URL input
@@ -300,7 +351,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                         <FormDescription>
                           {setting.key === 'home_background_url' 
                             ? 'Nhập URL hình ảnh từ internet' 
-                            : 'Nhập URL hình ảnh hoặc mã base64 cho favicon'}
+                            : 'Nhập URL hình ảnh cho favicon'}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
