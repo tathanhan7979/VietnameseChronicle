@@ -19,6 +19,7 @@ import EventTypesAdmin from "@/pages/admin/event-types";
 import EventsAdmin from "@/pages/admin/events";
 import HistoricalFiguresAdmin from "@/pages/admin/historical-figures";
 import HistoricalSitesAdmin from "@/pages/admin/historical-sites";
+import FeedbackAdmin from "@/pages/admin/feedback";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
@@ -47,6 +48,7 @@ function Router() {
       <ProtectedRoute path="/admin/events" component={EventsAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/historical-figures" component={HistoricalFiguresAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/historical-sites" component={HistoricalSitesAdmin} adminOnly={true} />
+      <ProtectedRoute path="/admin/feedback" component={FeedbackAdmin} adminOnly={true} />
       
       {/* Catch all route for 404 */}
       <Route component={NotFound} />
