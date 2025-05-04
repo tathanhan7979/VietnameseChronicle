@@ -91,11 +91,11 @@ export default function EventTypesAdmin() {
   });
   
   // Cập nhật state eventTypesState khi eventTypes thay đổi
-  useState(() => {
+  useEffect(() => {
     if (eventTypes) {
       setEventTypesState([...eventTypes].sort((a, b) => a.sortOrder - b.sortOrder));
     }
-  });
+  }, [eventTypes]);
 
   // Form tạo mới
   const createForm = useForm<EventTypeFormValues>({
