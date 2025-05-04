@@ -935,19 +935,12 @@ export default function PeriodsAdmin() {
               Hủy
             </Button>
             <Button 
-              variant="default" 
-              onClick={() => handleReassignOrDelete('reassign')} 
-              disabled={reassignLoading || !targetPeriodId}
+              variant={reassignOption === 'reassign' ? "default" : "destructive"} 
+              onClick={() => handleReassignOrDelete(reassignOption)} 
+              disabled={reassignOption === 'reassign' && !targetPeriodId || reassignLoading}
               className="mr-2"
             >
-              {reassignLoading ? 'Đang xử lý...' : 'Chuyển nội dung'}
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={() => handleReassignOrDelete('delete')} 
-              disabled={reassignLoading}
-            >
-              {reassignLoading ? 'Đang xử lý...' : 'Xóa hết'}
+              {reassignLoading ? 'Đang xử lý...' : (reassignOption === 'reassign' ? 'Chuyển nội dung' : 'Xóa nội dung và thời kỳ')}
             </Button>
           </DialogFooter>
         </DialogContent>
