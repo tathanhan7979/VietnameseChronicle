@@ -1,11 +1,20 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Clock, MapPin, Users } from "lucide-react";
+import { ArrowRight, Clock, MapPin, Users, MessageSquare } from "lucide-react";
+import { useState } from "react";
+import FeedbackModal from "./FeedbackModal";
 
 interface HeroSectionProps {
   onStartExplore?: () => void;
 }
 
 export default function HeroSection({ onStartExplore }: HeroSectionProps) {
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+
+  const handleFeedbackClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsFeedbackModalOpen(true);
+  };
+  
   const handleExploreClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (onStartExplore) {
@@ -37,6 +46,12 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
 
   return (
     <section id="home" className="relative overflow-hidden">
+      {/* Feedback Modal */}
+      <FeedbackModal 
+        isOpen={isFeedbackModalOpen} 
+        onClose={() => setIsFeedbackModalOpen(false)} 
+      />
+      
       {/* Hero Section */}
       <div className="relative h-screen">
         {/* Background with parallax effect */}
@@ -89,12 +104,12 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
               transition={{ duration: 0.5, delay: 0.6 }}
             >
               <a 
-                href="#timeline" 
-                onClick={handleExploreClick}
+                href="#feedback" 
+                onClick={handleFeedbackClick}
                 className="bg-gradient-to-r from-red-700 to-red-900 hover:from-red-800 hover:to-red-950 text-white px-8 py-4 rounded-md font-['Montserrat'] text-lg transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
-                Khám Phá Ngay
-                <ArrowRight className="h-5 w-5 ml-1" />
+                Góp Ý Xây Dựng
+                <MessageSquare className="h-5 w-5 ml-1" />
               </a>
             </motion.div>
             

@@ -149,6 +149,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API endpoint để nhận feedback
+  app.post(`${apiPrefix}/feedback`, async (req, res) => {
+    try {
+      const { name, phone, email, content } = req.body;
+      
+      // Kiểm tra dữ liệu đầu vào
+      if (!name || !phone || !email || !content) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Thiếu thông tin. Vui lòng điền đầy đủ các trường.' 
+        });
+      }
+      
+      // Lưu feedback vào database
+      const feedback = await storage.createFeedback({
+        name,
+        phone,
+        email,
+        content
+      });
+      
+      res.status(201).json({
+        success: true,
+        message: 'Góp ý của bạn đã được gửi thành công!',
+        data: feedback
+      });
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Có lỗi xảy ra khi gửi góp ý. Vui lòng thử lại sau.' 
+      });
+    }
+  });
+
   // Historical sites API routes
   // Get all historical sites
   app.get(`${apiPrefix}/historical-sites`, async (req, res) => {
