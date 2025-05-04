@@ -188,6 +188,9 @@ export default function HistoricalFiguresAdmin() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState('');
   const [isRemovingImage, setIsRemovingImage] = useState(false);
+  
+  // State cho achievements
+  const [achievements, setAchievements] = useState<Array<{id: string; title: string; year?: string}>>([]);
 
   // DnD setup
   const sensors = useSensors(
@@ -292,6 +295,13 @@ export default function HistoricalFiguresAdmin() {
       setImageUrl(figure.imageUrl);
       setPreviewImage(figure.imageUrl);
       setIsRemovingImage(false);
+      
+      // Nạp dữ liệu thành tựu
+      if (figure.achievements && Array.isArray(figure.achievements)) {
+        setAchievements(figure.achievements);
+      } else {
+        setAchievements([]);
+      }
     } else {
       // Add mode
       setIsEditing(false);
@@ -305,6 +315,7 @@ export default function HistoricalFiguresAdmin() {
       setPreviewImage('');
       setUploadedImage(null);
       setIsRemovingImage(false);
+      setAchievements([]);
     }
   };
   
@@ -398,6 +409,7 @@ export default function HistoricalFiguresAdmin() {
         lifespan,
         description,
         detailedDescription: detailedDescription || null,
+        achievements: achievements.length > 0 ? achievements : null // Thêm thành tựu
       };
       
       // Thêm periodId nếu có
@@ -766,8 +778,61 @@ export default function HistoricalFiguresAdmin() {
                         ['clean']
                       ]
                     }}
-                    className="min-h-[400px]"
+                    className="min-h-[300px]"
                   />
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <Label htmlFor="achievements">Thành tựu nổi bật</Label>
+                <div className="mt-3 space-y-3 border rounded-md p-4 bg-gray-50 dark:bg-zinc-900">
+                  {achievements.map((achievement, index) => (
+                    <div key={achievement.id || index} className="flex items-center space-x-2">
+                      <Input
+                        placeholder="Tên thành tựu"
+                        value={achievement.title}
+                        onChange={(e) => {
+                          const newAchievements = [...achievements];
+                          newAchievements[index].title = e.target.value;
+                          setAchievements(newAchievements);
+                        }}
+                        className="flex-grow"
+                      />
+                      <Input
+                        placeholder="Năm (nếu có)"
+                        value={achievement.year || ''}
+                        onChange={(e) => {
+                          const newAchievements = [...achievements];
+                          newAchievements[index].year = e.target.value;
+                          setAchievements(newAchievements);
+                        }}
+                        className="w-24"
+                      />
+                      <Button 
+                        type="button" 
+                        variant="destructive" 
+                        size="icon"
+                        onClick={() => {
+                          const newAchievements = [...achievements];
+                          newAchievements.splice(index, 1);
+                          setAchievements(newAchievements);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full mt-2"
+                    onClick={() => {
+                      setAchievements([...achievements, { id: Date.now().toString(), title: '', year: '' }]);
+                    }}
+                  >
+                    Thêm thành tựu
+                  </Button>
                 </div>
               </div>
             </div>
