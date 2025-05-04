@@ -105,20 +105,39 @@ function App() {
 
   // Update favicon when it changes
   useEffect(() => {
-    if (favicon) {
-      // Remove existing favicon if any
-      const existingFavicon = document.querySelector('link[rel="icon"]');
-      if (existingFavicon) {
-        document.head.removeChild(existingFavicon);
-      }
+    // Remove existing favicon if any
+    const existingFavicon = document.querySelector('link[rel="icon"]');
+    if (existingFavicon) {
+      document.head.removeChild(existingFavicon);
+    }
 
-      // Create new favicon link
-      const faviconLink = document.createElement('link');
-      faviconLink.rel = 'icon';
+    // Remove existing apple-touch-icon if any
+    const existingAppleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+    if (existingAppleIcon) {
+      document.head.removeChild(existingAppleIcon);
+    }
+
+    // Create new favicon link
+    const faviconLink = document.createElement('link');
+    faviconLink.rel = 'icon';
+    
+    // Use custom favicon if available, otherwise use default
+    if (favicon && favicon.trim() !== '') {
       faviconLink.href = favicon;
       faviconLink.type = favicon.startsWith('data:image') ? 'image/png' : 'image/x-icon';
-      document.head.appendChild(faviconLink);
+    } else {
+      // Fallback to default favicon (using generated-icon.png in root directory)
+      faviconLink.href = '/generated-icon.png';
+      faviconLink.type = 'image/png';
     }
+    
+    document.head.appendChild(faviconLink);
+    
+    // Thêm apple-touch-icon cho thiết bị iOS
+    const appleTouchIcon = document.createElement('link');
+    appleTouchIcon.rel = 'apple-touch-icon';
+    appleTouchIcon.href = favicon && favicon.trim() !== '' ? favicon : '/generated-icon.png';
+    document.head.appendChild(appleTouchIcon);
   }, [favicon]);
 
   if (!isMounted) {
