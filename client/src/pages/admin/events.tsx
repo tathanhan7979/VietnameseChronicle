@@ -368,6 +368,10 @@ export default function EventsAdmin() {
 
   const handleEditEvent = (event: Event) => {
     setEditingEvent(event);
+    
+    // Đảm bảo event.eventTypes luôn là mảng xác định trước khi xử lý
+    const safeEventTypes = Array.isArray(event.eventTypes) ? event.eventTypes : [];
+    
     editForm.reset({
       title: event.title,
       year: event.year,
@@ -375,9 +379,10 @@ export default function EventsAdmin() {
       detailedDescription: event.detailedDescription || '',
       periodId: event.periodId.toString(),
       // Chuyển đổi mảng loại sự kiện thành mảng ID
-      eventTypes: event.eventTypes ? event.eventTypes.map(et => et.id.toString()) : [],
+      eventTypes: safeEventTypes.map(et => et?.id?.toString() || ''),
       imageUrl: event.imageUrl || '',
     });
+    
     setImageUrlValue(event.imageUrl || '');
     if (event.imageUrl) {
       setImagePreview(event.imageUrl);
