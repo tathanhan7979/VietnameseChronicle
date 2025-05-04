@@ -64,6 +64,26 @@ function Router() {
 
 function App() {
   const [isMounted, setIsMounted] = useState(false);
+  const [favicon, setFavicon] = useState<string | null>(null);
+
+  // Load favicon
+  useEffect(() => {
+    const fetchFavicon = async () => {
+      try {
+        const response = await fetch('/api/settings/site_favicon');
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.value) {
+            setFavicon(data.value);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching favicon:', error);
+      }
+    };
+    
+    fetchFavicon();
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -82,6 +102,24 @@ function App() {
     // Set title
     document.title = "Lịch Sử Việt Nam | Từ Thời Vua Hùng Đến Hiện Đại";
   }, []);
+
+  // Update favicon when it changes
+  useEffect(() => {
+    if (favicon) {
+      // Remove existing favicon if any
+      const existingFavicon = document.querySelector('link[rel="icon"]');
+      if (existingFavicon) {
+        document.head.removeChild(existingFavicon);
+      }
+
+      // Create new favicon link
+      const faviconLink = document.createElement('link');
+      faviconLink.rel = 'icon';
+      faviconLink.href = favicon;
+      faviconLink.type = favicon.startsWith('data:image') ? 'image/png' : 'image/x-icon';
+      document.head.appendChild(faviconLink);
+    }
+  }, [favicon]);
 
   if (!isMounted) {
     return null;
