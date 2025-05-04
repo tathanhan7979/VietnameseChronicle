@@ -44,6 +44,7 @@ function Router() {
       <ProtectedRoute path="/admin/periods" component={PeriodsAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/event-types" component={EventTypesAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/events" component={EventsAdmin} adminOnly={true} />
+      <ProtectedRoute path="/admin/historical-figures" component={HistoricalFiguresAdmin} adminOnly={true} />
       
       {/* Catch all route for 404 */}
       <Route component={NotFound} />

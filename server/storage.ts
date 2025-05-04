@@ -772,7 +772,7 @@ export const storage = {
     }
   },
 
-  createHistoricalFigure: async (figureData: Omit<InsertHistoricalFigure, 'id'>): Promise<HistoricalFigure | null> => {
+  createHistoricalFigure: async (figureData: Omit<HistoricalFigure, 'id' | 'sortOrder'>): Promise<HistoricalFigure | null> => {
     try {
       // Lấy giá trị sortOrder lớn nhất hiện tại
       const maxSortOrder = await db
@@ -784,7 +784,7 @@ export const storage = {
       const [newFigure] = await db.insert(historicalFigures)
         .values({
           ...figureData,
-          sortOrder
+          sortOrder: sortOrder
         })
         .returning();
         
@@ -795,7 +795,7 @@ export const storage = {
     }
   },
   
-  updateHistoricalFigure: async (id: number, figureData: Partial<InsertHistoricalFigure>): Promise<HistoricalFigure | null> => {
+  updateHistoricalFigure: async (id: number, figureData: Partial<HistoricalFigure>): Promise<HistoricalFigure | null> => {
     try {
       const [updatedFigure] = await db.update(historicalFigures)
         .set(figureData)
