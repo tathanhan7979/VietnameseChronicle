@@ -923,6 +923,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(`${apiPrefix}/admin/periods/:id`, requireAuth, requireAdmin, async (req, res) => {
     try {
       const periodId = parseInt(req.params.id);
+      const defaultPeriodId = 17; // ID của thời kỳ "Không rõ"
       
       // Kiểm tra thời kỳ có tồn tại không
       const period = await storage.getPeriodById(periodId);
@@ -930,6 +931,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ 
           success: false, 
           message: 'Không tìm thấy thời kỳ' 
+        });
+      }
+      
+      // Không cho phép xóa thời kỳ "Không rõ"
+      if (period.slug === 'khong-ro') {
+        return res.status(400).json({
+          success: false,
+          message: 'Không thể xóa thời kỳ mặc định "Không rõ"'
         });
       }
       
@@ -941,25 +950,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         relatedEntities.sites.length > 0
       );
       
+      // Nếu có thực thể liên quan, tự động chuyển sang thời kỳ "Không rõ"
       if (hasRelatedEntities) {
-        // Lấy danh sách tất cả các thời kỳ để hiển thị trong dropdown
-        const allPeriods = await storage.getAllPeriods();
-        const otherPeriods = allPeriods.filter(p => p.id !== periodId);
+        // Chuyển các sự kiện
+        if (relatedEntities.events.length > 0) {
+          const eventIds = relatedEntities.events.map(event => event.id);
+          await storage.updateEventsPeriod(eventIds, defaultPeriodId);
+        }
         
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Không thể xóa thời kỳ này vì có các thực thể liên quan. Vui lòng chuyển chúng sang thời kỳ khác trước.',
-          data: {
-            periodName: period.name,
-            events: relatedEntities.events,
-            figures: relatedEntities.figures,
-            sites: relatedEntities.sites,
-            availablePeriods: otherPeriods
-          }
-        });
+        // Chuyển các nhân vật lịch sử
+        if (relatedEntities.figures.length > 0) {
+          const figureIds = relatedEntities.figures.map(figure => figure.id);
+          await storage.updateHistoricalFiguresPeriod(figureIds, defaultPeriodId);
+        }
+        
+        // Chuyển các địa danh lịch sử
+        if (relatedEntities.sites.length > 0) {
+          const siteIds = relatedEntities.sites.map(site => site.id);
+          await storage.updateHistoricalSitesPeriod(siteIds, defaultPeriodId);
+        }
       }
       
-      // Xóa thời kỳ nếu không có thực thể liên quan
+      // Xóa thời kỳ sau khi đã chuyển các thực thể liên quan
       const deleted = await storage.deletePeriod(periodId);
       
       if (!deleted) {
@@ -971,7 +983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         success: true,
-        message: 'Xóa thời kỳ thành công'
+        message: 'Xóa thời kỳ thành công' + (hasRelatedEntities ? ', các nội dung liên quan đã được chuyển sang thời kỳ "Không rõ"' : '')
       });
     } catch (error) {
       console.error('Error deleting period:', error);
