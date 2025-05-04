@@ -303,6 +303,16 @@ export const storage = {
     }
   },
   
+  removeEventTypeAssociationsByType: async (typeId: number): Promise<void> => {
+    try {
+      await db.delete(eventToEventType)
+        .where(eq(eventToEventType.eventTypeId, typeId));
+    } catch (error) {
+      console.error(`Error removing associations for event type ${typeId}:`, error);
+      throw error;
+    }
+  },
+  
   reorderEvents: async (orderedIds: number[]): Promise<boolean> => {
     try {
       for (let i = 0; i < orderedIds.length; i++) {
