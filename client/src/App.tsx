@@ -11,6 +11,8 @@ import HistoricalSiteDetail from "@/pages/HistoricalSiteDetail";
 import HistoricalSitesList from "@/pages/HistoricalSitesList";
 import PeriodDetail from "@/pages/PeriodDetail";
 import SearchResults from "@/pages/SearchResults";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
 import NotFound from "@/pages/not-found";
 import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -40,6 +42,8 @@ function Router() {
       <Route path="/di-tich/:id" component={HistoricalSiteDetail} />
       <Route path="/di-tich/:id/:slug" component={HistoricalSiteDetail} />
       <Route path="/tim-kiem" component={SearchResults} />
+      <Route path="/chinh-sach-bao-mat" component={PrivacyPolicy} />
+      <Route path="/dieu-khoan-su-dung" component={TermsOfService} />
       
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />

@@ -13,6 +13,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Save } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface Setting {
   id: number;
@@ -183,6 +185,27 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
     onUpdate(data.value);
   }
 
+  // Rich text editor modules/formats for ReactQuill
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link', 'image'],
+      ['clean']
+    ],
+  };
+
+  // Handle rich text changes
+  const handleRichTextChange = (value: string) => {
+    form.setValue('value', value);
+  };
+
+  // Determine if this setting should use the rich text editor
+  const shouldUseRichText = setting.inputType === 'textarea' && 
+    (setting.key === 'privacy_policy' || setting.key === 'terms_of_service');
+
   return (
     <Card>
       <CardHeader>
@@ -199,7 +222,17 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                 <FormItem>
                   <FormLabel>Giá trị</FormLabel>
                   <FormControl>
-                    {setting.inputType === 'textarea' ? (
+                    {shouldUseRichText ? (
+                      <div className="min-h-[300px] border border-input rounded-md">
+                        <ReactQuill 
+                          theme="snow"
+                          value={field.value}
+                          onChange={handleRichTextChange}
+                          modules={modules}
+                          className="h-64"
+                        />
+                      </div>
+                    ) : setting.inputType === 'textarea' ? (
                       <textarea
                         className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         {...field}

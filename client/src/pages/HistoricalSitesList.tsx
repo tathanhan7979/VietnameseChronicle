@@ -193,22 +193,6 @@ export default function HistoricalSitesList() {
             </div>
 
             <div className="flex gap-2 ml-auto">
-              <Button 
-                variant={viewMode === 'grid' ? 'default' : 'outline'}
-                size="sm"
-                className={viewMode === 'grid' ? 'bg-white text-red-700' : 'bg-white/10 text-white border-white/20'}
-                onClick={() => setViewMode('grid')}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant={viewMode === 'map' ? 'default' : 'outline'}
-                size="sm"
-                className={viewMode === 'map' ? 'bg-white text-red-700' : 'bg-white/10 text-white border-white/20'}
-                onClick={() => setViewMode('map')}
-              >
-                <MapIcon className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </div>

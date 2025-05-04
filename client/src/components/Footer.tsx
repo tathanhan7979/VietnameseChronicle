@@ -148,9 +148,9 @@ export default function Footer() {
         <div className="border-t border-indigo-900 mt-10 pt-6 text-center text-sm text-indigo-200 flex flex-col md:flex-row justify-between items-center">
           <p>&copy; {new Date().getFullYear()} Lịch Sử Việt Nam. Tất cả các quyền được bảo lưu.</p>
           <div className="mt-2 md:mt-0 space-x-4">
-            <a href="#" className="text-indigo-200 hover:text-white">Chính sách bảo mật</a>
+            <Link href="/chinh-sach-bao-mat" className="text-indigo-200 hover:text-white">Chính sách bảo mật</Link>
             <span className="text-indigo-900">|</span>
-            <a href="#" className="text-indigo-200 hover:text-white">Điều khoản sử dụng</a>
+            <Link href="/dieu-khoan-su-dung" className="text-indigo-200 hover:text-white">Điều khoản sử dụng</Link>
           </div>
         </div>
       </div>
