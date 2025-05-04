@@ -129,7 +129,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     { title: 'Vua Lê Lợi', icon: 'person', link: '/nhan-vat/3/le-loi' },
     { title: 'Chiến thắng Bạch Đằng', icon: 'event', link: '/su-kien/15/chien-thang-bach-dang' },
     { title: 'Hai Bà Trưng', icon: 'person', link: '/nhan-vat/5/hai-ba-trung' },
-    { title: 'Cách mạng tháng Tám', icon: 'event', link: '/su-kien/19/cach-mang-thang-tam' }
+    { title: 'Tuyên Ngôn Độc Lập', icon: 'event', link: '/su-kien/31/tuyen-ngon-doc-lap' }
   ];
   
   return (
