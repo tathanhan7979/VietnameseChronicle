@@ -30,6 +30,8 @@ export const periods = pgTable("periods", {
   timeframe: text("timeframe").notNull(),
   description: text("description").notNull(),
   sortOrder: integer("sort_order").default(0).notNull(),
+  isShow: boolean("is_show").default(true).notNull(),
+  icon: text("icon").default("circle"),
 });
 
 export const insertPeriodSchema = createInsertSchema(periods);
