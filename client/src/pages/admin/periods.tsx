@@ -61,6 +61,7 @@ const periodFormSchema = z.object({
   timeframe: z.string().min(1, 'Vui lòng nhập khung thời gian'),
   description: z.string().min(1, 'Vui lòng nhập mô tả'),
   slug: z.string().optional(),
+  isShow: z.boolean().default(true),
 });
 
 type PeriodFormValues = z.infer<typeof periodFormSchema>;
@@ -110,6 +111,7 @@ export default function PeriodsAdmin() {
       timeframe: '',
       description: '',
       slug: '',
+      isShow: true,
     },
   });
 
@@ -121,6 +123,7 @@ export default function PeriodsAdmin() {
       timeframe: '',
       description: '',
       slug: '',
+      isShow: true,
     },
   });
 
@@ -285,6 +288,7 @@ export default function PeriodsAdmin() {
       timeframe: period.timeframe,
       description: period.description,
       slug: period.slug,
+      isShow: period.isShow ?? true,
     });
     setIsEditDialogOpen(true);
   };
@@ -661,6 +665,28 @@ export default function PeriodsAdmin() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={createForm.control}
+                name="isShow"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Hiển thị trên trang chủ
+                      </FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Nếu bỏ chọn, thời kỳ này sẽ không hiển thị trên timeline nhưng vẫn có thể dùng để phân loại nội dung.
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   Hủy
@@ -741,6 +767,28 @@ export default function PeriodsAdmin() {
                       />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="isShow"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Hiển thị trên trang chủ
+                      </FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Nếu bỏ chọn, thời kỳ này sẽ không hiển thị trên timeline nhưng vẫn có thể dùng để phân loại nội dung.
+                      </p>
+                    </div>
                   </FormItem>
                 )}
               />
