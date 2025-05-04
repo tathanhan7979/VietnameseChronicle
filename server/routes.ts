@@ -126,6 +126,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Phục vụ thư mục uploads qua URL /uploads
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
   
+  // Xử lý xóa tập tin
+  const deleteFile = (filePath: string) => {
+    if (!filePath) return false;
+    if (filePath.startsWith('http')) return false; // Skip external URLs
+    
+    // Đảm bảo đường dẫn bắt đầu có dấu /
+    const normalizedPath = filePath.startsWith('/') ? filePath : `/${filePath}`;
+    const fullPath = path.join(process.cwd(), normalizedPath);
+    
+    if (fs.existsSync(fullPath)) {
+      try {
+        fs.unlinkSync(fullPath);
+        console.log(`Đã xóa tập tin: ${fullPath}`);
+        return true;
+      } catch (error) {
+        console.error(`Lỗi khi xóa tập tin ${fullPath}:`, error);
+        return false;
+      }
+    } else {
+      console.warn(`Tập tin không tồn tại: ${fullPath}`);
+      return false;
+    }
+  };
+  
   // Get all periods
   app.get(`${apiPrefix}/periods`, async (req, res) => {
     try {
