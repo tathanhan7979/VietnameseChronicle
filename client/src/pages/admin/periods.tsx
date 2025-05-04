@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ToastError } from '@/components/ui/toast-error';
 import { type Period } from '@shared/schema';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+// Sử dụng các wrapper component để tránh cảnh báo defaultProps
+import { DragDropContextWrapper as DragDropContext, DroppableWrapper as Droppable, DraggableWrapper as Draggable } from '@/components/ui/react-dnd-wrapper';
 import {
   Dialog,
   DialogContent,
@@ -362,9 +363,15 @@ export default function PeriodsAdmin() {
             </div>
           ) : (
             <div className="mb-6">
-              <p className="text-gray-500 mb-4 italic">
-                Kéo và thả các thẻ để sắp xếp thứ tự hiển thị thời kỳ trên trang chủ và các danh sách.
-              </p>
+              <div className="bg-blue-50 p-3 mb-4 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-2">
+                  <GripVertical className="h-5 w-5 text-blue-500" />
+                  <span className="font-medium text-blue-800">Hướng dẫn:</span>
+                </div>
+                <p className="text-gray-700 mt-1">
+                  Kéo và thả các thẻ để thay đổi thứ tự hiển thị thời kỳ. Thay đổi sẽ được áp dụng trên trang chủ và các danh sách.
+                </p>
+              </div>
               
               <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                 <Droppable droppableId="periods-list">
@@ -372,7 +379,7 @@ export default function PeriodsAdmin() {
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
-                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                      className="flex flex-col gap-2 w-full"
                     >
                       {periodsState.map((period, index) => (
                         <Draggable
@@ -386,47 +393,45 @@ export default function PeriodsAdmin() {
                               {...provided.draggableProps}
                               className={`${snapshot.isDragging ? 'z-50' : ''}`}
                             >
-                              <Card className={`overflow-hidden ${snapshot.isDragging ? 'shadow-lg ring-2 ring-primary' : ''}`}>
-                                <CardHeader className="bg-blue-50 py-3">
-                                  <div className="flex justify-between items-start">
-                                    <div className="flex items-center gap-2">
-                                      <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-1">
-                                        <GripVertical className="h-5 w-5 text-gray-400" />
-                                      </div>
-                                      <CardTitle className="text-lg font-medium text-blue-900">
-                                        {period.name}
-                                      </CardTitle>
+                              <Card className={`overflow-hidden ${snapshot.isDragging ? 'shadow-lg ring-2 ring-primary' : ''} w-full`}>
+                                <div className="p-3 flex items-center gap-3 bg-blue-50 border-b">
+                                  <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing p-1">
+                                    <GripVertical className="h-5 w-5 text-gray-400" />
+                                  </div>
+                                  
+                                  <div className="flex-1">
+                                    <h3 className="text-lg font-medium text-blue-900">{period.name}</h3>
+                                    <div className="flex items-center text-gray-500 text-sm mt-1">
+                                      <Clock className="h-4 w-4 mr-1" />
+                                      {period.timeframe}
                                     </div>
-                                    <DropdownMenu>
-                                      <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon">
-                                          <MoreHorizontal className="h-5 w-5" />
-                                        </Button>
-                                      </DropdownMenuTrigger>
-                                      <DropdownMenuContent align="end">
-                                        <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
-                                        <DropdownMenuItem onClick={() => handleEditPeriod(period)}>
-                                          <Edit className="mr-2 h-4 w-4" />
-                                          Chỉnh sửa
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem 
-                                          onClick={() => handleDeletePeriod(period.id)}
-                                          className="text-red-600"
-                                        >
-                                          <Trash className="mr-2 h-4 w-4" />
-                                          Xóa
-                                        </DropdownMenuItem>
-                                      </DropdownMenuContent>
-                                    </DropdownMenu>
                                   </div>
-                                </CardHeader>
-                                <CardContent className="p-4">
-                                  <div className="flex items-center text-gray-500 mb-2">
-                                    <Clock className="h-4 w-4 mr-1" />
-                                    <span className="text-sm">{period.timeframe}</span>
-                                  </div>
-                                  <p className="text-gray-600 line-clamp-3">{period.description}</p>
-                                </CardContent>
+                                  
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="icon">
+                                        <MoreHorizontal className="h-5 w-5" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
+                                      <DropdownMenuItem onClick={() => handleEditPeriod(period)}>
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        Chỉnh sửa
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem 
+                                        onClick={() => handleDeletePeriod(period.id)}
+                                        className="text-red-600"
+                                      >
+                                        <Trash className="mr-2 h-4 w-4" />
+                                        Xóa
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                                <div className="p-3 text-sm">
+                                  <p className="text-gray-600 line-clamp-2">{period.description}</p>
+                                </div>
                               </Card>
                             </div>
                           )}
