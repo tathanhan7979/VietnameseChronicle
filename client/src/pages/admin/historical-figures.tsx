@@ -595,7 +595,7 @@ export default function HistoricalFiguresAdmin() {
       )}
       
       {/* Add/Edit Dialog */}
-      <Dialog open={currentFigure !== null} onOpenChange={handleCloseDialog}>
+      <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Chỉnh sửa nhân vật lịch sử' : 'Thêm nhân vật lịch sử'}</DialogTitle>
