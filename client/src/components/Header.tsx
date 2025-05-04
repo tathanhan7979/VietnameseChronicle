@@ -15,7 +15,6 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const navigationItems = [
-    { id: 'home', name: 'Trang Chủ', icon: Home, href: '/' },
     { id: 'timeline', name: 'Dòng Thời Gian', icon: Clock, href: '/#timeline' },
     { id: 'historical-figures', name: 'Nhân Vật', icon: User, href: '/#historical-figures' },
     { id: 'historical-sites', name: 'Di Tích', icon: Landmark, href: '/#historical-sites' },
@@ -34,7 +33,7 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
   // Handle navigation click
   const handleNavClick = (sectionId: string, e: React.MouseEvent) => {
     // Only handle for homepage sections
-    if (sectionId !== 'home' && onSectionSelect) {
+    if (onSectionSelect) {
       e.preventDefault();
       onSectionSelect(sectionId);
     }
