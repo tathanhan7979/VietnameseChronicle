@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, createContext, useContext } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { 
@@ -78,6 +78,7 @@ interface SortableFigureItemProps {
 }
 
 function SortableFigureItem({ figure, onEdit, onDelete }: SortableFigureItemProps) {
+  const { periods } = useContext(HistoricalFiguresContext);
   const {
     attributes,
     listeners,
@@ -118,7 +119,7 @@ function SortableFigureItem({ figure, onEdit, onDelete }: SortableFigureItemProp
         
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-medium text-gray-800 dark:text-white truncate">{figure.name}</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{figure.periodText || figure.period} • {figure.lifespan}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{periods.find(p => p.id === figure.periodId)?.name || figure.periodText || ""} • {figure.lifespan}</p>
         </div>
       </div>
       
@@ -154,6 +155,13 @@ interface Period {
   icon: string;
   sortOrder: number;
 }
+
+// Context với periods
+interface HistoricalFiguresContextType {
+  periods: Period[];
+}
+
+const HistoricalFiguresContext = createContext<HistoricalFiguresContextType>({ periods: [] });
 
 export default function HistoricalFiguresAdmin() {
   const { user } = useAuth();
@@ -275,7 +283,7 @@ export default function HistoricalFiguresAdmin() {
       setIsEditing(true);
       setName(figure.name);
       setPeriodId(figure.periodId);
-      setPeriod(figure.period || figure.periodText || ''); // Giữ lại tương thích
+      setPeriod(periods.find(p => p.id === figure.periodId)?.name || figure.periodText || ''); // Giữ lại tương thích
       setLifespan(figure.lifespan);
       setDescription(figure.description);
       setDetailedDescription(figure.detailedDescription || '');
@@ -491,23 +499,25 @@ export default function HistoricalFiguresAdmin() {
       ) : (
         <div className="bg-white dark:bg-zinc-800 rounded-lg shadow">
           <div className="p-4">
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-              modifiers={[restrictToVerticalAxis]}
-            >
-              <SortableContext items={figureIds} strategy={verticalListSortingStrategy}>
-                {figures.map(figure => (
-                  <SortableFigureItem
-                    key={figure.id}
-                    figure={figure}
-                    onEdit={handleOpenDialog}
-                    onDelete={handleOpenDeleteDialog}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
+            <HistoricalFiguresContext.Provider value={{ periods }}>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+                modifiers={[restrictToVerticalAxis]}
+              >
+                <SortableContext items={figureIds} strategy={verticalListSortingStrategy}>
+                  {figures.map(figure => (
+                    <SortableFigureItem
+                      key={figure.id}
+                      figure={figure}
+                      onEdit={handleOpenDialog}
+                      onDelete={handleOpenDeleteDialog}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
+            </HistoricalFiguresContext.Provider>
           </div>
         </div>
       )}
