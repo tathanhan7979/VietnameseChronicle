@@ -1,4 +1,4 @@
-import type { Express, Request, Response, NextFunction } from "express";
+import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { createInitialAdminUser, loginUser, registerUser, getUserFromToken, generateToken } from "./auth";
@@ -356,6 +356,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching settings:', error);
       res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Upload favicon
+  app.post(`${apiPrefix}/upload/favicon`, requireAuth, requireAdmin, uploadFavicon.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'Không có tập tin được tải lên' });
+      }
+
+      // Tạo URL cho tập tin
+      const fileUrl = `/uploads/favicons/${req.file.filename}`;
+      
+      // Cập nhật setting site_favicon với URL của tập tin
+      const updated = await storage.updateSetting('site_favicon', fileUrl);
+      
+      res.status(200).json({
+        success: true,
+        url: fileUrl,
+        setting: updated
+      });
+    } catch (error) {
+      console.error('Error uploading favicon:', error);
+      res.status(500).json({ success: false, error: 'Lỗi khi tải lên favicon' });
     }
   });
   
