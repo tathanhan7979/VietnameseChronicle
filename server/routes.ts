@@ -609,6 +609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Updated period ${periodIds[i]} with sortOrder ${i}`);
       }
       
+      // Luôn trả về định dạng JSON hợp lệ
       return res.json({
         success: true,
         message: 'Cập nhật thứ tự thành công'

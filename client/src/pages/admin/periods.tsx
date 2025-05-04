@@ -206,7 +206,14 @@ export default function PeriodsAdmin() {
           throw new Error(errorData.message || 'Lỗi khi sắp xếp thứ tự');
         }
         
-        return res.json();
+        let responseData;
+        try {
+          responseData = await res.json();
+        } catch (err) {
+          // Nếu không thể đọc JSON, trả về object trống
+          responseData = { success: true, message: 'Hoàn tất' };
+        }
+        return responseData;
       } catch (error: any) {
         console.error('Lỗi khi gọi API sort:', error);
         // Lưu lỗi để hiển thị component lỗi
