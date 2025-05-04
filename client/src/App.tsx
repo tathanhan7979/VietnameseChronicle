@@ -9,6 +9,7 @@ import HistoricalFigureDetail from "@/pages/HistoricalFigureDetail";
 import HistoricalFiguresList from "@/pages/HistoricalFiguresList";
 import HistoricalSiteDetail from "@/pages/HistoricalSiteDetail";
 import HistoricalSitesList from "@/pages/HistoricalSitesList";
+import PeriodDetail from "@/pages/PeriodDetail";
 import SearchResults from "@/pages/SearchResults";
 import NotFound from "@/pages/not-found";
 import { useState, useEffect } from "react";
@@ -17,6 +18,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/thoi-ky/:periodSlug" component={PeriodDetail} />
       <Route path="/su-kien/:eventId" component={EventDetail} />
       <Route path="/su-kien/:eventId/:eventSlug" component={EventDetail} />
       <Route path="/nhan-vat" component={HistoricalFiguresList} />
