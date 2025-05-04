@@ -2,7 +2,9 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { createInitialAdminUser, loginUser, registerUser, getUserFromToken, generateToken } from "./auth";
-import { type User } from "@shared/schema";
+import { type User, periods } from "@shared/schema";
+import { eq } from "drizzle-orm";
+import { db } from "@db";
 
 // Middleware kiểm tra xác thực
 const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
@@ -574,87 +576,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.put(`${apiPrefix}/admin/periods/reorder`, requireAuth, requireAdmin, async (req, res) => {
     try {
-      // Thêm các log chi tiết hơn để debug
-      console.log('--------------------------------------------------------');
-      console.log('REORDER PERIODS REQUEST DEBUG INFO:');
-      console.log('Request method:', req.method);
-      console.log('Request URL:', req.url);
-      console.log('Request body (raw):', req.body);
+      console.log('REORDER REQUEST:', req.body);
       
-      // Xử lý dữ liệu đầu vào từ client
-      let orderedIds: number[] = [];
-      
-      // Trường hợp 1: Kiểm tra nếu req.body là object có thuộc tính orderedIds
-      if (req.body && typeof req.body === 'object' && 'orderedIds' in req.body) {
-        if (Array.isArray(req.body.orderedIds)) {
-          orderedIds = req.body.orderedIds;
-        } else if (typeof req.body.orderedIds === 'string') {
-          // Nếu không phải mảng, thử chuyển từ JSON string sang mảng
-          try {
-            const parsed = JSON.parse(req.body.orderedIds);
-            if (Array.isArray(parsed)) {
-              orderedIds = parsed;
-            }
-          } catch (e) {
-            // Không phải JSON string, bỏ qua
-          }
-        }
-      } 
-      // Trường hợp 2: Kiểm tra nếu req.body bản thân là mảng
-      else if (Array.isArray(req.body)) {
-        orderedIds = req.body;
-      }
-      // Trường hợp 3: Kiểm tra nếu req.body là chuỗi JSON
-      else if (typeof req.body === 'string') {
-        try {
-          const parsed = JSON.parse(req.body);
-          if (Array.isArray(parsed)) {
-            orderedIds = parsed;
-          } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.orderedIds)) {
-            orderedIds = parsed.orderedIds;
-          }
-        } catch (e) {
-          // Không phải JSON string, bỏ qua
-        }
-      }
-      
-      console.log('Extracted orderedIds:', orderedIds);
-      console.log('Is Array?', Array.isArray(orderedIds));
-      console.log('Array length:', orderedIds.length);
-      
-      // Kiểm tra danh sách rỗng
-      if (orderedIds.length === 0) {
-        console.log('ERROR: Empty or invalid orderedIds array');
+      // Thực hiện cách đơn giản nhất để nhận mảng các ID
+      if (!req.body || !req.body.orderedIds) {
         return res.status(400).json({
           success: false,
-          message: 'Danh sách ID không hợp lệ hoặc rỗng.'
+          message: 'Thiếu dữ liệu: cần mảng orderedIds'
         });
       }
       
-      // Chuyển đổi tất cả ID sang số nguyên
-      const numericIds = orderedIds.map(id => typeof id === 'string' ? parseInt(id, 10) : id);
-      console.log('Numeric orderedIds:', numericIds);
-      
-      // Kiểm tra số lượng ID đủ không
+      // Chắc chắn là mảng
+      if (!Array.isArray(req.body.orderedIds)) {
+        return res.status(400).json({
+          success: false,
+          message: 'orderedIds phải là mảng'
+        });
+      }
+
+      // Lấy tất cả periods để cập nhật
       const allPeriods = await storage.getAllPeriods();
-      if (numericIds.length !== allPeriods.length) {
-        console.log(`WARNING: Number of IDs (${numericIds.length}) doesn't match number of periods (${allPeriods.length})`);
-        // Bổ sung cảnh báo nhưng vẫn tiếp tục xử lý
+      const existingIds = allPeriods.map(p => p.id);
+      
+      // Update lại sắp xếp cho từng ID
+      for (let i = 0; i < req.body.orderedIds.length; i++) {
+        const periodId = parseInt(req.body.orderedIds[i].toString(), 10);
+        
+        if (isNaN(periodId) || !existingIds.includes(periodId)) {
+          continue; // Bỏ qua ID không hợp lệ
+        }
+        
+        // Cập nhật trực tiếp sortOrder
+        await db.update(periods)
+              .set({ sortOrder: i })
+              .where(eq(periods.id, periodId));
       }
-      
-      // Gọi hàm storage để cập nhật thứ tự
-      const success = await storage.reorderPeriods(numericIds);
-      
-      if (!success) {
-        console.log('ERROR: Failed to reorder periods in storage');
-        return res.status(400).json({
-          success: false,
-          message: 'Không thể sắp xếp lại thứ tự. Hãy thử lại sau.'
-        });
-      }
-      
-      console.log('Success: Periods reordered successfully!');
-      console.log('--------------------------------------------------------');
       
       return res.json({
         success: true,
