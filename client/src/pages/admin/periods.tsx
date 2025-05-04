@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
-import { Clock, Edit, MoreHorizontal, Plus, Trash, GripVertical } from 'lucide-react';
+import { Clock, Edit, MoreHorizontal, Plus, Trash, GripVertical, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ToastError } from '@/components/ui/toast-error';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type Period } from '@shared/schema';
 // Sử dụng thư viện DND-Kit để tránh cảnh báo defaultProps và có trải nghiệm kéo thả tốt hơn
 import { DndContext, MouseSensor, TouchSensor, KeyboardSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -278,9 +281,78 @@ export default function PeriodsAdmin() {
     setIsConfirmDeleteOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (deletingPeriodId) {
+  const confirmDelete = async () => {
+    if (!deletingPeriodId) return;
+
+    try {
+      // Gọi API để xóa thời kỳ
+      const res = await apiRequest('DELETE', `/api/admin/periods/${deletingPeriodId}`);
+      const data = await res.json();
+
+      // Kiểm tra nếu có lỗi vì có mục liên kết
+      if (!res.ok && data.data?.events?.length > 0 || data.data?.sites?.length > 0) {
+        // Đóng modal xác nhận xóa và mở modal quản lý mục liên kết
+        setIsConfirmDeleteOpen(false);
+        setRelatedItemsData(data.data);
+        setIsReassignModalOpen(true);
+        // Đặt targetPeriodId thành null vì người dùng chưa chọn thời kỳ đích
+        setTargetPeriodId(null);
+        return;
+      }
+
+      // Nếu không có lỗi hoặc lỗi khác, tiếp tục với mutation
       deleteMutation.mutate(deletingPeriodId);
+    } catch (error) {
+      console.error('Error checking period dependencies:', error);
+      // Tiếp tục với mutation nếu có lỗi kiểm tra
+      deleteMutation.mutate(deletingPeriodId);
+    }
+  };
+
+  // Hàm xử lý việc gán lại hoặc xóa các mục liên kết
+  const handleReassignOrDelete = async (action: 'reassign' | 'delete') => {
+    if (!relatedItemsData || !deletingPeriodId) return;
+    
+    setReassignLoading(true);
+    
+    try {
+      // API endpoint và body sẽ phụ thuộc vào hành động
+      const endpoint = action === 'reassign' 
+        ? `/api/admin/periods/${deletingPeriodId}/reassign`
+        : `/api/admin/periods/${deletingPeriodId}/delete-content`;
+      
+      const body = action === 'reassign' 
+        ? { targetPeriodId } 
+        : {};
+      
+      const res = await apiRequest('POST', endpoint, body);
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || `Lỗi khi ${action === 'reassign' ? 'chuyển' : 'xóa'} nội dung`);
+      }
+      
+      // Sau khi xử lý xong các mục liên kết, xóa thời kỳ
+      await apiRequest('DELETE', `/api/admin/periods/${deletingPeriodId}`);
+      
+      toast({
+        title: 'Thành công',
+        description: `Đã ${action === 'reassign' ? 'chuyển' : 'xóa'} nội dung và xóa thời kỳ thành công`,
+      });
+      
+      // Đóng modal và cập nhật lại danh sách
+      setIsReassignModalOpen(false);
+      setRelatedItemsData(null);
+      setDeletingPeriodId(null);
+      refetch();
+    } catch (error: any) {
+      toast({
+        title: 'Lỗi',
+        description: error.message || `Có lỗi xảy ra khi ${action === 'reassign' ? 'chuyển' : 'xóa'} nội dung`,
+        variant: 'destructive',
+      });
+    } finally {
+      setReassignLoading(false);
     }
   };
 
@@ -655,7 +727,7 @@ export default function PeriodsAdmin() {
             <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
               Bạn có chắc muốn xóa thời kỳ này? Đây là hành động không thể hoàn tác.{' '}
-              Lưu ý: Thời kỳ có sự kiện hoặc địa danh liên kết sẽ không thể bị xóa.
+              Lưu ý: Thời kỳ có sự kiện hoặc địa danh liên kết sẽ được hiển thị để xử lý.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -664,6 +736,140 @@ export default function PeriodsAdmin() {
             </Button>
             <Button variant="destructive" onClick={confirmDelete} disabled={deleteMutation.isPending}>
               {deleteMutation.isPending ? 'Đang xóa...' : 'Xóa'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Modal xử lý các mục liên kết */}
+      <Dialog open={isReassignModalOpen} onOpenChange={setIsReassignModalOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Xử lý nội dung liên kết</DialogTitle>
+            <DialogDescription>
+              {relatedItemsData && (
+                <span>
+                  Thời kỳ <span className="font-medium">{relatedItemsData.periodName}</span> có các mục liên kết.
+                  Vui lòng chọn cách xử lý trước khi xóa.
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {relatedItemsData && (
+            <div className="grid gap-4 py-4">
+              {/* Tab để hiển thị sự kiện và di tích */}
+              <Tabs defaultValue="events" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="events" className="flex items-center">
+                    <span className="ml-2">Sự kiện ({relatedItemsData.events.length})</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="sites" className="flex items-center">
+                    <span className="ml-2">Di tích ({relatedItemsData.sites.length})</span>
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="events" className="mt-4">
+                  {relatedItemsData.events.length > 0 ? (
+                    <div className="max-h-[300px] overflow-y-auto border rounded-md">
+                      <div className="p-3 bg-muted">
+                        <h4 className="font-medium">Danh sách sự kiện</h4>
+                      </div>
+                      <div className="divide-y">
+                        {relatedItemsData.events.map((event) => (
+                          <div key={event.id} className="p-3 hover:bg-muted/50">
+                            <div className="font-medium">{event.title}</div>
+                            <div className="text-sm text-muted-foreground mt-1">{event.year}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-muted-foreground">
+                      Không có sự kiện nào liên kết với thời kỳ này
+                    </div>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="sites" className="mt-4">
+                  {relatedItemsData.sites.length > 0 ? (
+                    <div className="max-h-[300px] overflow-y-auto border rounded-md">
+                      <div className="p-3 bg-muted">
+                        <h4 className="font-medium">Danh sách di tích</h4>
+                      </div>
+                      <div className="divide-y">
+                        {relatedItemsData.sites.map((site) => (
+                          <div key={site.id} className="p-3 hover:bg-muted/50">
+                            <div className="font-medium">{site.name}</div>
+                            <div className="text-sm text-muted-foreground mt-1">{site.location}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-muted-foreground">
+                      Không có di tích nào liên kết với thời kỳ này
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+              
+              {/* Phần chọn thời kỳ đích */}
+              {relatedItemsData.availablePeriods.length > 0 && (
+                <div>
+                  <Label htmlFor="targetPeriod" className="block mb-2">
+                    Chọn thời kỳ để chuyển nội dung đến:
+                  </Label>
+                  <Select value={targetPeriodId?.toString() || ''} onValueChange={(value) => setTargetPeriodId(parseInt(value))}>
+                    <SelectTrigger id="targetPeriod">
+                      <SelectValue placeholder="Chọn thời kỳ đích" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {relatedItemsData.availablePeriods.map((period) => (
+                        <SelectItem key={period.id} value={period.id.toString()}>
+                          {period.name} ({period.timeframe})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
+              <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mt-2">
+                <div className="flex items-start">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 mr-2 mt-0.5" />
+                  <div>
+                    <p className="text-amber-800 font-medium">Lựa chọn của bạn:</p>
+                    <p className="mt-1 text-amber-700 text-sm">
+                      1. <strong>Chuyển nội dung:</strong> Chọn thời kỳ đích và nhấn "Chuyển nội dung" để di chuyển các mục đến thời kỳ khác.
+                    </p>
+                    <p className="mt-1 text-amber-700 text-sm">
+                      2. <strong>Xóa hết:</strong> Xóa tất cả các sự kiện và di tích liên kết, rồi xóa thời kỳ. Lưu ý: Hành động này không thể hoàn tác!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsReassignModalOpen(false)}>
+              Hủy
+            </Button>
+            <Button 
+              variant="default" 
+              onClick={() => handleReassignOrDelete('reassign')} 
+              disabled={reassignLoading || !targetPeriodId}
+              className="mr-2"
+            >
+              {reassignLoading ? 'Đang xử lý...' : 'Chuyển nội dung'}
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => handleReassignOrDelete('delete')} 
+              disabled={reassignLoading}
+            >
+              {reassignLoading ? 'Đang xử lý...' : 'Xóa hết'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -592,6 +592,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // API để gán lại các sự kiện và di tích từ thời kỳ này sang thời kỳ khác
+  app.post(`${apiPrefix}/admin/periods/:id/reassign`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const sourceId = parseInt(req.params.id);
+      const { targetPeriodId } = req.body;
+      
+      if (!targetPeriodId) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Thiếu ID thời kỳ đích' 
+        });
+      }
+      
+      // Kiểm tra thời kỳ nguồn có tồn tại không
+      const sourcePeriod = await db.query.periods.findFirst({
+        where: eq(periods.id, sourceId)
+      });
+      
+      if (!sourcePeriod) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy thời kỳ nguồn' 
+        });
+      }
+      
+      // Kiểm tra thời kỳ đích có tồn tại không
+      const targetPeriod = await db.query.periods.findFirst({
+        where: eq(periods.id, targetPeriodId)
+      });
+      
+      if (!targetPeriod) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy thời kỳ đích' 
+        });
+      }
+      
+      // Cập nhật các sự kiện
+      await db.update(events)
+         .set({ periodId: targetPeriodId })
+         .where(eq(events.periodId, sourceId));
+      
+      // Cập nhật các di tích
+      await db.update(historicalSites)
+         .set({ periodId: targetPeriodId })
+         .where(eq(historicalSites.periodId, sourceId));
+      
+      res.json({
+        success: true,
+        message: `Đã chuyển tất cả sự kiện và di tích từ "${sourcePeriod.name}" sang "${targetPeriod.name}"`
+      });
+    } catch (error) {
+      console.error('Error reassigning items:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi gán lại các mục liên kết' 
+      });
+    }
+  });
+  
+  // API để xóa tất cả các sự kiện và di tích liên kết với một thời kỳ
+  app.post(`${apiPrefix}/admin/periods/:id/delete-content`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const periodId = parseInt(req.params.id);
+      
+      // Kiểm tra thời kỳ có tồn tại không
+      const period = await db.query.periods.findFirst({
+        where: eq(periods.id, periodId)
+      });
+      
+      if (!period) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Không tìm thấy thời kỳ' 
+        });
+      }
+      
+      // Xóa các sự kiện
+      const eventsResult = await db.delete(events)
+         .where(eq(events.periodId, periodId));
+      
+      // Xóa các di tích
+      const sitesResult = await db.delete(historicalSites)
+         .where(eq(historicalSites.periodId, periodId));
+      
+      res.json({
+        success: true,
+        message: `Đã xóa tất cả sự kiện và di tích liên kết với thời kỳ "${period.name}"`
+      });
+    } catch (error) {
+      console.error('Error deleting related items:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi xóa các mục liên kết' 
+      });
+    }
+  });
+
   // API Reorder Periods - tạo mới hoàn toàn, tiếp cận đơn giản hơn
   app.post(`${apiPrefix}/periods/sort`, requireAuth, requireAdmin, async (req, res) => {
     try {
