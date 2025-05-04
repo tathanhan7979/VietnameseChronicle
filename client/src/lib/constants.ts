@@ -43,11 +43,6 @@ export const PERIOD_ICONS = {
   [HISTORY_PERIODS.MODERN]: 'brightness_7',
 };
 
-// Language options
-export const LANGUAGES = {
-  VIETNAMESE: 'vi',
-  ENGLISH: 'en',
-};
 
 // Image placeholder - used when no image is available
 export const DEFAULT_IMAGE = 'https://via.placeholder.com/400x250?text=Lịch+Sử+Việt+Nam';
