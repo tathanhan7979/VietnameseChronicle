@@ -650,17 +650,21 @@ export default function HistoricalSitesAdmin() {
               <div className="mb-4">
                 <Label htmlFor="period">Thời kỳ</Label>
                 <Select 
-                  value={periodId?.toString()} 
+                  value={periodId?.toString() || "none"} 
                   onValueChange={(value) => {
-                    const id = parseInt(value);
-                    setPeriodId(id);
+                    if (value === "none") {
+                      setPeriodId(undefined);
+                    } else {
+                      const id = parseInt(value);
+                      setPeriodId(id);
+                    }
                   }}
                 >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Chọn thời kỳ" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Không phân loại</SelectItem>
+                    <SelectItem value="none">Không phân loại</SelectItem>
                     {periods.sort((a, b) => a.sortOrder - b.sortOrder).map((period) => (
                       <SelectItem key={period.id} value={period.id.toString()}>
                         {period.name}
