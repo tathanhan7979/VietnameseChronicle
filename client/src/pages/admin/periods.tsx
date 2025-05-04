@@ -453,7 +453,7 @@ export default function PeriodsAdmin() {
             </div>
             
             <a 
-              href={`/periods/${period.slug}`} 
+              href={`/thoi-ky/${period.slug}`} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"

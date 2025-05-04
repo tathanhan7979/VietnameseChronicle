@@ -1,16 +1,26 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'wouter';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import AdminLayout from '@/components/admin/AdminLayout';
-import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
-import { LayoutList, Edit, MoreHorizontal, Plus, Trash, GripVertical, Image, X, ExternalLink } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ToastError } from '@/components/ui/toast-error';
-import { z } from 'zod';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useState, useEffect } from "react";
+import { Link } from "wouter";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import AdminLayout from "@/components/admin/AdminLayout";
+import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
+import {
+  LayoutList,
+  Edit,
+  MoreHorizontal,
+  Plus,
+  Trash,
+  GripVertical,
+  Image,
+  X,
+  ExternalLink,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ToastError } from "@/components/ui/toast-error";
+import { z } from "zod";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -18,14 +28,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -33,45 +43,48 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
+} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  DndContext, 
-  MouseSensor, 
-  TouchSensor, 
-  KeyboardSensor, 
-  useSensor, 
-  useSensors, 
+  DndContext,
+  MouseSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
   DragEndEvent,
-} from '@dnd-kit/core';
-import { 
-  SortableContext, 
-  arrayMove, 
-  sortableKeyboardCoordinates, 
-  useSortable, 
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+} from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 // Định nghĩa schema cho form sự kiện
 const eventFormSchema = z.object({
-  title: z.string().min(1, 'Vui lòng nhập tiêu đề sự kiện'),
-  year: z.string().min(1, 'Vui lòng nhập năm/thời gian'),
-  description: z.string().min(1, 'Vui lòng nhập mô tả ngắn'),
+  title: z.string().min(1, "Vui lòng nhập tiêu đề sự kiện"),
+  year: z.string().min(1, "Vui lòng nhập năm/thời gian"),
+  description: z.string().min(1, "Vui lòng nhập mô tả ngắn"),
   detailedDescription: z.string().optional(),
-  periodId: z.string().or(z.number()).refine(val => !!val, 'Vui lòng chọn thời kỳ'),
+  periodId: z
+    .string()
+    .or(z.number())
+    .refine((val) => !!val, "Vui lòng chọn thời kỳ"),
   eventTypes: z.array(z.string().or(z.number())).optional(),
   imageUrl: z.string().optional(),
 });
@@ -116,38 +129,54 @@ export default function EventsAdmin() {
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [deletingEventId, setDeletingEventId] = useState<number | null>(null);
   const [eventsState, setEventsState] = useState<Event[]>([]);
-  const [imageUploadMode, setImageUploadMode] = useState<'url' | 'upload'>('url');
+  const [imageUploadMode, setImageUploadMode] = useState<"url" | "upload">(
+    "url",
+  );
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageUrlValue, setImageUrlValue] = useState<string>('');
-  const [selectedPeriodTab, setSelectedPeriodTab] = useState<string | null>(null);
+  const [imageUrlValue, setImageUrlValue] = useState<string>("");
+  const [selectedPeriodTab, setSelectedPeriodTab] = useState<string | null>(
+    null,
+  );
   const [isDragging, setIsDragging] = useState(false);
-  const [error, setError] = useState<{title: string; message: string; status?: number} | null>(null);
+  const [error, setError] = useState<{
+    title: string;
+    message: string;
+    status?: number;
+  } | null>(null);
 
   // Lấy danh sách các sự kiện
-  const { data: events, isLoading: isEventsLoading, refetch: refetchEvents } = useQuery<Event[]>({
-    queryKey: ['/api/admin/events'],
-    queryFn: getQueryFn({ on401: 'throw' }),
+  const {
+    data: events,
+    isLoading: isEventsLoading,
+    refetch: refetchEvents,
+  } = useQuery<Event[]>({
+    queryKey: ["/api/admin/events"],
+    queryFn: getQueryFn({ on401: "throw" }),
   });
-  
+
   // Lấy danh sách các thời kỳ
   const { data: periods, isLoading: isPeriodsLoading } = useQuery<Period[]>({
-    queryKey: ['/api/admin/periods'],
-    queryFn: getQueryFn({ on401: 'throw' }),
+    queryKey: ["/api/admin/periods"],
+    queryFn: getQueryFn({ on401: "throw" }),
   });
-  
+
   // Lấy danh sách các loại sự kiện
-  const { data: eventTypes, isLoading: isEventTypesLoading } = useQuery<EventType[]>({
-    queryKey: ['/api/admin/event-types'],
-    queryFn: getQueryFn({ on401: 'throw' }),
+  const { data: eventTypes, isLoading: isEventTypesLoading } = useQuery<
+    EventType[]
+  >({
+    queryKey: ["/api/admin/event-types"],
+    queryFn: getQueryFn({ on401: "throw" }),
   });
-  
+
   // Cập nhật state eventsState khi events thay đổi
   useEffect(() => {
     if (events) {
-      const sortedEvents = [...events].sort((a, b) => a.sortOrder - b.sortOrder);
+      const sortedEvents = [...events].sort(
+        (a, b) => a.sortOrder - b.sortOrder,
+      );
       setEventsState(sortedEvents);
-      
+
       // Nếu chưa có tab nào được chọn và có dữ liệu thời kỳ, chọn tab đầu tiên
       if (!selectedPeriodTab && periods && periods.length > 0) {
         setSelectedPeriodTab(periods[0].id.toString());
@@ -159,13 +188,13 @@ export default function EventsAdmin() {
   const createForm = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
-      title: '',
-      year: '',
-      description: '',
-      detailedDescription: '',
-      periodId: '',
+      title: "",
+      year: "",
+      description: "",
+      detailedDescription: "",
+      periodId: "",
       eventTypes: [],
-      imageUrl: '',
+      imageUrl: "",
     },
   });
 
@@ -173,13 +202,13 @@ export default function EventsAdmin() {
   const editForm = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
-      title: '',
-      year: '',
-      description: '',
-      detailedDescription: '',
-      periodId: '',
+      title: "",
+      year: "",
+      description: "",
+      detailedDescription: "",
+      periodId: "",
       eventTypes: [],
-      imageUrl: '',
+      imageUrl: "",
     },
   });
 
@@ -187,20 +216,20 @@ export default function EventsAdmin() {
   useEffect(() => {
     if (!isCreateDialogOpen) {
       createForm.reset();
-      setImageUploadMode('url');
+      setImageUploadMode("url");
       setUploadedImage(null);
       setImagePreview(null);
-      setImageUrlValue('');
+      setImageUrlValue("");
     }
   }, [isCreateDialogOpen, createForm]);
 
   useEffect(() => {
     if (!isEditDialogOpen) {
       editForm.reset();
-      setImageUploadMode('url');
+      setImageUploadMode("url");
       setUploadedImage(null);
       setImagePreview(null);
-      setImageUrlValue('');
+      setImageUrlValue("");
     }
   }, [isEditDialogOpen, editForm]);
 
@@ -209,36 +238,36 @@ export default function EventsAdmin() {
     mutationFn: async (data: EventFormValues) => {
       // Xử lý hình ảnh dựa trên phương thức tải lên
       let finalData = { ...data };
-      
+
       // Nếu đã tải lên hình ảnh thông qua API, sử dụng URL đã lưu
-      if (imageUploadMode === 'upload' && imageUrlValue) {
+      if (imageUploadMode === "upload" && imageUrlValue) {
         finalData.imageUrl = imageUrlValue;
       }
-      
-      const res = await apiRequest('POST', '/api/admin/events', finalData);
+
+      const res = await apiRequest("POST", "/api/admin/events", finalData);
       const result = await res.json();
       if (!result.success) {
-        throw new Error(result.message || 'Lỗi khi tạo sự kiện');
+        throw new Error(result.message || "Lỗi khi tạo sự kiện");
       }
       return result;
     },
     onSuccess: () => {
       toast({
-        title: 'Thành công',
-        description: 'Thêm sự kiện mới thành công',
+        title: "Thành công",
+        description: "Thêm sự kiện mới thành công",
       });
       setIsCreateDialogOpen(false);
       createForm.reset();
-      setImageUploadMode('url');
+      setImageUploadMode("url");
       setUploadedImage(null);
       setImagePreview(null);
       refetchEvents();
     },
     onError: (error: Error) => {
       toast({
-        title: 'Lỗi',
+        title: "Lỗi",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
@@ -248,37 +277,37 @@ export default function EventsAdmin() {
     mutationFn: async ({ id, data }: { id: number; data: EventFormValues }) => {
       // Xử lý hình ảnh dựa trên phương thức tải lên
       let finalData = { ...data };
-      
+
       // Nếu đã tải lên hình ảnh thông qua API, sử dụng URL đã lưu
-      if (imageUploadMode === 'upload' && imageUrlValue) {
+      if (imageUploadMode === "upload" && imageUrlValue) {
         finalData.imageUrl = imageUrlValue;
       }
-      
-      const res = await apiRequest('PUT', `/api/admin/events/${id}`, finalData);
+
+      const res = await apiRequest("PUT", `/api/admin/events/${id}`, finalData);
       const result = await res.json();
       if (!result.success) {
-        throw new Error(result.message || 'Lỗi khi cập nhật sự kiện');
+        throw new Error(result.message || "Lỗi khi cập nhật sự kiện");
       }
       return result;
     },
     onSuccess: () => {
       toast({
-        title: 'Thành công',
-        description: 'Cập nhật sự kiện thành công',
+        title: "Thành công",
+        description: "Cập nhật sự kiện thành công",
       });
       setIsEditDialogOpen(false);
       setEditingEvent(null);
       editForm.reset();
-      setImageUploadMode('url');
+      setImageUploadMode("url");
       setUploadedImage(null);
       setImagePreview(null);
       refetchEvents();
     },
     onError: (error: Error) => {
       toast({
-        title: 'Lỗi',
+        title: "Lỗi",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
@@ -286,17 +315,17 @@ export default function EventsAdmin() {
   // Xóa sự kiện
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await apiRequest('DELETE', `/api/admin/events/${id}`);
+      const res = await apiRequest("DELETE", `/api/admin/events/${id}`);
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || 'Lỗi khi xóa sự kiện');
+        throw new Error(error.message || "Lỗi khi xóa sự kiện");
       }
       return res.json();
     },
     onSuccess: () => {
       toast({
-        title: 'Thành công',
-        description: 'Xóa sự kiện thành công',
+        title: "Thành công",
+        description: "Xóa sự kiện thành công",
       });
       setIsConfirmDeleteOpen(false);
       setDeletingEventId(null);
@@ -304,9 +333,9 @@ export default function EventsAdmin() {
     },
     onError: (error: Error) => {
       toast({
-        title: 'Lỗi',
+        title: "Lỗi",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
       setIsConfirmDeleteOpen(false);
     },
@@ -317,27 +346,31 @@ export default function EventsAdmin() {
     mutationFn: async (idsArray: number[]) => {
       try {
         setError(null);
-        
+
         if (!Array.isArray(idsArray) || idsArray.length === 0) {
-          throw new Error('Danh sách ID không hợp lệ');
+          throw new Error("Danh sách ID không hợp lệ");
         }
-        
-        const numericIds = idsArray.map(id => typeof id === 'string' ? parseInt(id, 10) : id);
-        
-        const res = await apiRequest('POST', '/api/admin/events/reorder', { orderedIds: numericIds });
-        
+
+        const numericIds = idsArray.map((id) =>
+          typeof id === "string" ? parseInt(id, 10) : id,
+        );
+
+        const res = await apiRequest("POST", "/api/admin/events/reorder", {
+          orderedIds: numericIds,
+        });
+
         if (!res.ok) {
           const errorData = await res.json();
-          throw new Error(errorData.message || 'Lỗi khi sắp xếp thứ tự');
+          throw new Error(errorData.message || "Lỗi khi sắp xếp thứ tự");
         }
-        
+
         return await res.json();
       } catch (error: any) {
-        console.error('Lỗi khi gọi API reorder:', error);
+        console.error("Lỗi khi gọi API reorder:", error);
         setError({
-          title: 'Không thể sắp xếp sự kiện',
-          message: error.message || 'Có lỗi xảy ra khi sắp xếp thứ tự',
-          status: error.status || 400
+          title: "Không thể sắp xếp sự kiện",
+          message: error.message || "Có lỗi xảy ra khi sắp xếp thứ tự",
+          status: error.status || 400,
         });
         throw error;
       }
@@ -345,13 +378,13 @@ export default function EventsAdmin() {
     onSuccess: () => {
       setError(null);
       toast({
-        title: 'Thành công',
-        description: 'Cập nhật thứ tự thành công',
+        title: "Thành công",
+        description: "Cập nhật thứ tự thành công",
       });
       refetchEvents();
     },
     onError: (error: Error) => {
-      console.error('Mutation error:', error);
+      console.error("Mutation error:", error);
     },
   });
 
@@ -366,22 +399,24 @@ export default function EventsAdmin() {
 
   const handleEditEvent = (event: Event) => {
     setEditingEvent(event);
-    
+
     // Đảm bảo event.eventTypes luôn là mảng xác định trước khi xử lý
-    const safeEventTypes = Array.isArray(event.eventTypes) ? event.eventTypes : [];
-    
+    const safeEventTypes = Array.isArray(event.eventTypes)
+      ? event.eventTypes
+      : [];
+
     editForm.reset({
       title: event.title,
       year: event.year,
       description: event.description,
-      detailedDescription: event.detailedDescription || '',
+      detailedDescription: event.detailedDescription || "",
       periodId: event.periodId.toString(),
       // Chuyển đổi mảng loại sự kiện thành mảng ID
-      eventTypes: safeEventTypes.map(et => et?.id?.toString() || ''),
-      imageUrl: event.imageUrl || '',
+      eventTypes: safeEventTypes.map((et) => et?.id?.toString() || ""),
+      imageUrl: event.imageUrl || "",
     });
-    
-    setImageUrlValue(event.imageUrl || '');
+
+    setImageUrlValue(event.imageUrl || "");
     if (event.imageUrl) {
       setImagePreview(event.imageUrl);
     }
@@ -398,15 +433,14 @@ export default function EventsAdmin() {
     deleteMutation.mutate(deletingEventId);
   };
 
-
   // Xử lý thay đổi chế độ tải lên hình ảnh
-  const handleImageModeChange = (mode: 'url' | 'upload') => {
+  const handleImageModeChange = (mode: "url" | "upload") => {
     setImageUploadMode(mode);
-    if (mode === 'url') {
+    if (mode === "url") {
       setUploadedImage(null);
       // Khôi phục giá trị URL từ form
       const currentForm = isEditDialogOpen ? editForm : createForm;
-      const currentUrl = currentForm.getValues('imageUrl') || '';
+      const currentUrl = currentForm.getValues("imageUrl") || "";
       setImagePreview(currentUrl);
       setImageUrlValue(currentUrl);
     } else {
@@ -416,49 +450,51 @@ export default function EventsAdmin() {
   };
 
   // Xử lý khi người dùng chọn tệp hình ảnh
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
       setUploadedImage(file);
-      
+
       // Tạo URL tạm thời để hiển thị xem trước
       const objectUrl = URL.createObjectURL(file);
       setImagePreview(objectUrl);
-      
+
       try {
         // Tải lên hình ảnh thông qua API mới
         const formData = new FormData();
-        formData.append('file', file);
-        
-        const response = await fetch('/api/upload/events', {
-          method: 'POST',
+        formData.append("file", file);
+
+        const response = await fetch("/api/upload/events", {
+          method: "POST",
           body: formData,
-          credentials: 'include',
+          credentials: "include",
         });
-        
+
         if (!response.ok) {
           throw new Error(`Lỗi khi tải lên hình ảnh: ${response.statusText}`);
         }
-        
+
         const data = await response.json();
         if (data.success) {
-          // Lưu URL của tập tin đã tải lên 
+          // Lưu URL của tập tin đã tải lên
           const uploadedUrl = data.url;
           setImageUrlValue(uploadedUrl);
-          
+
           // Cập nhật giá trị imageUrl trong form
           const currentForm = isEditDialogOpen ? editForm : createForm;
-          currentForm.setValue('imageUrl', uploadedUrl);
-          
-          console.log('Tải lên hình ảnh thành công:', uploadedUrl);
+          currentForm.setValue("imageUrl", uploadedUrl);
+
+          console.log("Tải lên hình ảnh thành công:", uploadedUrl);
         }
       } catch (error) {
-        console.error('Lỗi khi tải lên hình ảnh:', error);
+        console.error("Lỗi khi tải lên hình ảnh:", error);
         toast({
-          title: 'Lỗi tải lên',
-          description: 'Không thể tải lên hình ảnh. Vui lòng thử lại.',
-          variant: 'destructive',
+          title: "Lỗi tải lên",
+          description: "Không thể tải lên hình ảnh. Vui lòng thử lại.",
+          variant: "destructive",
         });
       } finally {
         // Giải phóng URL đối tượng khi không cần nữa
@@ -471,21 +507,21 @@ export default function EventsAdmin() {
   const handleImageUrlChange = (url: string) => {
     setImageUrlValue(url);
     setImagePreview(url);
-    
+
     // Cập nhật giá trị imageUrl trong form
     const currentForm = isEditDialogOpen ? editForm : createForm;
-    currentForm.setValue('imageUrl', url);
+    currentForm.setValue("imageUrl", url);
   };
 
   // Xóa hình ảnh
   const handleRemoveImage = () => {
     setImagePreview(null);
     setUploadedImage(null);
-    setImageUrlValue('');
-    
+    setImageUrlValue("");
+
     // Cập nhật giá trị imageUrl trong form
     const currentForm = isEditDialogOpen ? editForm : createForm;
-    currentForm.setValue('imageUrl', '');
+    currentForm.setValue("imageUrl", "");
   };
 
   // Cấu hình các sensors cho DnD-Kit
@@ -503,40 +539,46 @@ export default function EventsAdmin() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   // Component con hiển thị một sự kiện có thể kéo thả
   const SortableEventItem = ({ event }: { event: Event }) => {
     const {
       attributes,
-      listeners, 
+      listeners,
       setNodeRef,
       transform,
       transition,
-      isDragging: isItemDragging
+      isDragging: isItemDragging,
     } = useSortable({ id: event.id.toString() });
 
     const itemStyle = {
-      transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+      transform: transform
+        ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+        : undefined,
       transition,
       zIndex: isItemDragging ? 50 : 1,
     };
 
     // Lấy thông tin thời kỳ của sự kiện
-    const periodInfo = periods?.find(p => p.id === event.periodId) || { name: 'Không xác định' };
+    const periodInfo = periods?.find((p) => p.id === event.periodId) || {
+      name: "Không xác định",
+    };
 
     return (
       <div ref={setNodeRef} style={itemStyle} className="mb-2">
-        <Card className={`overflow-hidden ${isItemDragging ? 'shadow-lg ring-2 ring-primary' : ''} w-full`}>
+        <Card
+          className={`overflow-hidden ${isItemDragging ? "shadow-lg ring-2 ring-primary" : ""} w-full`}
+        >
           <div className="flex flex-col sm:flex-row">
             {/* Thumbnail */}
             <div className="w-full sm:w-48 h-40 bg-gray-100 relative flex-shrink-0">
               {event.imageUrl ? (
-                <img 
-                  src={event.imageUrl} 
+                <img
+                  src={event.imageUrl}
                   alt={event.title}
-                  className="w-full h-full object-cover" 
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -544,12 +586,14 @@ export default function EventsAdmin() {
                 </div>
               )}
             </div>
-            
+
             {/* Content */}
             <div className="flex-1 p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-lg font-medium line-clamp-1">{event.title}</h3>
+                  <h3 className="text-lg font-medium line-clamp-1">
+                    {event.title}
+                  </h3>
                   <div className="text-sm text-gray-500 flex items-center mt-1 space-x-2">
                     <span key="year">{event.year}</span>
                     {periodInfo && (
@@ -559,19 +603,19 @@ export default function EventsAdmin() {
                       </>
                     )}
                   </div>
-                  
+
                   {/* Event Types */}
                   {event.eventTypes && event.eventTypes.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {event.eventTypes.map(type => (
-                        <span 
+                      {event.eventTypes.map((type) => (
+                        <span
                           key={type.id}
                           className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                          style={{ 
-                            backgroundColor: `${type.color || '#718096'}20`, 
-                            color: type.color || '#718096',
-                            borderColor: type.color || '#718096',
-                            borderWidth: '1px'
+                          style={{
+                            backgroundColor: `${type.color || "#718096"}20`,
+                            color: type.color || "#718096",
+                            borderColor: type.color || "#718096",
+                            borderWidth: "1px",
                           }}
                         >
                           {type.name}
@@ -580,21 +624,25 @@ export default function EventsAdmin() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex items-center space-x-1">
-                  <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1">
+                  <div
+                    {...attributes}
+                    {...listeners}
+                    className="cursor-grab active:cursor-grabbing p-1"
+                  >
                     <GripVertical className="h-5 w-5 text-gray-400" />
                   </div>
-                  
-                  <a 
-                    href={`/events/${event.id}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+
+                  <a
+                    href={`/su-kien/${event.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground"
                   >
                     <ExternalLink className="h-4 w-4" />
                   </a>
-                  
+
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
@@ -604,9 +652,9 @@ export default function EventsAdmin() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
-                        <a 
-                          href={`/events/${event.id}`} 
-                          target="_blank" 
+                        <a
+                          href={`/events/${event.id}`}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center cursor-pointer"
                         >
@@ -618,7 +666,7 @@ export default function EventsAdmin() {
                         <Edit className="mr-2 h-4 w-4" />
                         Chỉnh sửa
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => handleDeleteEvent(event.id)}
                         className="text-red-600"
                       >
@@ -629,7 +677,7 @@ export default function EventsAdmin() {
                   </DropdownMenu>
                 </div>
               </div>
-              
+
               <p className="text-sm text-gray-600 mt-2 line-clamp-2">
                 {event.description}
               </p>
@@ -643,34 +691,38 @@ export default function EventsAdmin() {
   // Xử lý sự kiện kéo thả hoàn tất với DnD-Kit
   const handleDragEnd = (event: DragEndEvent) => {
     setIsDragging(false);
-    
+
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    
+
     setEventsState((items) => {
-      const oldIndex = items.findIndex(item => item.id.toString() === active.id);
-      const newIndex = items.findIndex(item => item.id.toString() === over.id);
-      
+      const oldIndex = items.findIndex(
+        (item) => item.id.toString() === active.id,
+      );
+      const newIndex = items.findIndex(
+        (item) => item.id.toString() === over.id,
+      );
+
       const updatedEvents = arrayMove(items, oldIndex, newIndex);
-      
+
       try {
         // Gửi yêu cầu cập nhật thứ tự lên server
-        const eventIds = updatedEvents.map(event => event.id);
-        
+        const eventIds = updatedEvents.map((event) => event.id);
+
         // Gọi API cập nhật thứ tự
         reorderMutation.mutate(eventIds);
       } catch (err) {
-        console.error('Lỗi khi chuẩn bị dữ liệu reorder:', err);
+        console.error("Lỗi khi chuẩn bị dữ liệu reorder:", err);
         setError({
-          title: 'Lỗi kéo thả',
-          message: 'Có lỗi xảy ra khi chuẩn bị dữ liệu. Vui lòng thử lại.',
+          title: "Lỗi kéo thả",
+          message: "Có lỗi xảy ra khi chuẩn bị dữ liệu. Vui lòng thử lại.",
         });
       }
-      
+
       return updatedEvents;
     });
   };
-  
+
   // Bắt đầu kéo thả
   const handleDragStart = () => {
     setIsDragging(true);
@@ -678,30 +730,41 @@ export default function EventsAdmin() {
 
   // Lọc sự kiện theo thời kỳ đã chọn
   const filteredEvents = selectedPeriodTab
-    ? eventsState.filter(event => event.periodId.toString() === selectedPeriodTab)
+    ? eventsState.filter(
+        (event) => event.periodId.toString() === selectedPeriodTab,
+      )
     : eventsState;
 
   // Thời kỳ được chọn hiện tại
-  const selectedPeriod = periods?.find(p => p.id.toString() === selectedPeriodTab);
+  const selectedPeriod = periods?.find(
+    (p) => p.id.toString() === selectedPeriodTab,
+  );
 
   // React Quill modules
   const quillModules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      [{ 'align': [] }],
-      ['link', 'image'],
-      ['clean']
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["link", "image"],
+      ["clean"],
     ],
   };
 
   const quillFormats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent',
-    'link', 'image', 'align'
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "image",
+    "align",
   ];
 
   // Loading chung
@@ -718,7 +781,7 @@ export default function EventsAdmin() {
           onClose={() => setError(null)}
         />
       )}
-      
+
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -738,18 +801,38 @@ export default function EventsAdmin() {
         </div>
       ) : (
         <>
-          {(!periods || periods.length === 0) ? (
+          {!periods || periods.length === 0 ? (
             <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
               <div className="flex">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5 text-yellow-400"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-yellow-800">Chưa có thời kỳ lịch sử</h3>
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Chưa có thời kỳ lịch sử
+                  </h3>
                   <div className="mt-2 text-sm text-yellow-700">
-                    <p>Bạn cần tạo ít nhất một thời kỳ lịch sử trước khi thêm sự kiện. <Link href="/admin/periods" className="font-medium underline">Tạo thời kỳ</Link></p>
+                    <p>
+                      Bạn cần tạo ít nhất một thời kỳ lịch sử trước khi thêm sự
+                      kiện.{" "}
+                      <Link
+                        href="/admin/periods"
+                        className="font-medium underline"
+                      >
+                        Tạo thời kỳ
+                      </Link>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -758,22 +841,26 @@ export default function EventsAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {/* Danh sách thời kỳ theo cột dọc */}
               <div className="md:col-span-1 bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h3 className="font-medium text-gray-800 mb-3">Danh sách thời kỳ</h3>
+                <h3 className="font-medium text-gray-800 mb-3">
+                  Danh sách thời kỳ
+                </h3>
                 <div className="space-y-2">
-                  {periods.map(period => (
-                    <div 
+                  {periods.map((period) => (
+                    <div
                       key={period.id}
                       onClick={() => setSelectedPeriodTab(period.id.toString())}
-                      className={`p-2 rounded cursor-pointer transition-colors ${selectedPeriodTab === period.id.toString() 
-                        ? 'bg-blue-100 text-blue-800 font-medium' 
-                        : 'hover:bg-gray-100'}`}
+                      className={`p-2 rounded cursor-pointer transition-colors ${
+                        selectedPeriodTab === period.id.toString()
+                          ? "bg-blue-100 text-blue-800 font-medium"
+                          : "hover:bg-gray-100"
+                      }`}
                     >
                       {period.name}
                     </div>
                   ))}
                 </div>
               </div>
-              
+
               {/* Nội dung sự kiện */}
               <div className="md:col-span-3">
                 {selectedPeriodTab && selectedPeriod ? (
@@ -781,13 +868,17 @@ export default function EventsAdmin() {
                     <div className="bg-blue-50 p-3 mb-4 rounded-lg border border-blue-200">
                       <div className="flex items-center gap-2">
                         <GripVertical className="h-5 w-5 text-blue-500" />
-                        <span className="font-medium text-blue-800">Hướng dẫn:</span>
+                        <span className="font-medium text-blue-800">
+                          Hướng dẫn:
+                        </span>
                       </div>
                       <p className="text-gray-700 mt-1">
-                        Kéo và thả các thẻ để thay đổi thứ tự hiển thị sự kiện trong thời kỳ {selectedPeriod.name}. Thay đổi sẽ được áp dụng trên trang chi tiết thời kỳ và timeline.
+                        Kéo và thả các thẻ để thay đổi thứ tự hiển thị sự kiện
+                        trong thời kỳ {selectedPeriod.name}. Thay đổi sẽ được áp
+                        dụng trên trang chi tiết thời kỳ và timeline.
                       </p>
                     </div>
-                    
+
                     {filteredEvents.length === 0 ? (
                       <div className="text-center py-12 bg-gray-50 rounded-lg">
                         <LayoutList className="h-12 w-12 mx-auto text-gray-400 mb-3" />
@@ -795,21 +886,24 @@ export default function EventsAdmin() {
                           Chưa có sự kiện nào trong thời kỳ này
                         </h3>
                         <p className="text-gray-500 mb-4">
-                          Bắt đầu bằng cách thêm sự kiện đầu tiên cho thời kỳ {selectedPeriod.name}.
+                          Bắt đầu bằng cách thêm sự kiện đầu tiên cho thời kỳ{" "}
+                          {selectedPeriod.name}.
                         </p>
                         <Button onClick={() => setIsCreateDialogOpen(true)}>
                           <Plus className="mr-2 h-4 w-4" /> Thêm sự kiện mới
                         </Button>
                       </div>
                     ) : (
-                      <DndContext 
+                      <DndContext
                         sensors={sensors}
                         onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
                         modifiers={[restrictToVerticalAxis]}
                       >
-                        <SortableContext 
-                          items={filteredEvents.map(event => event.id.toString())}
+                        <SortableContext
+                          items={filteredEvents.map((event) =>
+                            event.id.toString(),
+                          )}
                           strategy={verticalListSortingStrategy}
                         >
                           <div className="flex flex-col w-full">
@@ -844,7 +938,10 @@ export default function EventsAdmin() {
             </DialogDescription>
           </DialogHeader>
           <Form {...createForm}>
-            <form onSubmit={createForm.handleSubmit(onCreateSubmit)} className="space-y-4">
+            <form
+              onSubmit={createForm.handleSubmit(onCreateSubmit)}
+              className="space-y-4"
+            >
               <FormField
                 control={createForm.control}
                 name="title"
@@ -865,7 +962,10 @@ export default function EventsAdmin() {
                   <FormItem>
                     <FormLabel>Năm/Thời gian</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ví dụ: 1258, 1010-1020, Thế kỷ 15" {...field} />
+                      <Input
+                        placeholder="Ví dụ: 1258, 1010-1020, Thế kỷ 15"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -877,8 +977,8 @@ export default function EventsAdmin() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Thời kỳ</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value.toString()}
                     >
                       <FormControl>
@@ -887,8 +987,11 @@ export default function EventsAdmin() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {periods?.map(period => (
-                          <SelectItem key={period.id} value={period.id.toString()}>
+                        {periods?.map((period) => (
+                          <SelectItem
+                            key={period.id}
+                            value={period.id.toString()}
+                          >
                             {period.name}
                           </SelectItem>
                         ))}
@@ -902,7 +1005,9 @@ export default function EventsAdmin() {
                 <Label>Loại sự kiện</Label>
                 <div className="mt-2 border rounded-md p-3">
                   {eventTypes?.length === 0 ? (
-                    <p className="text-sm text-gray-500">Chưa có loại sự kiện nào. Vui lòng tạo loại sự kiện trước.</p>
+                    <p className="text-sm text-gray-500">
+                      Chưa có loại sự kiện nào. Vui lòng tạo loại sự kiện trước.
+                    </p>
                   ) : (
                     <div className="grid grid-cols-2 gap-2">
                       <FormField
@@ -917,23 +1022,35 @@ export default function EventsAdmin() {
                               >
                                 <FormControl>
                                   <Checkbox
-                                    checked={createForm.watch('eventTypes')?.includes(type.id.toString())}
+                                    checked={createForm
+                                      .watch("eventTypes")
+                                      ?.includes(type.id.toString())}
                                     onCheckedChange={(checked) => {
-                                      const current = createForm.getValues('eventTypes') || [];
+                                      const current =
+                                        createForm.getValues("eventTypes") ||
+                                        [];
                                       const updated = checked
                                         ? [...current, type.id.toString()]
-                                        : current.filter(id => id !== type.id.toString());
-                                      createForm.setValue('eventTypes', updated, { 
-                                        shouldValidate: true,
-                                        shouldDirty: true,
-                                      });
+                                        : current.filter(
+                                            (id) => id !== type.id.toString(),
+                                          );
+                                      createForm.setValue(
+                                        "eventTypes",
+                                        updated,
+                                        {
+                                          shouldValidate: true,
+                                          shouldDirty: true,
+                                        },
+                                      );
                                     }}
                                   />
                                 </FormControl>
                                 <div className="flex items-center gap-2">
-                                  <div 
-                                    className="w-3 h-3 rounded-full" 
-                                    style={{ backgroundColor: type.color || '#3B82F6' }}
+                                  <div
+                                    className="w-3 h-3 rounded-full"
+                                    style={{
+                                      backgroundColor: type.color || "#3B82F6",
+                                    }}
                                   ></div>
                                   <FormLabel className="font-normal text-sm cursor-pointer">
                                     {type.name}
@@ -955,10 +1072,10 @@ export default function EventsAdmin() {
                   <FormItem>
                     <FormLabel>Mô tả ngắn</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Nhập mô tả ngắn về sự kiện" 
-                        className="resize-none" 
-                        {...field} 
+                      <Textarea
+                        placeholder="Nhập mô tả ngắn về sự kiện"
+                        className="resize-none"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -999,55 +1116,62 @@ export default function EventsAdmin() {
                     <FormLabel>Hình ảnh</FormLabel>
                     <div className="space-y-3">
                       <div className="flex space-x-2">
-                        <Button 
-                          type="button" 
-                          variant={imageUploadMode === 'url' ? 'default' : 'outline'}
+                        <Button
+                          type="button"
+                          variant={
+                            imageUploadMode === "url" ? "default" : "outline"
+                          }
                           size="sm"
-                          onClick={() => handleImageModeChange('url')}
+                          onClick={() => handleImageModeChange("url")}
                         >
                           URL
                         </Button>
-                        <Button 
-                          type="button" 
-                          variant={imageUploadMode === 'upload' ? 'default' : 'outline'}
+                        <Button
+                          type="button"
+                          variant={
+                            imageUploadMode === "upload" ? "default" : "outline"
+                          }
                           size="sm"
-                          onClick={() => handleImageModeChange('upload')}
+                          onClick={() => handleImageModeChange("upload")}
                         >
                           Tải lên
                         </Button>
                       </div>
-                      
-                      {imageUploadMode === 'url' ? (
+
+                      {imageUploadMode === "url" ? (
                         <div className="flex">
                           <FormControl>
-                            <Input 
-                              placeholder="Nhập URL hình ảnh" 
+                            <Input
+                              placeholder="Nhập URL hình ảnh"
                               value={imageUrlValue}
-                              onChange={(e) => handleImageUrlChange(e.target.value)}
+                              onChange={(e) =>
+                                handleImageUrlChange(e.target.value)
+                              }
                             />
                           </FormControl>
                         </div>
                       ) : (
                         <div className="flex flex-col space-y-2">
-                          <Input 
-                            type="file" 
-                            accept="image/*" 
+                          <Input
+                            type="file"
+                            accept="image/*"
                             onChange={handleImageUpload}
                           />
                           <p className="text-xs text-gray-500">
-                            Định dạng hỗ trợ: JPEG, PNG, WebP. Kích thước tối đa: 5MB.
+                            Định dạng hỗ trợ: JPEG, PNG, WebP. Kích thước tối
+                            đa: 5MB.
                           </p>
                         </div>
                       )}
-                      
+
                       {imagePreview && (
                         <div className="relative w-full h-48 bg-gray-100 rounded-md overflow-hidden">
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
-                            className="w-full h-full object-contain" 
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="w-full h-full object-contain"
                           />
-                          <Button 
+                          <Button
                             type="button"
                             variant="destructive"
                             size="icon"
@@ -1064,11 +1188,15 @@ export default function EventsAdmin() {
                 )}
               />
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
                   Hủy
                 </Button>
                 <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? 'Đang xử lý...' : 'Thêm sự kiện'}
+                  {createMutation.isPending ? "Đang xử lý..." : "Thêm sự kiện"}
                 </Button>
               </DialogFooter>
             </form>
@@ -1086,7 +1214,10 @@ export default function EventsAdmin() {
             </DialogDescription>
           </DialogHeader>
           <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
+            <form
+              onSubmit={editForm.handleSubmit(onEditSubmit)}
+              className="space-y-4"
+            >
               <FormField
                 control={editForm.control}
                 name="title"
@@ -1107,7 +1238,10 @@ export default function EventsAdmin() {
                   <FormItem>
                     <FormLabel>Năm/Thời gian</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ví dụ: 1258, 1010-1020, Thế kỷ 15" {...field} />
+                      <Input
+                        placeholder="Ví dụ: 1258, 1010-1020, Thế kỷ 15"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1119,8 +1253,8 @@ export default function EventsAdmin() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Thời kỳ</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value.toString()}
                       value={field.value.toString()}
                     >
@@ -1130,8 +1264,11 @@ export default function EventsAdmin() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {periods?.map(period => (
-                          <SelectItem key={period.id} value={period.id.toString()}>
+                        {periods?.map((period) => (
+                          <SelectItem
+                            key={period.id}
+                            value={period.id.toString()}
+                          >
                             {period.name}
                           </SelectItem>
                         ))}
@@ -1145,7 +1282,9 @@ export default function EventsAdmin() {
                 <Label>Loại sự kiện</Label>
                 <div className="mt-2 border rounded-md p-3">
                   {eventTypes?.length === 0 ? (
-                    <p className="text-sm text-gray-500">Chưa có loại sự kiện nào. Vui lòng tạo loại sự kiện trước.</p>
+                    <p className="text-sm text-gray-500">
+                      Chưa có loại sự kiện nào. Vui lòng tạo loại sự kiện trước.
+                    </p>
                   ) : (
                     <div className="grid grid-cols-2 gap-2">
                       <FormField
@@ -1160,13 +1299,18 @@ export default function EventsAdmin() {
                               >
                                 <FormControl>
                                   <Checkbox
-                                    checked={(editForm.watch('eventTypes') || []).includes(type.id.toString())}
+                                    checked={(
+                                      editForm.watch("eventTypes") || []
+                                    ).includes(type.id.toString())}
                                     onCheckedChange={(checked) => {
-                                      const current = editForm.getValues('eventTypes') || [];
+                                      const current =
+                                        editForm.getValues("eventTypes") || [];
                                       const updated = checked
                                         ? [...current, type.id.toString()]
-                                        : current.filter(id => id !== type.id.toString());
-                                      editForm.setValue('eventTypes', updated, { 
+                                        : current.filter(
+                                            (id) => id !== type.id.toString(),
+                                          );
+                                      editForm.setValue("eventTypes", updated, {
                                         shouldValidate: true,
                                         shouldDirty: true,
                                       });
@@ -1174,9 +1318,11 @@ export default function EventsAdmin() {
                                   />
                                 </FormControl>
                                 <div className="flex items-center gap-2">
-                                  <div 
-                                    className="w-3 h-3 rounded-full" 
-                                    style={{ backgroundColor: type.color || '#3B82F6' }}
+                                  <div
+                                    className="w-3 h-3 rounded-full"
+                                    style={{
+                                      backgroundColor: type.color || "#3B82F6",
+                                    }}
                                   ></div>
                                   <FormLabel className="font-normal text-sm cursor-pointer">
                                     {type.name}
@@ -1198,10 +1344,10 @@ export default function EventsAdmin() {
                   <FormItem>
                     <FormLabel>Mô tả ngắn</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Nhập mô tả ngắn về sự kiện" 
-                        className="resize-none" 
-                        {...field} 
+                      <Textarea
+                        placeholder="Nhập mô tả ngắn về sự kiện"
+                        className="resize-none"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -1242,55 +1388,62 @@ export default function EventsAdmin() {
                     <FormLabel>Hình ảnh</FormLabel>
                     <div className="space-y-3">
                       <div className="flex space-x-2">
-                        <Button 
-                          type="button" 
-                          variant={imageUploadMode === 'url' ? 'default' : 'outline'}
+                        <Button
+                          type="button"
+                          variant={
+                            imageUploadMode === "url" ? "default" : "outline"
+                          }
                           size="sm"
-                          onClick={() => handleImageModeChange('url')}
+                          onClick={() => handleImageModeChange("url")}
                         >
                           URL
                         </Button>
-                        <Button 
-                          type="button" 
-                          variant={imageUploadMode === 'upload' ? 'default' : 'outline'}
+                        <Button
+                          type="button"
+                          variant={
+                            imageUploadMode === "upload" ? "default" : "outline"
+                          }
                           size="sm"
-                          onClick={() => handleImageModeChange('upload')}
+                          onClick={() => handleImageModeChange("upload")}
                         >
                           Tải lên
                         </Button>
                       </div>
-                      
-                      {imageUploadMode === 'url' ? (
+
+                      {imageUploadMode === "url" ? (
                         <div className="flex">
                           <FormControl>
-                            <Input 
-                              placeholder="Nhập URL hình ảnh" 
+                            <Input
+                              placeholder="Nhập URL hình ảnh"
                               value={imageUrlValue}
-                              onChange={(e) => handleImageUrlChange(e.target.value)}
+                              onChange={(e) =>
+                                handleImageUrlChange(e.target.value)
+                              }
                             />
                           </FormControl>
                         </div>
                       ) : (
                         <div className="flex flex-col space-y-2">
-                          <Input 
-                            type="file" 
-                            accept="image/*" 
+                          <Input
+                            type="file"
+                            accept="image/*"
                             onChange={handleImageUpload}
                           />
                           <p className="text-xs text-gray-500">
-                            Định dạng hỗ trợ: JPEG, PNG, WebP. Kích thước tối đa: 5MB.
+                            Định dạng hỗ trợ: JPEG, PNG, WebP. Kích thước tối
+                            đa: 5MB.
                           </p>
                         </div>
                       )}
-                      
+
                       {imagePreview && (
                         <div className="relative w-full h-48 bg-gray-100 rounded-md overflow-hidden">
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
-                            className="w-full h-full object-contain" 
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="w-full h-full object-contain"
                           />
-                          <Button 
+                          <Button
                             type="button"
                             variant="destructive"
                             size="icon"
@@ -1307,11 +1460,15 @@ export default function EventsAdmin() {
                 )}
               />
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(false)}
+                >
                   Hủy
                 </Button>
                 <Button type="submit" disabled={updateMutation.isPending}>
-                  {updateMutation.isPending ? 'Đang xử lý...' : 'Cập nhật'}
+                  {updateMutation.isPending ? "Đang xử lý..." : "Cập nhật"}
                 </Button>
               </DialogFooter>
             </form>
@@ -1325,19 +1482,23 @@ export default function EventsAdmin() {
           <DialogHeader>
             <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa sự kiện này không? Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa sự kiện này không? Hành động này không
+              thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsConfirmDeleteOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsConfirmDeleteOpen(false)}
+            >
               Hủy
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={confirmDelete}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? 'Đang xử lý...' : 'Xóa'}
+              {deleteMutation.isPending ? "Đang xử lý..." : "Xóa"}
             </Button>
           </DialogFooter>
         </DialogContent>
