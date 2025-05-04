@@ -291,7 +291,8 @@ export default function PeriodsAdmin() {
       const data = await res.json();
 
       // Kiểm tra nếu có lỗi vì có mục liên kết
-      if (!res.ok && (data.data?.events?.length > 0 || data.data?.figures?.length > 0 || data.data?.sites?.length > 0)) {
+      console.log('Response data:', data);
+      if (!res.ok && data.data) {
         // Đóng modal xác nhận xóa và mở modal quản lý mục liên kết
         setIsConfirmDeleteOpen(false);
         setRelatedItemsData(data.data);
