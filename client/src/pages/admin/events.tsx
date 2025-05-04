@@ -497,7 +497,7 @@ export default function EventsAdmin() {
     };
 
     // Lấy thông tin thời kỳ của sự kiện
-    const periodInfo = periods?.find(p => p.id === event.periodId);
+    const periodInfo = periods?.find(p => p.id === event.periodId) || { name: 'Không xác định' };
 
     return (
       <div ref={setNodeRef} style={itemStyle} className="mb-2">
@@ -541,9 +541,9 @@ export default function EventsAdmin() {
                           key={type.id}
                           className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
                           style={{ 
-                            backgroundColor: `${type.color}20`, 
-                            color: type.color,
-                            borderColor: type.color,
+                            backgroundColor: `${type.color || '#718096'}20`, 
+                            color: type.color || '#718096',
+                            borderColor: type.color || '#718096',
                             borderWidth: '1px'
                           }}
                         >
