@@ -1024,6 +1024,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
          .set({ periodId: targetPeriodId })
          .where(eq(events.periodId, sourceId));
       
+      // Cập nhật các nhân vật lịch sử
+      // Lấy thông tin thời kỳ đích để cập nhật cả periodText
+      await db.update(historicalFigures)
+         .set({ 
+           periodId: targetPeriodId,
+           periodText: targetPeriod.name // Cập nhật cả periodText để tương thích ngược
+         })
+         .where(eq(historicalFigures.periodId, sourceId));
+      
       // Cập nhật các di tích
       await db.update(historicalSites)
          .set({ periodId: targetPeriodId })
@@ -1063,6 +1072,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const eventsResult = await db.delete(events)
          .where(eq(events.periodId, periodId));
       
+      // Xóa các nhân vật lịch sử
+      const figuresResult = await db.delete(historicalFigures)
+         .where(eq(historicalFigures.periodId, periodId));
+         
       // Xóa các di tích
       const sitesResult = await db.delete(historicalSites)
          .where(eq(historicalSites.periodId, periodId));

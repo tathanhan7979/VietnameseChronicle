@@ -70,6 +70,7 @@ export default function PeriodsAdmin() {
   const [relatedItemsData, setRelatedItemsData] = useState<{
     periodName: string;
     events: any[];
+    figures: any[];
     sites: any[];
     availablePeriods: Period[];
   } | null>(null);
@@ -290,7 +291,7 @@ export default function PeriodsAdmin() {
       const data = await res.json();
 
       // Kiểm tra nếu có lỗi vì có mục liên kết
-      if (!res.ok && data.data?.events?.length > 0 || data.data?.sites?.length > 0) {
+      if (!res.ok && (data.data?.events?.length > 0 || data.data?.figures?.length > 0 || data.data?.sites?.length > 0)) {
         // Đóng modal xác nhận xóa và mở modal quản lý mục liên kết
         setIsConfirmDeleteOpen(false);
         setRelatedItemsData(data.data);
