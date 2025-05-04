@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { createInitialAdminUser, loginUser, registerUser, getUserFromToken, generateToken } from "./auth";
-import { type User, periods } from "@shared/schema";
+import { type User, periods, events, historicalSites } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { db } from "@db";
 

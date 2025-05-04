@@ -300,12 +300,34 @@ export default function PeriodsAdmin() {
         return;
       }
 
-      // Nếu không có lỗi hoặc lỗi khác, tiếp tục với mutation
-      deleteMutation.mutate(deletingPeriodId);
+      // Nếu xóa thành công, hiển thị thông báo và cập nhật UI
+      if (res.ok) {
+        toast({
+          title: 'Thành công',
+          description: 'Xóa thời kỳ thành công',
+        });
+        setIsConfirmDeleteOpen(false);
+        setDeletingPeriodId(null);
+        refetch();
+        return;
+      }
+      
+      // Nếu lỗi khác, hiển thị thông báo lỗi
+      toast({
+        title: 'Lỗi',
+        description: data.message || 'Lỗi khi xóa thời kỳ',
+        variant: 'destructive',
+      });
+      setIsConfirmDeleteOpen(false);
+      
     } catch (error) {
-      console.error('Error checking period dependencies:', error);
-      // Tiếp tục với mutation nếu có lỗi kiểm tra
-      deleteMutation.mutate(deletingPeriodId);
+      console.error('Error deleting period:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Lỗi khi xóa thời kỳ',
+        variant: 'destructive',
+      });
+      setIsConfirmDeleteOpen(false);
     }
   };
 
