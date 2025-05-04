@@ -92,19 +92,30 @@ export default function SearchResults() {
       // Combine and convert to search results
       let results: SearchResult[] = [];
       
+      // Fetch event to event type relationships to get the event type data
+      const eventToEventTypesRes = await fetch(`${API_ENDPOINTS.EVENT_TO_EVENT_TYPE}`);
+      const eventToEventTypes = await eventToEventTypesRes.json();
+      
       // Convert events to search results
       const eventResults = events
         .filter((event: any) => {
           const matchesTerm = 
             event.title.toLowerCase().includes(term.toLowerCase()) ||
-            event.description.toLowerCase().includes(term.toLowerCase());
+            (event.description && event.description.toLowerCase().includes(term.toLowerCase())) ||
+            (event.detailedDescription && event.detailedDescription.toLowerCase().includes(term.toLowerCase()));
           
           const matchesPeriod = period === 'all' || String(event.periodId) === period;
           
-          // Note: In a real implementation, we would check eventTypes relation
-          // For now, we'll assume event type filter only applies to events
+          // Kiểm tra nếu sự kiện có thuộc loại sự kiện được chọn hay không
+          const eventTypeIds = eventToEventTypes
+            .filter((rel: any) => rel.eventId === event.id)
+            .map((rel: any) => rel.eventTypeId);
+            
+          const matchesEventType = eventType === 'all' || eventTypeIds.includes(Number(eventType));
           
-          return matchesTerm && matchesPeriod;
+          console.log(`Event: ${event.title}, Period: ${event.periodId}, Period match: ${matchesPeriod}, EventTypes: ${eventTypeIds}, EventType match: ${matchesEventType}, Term match: ${matchesTerm}`);
+          
+          return matchesTerm && matchesPeriod && matchesEventType;
         })
         .map((event: any) => ({
           id: `event-${event.id}`,

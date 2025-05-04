@@ -4,6 +4,7 @@ export const API_ENDPOINTS = {
   EVENTS: '/api/events',
   HISTORICAL_FIGURES: '/api/historical-figures',
   EVENT_TYPES: '/api/event-types',
+  EVENT_TO_EVENT_TYPE: '/api/event-to-event-type',
   HISTORICAL_SITES: '/api/historical-sites',
   SEARCH: '/api/search',
 };
