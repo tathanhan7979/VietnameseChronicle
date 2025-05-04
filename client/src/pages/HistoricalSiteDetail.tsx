@@ -202,7 +202,7 @@ export default function HistoricalSiteDetail() {
           <Button
             variant="outline"
             className="mb-6 bg-white/90 hover:bg-[#C81E3AC6] hover:text-[#ffffff]"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation("/di-tich/")}
           >
             <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
           </Button>

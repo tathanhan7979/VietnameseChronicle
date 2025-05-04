@@ -1118,7 +1118,7 @@ export default function EventsAdmin() {
                               >
                                 <FormControl>
                                   <Checkbox
-                                    checked={editForm.watch('eventTypes')?.includes(type.id.toString())}
+                                    checked={(editForm.watch('eventTypes') || []).includes(type.id.toString())}
                                     onCheckedChange={(checked) => {
                                       const current = editForm.getValues('eventTypes') || [];
                                       const updated = checked
