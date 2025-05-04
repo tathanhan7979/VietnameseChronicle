@@ -242,6 +242,8 @@ export default function HistoricalSitesList() {
                     onShare={() => shareSite(site)}
                     onClick={() => navigate(`/di-tich/${site.id}/${slugify(site.name)}`)}
                     periodName={periods?.find(p => p.id === site.periodId)?.name || ''}
+                    periodSlug={periods?.find(p => p.id === site.periodId)?.slug}
+                    onPeriodClick={(slug) => navigate(`/thoi-ky/${slug}`)}
                   />
                 ))}
               </div>
@@ -269,6 +271,8 @@ export default function HistoricalSitesList() {
                     onShare={() => shareSite(site)}
                     onClick={() => navigate(`/di-tich/${site.id}/${slugify(site.name)}`)}
                     periodName={periods?.find(p => p.id === site.periodId)?.name || ''}
+                    periodSlug={periods?.find(p => p.id === site.periodId)?.slug}
+                    onPeriodClick={(slug) => navigate(`/thoi-ky/${slug}`)}
                   />
                 ))}
               </div>
@@ -285,15 +289,14 @@ interface SiteCardProps {
   site: HistoricalSite;
   isFavorite: boolean;
   periodName: string;
+  periodSlug?: string;
   onToggleFavorite: () => void;
   onShare: () => void;
   onClick: () => void;
-  // Add required props to navigate to period detail
-  periods?: any[];
+  onPeriodClick?: (slug: string) => void;
 }
 
-function SiteCard({ site, isFavorite, periodName, periods, onToggleFavorite, onShare, onClick }: SiteCardProps) {
-  const [, navigate] = useLocation();
+function SiteCard({ site, isFavorite, periodName, periodSlug, onToggleFavorite, onShare, onClick, onPeriodClick }: SiteCardProps) {
   return (
     <Card className="overflow-hidden flex flex-col bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group">
       <div className="h-56 overflow-hidden relative cursor-pointer" onClick={onClick}>
@@ -313,16 +316,14 @@ function SiteCard({ site, isFavorite, periodName, periods, onToggleFavorite, onS
         </div>
         
         {/* Period tag - Now clickable */}
-        {periodName && site.periodId && periods && (
+        {periodName && periodSlug && (
           <div className="absolute bottom-0 left-0 mb-3 ml-3">
             <Badge 
               className="bg-black/60 text-white px-3 py-1 text-xs font-medium rounded-full shadow-md cursor-pointer hover:bg-primary/80 transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                // Find the period by ID to get its slug
-                const period = periods.find(p => p.id === site.periodId);
-                if (period?.slug) {
-                  navigate(`/thoi-ky/${period.slug}`);
+                if (onPeriodClick && periodSlug) {
+                  onPeriodClick(periodSlug);
                 }
               }}
             >
