@@ -1,21 +1,9 @@
-import { useEffect, useRef } from 'react';
-
 interface FacebookCommentsProps {
   url: string;
   width?: string;
   numPosts?: number;
   colorscheme?: 'light' | 'dark';
   orderBy?: 'social' | 'reverse_time' | 'time';
-}
-
-declare global {
-  interface Window {
-    FB?: {
-      XFBML: {
-        parse: (element?: HTMLElement) => void;
-      };
-    };
-  }
 }
 
 export default function FacebookComments({
@@ -25,14 +13,6 @@ export default function FacebookComments({
   colorscheme = 'light',
   orderBy = 'social'
 }: FacebookCommentsProps) {
-  const commentsRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    // Re-parse Facebook XFBML when URL changes
-    if (window.FB) {
-      window.FB.XFBML.parse(commentsRef.current || undefined);
-    }
-  }, [url]); // Re-render comments when URL changes
 
   return (
     <div className="fb-comments-container bg-white rounded-lg shadow-md p-6 mb-8">
