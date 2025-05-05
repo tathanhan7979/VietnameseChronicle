@@ -107,7 +107,7 @@ export default function HistoricalSiteDetail() {
                     const relatedSitesData = await relatedSitesResponse.json();
                     // Lọc bỏ di tích hiện tại
                     const filteredSites = relatedSitesData.filter((s: any) => s.id !== siteId);
-                    setSite(prevState => ({ ...prevState, relatedSites: filteredSites }));
+                    setSite((prevState: any) => ({ ...prevState, relatedSites: filteredSites }));
                     console.log("Đã tải các di tích liên quan thành công");
                   }
                 } catch (err) {
@@ -473,6 +473,52 @@ export default function HistoricalSiteDetail() {
         {/* Facebook Comments */}
         <div className="container mx-auto px-4 py-8">
           <div className="md:col-span-2">
+            {/* Di tích lịch sử liên quan */}
+            {site.relatedSites && site.relatedSites.length > 0 && (
+              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h3 className="text-xl font-semibold mb-6 text-[hsl(var(--primary))] pb-3 border-b">
+                  Di tích liên quan cùng thời kỳ
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {site.relatedSites.slice(0, 6).map((relatedSite: any) => (
+                    <Link href={`/di-tich/${relatedSite.id}/${slugify(relatedSite.name)}`} key={relatedSite.id}>
+                      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                        <div className="h-32 bg-gray-200 relative">
+                          {relatedSite.imageUrl ? (
+                            <img 
+                              src={relatedSite.imageUrl} 
+                              alt={relatedSite.name} 
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = ERROR_IMAGE;
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                              <MapPin className="w-8 h-8" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-3">
+                          <h4 className="font-medium text-sm truncate">{relatedSite.name}</h4>
+                          <p className="text-xs text-gray-600 truncate">{relatedSite.location}</p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                {site.relatedSites.length > 6 && period && periodSlug && (
+                  <div className="mt-6 text-center">
+                    <Link href={`/thoi-ky/${periodSlug}#sites`}>
+                      <Button variant="outline">
+                        Xem tất cả di tích thời kỳ {period}
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+
             <FacebookComments url={window.location.href} />
           </div>
         </div>
