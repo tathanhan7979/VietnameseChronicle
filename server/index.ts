@@ -14,6 +14,17 @@ const app = express();
 // Sử dụng middleware nén (compression) để giảm kích thước response
 app.use(compression());
 
+// Track visits
+app.use(async (req, res, next) => {
+  // Skip tracking for assets and API calls
+  if (!req.path.startsWith('/assets') && !req.path.startsWith('/api')) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+    await storage.trackVisit(String(ip), userAgent);
+  }
+  next();
+});
+
 // Middleware để thêm cache control headers
 app.use((req, res, next) => {
   // Không cache cho các route API yêu cầu xác thực
