@@ -104,7 +104,10 @@ export default function HistoricalSiteDetail() {
                     `/api/periods-slug/${foundPeriod.slug}/historical-sites`,
                   );
                   if (relatedSitesResponse.ok) {
-                    // Có thể xử lý dữ liệu di tích liên quan ở đây nếu cần
+                    const relatedSitesData = await relatedSitesResponse.json();
+                    // Lọc bỏ di tích hiện tại
+                    const filteredSites = relatedSitesData.filter((s: any) => s.id !== siteId);
+                    setSite(prevState => ({ ...prevState, relatedSites: filteredSites }));
                     console.log("Đã tải các di tích liên quan thành công");
                   }
                 } catch (err) {
