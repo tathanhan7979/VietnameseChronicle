@@ -22,6 +22,8 @@ import {
 import { eq, and, or, like, sql, desc, asc, count, max } from "drizzle-orm";
 
 // Helper to handle database errors
+import { visits, searches } from "../shared/schema";
+
 const handleDbError = (error: unknown, operation: string) => {
   console.error(`Error in ${operation}:`, error);
   throw new Error(`Database error in ${operation}`);
