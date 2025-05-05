@@ -26,6 +26,7 @@ import SettingsAdmin from "@/pages/admin/settings";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
+import FacebookInit from "@/components/FacebookInit";
 
 function Router() {
   return (
@@ -150,6 +151,7 @@ function App() {
         <Router />
         <Toaster />
         <BackToTop />
+        <FacebookInit />
       </AuthProvider>
     </QueryClientProvider>
   );

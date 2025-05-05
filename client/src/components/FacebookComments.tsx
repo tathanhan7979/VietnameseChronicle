@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { FACEBOOK_APP_ID } from '@/lib/constants';
+import { useEffect, useRef } from 'react';
 
 interface FacebookCommentsProps {
   url: string;
@@ -26,18 +25,12 @@ export default function FacebookComments({
   colorscheme = 'light',
   orderBy = 'social'
 }: FacebookCommentsProps) {
+  const commentsRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
-    // Load Facebook SDK asynchronously if it hasn't been loaded
-    if (!document.getElementById('facebook-jssdk')) {
-      const script = document.createElement('script');
-      script.id = 'facebook-jssdk';
-      script.src = `https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v17.0&appId=${FACEBOOK_APP_ID}`;
-      script.async = true;
-      script.defer = true;
-      document.body.appendChild(script);
-    } else if (window.FB) {
-      // If SDK is loaded, parse XFBML to render comments
-      window.FB.XFBML.parse();
+    // Re-parse Facebook XFBML when URL changes
+    if (window.FB) {
+      window.FB.XFBML.parse(commentsRef.current || undefined);
     }
   }, [url]); // Re-render comments when URL changes
 
