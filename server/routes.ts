@@ -140,6 +140,178 @@ const uploadFavicon = multer({
   }
 });
 
+// Tạo một endpoint đặc biệt để hỗ trợ crawler (như Facebook Debugger) nhận diện meta tags
+async function generateSocialShareHTML(req: Request, res: Response) {
+  const url = req.query.url as string;
+  if (!url) {
+    return res.status(400).send('URL parameter is required');
+  }
+
+  let title = 'Lịch Sử Việt Nam';
+  let description = 'Khám phá hành trình lịch sử Việt Nam qua các thời kỳ từ thời Vua Hùng đến hiện đại với những sự kiện, nhân vật và di tích lịch sử nổi bật.';
+  let image = 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+  let type = 'website';
+
+  // Parse URL để lấy phần đường dẫn
+  const urlObj = new URL(url);
+  const pathname = urlObj.pathname;
+
+  // Nếu là trang sự kiện
+  if (pathname.startsWith('/su-kien/')) {
+    const eventIdMatch = pathname.match(/\/su-kien\/(\d+)/);
+    if (eventIdMatch) {
+      const eventId = parseInt(eventIdMatch[1]);
+      try {
+        const event = await db.query.events.findFirst({
+          where: eq(events.id, eventId),
+          with: {
+            period: true,
+            eventTypes: true
+          }
+        });
+        
+        if (event) {
+          const periodName = event.period?.name || '';
+          const eventTypeText = event.eventTypes && event.eventTypes.length > 0
+            ? `[${event.eventTypes.map(t => t.name).join(', ')}]`
+            : '';
+            
+          title = `${event.title} ${event.year ? `(${event.year})` : ''} ${eventTypeText}`.trim();
+          description = event.description || `Thông tin chi tiết về sự kiện lịch sử ${event.title} ${periodName ? `trong thời kỳ ${periodName}` : 'Việt Nam'}`;
+          image = event.imageUrl || 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+          type = 'article';
+        }
+      } catch (error) {
+        console.error('Error fetching event for SEO:', error);
+      }
+    }
+  }
+  // Nếu là trang nhân vật lịch sử
+  else if (pathname.startsWith('/nhan-vat/')) {
+    const figureIdMatch = pathname.match(/\/nhan-vat\/(\d+)/);
+    if (figureIdMatch) {
+      const figureId = parseInt(figureIdMatch[1]);
+      try {
+        const figure = await storage.getHistoricalFigure(figureId);
+        if (figure) {
+          const period = figure.periodId ? await storage.getPeriod(figure.periodId) : null;
+          const periodName = period?.name || '';
+          
+          title = `${figure.name} - Nhân vật lịch sử ${periodName ? `thời kỳ ${periodName}` : ''}`;
+          description = figure.description || `Thông tin chi tiết về nhân vật lịch sử ${figure.name} ${figure.lifespan ? `(${figure.lifespan})` : ''} ${periodName ? `trong thời kỳ ${periodName}` : ''}`;
+          image = figure.imageUrl || 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+          type = 'article';
+        }
+      } catch (error) {
+        console.error('Error fetching historical figure for SEO:', error);
+      }
+    }
+  }
+  // Nếu là trang di tích lịch sử
+  else if (pathname.startsWith('/di-tich/')) {
+    const siteIdMatch = pathname.match(/\/di-tich\/(\d+)/);
+    if (siteIdMatch) {
+      const siteId = parseInt(siteIdMatch[1]);
+      try {
+        const site = await db.query.historicalSites.findFirst({
+          where: eq(historicalSites.id, siteId)
+        });
+        
+        if (site) {
+          const period = site.periodId ? await storage.getPeriod(site.periodId) : null;
+          const periodName = period?.name || '';
+          
+          title = `${site.name} - Di tích lịch sử ${periodName ? `thời kỳ ${periodName}` : 'Việt Nam'}`;
+          description = site.description || `Thông tin chi tiết về di tích lịch sử ${site.name} ${site.location ? `tại ${site.location}` : ''} ${periodName ? `thuộc thời kỳ ${periodName}` : ''}`;
+          image = site.imageUrl || 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+          type = 'article';
+        }
+      } catch (error) {
+        console.error('Error fetching historical site for SEO:', error);
+      }
+    }
+  }
+  // Nếu là trang thời kỳ lịch sử
+  else if (pathname.startsWith('/thoi-ky/')) {
+    const periodSlugMatch = pathname.match(/\/thoi-ky\/([\w-]+)/);
+    if (periodSlugMatch) {
+      const periodSlug = periodSlugMatch[1];
+      try {
+        const period = await db.query.periods.findFirst({
+          where: eq(periods.slug, periodSlug)
+        });
+        
+        if (period) {
+          const eventsCount = await storage.getEventsCountByPeriodId(period.id);
+          const figuresCount = await storage.getHistoricalFiguresCountByPeriodId(period.id);
+          const sitesCount = await storage.getHistoricalSitesCountByPeriodId(period.id);
+          
+          title = `${period.name} - Thời kỳ lịch sử Việt Nam ${period.timeframe || ''}`;
+          description = period.description || 
+            `Khám phá thời kỳ ${period.name} ${period.timeframe ? `(${period.timeframe})` : ''} với ${eventsCount} sự kiện, ${figuresCount} nhân vật và ${sitesCount} di tích lịch sử nổi bật.`;
+          type = 'article';
+        }
+      } catch (error) {
+        console.error('Error fetching period for SEO:', error);
+      }
+    }
+  }
+
+  // Tạo HTML với meta tags phù hợp
+  const html = `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  
+  <!-- Primary Meta Tags -->
+  <title>${title}</title>
+  <meta name="title" content="${title}" />
+  <meta name="description" content="${description}" />
+  <meta name="keywords" content="lịch sử Việt Nam, thời kỳ lịch sử, Vua Hùng, nhân vật lịch sử, di tích lịch sử, văn hóa Việt Nam" />
+  <meta name="author" content="lichsuviet.edu.vn" />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="Vietnamese" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="${type}" />
+  <meta property="og:url" content="${url}" />
+  <meta property="og:title" content="${title}" />
+  <meta property="og:description" content="${description}" />
+  <meta property="og:image" content="${image}" />
+  <meta property="og:site_name" content="Lịch Sử Việt Nam" />
+  <meta property="og:locale" content="vi_VN" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="${url}" />
+  <meta property="twitter:title" content="${title}" />
+  <meta property="twitter:description" content="${description}" />
+  <meta property="twitter:image" content="${image}" />
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="${url}" />
+</head>
+<body>
+  <script>
+    // Chuyển hướng người dùng đến trang web chính
+    window.location.href = "${url}";
+  </script>
+  
+  <h1>${title}</h1>
+  <p>${description}</p>
+  <p>Đang chuyển hướng đến trang chi tiết...</p>
+  
+  <a href="${url}">Nhấn vào đây nếu không được chuyển hướng tự động</a>
+</body>
+</html>`;
+
+  res.setHeader('Content-Type', 'text/html');
+  res.send(html);
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Tạo tài khoản admin mặc định khi khởi động
   await createInitialAdminUser();
