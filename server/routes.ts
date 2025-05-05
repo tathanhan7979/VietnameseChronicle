@@ -266,8 +266,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get historical figure by ID
-  app.get(`${apiPrefix}/historical-figures/:id`, async (req, res) => {
+  // Get historical figures by period ID
+  app.get(`${apiPrefix}/historical-figures/period/:periodId`, async (req, res) => {
+    try {
+      const figures = await storage.getHistoricalFiguresByPeriod(parseInt(req.params.periodId));
+      res.json(figures);
+    } catch (error) {
+      console.error('Error fetching historical figures by period ID:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Get historical figures by period slug
+  app.get(`${apiPrefix}/historical-figures/period-slug/:slug`, async (req, res) => {
+    try {
+      const figures = await storage.getHistoricalFiguresByPeriodSlug(req.params.slug);
+      res.json(figures);
+    } catch (error) {
+      console.error('Error fetching historical figures by period slug:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+  // Get historical figure by ID - dùng pattern để đảm bảo route này không bị các route trên che khuất
+  app.get(`${apiPrefix}/historical-figures/:id([0-9]+)`, async (req, res) => {
     try {
       const figure = await storage.getHistoricalFigureById(parseInt(req.params.id));
       if (!figure) {

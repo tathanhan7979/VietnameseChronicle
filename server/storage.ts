@@ -861,6 +861,50 @@ export const storage = {
       return null;
     }
   },
+  
+  getHistoricalFiguresByPeriod: async (periodId: number): Promise<HistoricalFigure[]> => {
+    try {
+      const figures = await db.query.historicalFigures.findMany({
+        where: eq(historicalFigures.periodId, periodId),
+        orderBy: asc(historicalFigures.sortOrder),
+        with: {
+          period: true
+        }
+      });
+      
+      return figures;
+    } catch (error) {
+      handleDbError(error, "getHistoricalFiguresByPeriod");
+      return [];
+    }
+  },
+  
+  getHistoricalFiguresByPeriodSlug: async (slug: string): Promise<HistoricalFigure[]> => {
+    try {
+      // Trước tiên lấy thời kỳ dựa trên slug
+      const period = await db.query.periods.findFirst({
+        where: eq(periods.slug, slug)
+      });
+      
+      if (!period) {
+        return [];
+      }
+      
+      // Sau đó lấy các nhân vật theo periodId
+      const figures = await db.query.historicalFigures.findMany({
+        where: eq(historicalFigures.periodId, period.id),
+        orderBy: asc(historicalFigures.sortOrder),
+        with: {
+          period: true
+        }
+      });
+      
+      return figures;
+    } catch (error) {
+      handleDbError(error, "getHistoricalFiguresByPeriodSlug");
+      return [];
+    }
+  },
 
   createHistoricalFigure: async (figureData: Omit<HistoricalFigure, 'id' | 'sortOrder'>): Promise<HistoricalFigure | null> => {
     try {
