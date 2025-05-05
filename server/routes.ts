@@ -141,8 +141,8 @@ const uploadFavicon = multer({
 });
 
 // Tạo một endpoint đặc biệt để hỗ trợ crawler (như Facebook Debugger) nhận diện meta tags
-async function generateSocialShareHTML(req: Request, res: Response) {
-  const url = req.query.url as string;
+async function generateSocialShareHTML(req: Request, res: Response, urlParam?: string) {
+  const url = urlParam || req.query.url as string;
   if (!url) {
     return res.status(400).send('URL parameter is required');
   }
@@ -2410,8 +2410,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint đặc biệt hỗ trợ Facebook Debugger và các crawler khác tích hợp với SPA
-  app.get(`/seo-preview`, generateSocialShareHTML);
+  // Thêm middleware để phát hiện crawler/bot và phục vụ đúng nội dung SEO
+  app.use((req, res, next) => {
+    const userAgent = req.headers['user-agent'] || '';
+    const url = req.originalUrl;
+    
+    // Kiểm tra nếu là bot của Facebook, Google, Twitter, hoặc các crawler khác
+    const isCrawler = /facebookexternalhit|Facebot|Twitterbot|Pinterest|Google.*snippet|Googlebot|bingbot|linkedinbot|WhatsApp|preview/i.test(userAgent);
+    
+    // Kiểm tra các đường dẫn chi tiết cần phục vụ SEO
+    const needsSeoContent = (
+      url.startsWith('/su-kien/') || 
+      url.startsWith('/nhan-vat/') || 
+      url.startsWith('/di-tich/') || 
+      url.startsWith('/thoi-ky/')
+    );
+    
+    if (isCrawler && needsSeoContent) {
+      // Sử dụng hàm generateSocialShareHTML đã tạo trước đó
+      const fullUrl = `https://${req.get('host')}${url}`;
+      return generateSocialShareHTML(req, res, fullUrl);
+    }
+    
+    next();
+  });
+  
+  // Giữ lại endpoint riêng cho các công cụ testing
+  app.get(`/seo-preview`, (req, res) => generateSocialShareHTML(req, res, req.query.url as string));
 
   // Create HTTP server
   const httpServer = createServer(app);
