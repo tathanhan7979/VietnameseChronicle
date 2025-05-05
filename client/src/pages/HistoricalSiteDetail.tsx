@@ -19,7 +19,7 @@ import {
   FaPinterest,
   FaReddit,
 } from "react-icons/fa";
-import { API_ENDPOINTS } from "@/lib/constants";
+import { API_ENDPOINTS, ERROR_IMAGE } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { slugify } from "../lib/utils";
 

@@ -4,6 +4,7 @@ import { HistoricalFigure, EventData } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, MapPin, Award, ExternalLink } from "lucide-react";
 import { slugify } from "@/lib/utils";
+import { ERROR_IMAGE } from "@/lib/constants";
 
 export default function HistoricalFigureDetail() {
   const { figureId } = useParams();
@@ -70,14 +71,14 @@ export default function HistoricalFigureDetail() {
               <img
                 src={
                   figure.imageUrl ||
-                  "/uploads/error-img.png"
+                  ERROR_IMAGE
                 }
                 alt={figure.name}
                 loading="eager"
                 decoding="async"
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = '/uploads/error-img.png';
+                  e.currentTarget.src = ERROR_IMAGE;
                 }}
               />
             </picture>
