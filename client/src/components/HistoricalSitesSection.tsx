@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { HistoricalSite } from "@/lib/types";
 import { DEFAULT_IMAGE } from "@/lib/constants";
@@ -106,6 +106,8 @@ export default function HistoricalSitesSection({
                   <img
                     src={site.imageUrl || DEFAULT_IMAGE}
                     alt={site.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>

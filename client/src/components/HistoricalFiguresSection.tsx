@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
@@ -107,6 +107,8 @@ export default function HistoricalFiguresSection({ figures: propFigures, periods
                 <img 
                   src={figure.imageUrl} 
                   alt={figure.name} 
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-56 object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
