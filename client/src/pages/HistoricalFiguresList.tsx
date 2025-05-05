@@ -8,6 +8,7 @@ import { slugify } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ERROR_IMAGE } from '@/lib/constants';
 
 export default function HistoricalFiguresList() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -143,9 +144,12 @@ export default function HistoricalFiguresList() {
             >
               <div className="relative">
                 <img 
-                  src={figure.imageUrl} 
+                  src={figure.imageUrl || ERROR_IMAGE} 
                   alt={figure.name} 
                   className="w-full h-56 object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = ERROR_IMAGE;
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
                   <div>

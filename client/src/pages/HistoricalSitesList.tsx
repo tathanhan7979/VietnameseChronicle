@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { HistoricalSite } from '../lib/types';
-import { API_ENDPOINTS, DEFAULT_IMAGE } from '../lib/constants';
+import { API_ENDPOINTS, DEFAULT_IMAGE, ERROR_IMAGE } from '../lib/constants';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -285,9 +285,12 @@ function SiteCard({ site, isFavorite, periodName, periodSlug, onToggleFavorite, 
     <Card className="overflow-hidden flex flex-col bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group">
       <div className="h-56 overflow-hidden relative cursor-pointer" onClick={onClick}>
         <img 
-          src={site.imageUrl || DEFAULT_IMAGE}
+          src={site.imageUrl || ERROR_IMAGE}
           alt={site.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          onError={(e) => {
+            e.currentTarget.src = ERROR_IMAGE;
+          }}
         />
         <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-300"></div>
         
