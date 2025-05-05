@@ -22,6 +22,7 @@ import {
 
 import { slugify } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { ERROR_IMAGE } from "@/lib/constants";
 
 export default function PeriodDetail() {
   const { periodSlug } = useParams();

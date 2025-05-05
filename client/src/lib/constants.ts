@@ -11,4 +11,5 @@ export const API_ENDPOINTS = {
 
 
 // Image placeholder - used when no image is available
-export const DEFAULT_IMAGE = 'https://via.placeholder.com/400x250?text=Lịch+Sử+Việt+Nam';
+export const DEFAULT_IMAGE = '/uploads/error-img.png';
+export const ERROR_IMAGE = '/uploads/error-img.png';
