@@ -333,6 +333,8 @@ export default function PeriodDetail() {
         image={seoImage}
         url={seoUrl}
         type="article"
+        keywords={`thời kỳ lịch sử, ${period.name}, ${period.timeframe || ''}, giai đoạn lịch sử Việt Nam, thời đại lịch sử, sự kiện ${period.name}`}
+        siteName="Lịch Sử Việt Nam"
       />
       {/* Header with background */}
       <div className="bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] py-16 text-white">

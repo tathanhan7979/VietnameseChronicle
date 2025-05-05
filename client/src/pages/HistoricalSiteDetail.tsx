@@ -206,6 +206,8 @@ export default function HistoricalSiteDetail() {
         image={seoImage}
         url={seoUrl}
         type="article"
+        keywords={`di tích lịch sử, ${site.name}, ${site.location || ''}, ${site.yearBuilt || ''}, ${period || 'lịch sử Việt Nam'}`}
+        siteName="Lịch Sử Việt Nam"
       />
       {/* Header area with image background */}
       <div className="relative">
