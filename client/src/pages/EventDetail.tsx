@@ -206,6 +206,11 @@ export default function EventDetail() {
               </div>
             )}
           </div>
+          
+          {/* Facebook Comments */}
+          <div className="p-6 md:p-8 bg-gray-50">
+            <FacebookComments url={window.location.href} />
+          </div>
         </div>
       </div>
     </div>
