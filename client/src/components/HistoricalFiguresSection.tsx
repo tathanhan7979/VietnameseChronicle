@@ -112,7 +112,7 @@ export default function HistoricalFiguresSection({ figures: propFigures, periods
                     decoding="async"
                     className="w-full h-56 object-cover"
                     onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Hình+ảnh+không+khả+dụng';
+                      e.currentTarget.src = '/uploads/error-img.png';
                     }}
                   />
                 </picture>

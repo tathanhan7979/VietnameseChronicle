@@ -111,7 +111,7 @@ export default function HistoricalSitesSection({
                       decoding="async"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       onError={(e) => {
-                        e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Hình+ảnh+không+khả+dụng';
+                        e.currentTarget.src = '/uploads/error-img.png';
                       }}
                     />
                   </picture>
