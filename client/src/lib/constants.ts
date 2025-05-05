@@ -16,4 +16,4 @@ export const DEFAULT_IMAGE = '/uploads/error-img.png';
 export const ERROR_IMAGE = '/uploads/error-img.png';
 
 // Facebook App ID for comments
-export const FACEBOOK_APP_ID = '1324494995031287'; // Default value, will be replaced with setting value
+export const FACEBOOK_APP_ID = '198066915623'; // App ID cho tính năng Facebook Comments
