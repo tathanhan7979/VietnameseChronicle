@@ -22,6 +22,7 @@ import {
 import { API_ENDPOINTS, ERROR_IMAGE } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { slugify } from "../lib/utils";
+import FacebookComments from "@/components/FacebookComments";
 
 export default function HistoricalSiteDetail() {
   // Trạng thái của component

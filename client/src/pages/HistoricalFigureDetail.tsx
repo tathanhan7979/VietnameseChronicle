@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, MapPin, Award, ExternalLink } from "lucide-react";
 import { slugify } from "@/lib/utils";
 import { ERROR_IMAGE } from "@/lib/constants";
+import FacebookComments from "@/components/FacebookComments";
 
 export default function HistoricalFigureDetail() {
   const { figureId } = useParams();
@@ -186,6 +187,11 @@ export default function HistoricalFigureDetail() {
                 </Link>
               </div>
             </div>
+          </div>
+          
+          {/* Facebook Comments */}
+          <div className="px-6 md:px-8 pb-8">
+            <FacebookComments url={window.location.href} />
           </div>
         </div>
       </div>
