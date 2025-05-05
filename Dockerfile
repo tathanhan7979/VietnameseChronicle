@@ -5,7 +5,10 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Cài đặt các gói phụ thuộc global
-RUN apk add --no-cache python3 make g++ curl
+RUN apk add --no-cache python3 make g++ curl openssl ca-certificates
+
+# Cập nhật chứng chỉ cần thiết cho kết nối SSL với Neon PostgreSQL
+RUN update-ca-certificates
 
 # Sao chép package.json và package-lock.json
 COPY package*.json ./
