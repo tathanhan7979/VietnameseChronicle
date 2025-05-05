@@ -162,18 +162,14 @@ async function generateSocialShareHTML(req: Request, res: Response) {
     if (eventIdMatch) {
       const eventId = parseInt(eventIdMatch[1]);
       try {
-        const event = await db.query.events.findFirst({
-          where: eq(events.id, eventId),
-          with: {
-            period: true,
-            eventTypes: true
-          }
-        });
+        const event = await storage.getEventById(eventId);
         
         if (event) {
-          const periodName = event.period?.name || '';
-          const eventTypeText = event.eventTypes && event.eventTypes.length > 0
-            ? `[${event.eventTypes.map(t => t.name).join(', ')}]`
+          const period = event.periodId ? await storage.getPeriodById(event.periodId) : null;
+          const periodName = period?.name || '';
+          const eventTypes = await storage.getEventTypesForEvent(eventId);
+          const eventTypeText = eventTypes && eventTypes.length > 0
+            ? `[${eventTypes.map(t => t.name).join(', ')}]`
             : '';
             
           title = `${event.title} ${event.year ? `(${event.year})` : ''} ${eventTypeText}`.trim();
@@ -192,9 +188,9 @@ async function generateSocialShareHTML(req: Request, res: Response) {
     if (figureIdMatch) {
       const figureId = parseInt(figureIdMatch[1]);
       try {
-        const figure = await storage.getHistoricalFigure(figureId);
+        const figure = await storage.getHistoricalFigureById(figureId);
         if (figure) {
-          const period = figure.periodId ? await storage.getPeriod(figure.periodId) : null;
+          const period = figure.periodId ? await storage.getPeriodById(figure.periodId) : null;
           const periodName = period?.name || '';
           
           title = `${figure.name} - Nhân vật lịch sử ${periodName ? `thời kỳ ${periodName}` : ''}`;
@@ -213,12 +209,10 @@ async function generateSocialShareHTML(req: Request, res: Response) {
     if (siteIdMatch) {
       const siteId = parseInt(siteIdMatch[1]);
       try {
-        const site = await db.query.historicalSites.findFirst({
-          where: eq(historicalSites.id, siteId)
-        });
+        const site = await storage.getHistoricalSiteById(siteId);
         
         if (site) {
-          const period = site.periodId ? await storage.getPeriod(site.periodId) : null;
+          const period = site.periodId ? await storage.getPeriodById(site.periodId) : null;
           const periodName = period?.name || '';
           
           title = `${site.name} - Di tích lịch sử ${periodName ? `thời kỳ ${periodName}` : 'Việt Nam'}`;
@@ -237,18 +231,16 @@ async function generateSocialShareHTML(req: Request, res: Response) {
     if (periodSlugMatch) {
       const periodSlug = periodSlugMatch[1];
       try {
-        const period = await db.query.periods.findFirst({
-          where: eq(periods.slug, periodSlug)
-        });
+        const period = await storage.getPeriodBySlug(periodSlug);
         
         if (period) {
-          const eventsCount = await storage.getEventsCountByPeriodId(period.id);
-          const figuresCount = await storage.getHistoricalFiguresCountByPeriodId(period.id);
-          const sitesCount = await storage.getHistoricalSitesCountByPeriodId(period.id);
+          const events = await storage.getEventsByPeriod(period.id);
+          const figures = await storage.getHistoricalFiguresByPeriod(period.id);
+          const sites = await storage.getHistoricalSitesByPeriod(period.id);
           
           title = `${period.name} - Thời kỳ lịch sử Việt Nam ${period.timeframe || ''}`;
           description = period.description || 
-            `Khám phá thời kỳ ${period.name} ${period.timeframe ? `(${period.timeframe})` : ''} với ${eventsCount} sự kiện, ${figuresCount} nhân vật và ${sitesCount} di tích lịch sử nổi bật.`;
+            `Khám phá thời kỳ ${period.name} ${period.timeframe ? `(${period.timeframe})` : ''} với ${events.length} sự kiện, ${figures.length} nhân vật và ${sites.length} di tích lịch sử nổi bật.`;
           type = 'article';
         }
       } catch (error) {
@@ -2417,6 +2409,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Endpoint đặc biệt hỗ trợ Facebook Debugger và các crawler khác tích hợp với SPA
+  app.get(`/seo-preview`, generateSocialShareHTML);
 
   // Create HTTP server
   const httpServer = createServer(app);
