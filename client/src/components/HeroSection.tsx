@@ -91,7 +91,7 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
                 filter: "brightness(0.6)",
                 transformOrigin: "center",
               }}
-              fetchpriority="high"
+              fetchPriority="high"
               onError={(e) => {
                 e.currentTarget.src = '/uploads/error-img.png';
               }}

@@ -209,16 +209,13 @@ export default function PeriodDetail() {
             <div className="h-48 overflow-hidden relative">
               <picture>
                 <img
-                  src={
-                    figure.imageUrl ||
-                    "/uploads/error-img.png"
-                  }
+                  src={figure.imageUrl || ERROR_IMAGE}
                   alt={figure.name}
                   loading="lazy"
                   decoding="async"
                   className="w-full h-full object-cover transition-transform hover:scale-105"
                   onError={(e) => {
-                    e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Hình+ảnh+không+khả+dụng';
+                    e.currentTarget.src = ERROR_IMAGE;
                   }}
                 />
               </picture>
@@ -266,16 +263,13 @@ export default function PeriodDetail() {
             <div className="h-48 overflow-hidden relative">
               <picture>
                 <img
-                  src={
-                    site.imageUrl ||
-                    "/uploads/error-img.png"
-                  }
+                  src={site.imageUrl || ERROR_IMAGE}
                   alt={site.name}
                   loading="lazy"
                   decoding="async"
                   className="w-full h-full object-cover transition-transform hover:scale-105"
                   onError={(e) => {
-                    e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Hình+ảnh+không+khả+dụng';
+                    e.currentTarget.src = ERROR_IMAGE;
                   }}
                 />
               </picture>
