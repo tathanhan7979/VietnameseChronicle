@@ -15,12 +15,17 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
+let pool: Pool;
+let db: ReturnType<typeof drizzle>;
+
 try {
   console.log('Attempting to connect to database...');
-  export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  export const db = drizzle({ client: pool, schema });
+  pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  db = drizzle(pool, { schema });
   console.log('Database connection established successfully');
 } catch (error) {
   console.error('Failed to connect to database:', error);
   throw error;
 }
+
+export { pool, db };
