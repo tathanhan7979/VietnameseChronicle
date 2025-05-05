@@ -19,7 +19,7 @@ import {
   FaPinterest,
   FaReddit,
 } from "react-icons/fa";
-import { API_ENDPOINTS, ERROR_IMAGE } from "@/lib/constants";
+import { API_ENDPOINTS, ERROR_IMAGE, DEFAULT_SEO_IMAGE } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { slugify } from "../lib/utils";
 import FacebookComments from "@/components/FacebookComments";
@@ -195,7 +195,7 @@ export default function HistoricalSiteDetail() {
   // Chuẩn bị SEO metadata
   const seoTitle = `${site.name} - Di tích lịch sử ${period ? `thời kỳ ${period}` : 'Việt Nam'}`;
   const seoDescription = site.description || `Thông tin chi tiết về di tích lịch sử ${site.name} ${site.location ? `tại ${site.location}` : ''} ${period ? `thuộc thời kỳ ${period}` : ''}`;
-  const seoImage = site.imageUrl || 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+  const seoImage = site.imageUrl || DEFAULT_SEO_IMAGE;
   const seoUrl = window.location.href;
 
   return (

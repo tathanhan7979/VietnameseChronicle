@@ -4,7 +4,7 @@ import { HistoricalFigure, EventData } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, MapPin, Award, ExternalLink } from "lucide-react";
 import { slugify } from "@/lib/utils";
-import { ERROR_IMAGE } from "@/lib/constants";
+import { ERROR_IMAGE, DEFAULT_SEO_IMAGE } from "@/lib/constants";
 import FacebookComments from "@/components/FacebookComments";
 import SEO from "@/components/SEO";
 
@@ -67,7 +67,7 @@ export default function HistoricalFigureDetail() {
   const periodName = periods?.find(p => p.id === figure.periodId)?.name || "";
   const seoTitle = `${figure.name} - Nhân vật lịch sử ${periodName ? `thời kỳ ${periodName}` : ''}`;
   const seoDescription = figure.description || `Thông tin chi tiết về nhân vật lịch sử ${figure.name} ${figure.lifespan ? `(${figure.lifespan})` : ''} ${periodName ? `trong thời kỳ ${periodName}` : ''}`;
-  const seoImage = figure.imageUrl || 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+  const seoImage = figure.imageUrl || DEFAULT_SEO_IMAGE;
   const seoUrl = window.location.href;
 
   return (

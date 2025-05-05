@@ -22,7 +22,7 @@ import {
 
 import { slugify } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { ERROR_IMAGE } from "@/lib/constants";
+import { ERROR_IMAGE, DEFAULT_SEO_IMAGE } from "@/lib/constants";
 import FacebookComments from "@/components/FacebookComments";
 import SEO from "@/components/SEO";
 
@@ -322,7 +322,7 @@ export default function PeriodDetail() {
   const seoTitle = `${period.name} - Thời kỳ lịch sử Việt Nam ${period.timeframe}`;
   const seoDescription = period.description || 
     `Khám phá thời kỳ ${period.name} (${period.timeframe}) với ${eventCount} sự kiện, ${figureCount} nhân vật và ${siteCount} di tích lịch sử nổi bật.`;
-  const seoImage = 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+  const seoImage = DEFAULT_SEO_IMAGE;
   const seoUrl = window.location.href;
 
   return (
