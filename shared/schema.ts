@@ -1,4 +1,4 @@
-import { pgTable, serial, text, boolean, timestamp, integer, varchar, jsonb, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, primaryKey, doublePrecision, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -191,18 +191,3 @@ export const settings = pgTable("settings", {
 export const insertSettingSchema = createInsertSchema(settings);
 export type InsertSetting = z.infer<typeof insertSettingSchema>;
 export type Setting = typeof settings.$inferSelect;
-
-// Bảng theo dõi lượt truy cập
-export const visits = pgTable('visits', {
-  id: serial('id').primaryKey(),
-  ip: varchar('ip', { length: 45 }).notNull(),
-  userAgent: text('user_agent'),
-  timestamp: timestamp('timestamp').defaultNow()
-});
-
-// Bảng theo dõi lượt tìm kiếm 
-export const searches = pgTable('searches', {
-  id: serial('id').primaryKey(),
-  term: text('term'),
-  timestamp: timestamp('timestamp').defaultNow()
-});

@@ -22,35 +22,12 @@ import {
 import { eq, and, or, like, sql, desc, asc, count, max } from "drizzle-orm";
 
 // Helper to handle database errors
-import { visits, searches } from "../shared/schema";
-
 const handleDbError = (error: unknown, operation: string) => {
   console.error(`Error in ${operation}:`, error);
   throw new Error(`Database error in ${operation}`);
 };
 
 export const storage = {
-  // Track visit
-  async trackVisit(ip: string, userAgent?: string) {
-    return await db.insert(visits).values({ ip, userAgent }).returning();
-  },
-
-  // Track search
-  async trackSearch(term?: string) {
-    return await db.insert(searches).values({ term }).returning();
-  },
-
-  // Get visit count
-  async getVisitCount() {
-    const result = await db.select({ count: sql`count(*)` }).from(visits);
-    return Number(result[0].count);
-  },
-
-  // Get search count  
-  async getSearchCount() {
-    const result = await db.select({ count: sql`count(*)` }).from(searches);
-    return Number(result[0].count);
-  },
   // Event to Event Type relations
   getAllEventToEventTypes: async () => {
     try {
