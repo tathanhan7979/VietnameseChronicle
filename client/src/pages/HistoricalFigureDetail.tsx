@@ -28,9 +28,10 @@ export default function HistoricalFigureDetail() {
   
   // Lấy các nhân vật liên quan trong cùng thời kỳ
   const periodId = figure?.periodId;
-  const { data: relatedFigures } = useQuery<HistoricalFigure[]>({
+  
+  const { data: relatedFigures = [] } = useQuery<HistoricalFigure[]>({
     queryKey: [`/api/historical-figures/period/${periodId}`],
-    enabled: !!periodId,
+    enabled: !!periodId
   });
 
   if (isLoading) {

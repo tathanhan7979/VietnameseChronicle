@@ -25,7 +25,7 @@ export default function EventDetail() {
   });
   
   // Lấy các sự kiện thuộc cùng thời kỳ (dùng slug)
-  const { data: relatedEvents } = useQuery<EventData[]>({
+  const { data: relatedEvents = [] } = useQuery<EventData[]>({
     queryKey: [`/api/events/period-slug/${period?.slug}`],
     enabled: !!period?.slug,
   });
@@ -245,7 +245,7 @@ export default function EventDetail() {
                     ))
                   }
                 </div>
-                {relatedEvents.length > 6 && (
+                {relatedEvents.length > 6 && period && (
                   <div className="mt-6 text-center">
                     <Link href={`/thoi-ky/${period.slug}#events`}>
                       <Button variant="outline">
