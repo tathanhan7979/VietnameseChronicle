@@ -72,6 +72,8 @@ export default function EventDetail() {
         image={seoImage}
         url={seoUrl}
         type="article"
+        keywords={`sự kiện lịch sử, ${event.title}, ${event.year || ''}, ${period ? period.name : 'lịch sử Việt Nam'}, ${event.eventTypes?.map(t => t.name).join(', ') || ''}`}
+        siteName="Lịch Sử Việt Nam"
       />
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">

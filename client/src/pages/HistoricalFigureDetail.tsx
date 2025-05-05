@@ -78,6 +78,8 @@ export default function HistoricalFigureDetail() {
         image={seoImage}
         url={seoUrl}
         type="article"
+        keywords={`nhân vật lịch sử, ${figure.name}, ${figure.lifespan || ''}, ${periodName || 'lịch sử Việt Nam'}`}
+        siteName="Lịch Sử Việt Nam"
       />
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
