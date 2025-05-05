@@ -210,7 +210,7 @@ export default function PeriodDetail() {
                 <img
                   src={
                     figure.imageUrl ||
-                    "https://via.placeholder.com/400x250?text=Nhân+Vật+Lịch+Sử"
+                    "/uploads/error-img.png"
                   }
                   alt={figure.name}
                   loading="lazy"
@@ -267,7 +267,7 @@ export default function PeriodDetail() {
                 <img
                   src={
                     site.imageUrl ||
-                    "https://via.placeholder.com/400x250?text=Di+Tích+Lịch+Sử"
+                    "/uploads/error-img.png"
                   }
                   alt={site.name}
                   loading="lazy"
