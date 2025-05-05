@@ -13,15 +13,15 @@ interface SEOProps {
 export default function SEO({
   title,
   description,
-  image = '/uploads/banner-img.png',
+  image = 'https://lichsuviet.edu.vn/uploads/banner-image.png',
   type = 'website',
   url,
   articlePublishedTime,
   articleModifiedTime,
 }: SEOProps) {
   const siteUrl = 'https://lichsuviet.edu.vn';
-  const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
-  const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
+  const fullUrl = url ? (url.startsWith('http') ? url : `${siteUrl}${url.startsWith('/') ? '' : '/'}${url}`) : siteUrl;
+  const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image.startsWith('/') ? '' : '/'}${image}`;
   
   return (
     <Helmet>

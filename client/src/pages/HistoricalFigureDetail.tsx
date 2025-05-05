@@ -66,9 +66,9 @@ export default function HistoricalFigureDetail() {
   // Chuẩn bị dữ liệu SEO
   const periodName = periods?.find(p => p.id === figure.periodId)?.name || "";
   const seoTitle = `${figure.name} - Nhân vật lịch sử ${periodName ? `thời kỳ ${periodName}` : ''}`;
-  const seoDescription = figure.description || `Thông tin chi tiết về nhân vật lịch sử ${figure.name}`;
-  const seoImage = figure.imageUrl || '/uploads/banner-img.png';
-  const seoUrl = location;
+  const seoDescription = figure.description || `Thông tin chi tiết về nhân vật lịch sử ${figure.name} ${figure.lifespan ? `(${figure.lifespan})` : ''} ${periodName ? `trong thời kỳ ${periodName}` : ''}`;
+  const seoImage = figure.imageUrl || 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+  const seoUrl = window.location.href;
 
   return (
     <div className="bg-[hsl(var(--background))] min-h-screen">

@@ -194,8 +194,8 @@ export default function HistoricalSiteDetail() {
   // Hiển thị thông tin di tích
   // Chuẩn bị SEO metadata
   const seoTitle = `${site.name} - Di tích lịch sử ${period ? `thời kỳ ${period}` : 'Việt Nam'}`;
-  const seoDescription = site.description || `Thông tin chi tiết về di tích lịch sử ${site.name}`;
-  const seoImage = site.imageUrl || '/uploads/banner-img.png';
+  const seoDescription = site.description || `Thông tin chi tiết về di tích lịch sử ${site.name} ${site.location ? `tại ${site.location}` : ''} ${period ? `thuộc thời kỳ ${period}` : ''}`;
+  const seoImage = site.imageUrl || 'https://lichsuviet.edu.vn/uploads/banner-image.png';
   const seoUrl = window.location.href;
 
   return (

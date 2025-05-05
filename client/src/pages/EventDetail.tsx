@@ -60,9 +60,9 @@ export default function EventDetail() {
     ? `[${event.eventTypes.map(t => t.name).join(', ')}]`
     : '';
   const seoTitle = `${event.title} ${event.year ? `(${event.year})` : ''} ${eventTypeText}`.trim();
-  const seoDescription = event.description || 'Thông tin chi tiết về sự kiện lịch sử Việt Nam';
-  const seoImage = event.imageUrl || '/uploads/banner-img.png';
-  const seoUrl = location;
+  const seoDescription = event.description || `Thông tin chi tiết về sự kiện lịch sử ${event.title} ${period ? `trong thời kỳ ${period.name}` : 'Việt Nam'}`;
+  const seoImage = event.imageUrl || 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+  const seoUrl = window.location.href;
 
   return (
     <div className="bg-[hsl(var(--background))] min-h-screen">
