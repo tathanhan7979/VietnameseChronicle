@@ -82,14 +82,18 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
       <div className="relative h-screen">
         {/* Background with parallax effect */}
         <div className="absolute inset-0 z-0">
-          <div
-            className="absolute inset-0 bg-cover bg-center transform scale-110"
-            style={{
-              backgroundImage: `url('${backgroundUrl}')`,
-              filter: "brightness(0.6)",
-              transformOrigin: "center",
-            }}
-          ></div>
+          <picture>
+            <img 
+              src={backgroundUrl} 
+              alt="Lịch sử Việt Nam"
+              className="absolute inset-0 w-full h-full object-cover transform scale-110"
+              style={{
+                filter: "brightness(0.6)",
+                transformOrigin: "center",
+              }}
+              fetchpriority="high"
+            />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/80"></div>
         </div>
 
