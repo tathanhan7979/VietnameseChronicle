@@ -24,6 +24,7 @@ import { slugify } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ERROR_IMAGE } from "@/lib/constants";
 import FacebookComments from "@/components/FacebookComments";
+import SEO from "@/components/SEO";
 
 export default function PeriodDetail() {
   const { periodSlug } = useParams();
@@ -313,8 +314,24 @@ export default function PeriodDetail() {
       </div>
     );
 
+  // Chuẩn bị dữ liệu SEO
+  const eventCount = events?.length || 0;
+  const figureCount = figures?.length || 0;
+  const siteCount = sites?.length || 0;
+  
+  const seoTitle = `${period.name} - Thời kỳ lịch sử Việt Nam ${period.timeframe}`;
+  const seoDescription = period.description || 
+    `Khám phá thời kỳ ${period.name} với ${eventCount} sự kiện, ${figureCount} nhân vật và ${siteCount} di tích lịch sử nổi bật.`;
+  const seoUrl = window.location.href;
+
   return (
     <div className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        url={seoUrl}
+        type="article"
+      />
       {/* Header with background */}
       <div className="bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] py-16 text-white">
         <div className="container mx-auto px-4">
