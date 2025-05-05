@@ -186,13 +186,16 @@ export default function HistoricalSiteDetail() {
     <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
       {/* Header area with image background */}
       <div className="relative">
-        {site.imageUrl && (
+        {(
           <div className="absolute inset-0 z-0 h-[350px] overflow-hidden">
             <div className="absolute inset-0 bg-black/40 z-10" />
             <img
-              src={site.imageUrl}
+              src={site.imageUrl || ERROR_IMAGE}
               alt={site.name}
               className="w-full h-full object-cover object-center"
+              onError={(e) => {
+                e.currentTarget.src = ERROR_IMAGE;
+              }}
             />
           </div>
         )}
