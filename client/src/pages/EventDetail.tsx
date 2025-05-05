@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useParams, Link } from 'wouter';
+import { useParams, Link, useLocation } from 'wouter';
 import { EventData, PeriodData } from '@/lib/types';
 import { useMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
@@ -8,10 +8,12 @@ import { ArrowLeft, Calendar, MapPin } from 'lucide-react';
 import { slugify } from '@/lib/utils';
 import { ERROR_IMAGE } from '@/lib/constants';
 import FacebookComments from '@/components/FacebookComments';
+import SEO from '@/components/SEO';
 
 export default function EventDetail() {
   const { eventId } = useParams();
   const isMobile = useMobile();
+  const [location] = useLocation();
   
   // Fetch the specific event
   const { data: event, isLoading: isLoadingEvent, error: eventError } = useQuery<EventData>({
