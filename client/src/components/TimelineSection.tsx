@@ -244,11 +244,18 @@ export default function TimelineSection({
                             </p>
 
                             {event.imageUrl && (
-                              <img
-                                src={event.imageUrl}
-                                alt={event.title}
-                                className="event-image"
-                              />
+                              <picture>
+                                <img
+                                  src={event.imageUrl}
+                                  alt={event.title}
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="event-image"
+                                  onError={(e) => {
+                                    e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Hình+ảnh+không+khả+dụng';
+                                  }}
+                                />
+                              </picture>
                             )}
 
                             <div className="mt-4">
