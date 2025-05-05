@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, MapPin } from 'lucide-react';
 
 import { slugify } from '@/lib/utils';
+import { ERROR_IMAGE } from '@/lib/constants';
+import FacebookComments from '@/components/FacebookComments';
 
 export default function EventDetail() {
   const { eventId } = useParams();

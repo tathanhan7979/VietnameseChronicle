@@ -466,6 +466,13 @@ export default function HistoricalSiteDetail() {
             </Card>
           </div>
         </div>
+
+        {/* Facebook Comments */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="md:col-span-2">
+            <FacebookComments url={window.location.href} />
+          </div>
+        </div>
       </div>
     </div>
   );

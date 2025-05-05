@@ -23,6 +23,7 @@ import {
 import { slugify } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ERROR_IMAGE } from "@/lib/constants";
+import FacebookComments from "@/components/FacebookComments";
 
 export default function PeriodDetail() {
   const { periodSlug } = useParams();
@@ -395,6 +396,11 @@ export default function PeriodDetail() {
             {sitesContent}
           </TabsContent>
         </Tabs>
+        
+        {/* Facebook Comments */}
+        <div className="mt-10 bg-white p-8 rounded-lg shadow-md">
+          <FacebookComments url={window.location.href} />
+        </div>
       </div>
     </div>
   );
