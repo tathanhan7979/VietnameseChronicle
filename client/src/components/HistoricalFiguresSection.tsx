@@ -104,13 +104,18 @@ export default function HistoricalFiguresSection({ figures: propFigures, periods
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <div className="relative">
-                <img 
-                  src={figure.imageUrl} 
-                  alt={figure.name} 
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-56 object-cover"
-                />
+                <picture>
+                  <img 
+                    src={figure.imageUrl} 
+                    alt={figure.name} 
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-56 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Hình+ảnh+không+khả+dụng';
+                    }}
+                  />
+                </picture>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
                   <div>
                     <h3 className="font-['Playfair_Display'] font-bold text-xl text-white">

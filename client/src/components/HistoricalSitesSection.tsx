@@ -103,13 +103,18 @@ export default function HistoricalSitesSection({
             >
               <Card className="overflow-hidden h-full bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
                 <div className="h-52 overflow-hidden relative group">
-                  <img
-                    src={site.imageUrl || DEFAULT_IMAGE}
-                    alt={site.name}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+                  <picture>
+                    <img
+                      src={site.imageUrl || DEFAULT_IMAGE}
+                      alt={site.name}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Hình+ảnh+không+khả+dụng';
+                      }}
+                    />
+                  </picture>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
 
                   <div className="absolute top-3 left-3">
