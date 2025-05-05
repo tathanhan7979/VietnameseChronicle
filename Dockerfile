@@ -12,6 +12,7 @@ RUN update-ca-certificates
 
 # Sao chép package.json và package-lock.json
 COPY package*.json ./
+RUN npm install && npm run build
 
 # Cài đặt các dependencies
 RUN npm ci
