@@ -106,8 +106,13 @@ export default function HistoricalSiteDetail() {
                   if (relatedSitesResponse.ok) {
                     const relatedSitesData = await relatedSitesResponse.json();
                     // Lọc bỏ di tích hiện tại
-                    const filteredSites = relatedSitesData.filter((s: any) => s.id !== siteId);
-                    setSite((prevState: any) => ({ ...prevState, relatedSites: filteredSites }));
+                    const filteredSites = relatedSitesData.filter(
+                      (s: any) => s.id !== siteId,
+                    );
+                    setSite((prevState: any) => ({
+                      ...prevState,
+                      relatedSites: filteredSites,
+                    }));
                     console.log("Đã tải các di tích liên quan thành công");
                   }
                 } catch (err) {
@@ -190,7 +195,7 @@ export default function HistoricalSiteDetail() {
     <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
       {/* Header area with image background */}
       <div className="relative">
-        {(
+        {
           <div className="absolute inset-0 z-0 h-[350px] overflow-hidden">
             <div className="absolute inset-0 bg-black/40 z-10" />
             <img
@@ -202,7 +207,7 @@ export default function HistoricalSiteDetail() {
               }}
             />
           </div>
-        )}
+        }
 
         {/* Content overlay */}
         <div className="container mx-auto relative z-20 pt-12 px-4">
@@ -343,27 +348,6 @@ export default function HistoricalSiteDetail() {
                 {isFavorite ? "Đã lưu" : "Đánh dấu vào yêu thích"}
               </Button>
 
-              {/* Bookmark trình duyệt */}
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full flex items-center justify-center mb-4"
-                onClick={() => {
-                  // Modern browsers don't support these legacy methods anymore
-                  // Using simple alert instead
-                  alert(
-                    "Để lưu trang này, hãy nhấn " +
-                      (navigator.userAgent.toLowerCase().indexOf("mac") !== -1
-                        ? "Command/Cmd"
-                        : "Ctrl") +
-                      "+D trên bàn phím.",
-                  );
-                }}
-              >
-                <Bookmark className="mr-2 h-4 w-4" />
-                Đánh dấu trình duyệt
-              </Button>
-
               <Separator className="my-4" />
 
               {/* Chia sẻ */}
@@ -481,13 +465,16 @@ export default function HistoricalSiteDetail() {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {site.relatedSites.slice(0, 6).map((relatedSite: any) => (
-                    <Link href={`/di-tich/${relatedSite.id}/${slugify(relatedSite.name)}`} key={relatedSite.id}>
+                    <Link
+                      href={`/di-tich/${relatedSite.id}/${slugify(relatedSite.name)}`}
+                      key={relatedSite.id}
+                    >
                       <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                         <div className="h-32 bg-gray-200 relative">
                           {relatedSite.imageUrl ? (
-                            <img 
-                              src={relatedSite.imageUrl} 
-                              alt={relatedSite.name} 
+                            <img
+                              src={relatedSite.imageUrl}
+                              alt={relatedSite.name}
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 e.currentTarget.src = ERROR_IMAGE;
@@ -500,8 +487,12 @@ export default function HistoricalSiteDetail() {
                           )}
                         </div>
                         <div className="p-3">
-                          <h4 className="font-medium text-sm truncate">{relatedSite.name}</h4>
-                          <p className="text-xs text-gray-600 truncate">{relatedSite.location}</p>
+                          <h4 className="font-medium text-sm truncate">
+                            {relatedSite.name}
+                          </h4>
+                          <p className="text-xs text-gray-600 truncate">
+                            {relatedSite.location}
+                          </p>
                         </div>
                       </div>
                     </Link>

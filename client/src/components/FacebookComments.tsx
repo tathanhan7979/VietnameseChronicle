@@ -16,6 +16,8 @@ export default function FacebookComments({
         data-width="100%" 
         data-numposts="5"
         data-order-by="reverse_time"
+        data-lazy="true"
+        data-mobile="true"
       ></div>
     </div>
   );
