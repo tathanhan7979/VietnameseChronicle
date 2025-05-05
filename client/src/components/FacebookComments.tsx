@@ -24,6 +24,7 @@ export default function FacebookComments({
         data-href={url} 
         data-width="100%" 
         data-numposts="5"
+        data-order-by="reverse_time"
       ></div>
     </div>
   );
