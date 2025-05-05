@@ -55,8 +55,24 @@ export default function EventDetail() {
     );
   }
   
+  // Chuẩn bị dữ liệu SEO
+  const eventTypeText = event.eventTypes && event.eventTypes.length > 0
+    ? `[${event.eventTypes.map(t => t.name).join(', ')}]`
+    : '';
+  const seoTitle = `${event.title} ${event.year ? `(${event.year})` : ''} ${eventTypeText}`.trim();
+  const seoDescription = event.description || 'Thông tin chi tiết về sự kiện lịch sử Việt Nam';
+  const seoImage = event.imageUrl || '/uploads/banner-img.png';
+  const seoUrl = location;
+
   return (
     <div className="bg-[hsl(var(--background))] min-h-screen">
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        image={seoImage}
+        url={seoUrl}
+        type="article"
+      />
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link href="/#timeline">

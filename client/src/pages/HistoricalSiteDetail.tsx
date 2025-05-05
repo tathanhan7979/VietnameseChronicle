@@ -23,6 +23,7 @@ import { API_ENDPOINTS, ERROR_IMAGE } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { slugify } from "../lib/utils";
 import FacebookComments from "@/components/FacebookComments";
+import SEO from "@/components/SEO";
 
 export default function HistoricalSiteDetail() {
   // Trạng thái của component
@@ -191,8 +192,21 @@ export default function HistoricalSiteDetail() {
   }
 
   // Hiển thị thông tin di tích
+  // Chuẩn bị SEO metadata
+  const seoTitle = `${site.name} - Di tích lịch sử ${period ? `thời kỳ ${period}` : 'Việt Nam'}`;
+  const seoDescription = site.description || `Thông tin chi tiết về di tích lịch sử ${site.name}`;
+  const seoImage = site.imageUrl || '/uploads/banner-img.png';
+  const seoUrl = window.location.href;
+
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        image={seoImage}
+        url={seoUrl}
+        type="article"
+      />
       {/* Header area with image background */}
       <div className="relative">
         {

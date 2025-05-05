@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { HistoricalFigure, EventData } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, MapPin, Award, ExternalLink } from "lucide-react";
 import { slugify } from "@/lib/utils";
 import { ERROR_IMAGE } from "@/lib/constants";
 import FacebookComments from "@/components/FacebookComments";
+import SEO from "@/components/SEO";
 
 export default function HistoricalFigureDetail() {
   const { figureId } = useParams();
+  const [location] = useLocation();
 
   // Fetch the specific historical figure
   // Lấy dữ liệu nhân vật và các thời kỳ
@@ -61,8 +63,22 @@ export default function HistoricalFigureDetail() {
     );
   }
 
+  // Chuẩn bị dữ liệu SEO
+  const periodName = periods?.find(p => p.id === figure.periodId)?.name || "";
+  const seoTitle = `${figure.name} - Nhân vật lịch sử ${periodName ? `thời kỳ ${periodName}` : ''}`;
+  const seoDescription = figure.description || `Thông tin chi tiết về nhân vật lịch sử ${figure.name}`;
+  const seoImage = figure.imageUrl || '/uploads/banner-img.png';
+  const seoUrl = location;
+
   return (
     <div className="bg-[hsl(var(--background))] min-h-screen">
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        image={seoImage}
+        url={seoUrl}
+        type="article"
+      />
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link href="/nhan-vat/">
