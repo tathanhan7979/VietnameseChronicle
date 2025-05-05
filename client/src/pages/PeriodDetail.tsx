@@ -206,14 +206,21 @@ export default function PeriodDetail() {
             className="bg-white rounded-lg shadow-md overflow-hidden"
           >
             <div className="h-48 overflow-hidden relative">
-              <img
-                src={
-                  figure.imageUrl ||
-                  "https://via.placeholder.com/400x250?text=Nhân+Vật+Lịch+Sử"
-                }
-                alt={figure.name}
-                className="w-full h-full object-cover transition-transform hover:scale-105"
-              />
+              <picture>
+                <img
+                  src={
+                    figure.imageUrl ||
+                    "https://via.placeholder.com/400x250?text=Nhân+Vật+Lịch+Sử"
+                  }
+                  alt={figure.name}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover transition-transform hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Hình+ảnh+không+khả+dụng';
+                  }}
+                />
+              </picture>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                 <div className="p-4 text-white">
                   <h3 className="font-bold text-xl">{figure.name}</h3>
@@ -256,14 +263,21 @@ export default function PeriodDetail() {
             className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
           >
             <div className="h-48 overflow-hidden relative">
-              <img
-                src={
-                  site.imageUrl ||
-                  "https://via.placeholder.com/400x250?text=Di+Tích+Lịch+Sử"
-                }
-                alt={site.name}
-                className="w-full h-full object-cover transition-transform hover:scale-105"
-              />
+              <picture>
+                <img
+                  src={
+                    site.imageUrl ||
+                    "https://via.placeholder.com/400x250?text=Di+Tích+Lịch+Sử"
+                  }
+                  alt={site.name}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover transition-transform hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Hình+ảnh+không+khả+dụng';
+                  }}
+                />
+              </picture>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                 <div className="p-4 text-white">
                   <h3 className="font-bold text-xl">{site.name}</h3>

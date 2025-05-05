@@ -67,11 +67,18 @@ export default function EventDetail() {
           {/* Hero section with image (if available) */}
           {event.imageUrl && (
             <div className="relative h-64 md:h-96 overflow-hidden">
-              <img 
-                src={event.imageUrl} 
-                alt={event.title} 
-                className="w-full h-full object-cover"
-              />
+              <picture>
+                <img 
+                  src={event.imageUrl} 
+                  alt={event.title} 
+                  className="w-full h-full object-cover"
+                  loading="eager"
+                  decoding="async"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/800x400?text=Hình+ảnh+không+khả+dụng';
+                  }}
+                />
+              </picture>
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
                 <div className="p-6 text-white">
                   <h1 className="text-3xl md:text-4xl font-bold font-['Playfair_Display'] mb-2">{event.title}</h1>
