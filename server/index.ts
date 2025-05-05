@@ -7,8 +7,29 @@ import session from "express-session";
 import passport from "passport";
 import connectPgSimple from "connect-pg-simple";
 import { pool } from "@db";
+import compression from "compression";
 
 const app = express();
+
+// Sử dụng middleware nén (compression) để giảm kích thước response
+app.use(compression());
+
+// Middleware để thêm cache control headers
+app.use((req, res, next) => {
+  // Không cache cho các route API yêu cầu xác thực
+  if (req.path.startsWith('/api/auth') || req.path.includes('/admin')) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  } 
+  // Cache cho các nội dung tĩnh và API công khai
+  else if (req.path.startsWith('/api') || req.path.startsWith('/assets')) {
+    // Cache trong 5 phút
+    res.setHeader('Cache-Control', 'public, max-age=300');
+  }
+  next();
+});
+
 // Tăng giới hạn kích thước của request lên 50MB
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));

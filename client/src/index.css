@@ -220,6 +220,10 @@
     .period-title {
       text-align: unset;
     }
+
+    .whitespace-mobile {
+      white-space: break-spaces;
+    }
   }
 
   .scroll-indicator {

@@ -139,7 +139,7 @@ export default function TimelineSection({
         <div className="timeline-heading">
           <h2 className="flex items-center justify-center gap-3 flex-nowrap">
             <History className="h-10 w-10 text-[#C62828]" />
-            <span className="whitespace-nowrap">
+            <span className="whitespace-mobile">
               Dòng Thời Gian{" "}
               <span className="custom-important-text">Lịch Sử Việt Nam</span>
             </span>
