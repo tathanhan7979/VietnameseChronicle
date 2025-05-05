@@ -21,11 +21,9 @@ export default function FacebookComments({
       </h3>
       <div 
         className="fb-comments" 
-        data-href={url}
-        data-width={width}
-        data-numposts={numPosts.toString()}
-        data-colorscheme={colorscheme}
-        data-order-by={orderBy}
+        data-href={url} 
+        data-width="100%" 
+        data-numposts="5"
       ></div>
     </div>
   );

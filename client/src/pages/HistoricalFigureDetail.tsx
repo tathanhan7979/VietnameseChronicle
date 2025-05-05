@@ -191,7 +191,7 @@ export default function HistoricalFigureDetail() {
           
           {/* Facebook Comments */}
           <div className="px-6 md:px-8 pb-8">
-            <FacebookComments url={window.location.href} />
+            <FacebookComments url={`https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/nhan-vat/${figureId}/${slugify(figure.name)}`} />
           </div>
         </div>
       </div>
