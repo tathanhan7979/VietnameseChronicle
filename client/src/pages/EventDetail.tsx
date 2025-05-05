@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, MapPin } from 'lucide-react';
 
 import { slugify } from '@/lib/utils';
-import { ERROR_IMAGE } from '@/lib/constants';
+import { ERROR_IMAGE, DEFAULT_SEO_IMAGE } from '@/lib/constants';
 import FacebookComments from '@/components/FacebookComments';
 import SEO from '@/components/SEO';
 
@@ -61,7 +61,7 @@ export default function EventDetail() {
     : '';
   const seoTitle = `${event.title} ${event.year ? `(${event.year})` : ''} ${eventTypeText}`.trim();
   const seoDescription = event.description || `Thông tin chi tiết về sự kiện lịch sử ${event.title} ${period ? `trong thời kỳ ${period.name}` : 'Việt Nam'}`;
-  const seoImage = event.imageUrl || 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+  const seoImage = event.imageUrl || DEFAULT_SEO_IMAGE;
   const seoUrl = window.location.href;
 
   return (

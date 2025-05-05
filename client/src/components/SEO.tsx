@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet';
+import { DEFAULT_SEO_IMAGE } from '@/lib/constants';
 
 interface SEOProps {
   title: string;
@@ -13,7 +14,7 @@ interface SEOProps {
 export default function SEO({
   title,
   description,
-  image = 'https://lichsuviet.edu.vn/uploads/banner-image.png',
+  image = DEFAULT_SEO_IMAGE,
   type = 'website',
   url,
   articlePublishedTime,
