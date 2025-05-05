@@ -470,7 +470,7 @@ export default function HistoricalSiteDetail() {
         {/* Facebook Comments */}
         <div className="container mx-auto px-4 py-8">
           <div className="md:col-span-2">
-            <FacebookComments url={`https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/di-tich/${siteId}/${slugify(site.name)}`} />
+            <FacebookComments url={window.location.href} />
           </div>
         </div>
       </div>

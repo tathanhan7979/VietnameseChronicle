@@ -209,7 +209,7 @@ export default function EventDetail() {
           
           {/* Facebook Comments */}
           <div className="p-6 md:p-8 bg-gray-50">
-            <FacebookComments url={`https://40f15c0a-9c59-4ecb-9a19-c121f571237f-00-2112be2nuu4zo.spock.replit.dev/su-kien/${eventId}/${event.title ? slugify(event.title) : 'su-kien'}`} />
+            <FacebookComments url={window.location.href} />
           </div>
         </div>
       </div>
