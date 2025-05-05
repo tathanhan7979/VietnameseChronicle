@@ -1,36 +1,35 @@
+
 # Base image
 FROM node:18-alpine
 
-# Tạo thư mục làm việc
+# Create working directory
 WORKDIR /app
 
-# Cài đặt các gói phụ thuộc global
+# Install global dependencies 
 RUN apk add --no-cache python3 make g++ curl openssl ca-certificates
 
-# Cập nhật chứng chỉ cần thiết cho kết nối SSL với Neon PostgreSQL
+# Update SSL certificates for Neon PostgreSQL
 RUN update-ca-certificates
 
-# Sao chép package.json và package-lock.json
+# Copy package files
 COPY package*.json ./
-RUN npm install && npm run build
 
-# Cài đặt các dependencies
-RUN npm ci
+# Install dependencies and build
+RUN npm install
+RUN npm run build
 
-# Sao chép toàn bộ mã nguồn
+# Copy source code
 COPY . .
 
-# Đảm bảo thư mục uploads tồn tại
+# Create uploads directory with permissions
 RUN mkdir -p uploads
-
-# Đặt quyền truy cập cho thư mục uploads
 RUN chmod -R 777 uploads
 
-# Tạo file environment từ .env.example nếu tồn tại
+# Create env file from example if exists
 RUN if [ -f .env.example ]; then cp .env.example .env; fi
 
-# Mở cổng
+# Expose port
 EXPOSE 5000
 
-# Khởi động ứng dụng
+# Start app
 CMD ["npm", "run", "start"]

@@ -1,3 +1,4 @@
+
 version: '3.8'
 
 services:
@@ -11,13 +12,16 @@ services:
       - ./uploads:/app/uploads
     env_file:
       - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
 
   nginx:
     image: nginx:alpine
     container_name: lichsuviet_nginx
     restart: always
     ports:
-      - "80:80"
+      - "80:80" 
       - "443:443"
     volumes:
       - ./nginx:/etc/nginx/conf.d
