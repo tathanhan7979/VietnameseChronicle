@@ -9,12 +9,8 @@ services:
       - "5000:5000"
     volumes:
       - ./uploads:/app/uploads
-    environment:
-      - NODE_ENV=production
-      # Sử dụng cơ sở dữ liệu Neon PostgreSQL
-      - DATABASE_URL=postgresql://neondb_owner:npg_4lXCGwZWjb3K@ep-misty-pond-a5hdmf9q.us-east-2.aws.neon.tech/neondb?sslmode=require
-      # Mật khẩu ngẫu nhiên cho session express
-      - SESSION_SECRET=${SESSION_SECRET}
+    env_file:
+      - .env
 
   nginx:
     image: nginx:alpine
