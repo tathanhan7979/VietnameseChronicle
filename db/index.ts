@@ -3,21 +3,25 @@ import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "@shared/schema";
+import dotenv from 'dotenv';
 
-// This is the correct way neon config - DO NOT change this
+// Load biến môi trường từ file .env
+dotenv.config();
+
+// Cấu hình Neon - KHÔNG thay đổi phần này
 neonConfig.webSocketConstructor = ws;
 
-console.log('Checking DATABASE_URL:', process.env.DATABASE_URL ? 'exists' : 'missing');
+console.log('Kiểm tra DATABASE_URL:', process.env.DATABASE_URL ? 'tồn tại' : 'không tồn tại');
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
-    "DATABASE_URL must be set in environment variables. Check your .env file.",
+    "DATABASE_URL chưa được cấu hình trong biến môi trường. Vui lòng kiểm tra file .env của bạn.",
   );
 }
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const db = drizzle(pool, { schema });
 
-console.log('Database connection configured');
+console.log('Đã cấu hình kết nối cơ sở dữ liệu');
 
 export { pool, db };
