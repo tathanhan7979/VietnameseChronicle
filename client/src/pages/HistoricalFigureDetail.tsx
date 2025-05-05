@@ -25,6 +25,13 @@ export default function HistoricalFigureDetail() {
   const { data: periods } = useQuery<{id: number, name: string, slug: string}[]>({
     queryKey: ['/api/periods'],
   });
+  
+  // Lấy các nhân vật liên quan trong cùng thời kỳ
+  const periodId = figure?.periodId;
+  const { data: relatedFigures } = useQuery<HistoricalFigure[]>({
+    queryKey: [`/api/historical-figures/period/${periodId}`],
+    enabled: !!periodId,
+  });
 
   if (isLoading) {
     return (
@@ -187,6 +194,57 @@ export default function HistoricalFigureDetail() {
                 </Link>
               </div>
             </div>
+            
+            {/* Related Figures - Các nhân vật liên quan cùng thời kỳ */}
+            {relatedFigures && relatedFigures.length > 1 && (
+              <div className="mt-12 pt-8 border-t border-gray-200">
+                <h2 className="text-2xl font-bold font-['Playfair_Display'] text-[hsl(var(--primary))] mb-6">Các nhân vật cùng thời kỳ</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {relatedFigures
+                    .filter(relFigure => relFigure.id !== Number(figureId)) // Loại bỏ nhân vật hiện tại
+                    .slice(0, 6) // Giới hạn hiển thị 6 nhân vật
+                    .map(relFigure => (
+                      <Link href={`/nhan-vat/${relFigure.id}/${slugify(relFigure.name)}`} key={relFigure.id}>
+                        <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                          <div className="h-48 bg-gray-200 relative">
+                            {relFigure.imageUrl ? (
+                              <img 
+                                src={relFigure.imageUrl} 
+                                alt={relFigure.name} 
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = ERROR_IMAGE;
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                                <MapPin className="w-12 h-12" />
+                              </div>
+                            )}
+                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                              <p className="text-white font-medium">{relFigure.lifespan || 'Không rõ'}</p>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <h3 className="font-semibold text-lg mb-2 line-clamp-2">{relFigure.name}</h3>
+                            <p className="text-sm text-gray-600 line-clamp-3">{relFigure.description}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    ))
+                  }
+                </div>
+                {relatedFigures.length > 6 && periods?.find(p => p.id === figure.periodId)?.slug && (
+                  <div className="mt-6 text-center">
+                    <Link href={`/thoi-ky/${periods?.find(p => p.id === figure.periodId)?.slug}#figures`}>
+                      <Button variant="outline">
+                        Xem tất cả nhân vật trong thời kỳ {periods?.find(p => p.id === figure.periodId)?.name || ""}
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           
           {/* Facebook Comments */}
