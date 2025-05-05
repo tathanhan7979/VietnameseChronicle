@@ -66,14 +66,21 @@ export default function HistoricalFigureDetail() {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {/* Hero section with image */}
           <div className="relative h-64 md:h-96 overflow-hidden">
-            <img
-              src={
-                figure.imageUrl ||
-                "https://via.placeholder.com/1200x600?text=Nh%C3%A2n+V%E1%BA%ADt+L%E1%BB%8Bch+S%E1%BB%AD"
-              }
-              alt={figure.name}
-              className="w-full h-full object-cover"
-            />
+            <picture>
+              <img
+                src={
+                  figure.imageUrl ||
+                  "/uploads/error-img.png"
+                }
+                alt={figure.name}
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = '/uploads/error-img.png';
+                }}
+              />
+            </picture>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
               <div className="p-6 text-white">
                 <h1 className="text-3xl md:text-4xl font-bold font-['Playfair_Display'] mb-2">

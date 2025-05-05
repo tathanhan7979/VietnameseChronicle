@@ -252,7 +252,7 @@ export default function TimelineSection({
                                   decoding="async"
                                   className="event-image"
                                   onError={(e) => {
-                                    e.currentTarget.src = 'https://via.placeholder.com/400x250?text=Hình+ảnh+không+khả+dụng';
+                                    e.currentTarget.src = '/uploads/error-img.png';
                                   }}
                                 />
                               </picture>

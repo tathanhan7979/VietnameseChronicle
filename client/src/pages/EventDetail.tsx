@@ -75,7 +75,7 @@ export default function EventDetail() {
                   loading="eager"
                   decoding="async"
                   onError={(e) => {
-                    e.currentTarget.src = 'https://via.placeholder.com/800x400?text=Hình+ảnh+không+khả+dụng';
+                    e.currentTarget.src = '/uploads/error-img.png';
                   }}
                 />
               </picture>
