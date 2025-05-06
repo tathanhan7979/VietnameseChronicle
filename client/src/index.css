@@ -11,6 +11,12 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 
+  .event-image {
+    height: 190px;
+    -o-object-fit: fill;
+    object-fit: fill;
+  }
+
   /* Card Flip CSS */
   .card-flip {
     perspective: 1000px;
@@ -223,6 +229,10 @@
 
     .whitespace-mobile {
       white-space: break-spaces;
+    }
+
+    .md\:h-96 {
+      height: 30rem;
     }
   }
 
