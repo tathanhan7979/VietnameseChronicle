@@ -5,7 +5,7 @@ import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
 import { ChevronRight, Clock, History, CalendarDays } from "lucide-react";
-const globalCounter = 0;
+let globalCounter = 0;
 interface TimelineSectionProps {
   periods: PeriodData[];
   events: EventData[];
