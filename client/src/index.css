@@ -22,15 +22,6 @@
     object-fit: fill;
   }
 
-  .ql-container.ql-snow {
-    max-height: 500px;
-    overflow-y: scroll;
-  }
-
-  .ql-align-center {
-    text-align: -webkit-center;
-  }
-
   /* Card Flip CSS */
   .card-flip {
     perspective: 1000px;
