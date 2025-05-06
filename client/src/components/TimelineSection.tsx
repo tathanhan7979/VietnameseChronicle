@@ -212,7 +212,7 @@ export default function TimelineSection({
                   {/* Events container */}
                   <div className="timeline-events-container">
                     {periodEvents.map((event, index) => {
-                      const isLeft = counter % 2 === 0;
+                      const isLeft = globalCounter % 2 === 0;
                       globalCounter++; // Tăng sau khi dùng
                       return (
                         <motion.div
