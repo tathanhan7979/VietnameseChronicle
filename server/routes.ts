@@ -773,8 +773,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Upload favicon
   app.post(
     `${apiPrefix}/upload/favicon`,
-    requireAuth,
-    requireAdmin,
     uploadImage.single("file"),
     async (req, res) => {
       try {
@@ -807,8 +805,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Upload background image
   app.post(
     `${apiPrefix}/upload/backgrounds`,
-    requireAuth,
-    requireAdmin,
     uploadImage.single("file"),
     async (req, res) => {
       try {
@@ -872,8 +868,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Upload hình ảnh cho nhân vật lịch sử
   app.post(
     `${apiPrefix}/upload/figures`,
-    requireAuth,
-    requireAdmin,
     uploadImage.single("file"),
     async (req, res) => {
       try {
@@ -902,8 +896,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Upload hình ảnh cho di tích lịch sử
   app.post(
     `${apiPrefix}/upload/sites`,
-    requireAuth,
-    requireAdmin,
     uploadImage.single("file"),
     async (req, res) => {
       try {
@@ -2712,8 +2704,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API endpoint tải lên hình ảnh nhân vật
   app.post(
     `${apiPrefix}/upload/figures`,
-    requireAuth,
-    requireAdmin,
     uploadFigureImage.single("file"),
     (req, res) => {
       try {
@@ -2745,8 +2735,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API endpoint tải lên hình ảnh địa danh
   app.post(
     `${apiPrefix}/upload/sites`,
-    requireAuth,
-    requireAdmin,
     uploadSiteImage.single("file"),
     (req, res) => {
       try {
@@ -2778,8 +2766,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API endpoint tải lên hình ảnh nền
   app.post(
     `${apiPrefix}/upload/backgrounds`,
-    requireAuth,
-    requireAdmin,
     uploadBackgroundImage.single("file"),
     (req, res) => {
       try {
