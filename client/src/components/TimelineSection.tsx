@@ -211,9 +211,10 @@ export default function TimelineSection({
 
                   {/* Events container */}
                   <div className="timeline-events-container">
+                    let counter = 0;
                     {periodEvents.map((event, index) => {
-                      const isLeft = index % 2 === 0;
-                      const checkperiod = periodIndex % 2 === 0;
+                      const isLeft = counter % 2 === 0;
+                      counter++; // tăng mỗi lần gặp 1 event
                       return (
                         <motion.div
                           key={event.id}
@@ -221,7 +222,7 @@ export default function TimelineSection({
                           whileInView={{ opacity: 1, y: 0 }}
                           viewport={{ once: true }}
                           transition={{ duration: 0.5 }}
-                          className={`timeline-event ${isLeft !== checkperiod ? "left" : "right"}`}
+                          className={`timeline-event ${isLeft ? "left" : "right"}`}
                         >
                           {/* Event dot on the timeline */}
                           <div className="event-dot"></div>
