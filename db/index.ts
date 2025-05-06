@@ -1,14 +1,10 @@
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
-import ws from "ws";
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "@shared/schema";
 import dotenv from "dotenv";
 
 // Load biến môi trường từ file .env
 dotenv.config();
-
-// Cấu hình Neon - KHÔNG thay đổi phần này
-neonConfig.webSocketConstructor = ws;
 
 console.log(
   "Kiểm tra DATABASE_URL:",
@@ -21,12 +17,12 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-// Cấu hình kết nối database
+// Cấu hình kết nối database local PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: false, // Tắt SSL cho local development
+  ssl: false, // hoặc thêm { rejectUnauthorized: false } nếu cần cấu hình SSL riêng
 });
+
 const db = drizzle(pool, { schema });
 
 console.log("Đã cấu hình kết nối cơ sở dữ liệu");
