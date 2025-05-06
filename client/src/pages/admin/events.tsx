@@ -466,7 +466,6 @@ export default function EventsAdmin() {
         // Tải lên hình ảnh thông qua API mới
         const formData = new FormData();
         formData.append("file", file);
-
         const response = await fetch("/api/upload/events", {
           method: "POST",
           body: formData,
