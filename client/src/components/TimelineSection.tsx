@@ -24,7 +24,7 @@ export default function TimelineSection({
   );
   const timelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
-
+  const globalCounter = 0;
   // Lấy tham số period từ URL khi quay lại trang chủ
   useEffect(() => {
     if (location.includes("?period=")) {
@@ -176,7 +176,6 @@ export default function TimelineSection({
           <div className="md:col-span-3 relative">
             {/* Main vertical timeline line */}
             <div className="timeline-line"></div>
-            let globalCounter = 0;
             {periods.map((period, periodIndex) => {
               const periodEvents = events.filter(
                 (event) => event.periodId === period.id,
