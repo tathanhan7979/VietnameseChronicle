@@ -5,7 +5,7 @@ import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
 import { ChevronRight, Clock, History, CalendarDays } from "lucide-react";
-
+const globalCounter = 0;
 interface TimelineSectionProps {
   periods: PeriodData[];
   events: EventData[];
@@ -24,7 +24,6 @@ export default function TimelineSection({
   );
   const timelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
-  const globalCounter = 0;
   // Lấy tham số period từ URL khi quay lại trang chủ
   useEffect(() => {
     if (location.includes("?period=")) {
