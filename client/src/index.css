@@ -17,6 +17,14 @@
     object-fit: fill;
   }
 
+  .md\:h-96 {
+    height: 30rem;
+  }
+
+  .relative.h-64.md\:h-96.overflow-hidden picture img {
+    object-fit: fill;
+  }
+
   /* Card Flip CSS */
   .card-flip {
     perspective: 1000px;
@@ -231,9 +239,6 @@
       white-space: break-spaces;
     }
 
-    .md\:h-96 {
-      height: 30rem;
-    }
   }
 
   .scroll-indicator {
