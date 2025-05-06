@@ -213,7 +213,7 @@ export default function TimelineSection({
                   <div className="timeline-events-container">
                     {periodEvents.map((event, index) => {
                       const isLeft = index % 2 === 0;
-
+                      const checkperiod = periodIndex % 2 === 0;
                       return (
                         <motion.div
                           key={event.id}
@@ -221,7 +221,7 @@ export default function TimelineSection({
                           whileInView={{ opacity: 1, y: 0 }}
                           viewport={{ once: true }}
                           transition={{ duration: 0.5 }}
-                          className={`timeline-event ${isLeft ? "left" : "right"}`}
+                          className={`timeline-event ${isLeft && checkperiod ? "left" : "right"}`}
                         >
                           {/* Event dot on the timeline */}
                           <div className="event-dot"></div>
@@ -252,7 +252,8 @@ export default function TimelineSection({
                                   decoding="async"
                                   className="event-image"
                                   onError={(e) => {
-                                    e.currentTarget.src = '/uploads/error-img.png';
+                                    e.currentTarget.src =
+                                      "/uploads/error-img.png";
                                   }}
                                 />
                               </picture>
