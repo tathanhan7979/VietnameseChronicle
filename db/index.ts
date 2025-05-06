@@ -23,6 +23,7 @@ const pool = new Pool({
   ssl: false, // hoặc thêm { rejectUnauthorized: false } nếu cần cấu hình SSL riêng
 });
 
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false });
 const db = drizzle(pool, { schema });
 
 console.log("Đã cấu hình kết nối cơ sở dữ liệu");
