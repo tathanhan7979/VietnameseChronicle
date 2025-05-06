@@ -176,7 +176,7 @@ export default function TimelineSection({
           <div className="md:col-span-3 relative">
             {/* Main vertical timeline line */}
             <div className="timeline-line"></div>
-
+            let globalCounter = 0;
             {periods.map((period, periodIndex) => {
               const periodEvents = events.filter(
                 (event) => event.periodId === period.id,
@@ -211,10 +211,9 @@ export default function TimelineSection({
 
                   {/* Events container */}
                   <div className="timeline-events-container">
-                    let counter = 0;
                     {periodEvents.map((event, index) => {
                       const isLeft = counter % 2 === 0;
-                      counter++; // tăng mỗi lần gặp 1 event
+                      globalCounter++; // Tăng sau khi dùng
                       return (
                         <motion.div
                           key={event.id}
