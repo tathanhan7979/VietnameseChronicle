@@ -221,7 +221,7 @@ export default function TimelineSection({
                           whileInView={{ opacity: 1, y: 0 }}
                           viewport={{ once: true }}
                           transition={{ duration: 0.5 }}
-                          className={`timeline-event ${isLeft && checkperiod ? "left" : "right"}`}
+                          className={`timeline-event ${isLeft !== checkperiod ? "left" : "right"}`}
                         >
                           {/* Event dot on the timeline */}
                           <div className="event-dot"></div>
