@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'wouter';
-import { Clock, User, Landmark, Home, Search, Menu, X } from 'lucide-react';
-import { useMobile } from '@/hooks/use-mobile';
+import { useState, useEffect } from "react";
+import { Link } from "wouter";
+import { Clock, User, Landmark, Home, Search, Menu, X } from "lucide-react";
+import { useMobile } from "@/hooks/use-mobile";
 
 interface HeaderProps {
   onOpenSearch: () => void;
@@ -9,27 +9,41 @@ interface HeaderProps {
   onSectionSelect?: (sectionId: string) => void;
 }
 
-export default function Header({ onOpenSearch, activeSection = '', onSectionSelect }: HeaderProps) {
+export default function Header({
+  onOpenSearch,
+  activeSection = "",
+  onSectionSelect,
+}: HeaderProps) {
   const isMobile = useMobile();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const navigationItems = [
-    { id: 'timeline', name: 'Dòng Thời Gian', icon: Clock, href: '/#timeline' },
-    { id: 'historical-figures', name: 'Nhân Vật', icon: User, href: '/#historical-figures' },
-    { id: 'historical-sites', name: 'Di Tích', icon: Landmark, href: '/#historical-sites' },
+    { id: "timeline", name: "Dòng Thời Gian", icon: Clock, href: "/#timeline" },
+    {
+      id: "historical-figures",
+      name: "Nhân Vật",
+      icon: User,
+      href: "/#historical-figures",
+    },
+    {
+      id: "historical-sites",
+      name: "Di Tích",
+      icon: Landmark,
+      href: "/#historical-sites",
+    },
   ];
-  
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       setIsScrolled(scrollTop > 10);
     };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  
+
   // Handle navigation click
   const handleNavClick = (sectionId: string, e: React.MouseEvent) => {
     // Only handle for homepage sections
@@ -43,10 +57,10 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
       setIsMobileMenuOpen(false);
     }
   };
-  
+
   return (
-    <header 
-      className={`fixed w-full top-0 z-50 transition-all duration-300 backdrop-blur-md ${isScrolled ? 'bg-black/80 shadow-lg' : 'bg-black/50'}`}
+    <header
+      className={`fixed w-full top-0 z-50 transition-all duration-300 backdrop-blur-md ${isScrolled ? "bg-black/80 shadow-lg" : "bg-black/50"}`}
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
@@ -54,14 +68,14 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
           <Link href="/">
             <div className="flex items-center cursor-pointer group">
               <div className="h-10 w-10 mr-3 bg-gradient-to-br from-red-600 to-red-700 rounded-lg flex items-center justify-center text-white font-bold font-['Playfair_Display'] text-lg transition-transform duration-300 group-hover:scale-105 shadow-md">
-                VN
+                <img src="/uploads/start.png" alt="Start" className="p-2" />
               </div>
               <h1 className="font-['Playfair_Display'] font-bold text-xl md:text-2xl text-white tracking-wider">
                 LỊCH SỬ <span className="text-red-500">VIỆT NAM</span>
               </h1>
             </div>
           </Link>
-          
+
           {/* Mobile Menu Icon */}
           {isMobile && (
             <div className="flex items-center">
@@ -72,25 +86,29 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
               >
                 <Search className="h-6 w-6" />
               </button>
-              <button 
+              <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 text-white/80 hover:text-white transition-colors"
                 aria-label="Menu"
               >
-                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {isMobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
               </button>
             </div>
           )}
-          
+
           {/* Desktop Navigation */}
           {!isMobile && (
             <nav className="flex items-center space-x-1">
               {navigationItems.map((item) => (
-                <Link 
-                  key={item.id} 
+                <Link
+                  key={item.id}
                   href={item.href}
                   onClick={(e) => handleNavClick(item.id, e)}
-                  className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-all hover:bg-white/10 ${activeSection === item.id ? 'text-red-400 bg-white/10' : 'text-white/90 hover:text-white'}`}
+                  className={`flex items-center px-4 py-2 rounded-md text-base font-medium transition-all hover:bg-white/10 ${activeSection === item.id ? "text-red-400 bg-white/10" : "text-white/90 hover:text-white"}`}
                 >
                   <item.icon className="h-4 w-4 mr-2" />
                   {item.name}
@@ -107,20 +125,20 @@ export default function Header({ onOpenSearch, activeSection = '', onSectionSele
             </nav>
           )}
         </div>
-        
+
         {/* Mobile Menu Dropdown - slide down animation */}
         {isMobile && (
-          <div 
-            className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-64 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? "max-h-64 opacity-100 mt-4" : "max-h-0 opacity-0"}`}
           >
             <nav className="py-4 border-t border-white/20">
               <ul className="space-y-2">
                 {navigationItems.map((item) => (
                   <li key={item.id}>
-                    <Link 
+                    <Link
                       href={item.href}
                       onClick={(e) => handleNavClick(item.id, e)}
-                      className={`flex items-center py-3 px-4 rounded-md font-medium transition-colors hover:bg-white/10 ${activeSection === item.id ? 'text-red-400 bg-white/10' : 'text-white/90 hover:text-white'}`}
+                      className={`flex items-center py-3 px-4 rounded-md font-medium transition-colors hover:bg-white/10 ${activeSection === item.id ? "text-red-400 bg-white/10" : "text-white/90 hover:text-white"}`}
                     >
                       <item.icon className="h-5 w-5 mr-3" />
                       {item.name}
