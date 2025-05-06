@@ -27,6 +27,10 @@
     overflow-y: scroll;
   }
 
+  .ql-align-center {
+    text-align: -webkit-center;
+  }
+
   /* Card Flip CSS */
   .card-flip {
     perspective: 1000px;
