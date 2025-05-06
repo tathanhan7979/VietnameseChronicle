@@ -11,7 +11,7 @@ interface HeroSectionProps {
 export default function HeroSection({ onStartExplore }: HeroSectionProps) {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [backgroundUrl, setBackgroundUrl] = useState(
-    "https://images.unsplash.com/photo-1624009582782-1be02fbb7f23?q=80&w=2071&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1624009582782-1be02fbb7f23?q=80&w=2071&auto=format&fit=crop",
   );
 
   // Lấy URL ảnh nền từ settings
@@ -26,7 +26,7 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
         console.error("Không thể lấy URL ảnh nền:", error);
         return null;
       }
-    }
+    },
   });
 
   // Cập nhật URL ảnh nền khi có dữ liệu từ settings
@@ -83,8 +83,8 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
         {/* Background with parallax effect */}
         <div className="absolute inset-0 z-0">
           <picture>
-            <img 
-              src={backgroundUrl} 
+            <img
+              src={backgroundUrl}
               alt="Lịch sử Việt Nam"
               className="absolute inset-0 w-full h-full object-cover transform scale-110"
               style={{
@@ -93,7 +93,7 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
               }}
               loading="eager"
               onError={(e) => {
-                e.currentTarget.src = '/uploads/error-img.png';
+                e.currentTarget.src = "/uploads/error-img.png";
               }}
             />
           </picture>
@@ -119,8 +119,8 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              Khám phá hành trình vẻ vang từ thời Vua Hùng dựng nước đến nền
-              cộng hòa hiện đại
+              Khám phá hành trình vẻ vang từ thời Vua Hùng dựng nước đến Công
+              Hòa Xã Hội Chủ Nghĩa Việt Nam hiện đại
             </motion.p>
 
             <motion.div
