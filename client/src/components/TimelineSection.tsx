@@ -22,9 +22,6 @@ export default function TimelineSection({
   const [activeSection, setActiveSection] = useState<string | null>(
     activePeriodSlug,
   );
-  const [webpAvailableMap, setWebpAvailableMap] = useState<{
-    [id: string]: boolean;
-  }>({});
   const timelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
   let globalCounter = 0;
@@ -57,38 +54,6 @@ export default function TimelineSection({
       }, 500);
     }
   }, [location]);
-
-  useEffect(() => {
-    const checkWebpExists = async () => {
-      const updatedMap: { [imageUrl: string]: boolean } = {};
-
-      const uniqueUrls = Array.from(
-        new Set(
-          events
-            .map((event) => event.imageUrl)
-            .filter(
-              (url): url is string => !!url && /\.(png|jpe?g)$/i.test(url),
-            ),
-        ),
-      );
-
-      await Promise.all(
-        uniqueUrls.map(async (url) => {
-          const webpUrl = url.replace(/\.(png|jpe?g)$/i, ".webp");
-          try {
-            const response = await fetch(webpUrl, { method: "HEAD" });
-            updatedMap[url] = response.ok;
-          } catch {
-            updatedMap[url] = false;
-          }
-        }),
-      );
-
-      setWebpAvailableMap(updatedMap);
-    };
-
-    checkWebpExists();
-  }, [events]);
 
   // Set active period from props
   useEffect(() => {
@@ -279,15 +244,6 @@ export default function TimelineSection({
 
                             {event.imageUrl && (
                               <picture>
-                                {webpAvailableMap[event.imageUrl] && (
-                                  <source
-                                    srcSet={event.imageUrl.replace(
-                                      /\.(png|jpe?g)$/i,
-                                      ".webp",
-                                    )}
-                                    type="image/webp"
-                                  />
-                                )}
                                 <img
                                   src={event.imageUrl}
                                   alt={event.title}
