@@ -6,7 +6,7 @@ import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
 import { ChevronRight, Clock, History, CalendarDays } from "lucide-react";
 let globalCounter = 1;
-const [imageError, setImageError] = useState(false);
+
 interface TimelineSectionProps {
   periods: PeriodData[];
   events: EventData[];
@@ -23,6 +23,7 @@ export default function TimelineSection({
   const [activeSection, setActiveSection] = useState<string | null>(
     activePeriodSlug,
   );
+  const [imageError, setImageError] = useState(false); // ✅ CHUYỂN DÒNG NÀY VÀO ĐÂY
   const timelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
   // Lấy tham số period từ URL khi quay lại trang chủ
