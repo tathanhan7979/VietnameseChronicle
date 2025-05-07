@@ -234,14 +234,12 @@ export default function TimelineSection({
                             >
                               <h4 className="event-title">{event.title}</h4>
                             </Link>
-
                             <span className="event-year">{event.year}</span>
-
                             <p className="event-description">
                               {event.description}
                             </p>
-
-                            {event.imageUrl && (
+                            const [imageError, setImageError] = useState(false);
+                            {event.imageUrl && !imageError ? (
                               <picture>
                                 <source
                                   srcSet={event.imageUrl.replace(
@@ -256,14 +254,18 @@ export default function TimelineSection({
                                   loading="lazy"
                                   decoding="async"
                                   className="event-image"
-                                  onError={(e) => {
-                                    e.currentTarget.src =
-                                      "/uploads/error-img.png";
-                                  }}
+                                  onError={() => setImageError(true)}
                                 />
                               </picture>
+                            ) : (
+                              <img
+                                src="/uploads/error-img.webp"
+                                alt="Image not found"
+                                loading="lazy"
+                                decoding="async"
+                                className="event-image"
+                              />
                             )}
-
                             <div className="mt-4">
                               {event.eventTypes &&
                                 event.eventTypes.length > 0 && (
