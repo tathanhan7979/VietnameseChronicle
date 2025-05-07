@@ -77,7 +77,7 @@ passport.deserializeUser(async (id: number, done) => {
 });
 
 // Phục vụ thư mục uploads dưới dạng static files
-//app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+//app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use((req, res, next) => {
   const start = Date.now();
