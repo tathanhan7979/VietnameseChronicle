@@ -26,6 +26,9 @@ export default function TimelineSection({
   const [imageErrorMap, setImageErrorMap] = useState<{ [id: string]: boolean }>(
     {},
   );
+  const [webpAvailableMap, setWebpAvailableMap] = useState<{
+    [id: string]: boolean;
+  }>({});
   const timelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
   // Lấy tham số period từ URL khi quay lại trang chủ
@@ -57,6 +60,30 @@ export default function TimelineSection({
       }, 500);
     }
   }, [location]);
+
+  useEffect(() => {
+    const checkWebpExists = async () => {
+      const updatedMap: { [id: string]: boolean } = {};
+
+      await Promise.all(
+        events.map(async (event) => {
+          if (!event.imageUrl) return;
+
+          const webpUrl = event.imageUrl.replace(/\.(png|jpe?g)$/i, ".webp");
+          try {
+            const response = await fetch(webpUrl, { method: "HEAD" });
+            updatedMap[event.id] = response.ok;
+          } catch (error) {
+            updatedMap[event.id] = false;
+          }
+        }),
+      );
+
+      setWebpAvailableMap(updatedMap);
+    };
+
+    checkWebpExists();
+  }, [events]);
 
   // Set active period from props
   useEffect(() => {
@@ -242,47 +269,54 @@ export default function TimelineSection({
                             <p className="event-description">
                               {event.description}
                             </p>
-                            {event.imageUrl && !imageErrorMap[event.id] ? (
-                              <picture>
-                                <source
-                                  srcSet={event.imageUrl.replace(
-                                    /\.(png|jpe?g)$/i,
-                                    ".webp",
-                                  )}
-                                  type="image/webp"
-                                />
+                            {event.imageUrl ? (
+                              webpAvailableMap[event.id] &&
+                              !imageErrorMap[event.id] ? (
+                                <picture>
+                                  <source
+                                    srcSet={event.imageUrl.replace(
+                                      /\.(png|jpe?g)$/i,
+                                      ".webp",
+                                    )}
+                                    type="image/webp"
+                                  />
+                                  <img
+                                    src={event.imageUrl}
+                                    alt={event.title}
+                                    loading="lazy"
+                                    decoding="async"
+                                    className="event-image"
+                                    onError={() =>
+                                      setImageErrorMap((prev) => ({
+                                        ...prev,
+                                        [event.id]: true,
+                                      }))
+                                    }
+                                  />
+                                </picture>
+                              ) : !imageErrorMap[event.id] ? (
                                 <img
                                   src={event.imageUrl}
                                   alt={event.title}
                                   loading="lazy"
                                   decoding="async"
                                   className="event-image"
-                                  onError={(e) => {
-                                    const failedUrl =
-                                      e.currentTarget.currentSrc;
-                                    // Nếu cả ảnh webp hoặc png đều lỗi (404, invalid), fallback
-                                    if (
-                                      failedUrl.endsWith(".webp") ||
-                                      failedUrl.endsWith(".png") ||
-                                      failedUrl.endsWith(".jpg") ||
-                                      failedUrl.endsWith(".jpeg")
-                                    ) {
-                                      setImageErrorMap((prev) => ({
-                                        ...prev,
-                                        [event.id]: true,
-                                      }));
-                                    }
-                                  }}
+                                  onError={() =>
+                                    setImageErrorMap((prev) => ({
+                                      ...prev,
+                                      [event.id]: true,
+                                    }))
+                                  }
                                 />
-                              </picture>
-                            ) : event.imageUrl ? (
-                              <img
-                                src="/uploads/error-img.webp"
-                                alt="Image not found"
-                                loading="lazy"
-                                decoding="async"
-                                className="event-image"
-                              />
+                              ) : (
+                                <img
+                                  src="/uploads/error-img.webp"
+                                  alt="Image not found"
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="event-image"
+                                />
+                              )
                             ) : null}
 
                             <div className="mt-4">
