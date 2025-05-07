@@ -76,8 +76,26 @@ passport.deserializeUser(async (id: number, done) => {
   }
 });
 
+app.use("/uploads", (req, res, next) => {
+  const acceptHeader = req.headers["accept"] || "";
+  const originalUrl = req.url;
+  const filePath = path.join(process.cwd(), "uploads", originalUrl);
+
+  if (
+    /\.(jpg|jpeg|png)$/i.test(originalUrl) &&
+    acceptHeader.includes("image/webp")
+  ) {
+    const webpPath = filePath.replace(/\.(jpg|jpeg|png)$/i, ".webp");
+
+    if (fs.existsSync(webpPath)) {
+      return res.sendFile(webpPath);
+    }
+  }
+
+  next();
+});
 // Phục vụ thư mục uploads dưới dạng static files
-//app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use((req, res, next) => {
   const start = Date.now();
