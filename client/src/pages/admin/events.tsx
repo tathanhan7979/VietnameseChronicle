@@ -652,7 +652,7 @@ export default function EventsAdmin() {
                       <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
                         <a
-                          href={`/events/${event.id}`}
+                          href={`/su-kien/${event.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center cursor-pointer"
