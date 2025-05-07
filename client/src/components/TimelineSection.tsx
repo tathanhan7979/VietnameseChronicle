@@ -23,7 +23,9 @@ export default function TimelineSection({
   const [activeSection, setActiveSection] = useState<string | null>(
     activePeriodSlug,
   );
-  const [imageError, setImageError] = useState(false); // ✅ CHUYỂN DÒNG NÀY VÀO ĐÂY
+  const [imageErrorMap, setImageErrorMap] = useState<{ [id: string]: boolean }>(
+    {},
+  );
   const timelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
   // Lấy tham số period từ URL khi quay lại trang chủ
@@ -240,7 +242,7 @@ export default function TimelineSection({
                             <p className="event-description">
                               {event.description}
                             </p>
-                            {event.imageUrl && !imageError ? (
+                            {event.imageUrl && !imageErrorMap[event.id] ? (
                               <picture>
                                 <source
                                   srcSet={event.imageUrl.replace(
@@ -255,7 +257,12 @@ export default function TimelineSection({
                                   loading="lazy"
                                   decoding="async"
                                   className="event-image"
-                                  onError={() => setImageError(true)}
+                                  onError={() =>
+                                    setImageErrorMap((prev) => ({
+                                      ...prev,
+                                      [event.id]: true,
+                                    }))
+                                  }
                                 />
                               </picture>
                             ) : (
