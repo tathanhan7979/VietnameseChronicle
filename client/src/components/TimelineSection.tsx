@@ -269,9 +269,8 @@ export default function TimelineSection({
                             <p className="event-description">
                               {event.description}
                             </p>
-                            {event.imageUrl ? (
-                              webpAvailableMap[event.id] &&
-                              !imageErrorMap[event.id] ? (
+                            {event.imageUrl && !imageErrorMap[event.id] ? (
+                              webpAvailableMap[event.id] ? (
                                 <picture>
                                   <source
                                     srcSet={event.imageUrl.replace(
@@ -286,38 +285,38 @@ export default function TimelineSection({
                                     loading="lazy"
                                     decoding="async"
                                     className="event-image"
-                                    onError={() =>
+                                    onError={() => {
                                       setImageErrorMap((prev) => ({
                                         ...prev,
                                         [event.id]: true,
-                                      }))
-                                    }
+                                      }));
+                                    }}
                                   />
                                 </picture>
-                              ) : !imageErrorMap[event.id] ? (
+                              ) : (
                                 <img
                                   src={event.imageUrl}
                                   alt={event.title}
                                   loading="lazy"
                                   decoding="async"
                                   className="event-image"
-                                  onError={() =>
+                                  onError={() => {
                                     setImageErrorMap((prev) => ({
                                       ...prev,
                                       [event.id]: true,
-                                    }))
-                                  }
-                                />
-                              ) : (
-                                <img
-                                  src="/uploads/error-img.webp"
-                                  alt="Image not found"
-                                  loading="lazy"
-                                  decoding="async"
-                                  className="event-image"
+                                    }));
+                                  }}
                                 />
                               )
-                            ) : null}
+                            ) : (
+                              <img
+                                src="/uploads/error-img.webp"
+                                alt="Image not found"
+                                loading="lazy"
+                                decoding="async"
+                                className="event-image"
+                              />
+                            )}
 
                             <div className="mt-4">
                               {event.eventTypes &&
