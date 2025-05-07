@@ -356,6 +356,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await createInitialAdminUser();
   // API prefix
   const apiPrefix = "/api";
+
   app.use("/uploads", (req, res, next) => {
     const acceptHeader = req.headers["accept"] || "";
     const originalUrl = req.url;
@@ -368,12 +369,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const webpPath = filePath.replace(/\.(jpg|jpeg|png)$/i, ".webp");
 
       if (fs.existsSync(webpPath)) {
+        console.log("▶ Serve WebP:", webpPath);
         return res.sendFile(webpPath);
+      } else if (fs.existsSync(filePath)) {
+        console.log("▶ Serve original image:", filePath);
+        return res.sendFile(filePath);
+      } else {
+        console.log("❌ File not found:", filePath);
+        return res.status(404).send("Image not found");
       }
     }
 
     next();
   });
+
   // Phục vụ thư mục uploads qua URL /uploads
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 

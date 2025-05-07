@@ -88,12 +88,20 @@ app.use("/uploads", (req, res, next) => {
     const webpPath = filePath.replace(/\.(jpg|jpeg|png)$/i, ".webp");
 
     if (fs.existsSync(webpPath)) {
+      console.log("▶ Serve WebP:", webpPath);
       return res.sendFile(webpPath);
+    } else if (fs.existsSync(filePath)) {
+      console.log("▶ Serve original image:", filePath);
+      return res.sendFile(filePath);
+    } else {
+      console.log("❌ File not found:", filePath);
+      return res.status(404).send("Image not found");
     }
   }
 
   next();
 });
+
 // Phục vụ thư mục uploads dưới dạng static files
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
