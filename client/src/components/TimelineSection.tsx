@@ -6,6 +6,7 @@ import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
 import { ChevronRight, Clock, History, CalendarDays } from "lucide-react";
 let globalCounter = 1;
+const [imageError, setImageError] = useState(false);
 interface TimelineSectionProps {
   periods: PeriodData[];
   events: EventData[];
@@ -238,7 +239,6 @@ export default function TimelineSection({
                             <p className="event-description">
                               {event.description}
                             </p>
-                            const [imageError, setImageError] = useState(false);
                             {event.imageUrl && !imageError ? (
                               <picture>
                                 <source
