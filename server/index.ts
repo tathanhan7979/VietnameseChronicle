@@ -17,41 +17,46 @@ app.use(compression());
 // Middleware để thêm cache control headers
 app.use((req, res, next) => {
   // Không cache cho các route API yêu cầu xác thực
-  if (req.path.startsWith('/api/auth') || req.path.includes('/admin')) {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-  } 
+  if (req.path.startsWith("/api/auth") || req.path.includes("/admin")) {
+    res.setHeader(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+  }
   // Cache cho các nội dung tĩnh và API công khai
-  else if (req.path.startsWith('/api') || req.path.startsWith('/assets')) {
+  else if (req.path.startsWith("/api") || req.path.startsWith("/assets")) {
     // Cache trong 5 phút
-    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.setHeader("Cache-Control", "public, max-age=300");
   }
   next();
 });
 
 // Tăng giới hạn kích thước của request lên 50MB
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: false, limit: "50mb" }));
 
 // Cấu hình session store với PostgreSQL
 const PgSessionStore = connectPgSimple(session);
 const oneDay = 1000 * 60 * 60 * 24;
 
-app.use(session({
-  store: new PgSessionStore({ 
-    pool,
-    tableName: 'session', // Bảng lưu trữ session
-    createTableIfMissing: true // Tự động tạo bảng nếu chưa có
+app.use(
+  session({
+    store: new PgSessionStore({
+      pool,
+      tableName: "session", // Bảng lưu trữ session
+      createTableIfMissing: true, // Tự động tạo bảng nếu chưa có
+    }),
+    secret: process.env.SESSION_SECRET || "lichsuvietnam-session-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: oneDay,
+    },
   }),
-  secret: process.env.SESSION_SECRET || 'lichsuvietnam-session-secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: oneDay 
-  }
-}));
+);
 
 // Khởi tạo Passport.js
 app.use(passport.initialize());
@@ -72,7 +77,7 @@ passport.deserializeUser(async (id: number, done) => {
 });
 
 // Phục vụ thư mục uploads dưới dạng static files
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+//app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -107,13 +112,13 @@ app.use((req, res, next) => {
 (async () => {
   // Khởi tạo các thiết lập mặc định
   try {
-    log('Initializing default settings...');
+    log("Initializing default settings...");
     await storage.initializeDefaultSettings();
-    log('Default settings initialized successfully!');
+    log("Default settings initialized successfully!");
   } catch (error) {
-    console.error('Error initializing default settings:', error);
+    console.error("Error initializing default settings:", error);
   }
-  
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -137,11 +142,14 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  server.listen(
+    {
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    },
+    () => {
+      log(`serving on port ${port}`);
+    },
+  );
 })();
