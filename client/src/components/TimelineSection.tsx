@@ -258,11 +258,15 @@ export default function TimelineSection({
                                   decoding="async"
                                   className="event-image"
                                   onError={(e) => {
-                                    const isFallback =
-                                      e.currentTarget.currentSrc.endsWith(
-                                        ".webp",
-                                      );
-                                    if (!isFallback) {
+                                    const failedUrl =
+                                      e.currentTarget.currentSrc;
+                                    // Nếu cả ảnh webp hoặc png đều lỗi (404, invalid), fallback
+                                    if (
+                                      failedUrl.endsWith(".webp") ||
+                                      failedUrl.endsWith(".png") ||
+                                      failedUrl.endsWith(".jpg") ||
+                                      failedUrl.endsWith(".jpeg")
+                                    ) {
                                       setImageErrorMap((prev) => ({
                                         ...prev,
                                         [event.id]: true,
