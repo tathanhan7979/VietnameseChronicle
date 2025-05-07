@@ -358,29 +358,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const apiPrefix = "/api";
 
   app.use("/uploads", (req, res, next) => {
-    const acceptHeader = req.headers["accept"] || "";
-    const originalUrl = req.url;
-    const filePath = path.join(process.cwd(), "uploads", originalUrl);
+    try {
+      const acceptHeader = req.headers["accept"] || "";
+      const originalUrl = req.url; // ví dụ: /events/error-img.png
+      const fullPath = path.join(
+        process.cwd(),
+        "uploads",
+        decodeURI(originalUrl),
+      ); // full path tới ảnh gốc
 
-    if (
-      /\.(jpg|jpeg|png)$/i.test(originalUrl) &&
-      acceptHeader.includes("image/webp")
-    ) {
-      const webpPath = filePath.replace(/\.(jpg|jpeg|png)$/i, ".webp");
+      // Nếu là ảnh .jpg/.jpeg/.png và trình duyệt chấp nhận webp
+      if (
+        /\.(jpe?g|png)$/i.test(originalUrl) &&
+        acceptHeader.includes("image/webp")
+      ) {
+        const webpPath = fullPath.replace(/\.(jpe?g|png)$/i, ".webp");
 
-      if (fs.existsSync(webpPath)) {
-        console.log("▶ Serve WebP:", webpPath);
-        return res.sendFile(webpPath);
-      } else if (fs.existsSync(filePath)) {
-        console.log("▶ Serve original image:", filePath);
-        return res.sendFile(filePath);
-      } else {
-        console.log("❌ File not found:", filePath);
-        return res.status(404).send("Image not found");
+        if (fs.existsSync(webpPath)) {
+          console.log(`✅ Serve WebP: ${webpPath}`);
+          return res.sendFile(webpPath);
+        }
       }
-    }
 
-    next();
+      // Nếu ảnh gốc tồn tại → trả về
+      if (fs.existsSync(fullPath)) {
+        console.log(`▶ Serve original: ${fullPath}`);
+        return res.sendFile(fullPath);
+      }
+
+      // Nếu cả hai không có → 404
+      console.warn(`❌ Image not found: ${fullPath}`);
+      res.status(404).send("Image not found");
+    } catch (err) {
+      console.error("🔥 Error in image middleware:", err);
+      res.status(500).send("Server error");
+    }
   });
 
   // Phục vụ thư mục uploads qua URL /uploads
