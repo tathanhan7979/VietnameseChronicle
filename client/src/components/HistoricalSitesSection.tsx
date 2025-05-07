@@ -30,23 +30,23 @@ export default function HistoricalSitesSection({
 
   // Use provided sites or query results and randomize them
   const [randomizedSites, setRandomizedSites] = useState<HistoricalSite[]>([]);
-
+  
   useEffect(() => {
     const allSites = propSites || querySites || [];
     if (allSites.length === 0) return;
-
+    
     // Create a copy to avoid mutating the original data
     const shuffled = [...allSites];
-
+    
     // Fisher-Yates shuffle algorithm
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-
+    
     setRandomizedSites(shuffled);
   }, [propSites, querySites]);
-
+  
   const sites = randomizedSites;
 
   if (isLoading && !propSites) {
@@ -82,10 +82,7 @@ export default function HistoricalSitesSection({
         <div className="text-center mb-16">
           <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#C62828] inline-flex items-center justify-center gap-3">
             <LandmarkIcon className="h-8 w-8" />
-            <span
-              className="cursor-pointer hover:underline"
-              onClick={() => navigate("/di-tich")}
-            >
+            <span className="cursor-pointer hover:underline" onClick={() => navigate("/di-tich")}>
               Di Tích <span className="text-[#4527A0]">Lịch Sử Tiêu Biểu</span>
             </span>
           </h2>
@@ -114,7 +111,7 @@ export default function HistoricalSitesSection({
                       decoding="async"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       onError={(e) => {
-                        e.currentTarget.src = "/uploads/error-img.png";
+                        e.currentTarget.src = '/uploads/error-img.png';
                       }}
                     />
                   </picture>
@@ -143,7 +140,7 @@ export default function HistoricalSitesSection({
                   </div>
                 </div>
 
-                <div className="p-5 flex flex-col" style={{ height: "200px" }}>
+                <div className="p-5 flex flex-col" style={{ height: '200px' }}>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">
                     {site.description}
                   </p>
