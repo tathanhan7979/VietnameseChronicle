@@ -24,9 +24,6 @@ export default function HistoricalSitesSection({
   sites: propSites,
 }: HistoricalSitesSectionProps = {}) {
   const [, navigate] = useLocation();
-  const [siteImageError, setSiteImageError] = useState<{
-    [id: string]: boolean;
-  }>({});
   const { data: querySites, isLoading } = useQuery<HistoricalSite[]>({
     queryKey: ["/api/historical-sites"],
   });
@@ -109,39 +106,18 @@ export default function HistoricalSitesSection({
             >
               <Card className="overflow-hidden h-full bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
                 <div className="h-52 overflow-hidden relative group">
-                  {!siteImageError[site.id] ? (
-                    <picture>
-                      <source
-                        srcSet={(site.imageUrl || DEFAULT_IMAGE).replace(
-                          /\.(png|jpe?g)$/i,
-                          ".webp",
-                        )}
-                        type="image/webp"
-                      />
-                      <img
-                        src={site.imageUrl || DEFAULT_IMAGE}
-                        alt={site.name}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        onError={() =>
-                          setSiteImageError((prev) => ({
-                            ...prev,
-                            [site.id]: true,
-                          }))
-                        }
-                      />
-                    </picture>
-                  ) : (
+                  <picture>
                     <img
-                      src="/uploads/error-img.webp"
-                      alt="Image not found"
+                      src={site.imageUrl || DEFAULT_IMAGE}
+                      alt={site.name}
                       loading="lazy"
                       decoding="async"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      onError={(e) => {
+                        e.currentTarget.src = "/uploads/error-img.png";
+                      }}
                     />
-                  )}
-
+                  </picture>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
 
                   <div className="absolute top-3 left-3">

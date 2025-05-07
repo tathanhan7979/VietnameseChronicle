@@ -242,38 +242,41 @@ export default function TimelineSection({
                             <p className="event-description">
                               {event.description}
                             </p>
-                            {event.imageUrl && !imageErrorMap[event.id] ? (
-                              <picture>
-                                <source
-                                  srcSet={event.imageUrl.replace(
-                                    /\.(png|jpg|jpeg)$/i,
-                                    ".webp",
-                                  )}
-                                  type="image/webp"
-                                />
+                            {event.imageUrl ? (
+                              !imageErrorMap[event.id] ? (
+                                <picture>
+                                  <source
+                                    srcSet={event.imageUrl.replace(
+                                      /\.(png|jpe?g)$/i,
+                                      ".webp",
+                                    )}
+                                    type="image/webp"
+                                  />
+                                  <img
+                                    src={event.imageUrl}
+                                    alt={event.title}
+                                    loading="lazy"
+                                    decoding="async"
+                                    className="event-image"
+                                    onError={() =>
+                                      setImageErrorMap((prev) => ({
+                                        ...prev,
+                                        [event.id]: true,
+                                      }))
+                                    }
+                                  />
+                                </picture>
+                              ) : (
                                 <img
-                                  src={event.imageUrl}
-                                  alt={event.title}
+                                  src="/uploads/error-img.webp"
+                                  alt="Image not found"
                                   loading="lazy"
                                   decoding="async"
                                   className="event-image"
-                                  onError={() =>
-                                    setImageErrorMap((prev) => ({
-                                      ...prev,
-                                      [event.id]: true,
-                                    }))
-                                  }
                                 />
-                              </picture>
-                            ) : (
-                              <img
-                                src="/uploads/error-img.webp"
-                                alt="Image not found"
-                                loading="lazy"
-                                decoding="async"
-                                className="event-image"
-                              />
-                            )}
+                              )
+                            ) : null}
+
                             <div className="mt-4">
                               {event.eventTypes &&
                                 event.eventTypes.length > 0 && (

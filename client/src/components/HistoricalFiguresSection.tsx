@@ -17,9 +17,7 @@ export default function HistoricalFiguresSection({
 }: HistoricalFiguresSectionProps = {}) {
   const [visibleCount] = useState(6);
   const [, navigate] = useLocation();
-  const [figureImageError, setFigureImageError] = useState<{
-    [id: string]: boolean;
-  }>({});
+
   const { data: queryFigures, isLoading: isLoadingFigures } = useQuery<
     HistoricalFigure[]
   >({
@@ -123,39 +121,18 @@ export default function HistoricalFiguresSection({
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <div className="relative">
-                {figure.imageUrl && !figureImageError[figure.id] ? (
-                  <picture>
-                    <source
-                      srcSet={figure.imageUrl.replace(
-                        /\.(png|jpe?g)$/i,
-                        ".webp",
-                      )}
-                      type="image/webp"
-                    />
-                    <img
-                      src={figure.imageUrl}
-                      alt={figure.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-56 object-cover"
-                      onError={() =>
-                        setFigureImageError((prev) => ({
-                          ...prev,
-                          [figure.id]: true,
-                        }))
-                      }
-                    />
-                  </picture>
-                ) : (
+                <picture>
                   <img
-                    src="/uploads/error-img.webp"
-                    alt="Image not found"
+                    src={figure.imageUrl}
+                    alt={figure.name}
                     loading="lazy"
                     decoding="async"
                     className="w-full h-56 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = "/uploads/error-img.png";
+                    }}
                   />
-                )}
-
+                </picture>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
                   <div>
                     <h3 className="font-['Playfair_Display'] font-bold text-xl text-white">
