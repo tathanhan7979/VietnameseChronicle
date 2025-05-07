@@ -60,18 +60,26 @@ export default function TimelineSection({
 
   useEffect(() => {
     const checkWebpExists = async () => {
-      const updatedMap: { [id: string]: boolean } = {};
+      const updatedMap: { [imageUrl: string]: boolean } = {};
+
+      const uniqueUrls = Array.from(
+        new Set(
+          events
+            .map((event) => event.imageUrl)
+            .filter(
+              (url): url is string => !!url && /\.(png|jpe?g)$/i.test(url),
+            ),
+        ),
+      );
 
       await Promise.all(
-        events.map(async (event) => {
-          if (!event.imageUrl) return;
-
-          const webpUrl = event.imageUrl.replace(/\.(png|jpe?g)$/i, ".webp");
+        uniqueUrls.map(async (url) => {
+          const webpUrl = url.replace(/\.(png|jpe?g)$/i, ".webp");
           try {
             const response = await fetch(webpUrl, { method: "HEAD" });
-            updatedMap[event.id] = response.ok;
-          } catch (error) {
-            updatedMap[event.id] = false;
+            updatedMap[url] = response.ok;
+          } catch {
+            updatedMap[url] = false;
           }
         }),
       );
@@ -271,7 +279,7 @@ export default function TimelineSection({
 
                             {event.imageUrl && (
                               <picture>
-                                {webpAvailableMap[event.id] && (
+                                {webpAvailableMap[event.imageUrl] && (
                                   <source
                                     srcSet={event.imageUrl.replace(
                                       /\.(png|jpe?g)$/i,
