@@ -243,6 +243,13 @@ export default function TimelineSection({
 
                             {event.imageUrl && (
                               <picture>
+                                <source
+                                  srcSet={event.imageUrl.replace(
+                                    /\.(png|jpg|jpeg)$/i,
+                                    ".webp",
+                                  )}
+                                  type="image/webp"
+                                />
                                 <img
                                   src={event.imageUrl}
                                   alt={event.title}
