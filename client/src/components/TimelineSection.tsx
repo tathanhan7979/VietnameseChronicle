@@ -5,7 +5,6 @@ import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
 import { ChevronRight, Clock, History, CalendarDays } from "lucide-react";
-let globalCounter = 1;
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -23,14 +22,12 @@ export default function TimelineSection({
   const [activeSection, setActiveSection] = useState<string | null>(
     activePeriodSlug,
   );
-  const [imageErrorMap, setImageErrorMap] = useState<{ [id: string]: boolean }>(
-    {},
-  );
   const [webpAvailableMap, setWebpAvailableMap] = useState<{
     [id: string]: boolean;
   }>({});
   const timelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
+  let globalCounter = 0;
   // Lấy tham số period từ URL khi quay lại trang chủ
   useEffect(() => {
     if (location.includes("?period=")) {
@@ -265,13 +262,16 @@ export default function TimelineSection({
                             >
                               <h4 className="event-title">{event.title}</h4>
                             </Link>
+
                             <span className="event-year">{event.year}</span>
+
                             <p className="event-description">
                               {event.description}
                             </p>
-                            {event.imageUrl && !imageErrorMap[event.id] ? (
-                              webpAvailableMap[event.id] ? (
-                                <picture>
+
+                            {event.imageUrl && (
+                              <picture>
+                                {webpAvailableMap[event.id] && (
                                   <source
                                     srcSet={event.imageUrl.replace(
                                       /\.(png|jpe?g)$/i,
@@ -279,43 +279,19 @@ export default function TimelineSection({
                                     )}
                                     type="image/webp"
                                   />
-                                  <img
-                                    src={event.imageUrl}
-                                    alt={event.title}
-                                    loading="lazy"
-                                    decoding="async"
-                                    className="event-image"
-                                    onError={() => {
-                                      setImageErrorMap((prev) => ({
-                                        ...prev,
-                                        [event.id]: true,
-                                      }));
-                                    }}
-                                  />
-                                </picture>
-                              ) : (
+                                )}
                                 <img
                                   src={event.imageUrl}
                                   alt={event.title}
                                   loading="lazy"
                                   decoding="async"
                                   className="event-image"
-                                  onError={() => {
-                                    setImageErrorMap((prev) => ({
-                                      ...prev,
-                                      [event.id]: true,
-                                    }));
+                                  onError={(e) => {
+                                    e.currentTarget.src =
+                                      "/uploads/error-img.png";
                                   }}
                                 />
-                              )
-                            ) : (
-                              <img
-                                src="/uploads/error-img.webp"
-                                alt="Image not found"
-                                loading="lazy"
-                                decoding="async"
-                                className="event-image"
-                              />
+                              </picture>
                             )}
 
                             <div className="mt-4">
