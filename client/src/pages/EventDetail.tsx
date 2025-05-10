@@ -261,7 +261,7 @@ export default function EventDetail() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {relatedEvents
                     .filter((relEvent) => relEvent.id !== Number(eventId)) // Loại bỏ sự kiện hiện tại
-                    .slice(0, 6) // Giới hạn hiển thị 6 sự kiện
+                    .slice(0, 3) // Giới hạn hiển thị 6 sự kiện
                     .map((relEvent) => (
                       <Link
                         href={`/su-kien/${relEvent.id}/${slugify(relEvent.title)}`}
