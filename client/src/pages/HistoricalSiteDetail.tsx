@@ -193,20 +193,22 @@ export default function HistoricalSiteDetail() {
 
   // Hiển thị thông tin di tích
   // Chuẩn bị SEO metadata
-  const seoTitle = `${site.name} - Di tích lịch sử ${period ? `thời kỳ ${period}` : 'Việt Nam'}`;
-  const seoDescription = site.description || `Thông tin chi tiết về di tích lịch sử ${site.name} ${site.location ? `tại ${site.location}` : ''} ${period ? `thuộc thời kỳ ${period}` : ''}`;
+  const seoTitle = `${site.name} - Di tích lịch sử ${period ? `thời kỳ ${period}` : "Việt Nam"}`;
+  const seoDescription =
+    site.description ||
+    `Thông tin chi tiết về di tích lịch sử ${site.name} ${site.location ? `tại ${site.location}` : ""} ${period ? `thuộc thời kỳ ${period}` : ""}`;
   const seoImage = site.imageUrl || DEFAULT_SEO_IMAGE;
   const seoUrl = window.location.href;
 
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen">
-      <SEO 
+      <SEO
         title={seoTitle}
         description={seoDescription}
         image={seoImage}
         url={seoUrl}
         type="article"
-        keywords={`di tích lịch sử, ${site.name}, ${site.location || ''}, ${site.yearBuilt || ''}, ${period || 'lịch sử Việt Nam'}`}
+        keywords={`di tích lịch sử, ${site.name}, ${site.location || ""}, ${site.yearBuilt || ""}, ${period || "lịch sử Việt Nam"}`}
         siteName="Lịch Sử Việt Nam"
       />
       {/* Header area with image background */}
@@ -480,7 +482,7 @@ export default function HistoricalSiteDetail() {
                   Di tích liên quan cùng thời kỳ
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {site.relatedSites.slice(0, 6).map((relatedSite: any) => (
+                  {site.relatedSites.slice(0, 3).map((relatedSite: any) => (
                     <Link
                       href={`/di-tich/${relatedSite.id}/${slugify(relatedSite.name)}`}
                       key={relatedSite.id}

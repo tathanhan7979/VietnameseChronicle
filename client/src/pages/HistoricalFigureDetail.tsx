@@ -22,18 +22,20 @@ export default function HistoricalFigureDetail() {
   } = useQuery<HistoricalFigure>({
     queryKey: [`/api/historical-figures/${figureId}`],
   });
-  
+
   // Lấy dữ liệu về các thời kỳ
-  const { data: periods } = useQuery<{id: number, name: string, slug: string}[]>({
-    queryKey: ['/api/periods'],
+  const { data: periods } = useQuery<
+    { id: number; name: string; slug: string }[]
+  >({
+    queryKey: ["/api/periods"],
   });
-  
+
   // Lấy các nhân vật liên quan trong cùng thời kỳ
   const periodId = figure?.periodId;
-  
+
   const { data: relatedFigures = [] } = useQuery<HistoricalFigure[]>({
     queryKey: [`/api/historical-figures/period/${periodId}`],
-    enabled: !!periodId
+    enabled: !!periodId,
   });
 
   if (isLoading) {
@@ -64,21 +66,23 @@ export default function HistoricalFigureDetail() {
   }
 
   // Chuẩn bị dữ liệu SEO
-  const periodName = periods?.find(p => p.id === figure.periodId)?.name || "";
-  const seoTitle = `${figure.name} - Nhân vật lịch sử ${periodName ? `thời kỳ ${periodName}` : ''}`;
-  const seoDescription = figure.description || `Thông tin chi tiết về nhân vật lịch sử ${figure.name} ${figure.lifespan ? `(${figure.lifespan})` : ''} ${periodName ? `trong thời kỳ ${periodName}` : ''}`;
+  const periodName = periods?.find((p) => p.id === figure.periodId)?.name || "";
+  const seoTitle = `${figure.name} - Nhân vật lịch sử ${periodName ? `thời kỳ ${periodName}` : ""}`;
+  const seoDescription =
+    figure.description ||
+    `Thông tin chi tiết về nhân vật lịch sử ${figure.name} ${figure.lifespan ? `(${figure.lifespan})` : ""} ${periodName ? `trong thời kỳ ${periodName}` : ""}`;
   const seoImage = figure.imageUrl || DEFAULT_SEO_IMAGE;
   const seoUrl = window.location.href;
 
   return (
     <div className="bg-[hsl(var(--background))] min-h-screen">
-      <SEO 
+      <SEO
         title={seoTitle}
         description={seoDescription}
         image={seoImage}
         url={seoUrl}
         type="article"
-        keywords={`nhân vật lịch sử, ${figure.name}, ${figure.lifespan || ''}, ${periodName || 'lịch sử Việt Nam'}`}
+        keywords={`nhân vật lịch sử, ${figure.name}, ${figure.lifespan || ""}, ${periodName || "lịch sử Việt Nam"}`}
         siteName="Lịch Sử Việt Nam"
       />
       <div className="container mx-auto px-4 py-12">
@@ -96,10 +100,7 @@ export default function HistoricalFigureDetail() {
           <div className="relative h-64 md:h-96 overflow-hidden">
             <picture>
               <img
-                src={
-                  figure.imageUrl ||
-                  ERROR_IMAGE
-                }
+                src={figure.imageUrl || ERROR_IMAGE}
                 alt={figure.name}
                 loading="eager"
                 decoding="async"
@@ -121,8 +122,14 @@ export default function HistoricalFigureDetail() {
                   </div>
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-2" />
-                    <Link href={`/thoi-ky/${periods?.find(p => p.id === figure.periodId)?.slug || ''}`}>
-                      <span className="cursor-pointer hover:underline hover:text-white">Thời kỳ: {periods?.find(p => p.id === figure.periodId)?.name || ""}</span>
+                    <Link
+                      href={`/thoi-ky/${periods?.find((p) => p.id === figure.periodId)?.slug || ""}`}
+                    >
+                      <span className="cursor-pointer hover:underline hover:text-white">
+                        Thời kỳ:{" "}
+                        {periods?.find((p) => p.id === figure.periodId)?.name ||
+                          ""}
+                      </span>
                     </Link>
                   </div>
                 </div>
@@ -200,36 +207,43 @@ export default function HistoricalFigureDetail() {
             {/* Period info */}
             <div className="mt-12 pt-8 border-t border-gray-200">
               <h2 className="text-2xl font-bold font-['Playfair_Display'] text-[hsl(var(--primary))] mb-4">
-                Thời kỳ {periods?.find(p => p.id === figure.periodId)?.name || ""}
+                Thời kỳ{" "}
+                {periods?.find((p) => p.id === figure.periodId)?.name || ""}
               </h2>
               <div>
                 <p className="mb-4">Thời gian sống: {figure.lifespan}</p>
                 <Link
-                  href={`/thoi-ky/${periods?.find(p => p.id === figure.periodId)?.slug || ""}`}
+                  href={`/thoi-ky/${periods?.find((p) => p.id === figure.periodId)?.slug || ""}`}
                 >
                   <Button variant="outline" size="sm">
-                    Xem thời kỳ {periods?.find(p => p.id === figure.periodId)?.name || ""}
+                    Xem thời kỳ{" "}
+                    {periods?.find((p) => p.id === figure.periodId)?.name || ""}
                   </Button>
                 </Link>
               </div>
             </div>
-            
+
             {/* Related Figures - Các nhân vật liên quan cùng thời kỳ */}
             {relatedFigures && relatedFigures.length > 1 && (
               <div className="mt-12 pt-8 border-t border-gray-200">
-                <h2 className="text-2xl font-bold font-['Playfair_Display'] text-[hsl(var(--primary))] mb-6">Các nhân vật cùng thời kỳ</h2>
+                <h2 className="text-2xl font-bold font-['Playfair_Display'] text-[hsl(var(--primary))] mb-6">
+                  Các nhân vật cùng thời kỳ
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {relatedFigures
-                    .filter(relFigure => relFigure.id !== Number(figureId)) // Loại bỏ nhân vật hiện tại
-                    .slice(0, 6) // Giới hạn hiển thị 6 nhân vật
-                    .map(relFigure => (
-                      <Link href={`/nhan-vat/${relFigure.id}/${slugify(relFigure.name)}`} key={relFigure.id}>
+                    .filter((relFigure) => relFigure.id !== Number(figureId)) // Loại bỏ nhân vật hiện tại
+                    .slice(0, 3) // Giới hạn hiển thị 6 nhân vật
+                    .map((relFigure) => (
+                      <Link
+                        href={`/nhan-vat/${relFigure.id}/${slugify(relFigure.name)}`}
+                        key={relFigure.id}
+                      >
                         <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                           <div className="h-48 bg-gray-200 relative">
                             {relFigure.imageUrl ? (
-                              <img 
-                                src={relFigure.imageUrl} 
-                                alt={relFigure.name} 
+                              <img
+                                src={relFigure.imageUrl}
+                                alt={relFigure.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
                                   e.currentTarget.src = ERROR_IMAGE;
@@ -241,31 +255,41 @@ export default function HistoricalFigureDetail() {
                               </div>
                             )}
                             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                              <p className="text-white font-medium">{relFigure.lifespan || 'Không rõ'}</p>
+                              <p className="text-white font-medium">
+                                {relFigure.lifespan || "Không rõ"}
+                              </p>
                             </div>
                           </div>
                           <div className="p-4">
-                            <h3 className="font-semibold text-lg mb-2 line-clamp-2">{relFigure.name}</h3>
-                            <p className="text-sm text-gray-600 line-clamp-3">{relFigure.description}</p>
+                            <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+                              {relFigure.name}
+                            </h3>
+                            <p className="text-sm text-gray-600 line-clamp-3">
+                              {relFigure.description}
+                            </p>
                           </div>
                         </div>
                       </Link>
-                    ))
-                  }
+                    ))}
                 </div>
-                {relatedFigures.length > 6 && periods?.find(p => p.id === figure.periodId)?.slug && (
-                  <div className="mt-6 text-center">
-                    <Link href={`/thoi-ky/${periods?.find(p => p.id === figure.periodId)?.slug}#figures`}>
-                      <Button variant="outline">
-                        Xem tất cả nhân vật trong thời kỳ {periods?.find(p => p.id === figure.periodId)?.name || ""}
-                      </Button>
-                    </Link>
-                  </div>
-                )}
+                {relatedFigures.length > 6 &&
+                  periods?.find((p) => p.id === figure.periodId)?.slug && (
+                    <div className="mt-6 text-center">
+                      <Link
+                        href={`/thoi-ky/${periods?.find((p) => p.id === figure.periodId)?.slug}#figures`}
+                      >
+                        <Button variant="outline">
+                          Xem tất cả nhân vật trong thời kỳ{" "}
+                          {periods?.find((p) => p.id === figure.periodId)
+                            ?.name || ""}
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
               </div>
             )}
           </div>
-          
+
           {/* Facebook Comments */}
           <div className="px-6 md:px-8 pb-8">
             <FacebookComments url={window.location.href} />
