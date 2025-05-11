@@ -1,16 +1,29 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import * as schema from '../shared/schema';
+import pkg from "pg";
+const { Pool } = pkg;
+import { drizzle } from "drizzle-orm/node-postgres";
+import * as schema from "@shared/schema";
+import dotenv from "dotenv";
 
-// Kiểm tra xem biến môi trường DATABASE_URL có tồn tại không
+dotenv.config();
+
+console.log(
+  "Kiểm tra DATABASE_URL:",
+  process.env.DATABASE_URL ? "tồn tại" : "không tồn tại"
+);
+
 if (!process.env.DATABASE_URL) {
-  console.error('Lỗi: Biến môi trường DATABASE_URL không tồn tại');
-  process.exit(1);
+  throw new Error("DATABASE_URL chưa được cấu hình trong biến môi trường.");
 }
 
-// Cấu hình kết nối cơ sở dữ liệu
-const connectionString = process.env.DATABASE_URL;
-const client = postgres(connectionString);
-export const db = drizzle(client, { schema });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // CHẤP NHẬN chứng chỉ tự ký
+  },
+});
 
-console.log('Đã cấu hình kết nối cơ sở dữ liệu trong Next.js');
+const db = drizzle(pool, { schema });
+console.log("Đã cấu hình kết nối cơ sở dữ liệu");
+
+export { pool, db };
+
