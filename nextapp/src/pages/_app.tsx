@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import Layout from '@/components/Layout';
+import FacebookInit from '@/components/FacebookInit';
 
 // Cấu hình NProgress
 NProgress.configure({ showSpinner: false });
@@ -33,8 +34,11 @@ export default function App({ Component, pageProps }: AppProps) {
   }, [router]);
 
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <>
+      <FacebookInit />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </>
   );
 }
