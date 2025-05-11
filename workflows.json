@@ -1,0 +1,14 @@
+{
+  "workflows": [
+    {
+      "name": "Start Next.js",
+      "tasks": [
+        {
+          "type": "shell",
+          "command": "cd nextapp && npm run dev",
+          "waitForPort": 3000
+        }
+      ]
+    }
+  ]
+}
