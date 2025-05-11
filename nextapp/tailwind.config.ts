@@ -8,52 +8,53 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
       colors: {
-        'primary': {
-          light: '#f87171', // red-400
-          DEFAULT: '#dc2626', // red-600 
-          dark: '#b91c1c', // red-700
-        },
-        'secondary': {
-          light: '#fecaca', // red-200
-          DEFAULT: '#fca5a5', // red-300
-          dark: '#f87171', // red-400
+        primary: {
+          DEFAULT: '#e11d48', // red-600
+          light: '#f43f5e', // red-500
+          dark: '#be123c', // red-700
         },
       },
-      typography: (theme: any) => ({
+      fontFamily: {
+        sans: ['var(--font-sans)'],
+      },
+      container: {
+        center: true,
+        padding: {
+          DEFAULT: '1rem',
+          sm: '2rem',
+          lg: '4rem',
+          xl: '5rem',
+          '2xl': '6rem',
+        },
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.5s ease-in-out',
+      },
+      typography: {
         DEFAULT: {
           css: {
-            h2: {
-              color: theme('colors.primary.DEFAULT'),
-              fontWeight: '600',
-            },
-            h3: {
-              color: theme('colors.primary.DEFAULT'),
-              fontWeight: '600',
-            },
-            h4: {
-              color: theme('colors.primary.DEFAULT'),
-              fontWeight: '600',
-            },
+            maxWidth: '100%',
             a: {
-              color: theme('colors.primary.DEFAULT'),
-              textDecoration: 'underline',
+              color: '#e11d48',
               '&:hover': {
-                color: theme('colors.primary.dark'),
+                color: '#be123c',
               },
             },
           },
         },
-      }),
+      },
     },
   },
   plugins: [
     require('@tailwindcss/typography'),
+    require('tailwindcss-animate'),
   ],
 };
 

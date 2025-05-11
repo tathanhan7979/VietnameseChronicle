@@ -1,56 +1,47 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { AppProps } from 'next/app';
-import { Inter } from 'next/font/google';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import Router from 'next/router';
 import NProgress from 'nprogress';
-import 'nprogress/nprogress.css';
 import '../styles/globals.css';
 
-// Font configuration
-const inter = Inter({ subsets: ['latin'] });
+// Type declaration for Google Analytics
+declare global {
+  interface Window {
+    gtag?: (command: string, id: string, config: any) => void;
+  }
+}
 
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 60000, // 1 minute
-    },
-  },
-});
-
-// Configure NProgress
+// NProgress configuration
 NProgress.configure({ 
   showSpinner: false,
-  minimum: 0.3,
-  speed: 500,
+  minimum: 0.1,
   easing: 'ease',
+  speed: 300
 });
 
+// Configure progress bar
+Router.events.on('routeChangeStart', () => NProgress.start());
+Router.events.on('routeChangeComplete', () => NProgress.done());
+Router.events.on('routeChangeError', () => NProgress.done());
+
 export default function MyApp({ Component, pageProps }: AppProps) {
+  // Add global event listeners or other app-wide logic
   useEffect(() => {
-    // Setup NProgress for route changes
-    const handleRouteStart = () => NProgress.start();
-    const handleRouteDone = () => NProgress.done();
+    // You could add analytics or other page view logic here
+    const handleRouteChange = (url: string) => {
+      // Example: track page view with Google Analytics
+      window.gtag?.('config', 'G-XXXXXXXXXX', {
+        page_path: url,
+      });
+    };
 
-    Router.events.on('routeChangeStart', handleRouteStart);
-    Router.events.on('routeChangeComplete', handleRouteDone);
-    Router.events.on('routeChangeError', handleRouteDone);
-
+    Router.events.on('routeChangeComplete', handleRouteChange);
+    
     return () => {
-      Router.events.off('routeChangeStart', handleRouteStart);
-      Router.events.off('routeChangeComplete', handleRouteDone);
-      Router.events.off('routeChangeError', handleRouteDone);
+      Router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, []);
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <div className={inter.className}>
-        <Component {...pageProps} />
-      </div>
-    </QueryClientProvider>
-  );
+  return <Component {...pageProps} />;
 }

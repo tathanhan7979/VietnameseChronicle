@@ -2,42 +2,49 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'lichsuviet.edu.vn',
-        pathname: '/uploads/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        pathname: '/uploads/**',
-      },
+    domains: [
+      'lichsuviet.edu.vn',
+      'localhost',
+      'picsum.photos',
+      'via.placeholder.com',
+      'placehold.co'
     ],
   },
-  async redirects() {
+  i18n: {
+    locales: ['vi'],
+    defaultLocale: 'vi',
+  },
+  // Các thiết lập SEO
+  async headers() {
     return [
       {
-        source: '/admin',
-        destination: 'http://localhost:5000/admin',
-        permanent: false,
-      },
-      {
-        source: '/admin/:path*',
-        destination: 'http://localhost:5000/admin/:path*',
-        permanent: false,
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+        ],
       },
     ];
   },
-  async rewrites() {
+  // Quy tắc chuyển hướng URL
+  async redirects() {
     return [
       {
-        source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*',
+        source: '/su-kien/:id',
+        destination: '/su-kien/:id/chi-tiet',
+        permanent: true,
       },
       {
-        source: '/uploads/:path*',
-        destination: 'http://localhost:5000/uploads/:path*',
+        source: '/nhan-vat/:id',
+        destination: '/nhan-vat/:id/chi-tiet',
+        permanent: true,
+      },
+      {
+        source: '/di-tich/:id',
+        destination: '/di-tich/:id/chi-tiet',
+        permanent: true,
       },
     ];
   },

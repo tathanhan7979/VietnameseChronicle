@@ -483,8 +483,22 @@ export default function HomePage({ events, periods, figures, sites, backgroundIm
   const [activeSection, setActiveSection] = useState<string>('hero');
   const sectionsRef = useRef<{ [key: string]: HTMLElement | null }>({});
   
+  // Refs for each section
+  const heroRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const figuresRef = useRef<HTMLDivElement>(null);
+  const sitesRef = useRef<HTMLDivElement>(null);
+
   // Handle section change on scroll
   useEffect(() => {
+    // Map the individual refs to the sections ref object
+    sectionsRef.current = {
+      'hero': heroRef.current,
+      'timeline': timelineRef.current,
+      'historical-figures': figuresRef.current,
+      'historical-sites': sitesRef.current
+    };
+    
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 200; // Offset to trigger section change a bit earlier
       
@@ -536,39 +550,19 @@ export default function HomePage({ events, periods, figures, sites, backgroundIm
       url="https://lichsuviet.edu.vn"
       image={backgroundImageUrl || "https://lichsuviet.edu.vn/uploads/banner-image.png"}
     >
-      <div 
-        ref={(el) => {
-          if (el) sectionsRef.current['hero'] = el;
-        }} 
-        id="hero"
-      >
+      <div ref={heroRef} id="hero">
         <HeroSection backgroundImageUrl={backgroundImageUrl} />
       </div>
       
-      <div 
-        ref={(el) => {
-          if (el) sectionsRef.current['timeline'] = el;
-        }}
-        id="timeline"
-      >
+      <div ref={timelineRef} id="timeline">
         <Timeline events={events} periods={periods} />
       </div>
       
-      <div 
-        ref={(el) => {
-          if (el) sectionsRef.current['historical-figures'] = el;
-        }}
-        id="historical-figures"
-      >
+      <div ref={figuresRef} id="historical-figures">
         <HistoricalFiguresSection figures={figures} periods={periods} />
       </div>
       
-      <div 
-        ref={(el) => {
-          if (el) sectionsRef.current['historical-sites'] = el;
-        }}
-        id="historical-sites"
-      >
+      <div ref={sitesRef} id="historical-sites">
         <HistoricalSitesSection sites={sites} periods={periods} />
       </div>
     </Layout>
