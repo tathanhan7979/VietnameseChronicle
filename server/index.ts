@@ -8,6 +8,7 @@ import passport from "passport";
 import connectPgSimple from "connect-pg-simple";
 import { pool } from "@db";
 import compression from "compression";
+import { generateSitemap } from "./sitemap-generator";
 
 const app = express();
 
@@ -117,8 +118,13 @@ app.use((req, res, next) => {
     log("Initializing default settings...");
     await storage.initializeDefaultSettings();
     log("Default settings initialized successfully!");
+    
+    // Tạo sitemap và robots.txt
+    log("Generating sitemap and robots.txt...");
+    await generateSitemap();
+    log("Sitemap and robots.txt generated successfully!");
   } catch (error) {
-    console.error("Error initializing default settings:", error);
+    console.error("Error in initialization:", error);
   }
 
   const server = await registerRoutes(app);
