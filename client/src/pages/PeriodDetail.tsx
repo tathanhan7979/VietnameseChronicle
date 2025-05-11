@@ -323,7 +323,15 @@ export default function PeriodDetail() {
   const seoDescription = period.description || 
     `Khám phá thời kỳ ${period.name} (${period.timeframe}) với ${eventCount} sự kiện, ${figureCount} nhân vật và ${siteCount} di tích lịch sử nổi bật.`;
   const seoImage = DEFAULT_SEO_IMAGE;
-  const seoUrl = window.location.href;
+  const seoUrl = `https://lichsuviet.edu.vn/thoi-ky/${periodSlug}`;
+  
+  // Lấy các từ khóa SEO
+  const eventKeywords = events?.slice(0, 3).map(e => e.title).join(', ') || '';
+  const figureKeywords = figures?.slice(0, 3).map(f => f.name).join(', ') || '';
+  const seoKeywords = `thời kỳ lịch sử, ${period.name}, ${period.timeframe || ''}, giai đoạn lịch sử Việt Nam, thời đại lịch sử, ${eventKeywords}, ${figureKeywords}`;
+  
+  // Tạo articlePublishedTime nếu cần
+  const articlePublishedTime = new Date().toISOString();
 
   return (
     <div className="bg-gradient-to-b from-white to-gray-50 min-h-screen">
@@ -333,7 +341,8 @@ export default function PeriodDetail() {
         image={seoImage}
         url={seoUrl}
         type="article"
-        keywords={`thời kỳ lịch sử, ${period.name}, ${period.timeframe || ''}, giai đoạn lịch sử Việt Nam, thời đại lịch sử, sự kiện ${period.name}`}
+        articlePublishedTime={articlePublishedTime}
+        keywords={seoKeywords}
         siteName="Lịch Sử Việt Nam"
       />
       {/* Header with background */}
