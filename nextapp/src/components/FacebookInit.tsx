@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { FACEBOOK_APP_ID } from '@/lib/constants';
+import { FACEBOOK_APP_ID } from '../lib/constants';
 
 export default function FacebookInit() {
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { FACEBOOK_APP_ID } from '@/lib/constants';
+import { FACEBOOK_APP_ID } from '../lib/constants';
 
 interface FacebookCommentsProps {
   url: string;

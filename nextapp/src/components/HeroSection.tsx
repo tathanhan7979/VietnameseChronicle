@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import Image from 'next/image';
-import { DEFAULT_SEO_IMAGE } from '@/lib/constants';
+import { DEFAULT_SEO_IMAGE } from '../lib/constants';
 
 interface HeroSectionProps {
   onStartExplore?: () => void;

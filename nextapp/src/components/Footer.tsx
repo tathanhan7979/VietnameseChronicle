@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FACEBOOK_PAGE, YOUTUBE_CHANNEL } from '@/lib/constants';
+import { FACEBOOK_PAGE, YOUTUBE_CHANNEL } from '../lib/constants';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();

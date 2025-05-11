@@ -56,6 +56,17 @@ export const API_ENDPOINTS = {
 export const DEFAULT_IMAGE = 'https://lichsuviet.edu.vn/uploads/banner-image.png';
 export const ERROR_IMAGE = 'https://lichsuviet.edu.vn/uploads/banner-image.png';
 export const DEFAULT_SEO_IMAGE = 'https://lichsuviet.edu.vn/uploads/banner-image.png';
+export const DEFAULT_AVATAR = 'https://lichsuviet.edu.vn/uploads/default-avatar.png';
 
-// Facebook App ID for comments
+// Application constants
+export const SITE_NAME = 'Lịch Sử Việt Nam';
+export const SITE_DESCRIPTION = 'Khám phá hành trình lịch sử Việt Nam từ thời kỳ Tiền sử đến hiện đại';
+export const SITE_KEYWORDS = 'lịch sử Việt Nam, thời kỳ lịch sử, nhân vật lịch sử, di tích lịch sử, sự kiện lịch sử';
+
+// Social media
 export const FACEBOOK_APP_ID = '198066915623'; // App ID cho tính năng Facebook Comments
+export const FACEBOOK_PAGE = 'https://facebook.com/lichsuviet.edu.vn';
+export const YOUTUBE_CHANNEL = 'https://youtube.com/lichsuviet';
+
+// Pagination
+export const ITEMS_PER_PAGE = 12;

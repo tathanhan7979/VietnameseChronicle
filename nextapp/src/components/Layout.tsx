@@ -4,7 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import SearchOverlay from './SearchOverlay';
 import BackToTop from './BackToTop';
-import { DEFAULT_SEO_IMAGE } from '@/lib/constants';
+import { DEFAULT_SEO_IMAGE, SITE_NAME, SITE_DESCRIPTION } from '../lib/constants';
 
 interface LayoutProps {
   children: ReactNode;
@@ -24,8 +24,8 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <>
       <Head>
-        <title>Lịch Sử Việt Nam</title>
-        <meta name="description" content="Khám phá hành trình lịch sử Việt Nam từ thời kỳ Tiền sử đến hiện đại" />
+        <title>{SITE_NAME}</title>
+        <meta name="description" content={SITE_DESCRIPTION} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
         {/* Open Graph / Facebook */}
