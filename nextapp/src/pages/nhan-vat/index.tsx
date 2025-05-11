@@ -37,14 +37,16 @@ function slugify(text: string): string {
     .replace(/--+/g, '-');
 }
 
+import { API_ENDPOINTS } from '../../lib/constants';
+
 export const getStaticProps: GetStaticProps = async () => {
   try {
     // Fetch all historical figures
-    const figuresRes = await fetch('http://localhost:5000/api/historical-figures');
+    const figuresRes = await fetch(API_ENDPOINTS.HISTORICAL_FIGURES);
     const figures = await figuresRes.json();
 
     // Fetch all periods for filtering
-    const periodsRes = await fetch('http://localhost:5000/api/periods');
+    const periodsRes = await fetch(API_ENDPOINTS.PERIODS);
     const periods = await periodsRes.json();
 
     return {

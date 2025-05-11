@@ -48,18 +48,20 @@ function slugify(text: string): string {
     .replace(/--+/g, '-');
 }
 
+import { API_ENDPOINTS } from '../../lib/constants';
+
 export const getStaticProps: GetStaticProps = async () => {
   try {
     // Fetch all events
-    const eventsRes = await fetch('http://localhost:5000/api/events');
+    const eventsRes = await fetch(API_ENDPOINTS.EVENTS);
     const events = await eventsRes.json();
 
     // Fetch all periods
-    const periodsRes = await fetch('http://localhost:5000/api/periods');
+    const periodsRes = await fetch(API_ENDPOINTS.PERIODS);
     const periods = await periodsRes.json();
 
     // Fetch all event types
-    const eventTypesRes = await fetch('http://localhost:5000/api/event-types');
+    const eventTypesRes = await fetch(API_ENDPOINTS.EVENT_TYPES);
     const eventTypes = await eventTypesRes.json();
 
     return {

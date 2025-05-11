@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { API_ENDPOINTS } from '@/lib/constants';
-import { SearchResult } from '@/lib/types';
+import { API_ENDPOINTS } from '../lib/constants';
+import { SearchResult } from '../lib/types';
 
 interface SearchOverlayProps {
   isOpen: boolean;
