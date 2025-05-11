@@ -1,61 +1,76 @@
-import type { Config } from 'tailwindcss';
+import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       colors: {
-        primary: {
-          DEFAULT: '#e11d48', // red-600
-          light: '#f43f5e', // red-500
-          dark: '#be123c', // red-700
-        },
+        primary: "#b91c1c",
+        'primary-dark': "#991b1b",
+        'primary-light': "#dc2626",
+        secondary: "#374151",
+        'secondary-dark': "#1f2937",
+        'secondary-light': "#4b5563",
+        accent: "#fbbf24",
+        'accent-dark': "#f59e0b",
+        'accent-light': "#fcd34d",
+        light: "#f9fafb",
+        dark: "#111827",
       },
       fontFamily: {
-        sans: ['var(--font-sans)'],
+        sans: ['var(--font-sans)', 'system-ui'],
+        serif: ['var(--font-serif)', 'Georgia'],
+        mono: ['var(--font-mono)', 'monospace'],
       },
-      container: {
-        center: true,
-        padding: {
-          DEFAULT: '1rem',
-          sm: '2rem',
-          lg: '4rem',
-          xl: '5rem',
-          '2xl': '6rem',
-        },
+      spacing: {
+        '128': '32rem',
       },
-      keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic':
+          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
-      animation: {
-        fadeIn: 'fadeIn 0.5s ease-in-out',
-      },
-      typography: {
+      typography: (theme: any) => ({
         DEFAULT: {
           css: {
-            maxWidth: '100%',
+            color: theme('colors.secondary'),
             a: {
-              color: '#e11d48',
+              color: theme('colors.primary'),
               '&:hover': {
-                color: '#be123c',
+                color: theme('colors.primary-dark'),
               },
+            },
+            h1: {
+              color: theme('colors.secondary-dark'),
+            },
+            h2: {
+              color: theme('colors.secondary-dark'),
+            },
+            h3: {
+              color: theme('colors.secondary-dark'),
+            },
+            h4: {
+              color: theme('colors.secondary-dark'),
+            },
+            blockquote: {
+              color: theme('colors.secondary-light'),
+            },
+            strong: {
+              color: theme('colors.secondary-dark'),
             },
           },
         },
-      },
+      }),
     },
   },
   plugins: [
     require('@tailwindcss/typography'),
-    require('tailwindcss-animate'),
+    require('tailwindcss-animate')
   ],
+  darkMode: ["class"],
 };
-
 export default config;
