@@ -18,8 +18,16 @@ if (rootElement) {
 
 // Thêm event window.snapSaveState cho React-Snap
 if (typeof window !== 'undefined' && 'snapSaveState' in window) {
+  // Định nghĩa window.__INITIAL_DATA__ nếu chưa tồn tại
+  // @ts-ignore - Không có định nghĩa TypeScript
+  if (!('__INITIAL_DATA__' in window)) {
+    // @ts-ignore
+    window.__INITIAL_DATA__ = {};
+  }
+  
   // @ts-ignore - Không có định nghĩa TypeScript cho snapSaveState
   window.snapSaveState = () => {
+    // @ts-ignore
     const state = { ...window.__INITIAL_DATA__ };
     return { 
       __INITIAL_DATA__: state 
