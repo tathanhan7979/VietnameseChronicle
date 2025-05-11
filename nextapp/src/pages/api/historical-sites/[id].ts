@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '../../../../db';
-import { historicalSites } from '../../../../shared/schema';
+import { db } from '@db';
+import { historicalSites } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 
 export default async function handler(

@@ -22,10 +22,13 @@
         "./src/*"
       ],
       "@shared/*": [
-        "../shared/*"
+        "./shared/*"
       ],
       "@db": [
-        "../db/index.ts"
+        "./db/index.ts"
+      ],
+      "@server/*": [
+        "./server/*"
       ]
     }
   },

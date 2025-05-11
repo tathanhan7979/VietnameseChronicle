@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '../../../../db';
-import { periods } from '../../../../shared/schema';
+import { db } from '@db';
+import { periods } from '@shared/schema';
 
 export default async function handler(
   req: NextApiRequest,

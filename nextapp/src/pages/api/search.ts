@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '../../../db';
-import { periods, events, historicalFigures, historicalSites, eventTypes } from '../../../shared/schema';
+import { db } from '@db';
+import { periods, events, historicalFigures, historicalSites, eventTypes } from '@shared/schema';
 import { and, like, eq } from 'drizzle-orm';
 import { SearchResult } from '../../lib/types';
 

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '../../../../db';
-import { eventTypes } from '../../../../shared/schema';
+import { db } from '@db';
+import { eventTypes } from '@shared/schema';
 
 export default async function handler(
   req: NextApiRequest,

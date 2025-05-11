@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '../../../../db';
-import { users } from '../../../../shared/schema';
+import { db } from '@db';
+import { users } from '@shared/schema';
 import { eq } from 'drizzle-orm';
-import { comparePasswords } from '../../../../server/auth';
+import { comparePasswords } from '@server/auth';
 
 export default async function handler(
   req: NextApiRequest,
