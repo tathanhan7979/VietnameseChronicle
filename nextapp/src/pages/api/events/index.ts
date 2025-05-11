@@ -2,6 +2,21 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@db';
 import { events } from '@shared/schema';
 
+// Định nghĩa type cho event với eventTypes
+interface EventWithTypes {
+  id: number;
+  title: string;
+  description: string;
+  periodId: number;
+  year: string;
+  imageUrl: string | null;
+  detailedDescription: string | null;
+  sortOrder: number;
+  period?: any;
+  eventTypes?: any[];
+  eventTypesToEvents?: any[];
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -35,7 +50,7 @@ export default async function handler(
     const eventsList = await query.findMany(queryOptions);
     
     // Format dữ liệu sự kiện để bao gồm danh sách eventTypes
-    const formattedEvents = eventsList.map(event => {
+    const formattedEvents = eventsList.map((event: any) => {
       // Xử lý eventTypes một cách an toàn
       const eventTypes = event.eventTypes ? 
         Array.isArray(event.eventTypes) ? 
@@ -47,8 +62,12 @@ export default async function handler(
         ...event,
         eventTypes
       };
-      // @ts-ignore - xóa thuộc tính không cần thiết
-      delete formattedEvent.eventTypesToEvents;
+      
+      // Xóa thuộc tính không cần thiết
+      if (formattedEvent.eventTypesToEvents) {
+        delete formattedEvent.eventTypesToEvents;
+      }
+      
       return formattedEvent;
     });
     

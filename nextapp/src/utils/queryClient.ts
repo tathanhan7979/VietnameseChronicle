@@ -1,66 +1,73 @@
 import { QueryClient } from '@tanstack/react-query';
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 phút
-    },
-  },
-});
-
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const contentType = res.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      const error = await res.json();
-      throw new Error(error.message || error.error || 'Có lỗi xảy ra');
-    } else {
-      const error = await res.text();
-      throw new Error(error || res.statusText || 'Có lỗi xảy ra');
+    let errorMessage = `HTTP error: ${res.status}`;
+    try {
+      const data = await res.json();
+      if (data && data.error) {
+        errorMessage = data.error;
+      }
+    } catch (e) {
+      // Không làm gì nếu không thể đọc JSON
     }
+    throw new Error(errorMessage);
   }
-  return res;
 }
 
 export async function apiRequest(
   method: string,
-  path: string,
-  body?: any,
-  customOptions?: RequestInit
+  url: string,
+  data?: unknown,
+  options: RequestInit = {}
 ) {
-  const options: RequestInit = {
+  const isFormData = data instanceof FormData;
+  const defaultHeaders: HeadersInit = isFormData
+    ? {}
+    : { 'Content-Type': 'application/json' };
+
+  const fetchOptions: RequestInit = {
     method,
+    credentials: 'include', // Gửi kèm cookie
+    ...options,
     headers: {
-      'Content-Type': 'application/json',
+      ...defaultHeaders,
+      ...options.headers,
     },
-    ...customOptions,
   };
 
-  if (body) {
-    options.body = JSON.stringify(body);
+  if (data && !isFormData) {
+    fetchOptions.body = JSON.stringify(data);
+  } else if (isFormData) {
+    fetchOptions.body = data as FormData;
   }
 
-  const res = await fetch(path, options);
-  await throwIfResNotOk(res);
+  const res = await fetch(url, fetchOptions);
   return res;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
+export const getQueryFn =
+  <T>({ on401 }: { on401: UnauthorizedBehavior }) =>
+  async ({ queryKey }: { queryKey: readonly unknown[] }) => {
+    const endpoint = queryKey[0] as string;
+    const res = await fetch(endpoint, {
+      credentials: "include",
+    });
 
-export const getQueryFn = <T>(options: {
-  on401: UnauthorizedBehavior;
-}) => async ({ queryKey }: { queryKey: string[] }) => {
-  const [url] = queryKey;
-  const res = await fetch(url);
-  
-  if (res.status === 401 && options.on401 === "returnNull") {
-    return null;
-  }
-  
-  await throwIfResNotOk(res);
-  
-  const data = await res.json();
-  return data as T;
-};
+    if (res.status === 401 && on401 === "returnNull") {
+      return null;
+    }
+
+    await throwIfResNotOk(res);
+    return (await res.json()) as T;
+  };
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 phút
+      refetchOnWindowFocus: false,
+    },
+  },
+});

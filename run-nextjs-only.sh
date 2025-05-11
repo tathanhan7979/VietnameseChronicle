@@ -1,61 +1,25 @@
 #!/bin/bash
 
-echo "=== Vietnamese Chronicle: Chuyển đổi sang Next.js ==="
+# Thiết lập môi trường
+echo "Thiết lập môi trường cho Next.js..."
 
-# Kiểm tra thư mục shared và schema.ts
-if [ ! -d "nextapp/shared" ]; then
-  echo "Tạo thư mục shared trong nextapp..."
-  mkdir -p nextapp/shared
+# Kiểm tra xem đã cài đặt Next.js chưa
+if ! grep -q "next" nextapp/package.json 2>/dev/null; then
+  echo "Cài đặt Next.js và các dependencies..."
+  cd nextapp
+  npm install next@latest react@latest react-dom@latest @tanstack/react-query@latest
+  cd ..
 fi
 
-# Sao chép shared schema
-if [ -f "shared/schema.ts" ]; then
-  echo "Sao chép schema từ shared/ sang nextapp/shared/..."
-  cp -f shared/schema.ts nextapp/shared/
-else
-  echo "CẢNH BÁO: Không tìm thấy shared/schema.ts"
+# Tạo file .env.local trong thư mục nextapp nếu chưa tồn tại
+if [ ! -f nextapp/.env.local ]; then
+  echo "Tạo file .env.local..."
+  cp .env nextapp/.env.local 2>/dev/null || echo "DATABASE_URL=${DATABASE_URL}" > nextapp/.env.local
+  echo "NEXTAUTH_SECRET=lichsuviet_migration_secret" >> nextapp/.env.local
+  echo "NEXT_PUBLIC_API_URL=http://localhost:3000" >> nextapp/.env.local
 fi
 
-# Kiểm tra thư mục db và index.ts
-if [ ! -d "nextapp/db" ]; then
-  echo "Tạo thư mục db trong nextapp..."
-  mkdir -p nextapp/db
-fi
-
-# Sao chép db setup
-if [ -f "db/index.ts" ]; then
-  echo "Sao chép index.ts từ db/ sang nextapp/db/..."
-  cp -f db/index.ts nextapp/db/
-else
-  echo "CẢNH BÁO: Không tìm thấy db/index.ts"
-fi
-
-# Kiểm tra thư mục server
-if [ ! -d "nextapp/server" ]; then
-  echo "Tạo thư mục server trong nextapp..."
-  mkdir -p nextapp/server
-fi
-
-# Sao chép server/auth.ts
-if [ -f "server/auth.ts" ]; then
-  echo "Sao chép auth.ts từ server/ sang nextapp/server/..."
-  cp -f server/auth.ts nextapp/server/
-else
-  echo "CẢNH BÁO: Không tìm thấy server/auth.ts"
-fi
-
-# Tạo thư mục uploads trong Next.js nếu chưa tồn tại
-mkdir -p nextapp/public/uploads
-
-# Sao chép các file uploads từ thư mục gốc sang Next.js
-echo "Sao chép files uploads..."
-cp -r uploads/* nextapp/public/uploads/ 2>/dev/null || echo "Không có files uploads để sao chép"
-
-# Dừng cả hai server nếu đang chạy
-echo "Dừng các server đang chạy..."
-pkill -f "tsx server/index.ts" || true
-pkill -f "next" || true
-
-# Khởi động Next.js
-echo "Khởi động ứng dụng Next.js..."
-cd nextapp && npm run dev
+# Chạy Next.js development server
+echo "Khởi động Next.js development server..."
+cd nextapp
+npm run dev

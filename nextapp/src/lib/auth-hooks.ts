@@ -1,9 +1,36 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { apiRequest } from '../utils/queryClient';
-import { User } from '../../shared/schema';
-import { queryClient } from '../utils/queryClient';
+import { User } from '@shared/schema';
 import { useToast } from './toast';
+
+// Tạm thời tạo queryClient 
+import { QueryClient } from '@tanstack/react-query';
+const queryClient = new QueryClient();
+
+// Tạm thời tạo apiRequest
+async function apiRequest(method: string, url: string, data?: any) {
+  const options: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  };
+
+  if (data) {
+    options.body = JSON.stringify(data);
+  }
+
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.error || `Request failed with status ${response.status}`
+    );
+  }
+
+  return response;
+}
 
 interface LoginCredentials {
   username: string;
@@ -17,10 +44,9 @@ export function useAuth() {
   const { data: user, isLoading, error } = useQuery<User>({
     queryKey: ['/api/auth/user'],
     retry: false,
-    staleTime: Infinity,
-    onError: () => {
-      // Không hiện thông báo lỗi khi không đăng nhập
-    }
+    staleTime: Infinity, 
+    // Không hiển thị toast khi chưa đăng nhập (TanStack Query v5 có thay đổi)
+    // onError không còn là thuộc tính của config, thay vào đó là phương thức của kết quả
   });
 
   // Mutation đăng nhập
