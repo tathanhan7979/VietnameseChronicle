@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import SearchOverlay from './SearchOverlay';
 
 interface HeaderProps {
@@ -13,6 +13,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionSelect }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   
   const isHomePage = pathname === '/';
 
@@ -28,6 +29,11 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionSelect }) => {
     };
   }, []);
 
+  useEffect(() => {
+    // Close mobile menu on route change
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
@@ -41,6 +47,19 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionSelect }) => {
     if (onSectionSelect) {
       onSectionSelect(sectionId);
     }
+  };
+
+  const handleSearchClick = () => {
+    // For better UX, we now navigate to the search page instead of showing an overlay
+    router.push('/tim-kiem');
+  };
+
+  const isActive = (path: string): boolean => {
+    if (path.startsWith('#')) {
+      return isHomePage && activeSection === path.substring(1);
+    }
+    if (path === '/') return pathname === '/';
+    return pathname?.startsWith(path) || false;
   };
 
   return (
@@ -71,50 +90,72 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionSelect }) => {
                   >
                     Dòng thời gian
                   </a>
-                  <a 
-                    href="#historical-figures" 
-                    onClick={() => handleSectionClick('historical-figures')}
+                  <Link 
+                    href="/su-kien"
                     className={`hover:text-red-500 transition-colors ${
-                      activeSection === 'historical-figures' ? 'font-semibold text-red-500' : ''
+                      isActive('/su-kien') ? 'font-semibold text-red-500' : ''
+                    }`}
+                  >
+                    Sự kiện
+                  </Link>
+                  <Link 
+                    href="/nhan-vat"
+                    className={`hover:text-red-500 transition-colors ${
+                      isActive('/nhan-vat') ? 'font-semibold text-red-500' : ''
                     }`}
                   >
                     Nhân vật
-                  </a>
-                  <a 
-                    href="#historical-sites" 
-                    onClick={() => handleSectionClick('historical-sites')}
+                  </Link>
+                  <Link 
+                    href="/di-tich"
                     className={`hover:text-red-500 transition-colors ${
-                      activeSection === 'historical-sites' ? 'font-semibold text-red-500' : ''
+                      isActive('/di-tich') ? 'font-semibold text-red-500' : ''
                     }`}
                   >
                     Di tích
-                  </a>
+                  </Link>
                 </>
               ) : (
                 <>
                   <Link 
                     href="/#timeline" 
-                    className="hover:text-red-500 transition-colors"
+                    className={`hover:text-red-500 transition-colors ${
+                      isActive('/#timeline') ? 'font-semibold text-red-500' : ''
+                    }`}
                   >
                     Dòng thời gian
                   </Link>
                   <Link 
-                    href="/#historical-figures" 
-                    className="hover:text-red-500 transition-colors"
+                    href="/su-kien"
+                    className={`hover:text-red-500 transition-colors ${
+                      isActive('/su-kien') ? 'font-semibold text-red-500' : ''
+                    }`}
+                  >
+                    Sự kiện
+                  </Link>
+                  <Link 
+                    href="/nhan-vat" 
+                    className={`hover:text-red-500 transition-colors ${
+                      isActive('/nhan-vat') ? 'font-semibold text-red-500' : ''
+                    }`}
                   >
                     Nhân vật
                   </Link>
                   <Link 
-                    href="/#historical-sites" 
-                    className="hover:text-red-500 transition-colors"
+                    href="/di-tich" 
+                    className={`hover:text-red-500 transition-colors ${
+                      isActive('/di-tich') ? 'font-semibold text-red-500' : ''
+                    }`}
                   >
                     Di tích
                   </Link>
                 </>
               )}
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="hover:text-red-500 transition-colors flex items-center"
+              <Link
+                href="/tim-kiem"
+                className={`hover:text-red-500 transition-colors flex items-center ${
+                  isActive('/tim-kiem') ? 'font-semibold text-red-500' : ''
+                }`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -131,13 +172,13 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionSelect }) => {
                   />
                 </svg>
                 Tìm kiếm
-              </button>
+              </Link>
             </nav>
 
             {/* Mobile Menu Button */}
             <div className="flex md:hidden space-x-2">
-              <button
-                onClick={() => setSearchOpen(true)}
+              <Link
+                href="/tim-kiem"
                 className="p-2 hover:text-red-500 transition-colors"
               >
                 <svg
@@ -154,7 +195,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionSelect }) => {
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
-              </button>
+              </Link>
               <button onClick={toggleMobileMenu} className="p-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -205,28 +246,6 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionSelect }) => {
                       Dòng thời gian
                     </a>
                   </li>
-                  <li>
-                    <a 
-                      href="#historical-figures" 
-                      onClick={() => handleSectionClick('historical-figures')}
-                      className={`block py-2 hover:text-red-500 transition-colors ${
-                        activeSection === 'historical-figures' ? 'font-semibold text-red-500' : ''
-                      }`}
-                    >
-                      Nhân vật lịch sử
-                    </a>
-                  </li>
-                  <li>
-                    <a 
-                      href="#historical-sites" 
-                      onClick={() => handleSectionClick('historical-sites')}
-                      className={`block py-2 hover:text-red-500 transition-colors ${
-                        activeSection === 'historical-sites' ? 'font-semibold text-red-500' : ''
-                      }`}
-                    >
-                      Di tích lịch sử
-                    </a>
-                  </li>
                 </>
               ) : (
                 <>
@@ -239,32 +258,44 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionSelect }) => {
                       Dòng thời gian
                     </Link>
                   </li>
-                  <li>
-                    <Link 
-                      href="/#historical-figures"
-                      className="block py-2 hover:text-red-500 transition-colors"
-                      onClick={closeMobileMenu}
-                    >
-                      Nhân vật lịch sử
-                    </Link>
-                  </li>
-                  <li>
-                    <Link 
-                      href="/#historical-sites"
-                      className="block py-2 hover:text-red-500 transition-colors"
-                      onClick={closeMobileMenu}
-                    >
-                      Di tích lịch sử
-                    </Link>
-                  </li>
                 </>
               )}
+              <li>
+                <Link 
+                  href="/su-kien"
+                  className={`block py-2 hover:text-red-500 transition-colors ${
+                    isActive('/su-kien') ? 'font-semibold text-red-500' : ''
+                  }`}
+                >
+                  Sự kiện lịch sử
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/nhan-vat"
+                  className={`block py-2 hover:text-red-500 transition-colors ${
+                    isActive('/nhan-vat') ? 'font-semibold text-red-500' : ''
+                  }`}
+                >
+                  Nhân vật lịch sử
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/di-tich"
+                  className={`block py-2 hover:text-red-500 transition-colors ${
+                    isActive('/di-tich') ? 'font-semibold text-red-500' : ''
+                  }`}
+                >
+                  Di tích lịch sử
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>
       </header>
 
-      {/* Search Overlay */}
+      {/* Search Overlay - keeping for backward compatibility */}
       <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
       {/* Spacer for fixed header */}
