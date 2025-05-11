@@ -11,7 +11,7 @@ export default async function handler(
   try {
     let query = db.query.historicalFigures;
     let queryOptions: any = {
-      orderBy: (historicalFigures, { asc }) => [asc(historicalFigures.id)],
+      orderBy: (historicalFigures: any, { asc }: any) => [asc(historicalFigures.id)],
       with: {
         period: true,
       },
@@ -19,7 +19,7 @@ export default async function handler(
     
     // Thêm điều kiện lọc theo periodId nếu được chỉ định
     if (periodId && !isNaN(Number(periodId))) {
-      queryOptions.where = (historicalFigures, { eq }) => eq(historicalFigures.periodId, Number(periodId));
+      queryOptions.where = (historicalFigures: any, { eq }: any) => eq(historicalFigures.periodId, Number(periodId));
     }
     
     // Giới hạn số lượng kết quả nếu được chỉ định

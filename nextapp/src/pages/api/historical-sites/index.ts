@@ -11,7 +11,7 @@ export default async function handler(
   try {
     let query = db.query.historicalSites;
     let queryOptions: any = {
-      orderBy: (historicalSites, { asc }) => [asc(historicalSites.id)],
+      orderBy: (historicalSites: any, { asc }: any) => [asc(historicalSites.id)],
       with: {
         period: true,
       },
@@ -19,7 +19,7 @@ export default async function handler(
     
     // Thêm điều kiện lọc theo periodId nếu được chỉ định
     if (periodId && !isNaN(Number(periodId))) {
-      queryOptions.where = (historicalSites, { eq }) => eq(historicalSites.periodId, Number(periodId));
+      queryOptions.where = (historicalSites: any, { eq }: any) => eq(historicalSites.periodId, Number(periodId));
     }
     
     // Giới hạn số lượng kết quả nếu được chỉ định

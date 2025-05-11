@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@db';
 import { feedback, insertFeedbackSchema } from '@shared/schema';
+import { desc } from 'drizzle-orm';
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,17 +12,16 @@ export default async function handler(
     try {
       const validatedData = insertFeedbackSchema.parse(req.body);
       
-      // Loại bỏ createdAt từ validatedData vì nó được tự động thêm bởi schema
-      const { name, email, phone, content } = validatedData;
+      const feedbackData = {
+        name: validatedData.name,
+        email: validatedData.email,
+        phone: validatedData.phone,
+        content: validatedData.content,
+        status: 'pending',
+      };
       
       const [newFeedback] = await db.insert(feedback)
-        .values({
-          name,
-          email,
-          phone,
-          content,
-          status: 'pending',
-        })
+        .values(feedbackData)
         .returning();
         
       return res.status(201).json(newFeedback);
@@ -40,7 +40,7 @@ export default async function handler(
     
     try {
       const feedbackList = await db.query.feedback.findMany({
-        orderBy: (feedback, { desc }) => [desc(feedback.createdAt)],
+        orderBy: (feedback: any, { desc }: any) => [desc(feedback.createdAt)],
       });
       
       return res.status(200).json(feedbackList);
