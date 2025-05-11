@@ -11,7 +11,7 @@ export default async function handler(
   try {
     let query = db.query.events;
     let queryOptions: any = {
-      orderBy: (events, { asc }) => [asc(events.id)],
+      orderBy: (events: any, { asc }: any) => [asc(events.id)],
       with: {
         period: true,
         eventTypes: {
@@ -24,7 +24,7 @@ export default async function handler(
     
     // Thêm điều kiện lọc theo periodId nếu được chỉ định
     if (periodId && !isNaN(Number(periodId))) {
-      queryOptions.where = (events, { eq }) => eq(events.periodId, Number(periodId));
+      queryOptions.where = (events: any, { eq }: any) => eq(events.periodId, Number(periodId));
     }
     
     // Giới hạn số lượng kết quả nếu được chỉ định
@@ -36,9 +36,16 @@ export default async function handler(
     
     // Format dữ liệu sự kiện để bao gồm danh sách eventTypes
     const formattedEvents = eventsList.map(event => {
+      // Xử lý eventTypes một cách an toàn
+      const eventTypes = event.eventTypes ? 
+        Array.isArray(event.eventTypes) ? 
+          event.eventTypes.map((relation: any) => relation.eventType) : 
+          [] : 
+        [];
+          
       const formattedEvent = {
         ...event,
-        eventTypes: event.eventTypes?.map(relation => relation.eventType),
+        eventTypes
       };
       // @ts-ignore - xóa thuộc tính không cần thiết
       delete formattedEvent.eventTypesToEvents;

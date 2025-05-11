@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@db';
 import { periods, events, historicalFigures, historicalSites, eventTypes } from '@shared/schema';
-import { and, like, eq, sql } from 'drizzle-orm';
+import { and, like, eq, sql, asc } from 'drizzle-orm';
 
 // Search result interface
 interface SearchResult {
@@ -30,18 +30,20 @@ export default async function handler(
     // Tìm kiếm trong bảng periods
     const periodResults = await db.query.periods.findMany({
       where: and(
-        like(periods.name.toLowerCase(), searchTerm),
+        like(sql`LOWER(${periods.name})`, searchTerm),
         periodId ? eq(periods.id, Number(periodId)) : undefined
       ),
+      orderBy: periods.sortOrder ? asc(periods.sortOrder) : undefined
     });
 
     periodResults.forEach(period => {
+      const slug = period.slug || period.name.toLowerCase().replace(/ /g, '-');
       results.push({
         id: `period-${period.id}`,
         type: 'period',
         title: period.name,
         subtitle: period.timeframe,
-        link: `/thoi-ky/${period.slug}`,
+        link: `/thoi-ky/${slug}`,
         icon: 'timeline',
       });
     });
@@ -49,7 +51,7 @@ export default async function handler(
     // Tìm kiếm trong bảng events
     const eventResults = await db.query.events.findMany({
       where: and(
-        like(events.title.toLowerCase(), searchTerm),
+        like(sql`LOWER(${events.title})`, searchTerm),
         periodId ? eq(events.periodId, Number(periodId)) : undefined
       ),
       with: {
@@ -64,9 +66,9 @@ export default async function handler(
 
     eventResults.forEach(event => {
       // Kiểm tra xem event có thuộc vào eventTypeId được chỉ định không
-      if (eventTypeId) {
+      if (eventTypeId && event.eventTypes) {
         const hasEventType = event.eventTypes.some(
-          et => et.eventType.id === Number(eventTypeId)
+          et => et.eventType && et.eventType.id === Number(eventTypeId)
         );
 
         if (!hasEventType) {
@@ -74,12 +76,13 @@ export default async function handler(
         }
       }
 
+      const slug = event.title.toLowerCase().replace(/ /g, '-');
       results.push({
         id: `event-${event.id}`,
         type: 'event',
         title: event.title,
         subtitle: `${event.year} - ${event.period?.name || ''}`,
-        link: `/su-kien/${event.id}/${event.slug || event.title.toLowerCase().replace(/ /g, '-')}`,
+        link: `/su-kien/${event.id}/${slug}`,
         icon: 'event',
       });
     });
@@ -87,7 +90,7 @@ export default async function handler(
     // Tìm kiếm trong bảng historical figures
     const figureResults = await db.query.historicalFigures.findMany({
       where: and(
-        like(historicalFigures.name.toLowerCase(), searchTerm),
+        like(sql`LOWER(${historicalFigures.name})`, searchTerm),
         periodId ? eq(historicalFigures.periodId, Number(periodId)) : undefined
       ),
       with: {
@@ -96,12 +99,13 @@ export default async function handler(
     });
 
     figureResults.forEach(figure => {
+      const slug = figure.name.toLowerCase().replace(/ /g, '-');
       results.push({
         id: `figure-${figure.id}`,
         type: 'figure',
         title: figure.name,
         subtitle: `${figure.lifespan} - ${figure.period?.name || ''}`,
-        link: `/nhan-vat/${figure.id}/${figure.slug || figure.name.toLowerCase().replace(/ /g, '-')}`,
+        link: `/nhan-vat/${figure.id}/${slug}`,
         icon: 'person',
       });
     });
@@ -109,7 +113,7 @@ export default async function handler(
     // Tìm kiếm trong bảng historical sites
     const siteResults = await db.query.historicalSites.findMany({
       where: and(
-        like(historicalSites.name.toLowerCase(), searchTerm),
+        like(sql`LOWER(${historicalSites.name})`, searchTerm),
         periodId ? eq(historicalSites.periodId, Number(periodId)) : undefined
       ),
       with: {
@@ -118,12 +122,13 @@ export default async function handler(
     });
 
     siteResults.forEach(site => {
+      const slug = site.name.toLowerCase().replace(/ /g, '-');
       results.push({
         id: `site-${site.id}`,
         type: 'site',
         title: site.name,
         subtitle: `${site.location} - ${site.period?.name || ''}`,
-        link: `/di-tich/${site.id}/${site.slug || site.name.toLowerCase().replace(/ /g, '-')}`,
+        link: `/di-tich/${site.id}/${slug}`,
         icon: 'location',
       });
     });

@@ -11,10 +11,15 @@ export default async function handler(
     try {
       const validatedData = insertFeedbackSchema.parse(req.body);
       
+      // Loại bỏ createdAt từ validatedData vì nó được tự động thêm bởi schema
+      const { name, email, phone, content } = validatedData;
+      
       const [newFeedback] = await db.insert(feedback)
         .values({
-          ...validatedData,
-          createdAt: new Date(),
+          name,
+          email,
+          phone,
+          content,
           status: 'pending',
         })
         .returning();
