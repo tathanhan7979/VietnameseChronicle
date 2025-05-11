@@ -1,147 +1,127 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-
-type SearchResult = {
-  id: number;
-  title: string;
-  description: string;
-  type: 'event' | 'figure' | 'site' | 'period';
-  url: string;
-  imageUrl?: string;
-};
-
-// Helper function to create URL-friendly slugs
-function slugify(text: string): string {
-  return text
-    .toString()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]+/g, '')
-    .replace(/--+/g, '-');
-}
+import { db } from '../../../db';
+import { periods, events, historicalFigures, historicalSites, eventTypes } from '../../../shared/schema';
+import { and, like, eq } from 'drizzle-orm';
+import { SearchResult } from '../../lib/types';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
-
-  const { q } = req.query;
+  const { q, periodId, eventTypeId } = req.query;
 
   if (!q || typeof q !== 'string') {
-    return res.status(400).json({ message: 'Search query is required' });
+    return res.status(400).json({ error: 'Search query is required' });
   }
 
   try {
-    const query = q.toLowerCase();
-    
-    // Fetch data from the existing API
-    const [periodsRes, eventsRes, figuresRes, sitesRes] = await Promise.all([
-      fetch(`http://localhost:5000/api/periods`),
-      fetch(`http://localhost:5000/api/events`),
-      fetch(`http://localhost:5000/api/historical-figures`),
-      fetch(`http://localhost:5000/api/historical-sites`),
-    ]);
-    
-    const periods = await periodsRes.json();
-    const events = await eventsRes.json();
-    const figures = await figuresRes.json();
-    const sites = await sitesRes.json();
-    
-    // Search in periods
-    const periodResults: SearchResult[] = periods
-      .filter((period: any) => 
-        period.name.toLowerCase().includes(query) || 
-        period.description.toLowerCase().includes(query) ||
-        period.timeframe.toLowerCase().includes(query)
-      )
-      .map((period: any) => ({
-        id: period.id,
-        title: period.name,
-        description: `${period.timeframe} - ${period.description}`,
-        type: 'period',
-        url: `/thoi-ky/${period.slug}`,
-        imageUrl: null, // Periods might not have images
-      }));
-    
-    // Search in events
-    const eventResults: SearchResult[] = events
-      .filter((event: any) => 
-        event.title.toLowerCase().includes(query) || 
-        event.description.toLowerCase().includes(query) ||
-        (event.detailedDescription && event.detailedDescription.toLowerCase().includes(query)) ||
-        event.year.toLowerCase().includes(query)
-      )
-      .map((event: any) => ({
-        id: event.id,
-        title: event.title,
-        description: `${event.year} - ${event.description}`,
-        type: 'event',
-        url: `/su-kien/${event.id}/${slugify(event.title)}`,
-        imageUrl: event.imageUrl || null,
-      }));
-    
-    // Search in historical figures
-    const figureResults: SearchResult[] = figures
-      .filter((figure: any) => 
-        figure.name.toLowerCase().includes(query) || 
-        figure.description.toLowerCase().includes(query) ||
-        (figure.detailedDescription && figure.detailedDescription.toLowerCase().includes(query)) ||
-        figure.lifespan.toLowerCase().includes(query)
-      )
-      .map((figure: any) => ({
-        id: figure.id,
-        title: figure.name,
-        description: `${figure.lifespan} - ${figure.description}`,
-        type: 'figure',
-        url: `/nhan-vat/${figure.id}/${slugify(figure.name)}`,
-        imageUrl: figure.imageUrl || null,
-      }));
-    
-    // Search in historical sites
-    const siteResults: SearchResult[] = sites
-      .filter((site: any) => 
-        site.name.toLowerCase().includes(query) || 
-        site.description.toLowerCase().includes(query) ||
-        (site.detailedDescription && site.detailedDescription.toLowerCase().includes(query)) ||
-        site.location.toLowerCase().includes(query)
-      )
-      .map((site: any) => ({
-        id: site.id,
-        title: site.name,
-        description: `${site.location} - ${site.description}`,
-        type: 'site',
-        url: `/di-tich/${site.id}/${slugify(site.name)}`,
-        imageUrl: site.imageUrl || null,
-      }));
-    
-    // Combine and sort results - giving priority to exact matches
-    const allResults = [...periodResults, ...eventResults, ...figureResults, ...siteResults];
-    
-    // Sort results - exact title matches first, then by relevance
-    allResults.sort((a, b) => {
-      const aExactMatch = a.title.toLowerCase() === query;
-      const bExactMatch = b.title.toLowerCase() === query;
-      
-      if (aExactMatch && !bExactMatch) return -1;
-      if (!aExactMatch && bExactMatch) return 1;
-      
-      const aStartsWithQuery = a.title.toLowerCase().startsWith(query);
-      const bStartsWithQuery = b.title.toLowerCase().startsWith(query);
-      
-      if (aStartsWithQuery && !bStartsWithQuery) return -1;
-      if (!aStartsWithQuery && bStartsWithQuery) return 1;
-      
-      return 0;
+    const searchTerm = `%${q.toLowerCase()}%`;
+    const results: SearchResult[] = [];
+
+    // Tìm kiếm trong bảng periods
+    const periodResults = await db.query.periods.findMany({
+      where: and(
+        like(periods.name.toLowerCase(), searchTerm),
+        periodId ? eq(periods.id, Number(periodId)) : undefined
+      ),
     });
-    
-    res.status(200).json(allResults);
+
+    periodResults.forEach(period => {
+      results.push({
+        id: `period-${period.id}`,
+        type: 'period',
+        title: period.name,
+        subtitle: period.timeframe,
+        link: `/thoi-ky/${period.slug}`,
+        icon: 'timeline',
+      });
+    });
+
+    // Tìm kiếm trong bảng events
+    const eventResults = await db.query.events.findMany({
+      where: and(
+        like(events.title.toLowerCase(), searchTerm),
+        periodId ? eq(events.periodId, Number(periodId)) : undefined
+      ),
+      with: {
+        period: true,
+        eventTypes: {
+          with: {
+            eventType: true,
+          },
+        },
+      },
+    });
+
+    eventResults.forEach(event => {
+      // Kiểm tra xem event có thuộc vào eventTypeId được chỉ định không
+      if (eventTypeId) {
+        const hasEventType = event.eventTypes.some(
+          et => et.eventType.id === Number(eventTypeId)
+        );
+
+        if (!hasEventType) {
+          return;
+        }
+      }
+
+      results.push({
+        id: `event-${event.id}`,
+        type: 'event',
+        title: event.title,
+        subtitle: `${event.year} - ${event.period?.name || ''}`,
+        link: `/su-kien/${event.id}/${event.slug || event.title.toLowerCase().replace(/ /g, '-')}`,
+        icon: 'event',
+      });
+    });
+
+    // Tìm kiếm trong bảng historical figures
+    const figureResults = await db.query.historicalFigures.findMany({
+      where: and(
+        like(historicalFigures.name.toLowerCase(), searchTerm),
+        periodId ? eq(historicalFigures.periodId, Number(periodId)) : undefined
+      ),
+      with: {
+        period: true,
+      },
+    });
+
+    figureResults.forEach(figure => {
+      results.push({
+        id: `figure-${figure.id}`,
+        type: 'figure',
+        title: figure.name,
+        subtitle: `${figure.lifespan} - ${figure.period?.name || ''}`,
+        link: `/nhan-vat/${figure.id}/${figure.slug || figure.name.toLowerCase().replace(/ /g, '-')}`,
+        icon: 'person',
+      });
+    });
+
+    // Tìm kiếm trong bảng historical sites
+    const siteResults = await db.query.historicalSites.findMany({
+      where: and(
+        like(historicalSites.name.toLowerCase(), searchTerm),
+        periodId ? eq(historicalSites.periodId, Number(periodId)) : undefined
+      ),
+      with: {
+        period: true,
+      },
+    });
+
+    siteResults.forEach(site => {
+      results.push({
+        id: `site-${site.id}`,
+        type: 'site',
+        title: site.name,
+        subtitle: `${site.location} - ${site.period?.name || ''}`,
+        link: `/di-tich/${site.id}/${site.slug || site.name.toLowerCase().replace(/ /g, '-')}`,
+        icon: 'location',
+      });
+    });
+
+    res.status(200).json(results);
   } catch (error) {
-    console.error('Error searching:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Search error:', error);
+    res.status(500).json({ error: 'Search failed' });
   }
 }
