@@ -38,6 +38,32 @@ export const storage = {
       return [];
     }
   },
+  
+  getEventTypesForEvent: async (eventId: number) => {
+    try {
+      // Lấy các liên kết event-eventType cho sự kiện
+      const eventToTypes = await db
+        .select()
+        .from(eventToEventType)
+        .where(eq(eventToEventType.eventId, eventId));
+      
+      if (!eventToTypes || eventToTypes.length === 0) {
+        return [];
+      }
+      
+      // Lấy thông tin đầy đủ về các loại sự kiện
+      const typeIds = eventToTypes.map(et => et.eventTypeId);
+      const types = await db
+        .select()
+        .from(eventTypes)
+        .where(sql`${eventTypes.id} IN (${typeIds.join(',')})`);
+      
+      return types;
+    } catch (error) {
+      handleDbError(error, "getEventTypesForEvent");
+      return [];
+    }
+  },
     
   // Users methods
   getUserById: async (id: number) => {
