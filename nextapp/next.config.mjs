@@ -4,6 +4,14 @@ const nextConfig = {
   images: {
     domains: ['lichsuviet.edu.vn', 'localhost'],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:5000/api/:path*',
+      },
+    ];
+  },
   async redirects() {
     return [
       {

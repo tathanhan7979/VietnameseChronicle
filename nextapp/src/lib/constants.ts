@@ -1,7 +1,6 @@
 // API base URL
-export const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://lichsuviet.edu.vn'
-  : 'http://localhost:5000';
+// Sử dụng URL tương đối cho API vì chúng ta đã cấu hình rewrites trong next.config.mjs
+export const API_BASE_URL = '';
 
 // API Endpoints
 export const API_ENDPOINTS = {
