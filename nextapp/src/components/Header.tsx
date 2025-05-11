@@ -1,307 +1,263 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import SearchOverlay from './SearchOverlay';
+import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 interface HeaderProps {
-  activeSection?: string;
-  onSectionSelect?: (sectionId: string) => void;
+  onOpenSearch: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ activeSection, onSectionSelect }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
+export default function Header({ onOpenSearch }: HeaderProps) {
+  const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const pathname = usePathname();
   const router = useRouter();
-  
-  const isHomePage = pathname === '/';
+
+  // Xác định menu item active dựa trên path
+  const isActive = (path: string) => {
+    return router.pathname.startsWith(path);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const offset = window.scrollY;
+      if (offset > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
-    
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
   useEffect(() => {
-    // Close mobile menu on route change
+    // Đóng mobile menu khi chuyển trang
     setMobileMenuOpen(false);
-  }, [pathname]);
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setMobileMenuOpen(false);
-  };
-
-  const handleSectionClick = (sectionId: string) => {
-    closeMobileMenu();
-    if (onSectionSelect) {
-      onSectionSelect(sectionId);
-    }
-  };
-
-  const handleSearchClick = () => {
-    // For better UX, we now navigate to the search page instead of showing an overlay
-    router.push('/tim-kiem');
-  };
-
-  const isActive = (path: string): boolean => {
-    if (path.startsWith('#')) {
-      return isHomePage && activeSection === path.substring(1);
-    }
-    if (path === '/') return pathname === '/';
-    return pathname?.startsWith(path) || false;
-  };
+  }, [router.pathname]);
 
   return (
-    <>
-      <header 
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled ? 'bg-white shadow-md text-gray-800' : 'bg-transparent text-white'
-        }`}
-      >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            <div className="flex items-center">
-              <Link href="/" className="font-bold text-xl md:text-2xl">
-                Lịch Sử Việt Nam
-              </Link>
-            </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              {isHomePage ? (
-                <>
-                  <a 
-                    href="#timeline" 
-                    onClick={() => handleSectionClick('timeline')}
-                    className={`hover:text-red-500 transition-colors ${
-                      activeSection === 'timeline' ? 'font-semibold text-red-500' : ''
-                    }`}
-                  >
-                    Dòng thời gian
-                  </a>
-                  <Link 
-                    href="/su-kien"
-                    className={`hover:text-red-500 transition-colors ${
-                      isActive('/su-kien') ? 'font-semibold text-red-500' : ''
-                    }`}
-                  >
-                    Sự kiện
-                  </Link>
-                  <Link 
-                    href="/nhan-vat"
-                    className={`hover:text-red-500 transition-colors ${
-                      isActive('/nhan-vat') ? 'font-semibold text-red-500' : ''
-                    }`}
-                  >
-                    Nhân vật
-                  </Link>
-                  <Link 
-                    href="/di-tich"
-                    className={`hover:text-red-500 transition-colors ${
-                      isActive('/di-tich') ? 'font-semibold text-red-500' : ''
-                    }`}
-                  >
-                    Di tích
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link 
-                    href="/#timeline" 
-                    className={`hover:text-red-500 transition-colors ${
-                      isActive('/#timeline') ? 'font-semibold text-red-500' : ''
-                    }`}
-                  >
-                    Dòng thời gian
-                  </Link>
-                  <Link 
-                    href="/su-kien"
-                    className={`hover:text-red-500 transition-colors ${
-                      isActive('/su-kien') ? 'font-semibold text-red-500' : ''
-                    }`}
-                  >
-                    Sự kiện
-                  </Link>
-                  <Link 
-                    href="/nhan-vat" 
-                    className={`hover:text-red-500 transition-colors ${
-                      isActive('/nhan-vat') ? 'font-semibold text-red-500' : ''
-                    }`}
-                  >
-                    Nhân vật
-                  </Link>
-                  <Link 
-                    href="/di-tich" 
-                    className={`hover:text-red-500 transition-colors ${
-                      isActive('/di-tich') ? 'font-semibold text-red-500' : ''
-                    }`}
-                  >
-                    Di tích
-                  </Link>
-                </>
-              )}
-              <Link
-                href="/tim-kiem"
-                className={`hover:text-red-500 transition-colors flex items-center ${
-                  isActive('/tim-kiem') ? 'font-semibold text-red-500' : ''
-                }`}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-                Tìm kiếm
-              </Link>
-            </nav>
-
-            {/* Mobile Menu Button */}
-            <div className="flex md:hidden space-x-2">
-              <Link
-                href="/tim-kiem"
-                className="p-2 hover:text-red-500 transition-colors"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </Link>
-              <button onClick={toggleMobileMenu} className="p-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  {mobileMenuOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  )}
-                </svg>
-              </button>
-            </div>
+    <header
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-white dark:bg-gray-900 shadow-md py-2'
+          : 'bg-transparent py-4'
+      }`}
+    >
+      <div className="container mx-auto px-4 flex justify-between items-center">
+        <Link href="/" className="flex items-center">
+          <div className="w-10 h-10 relative mr-3">
+            <Image 
+              src="/logo.png" 
+              alt="Lịch Sử Việt Nam Logo" 
+              className="object-contain" 
+              fill
+              sizes="40px"
+              priority
+            />
           </div>
-        </div>
+          <span className={`text-xl font-bold ${
+            scrolled ? 'text-primary dark:text-white' : 'text-white'
+          }`}>
+            Lịch Sử Việt Nam
+          </span>
+        </Link>
 
-        {/* Mobile Menu */}
-        <div
-          className={`md:hidden bg-white text-gray-800 transition-all duration-300 overflow-hidden ${
-            mobileMenuOpen ? 'max-h-screen opacity-100 shadow-md' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <nav className="container mx-auto px-4 py-4">
-            <ul className="space-y-4">
-              {isHomePage ? (
-                <>
-                  <li>
-                    <a 
-                      href="#timeline" 
-                      onClick={() => handleSectionClick('timeline')}
-                      className={`block py-2 hover:text-red-500 transition-colors ${
-                        activeSection === 'timeline' ? 'font-semibold text-red-500' : ''
-                      }`}
-                    >
-                      Dòng thời gian
-                    </a>
-                  </li>
-                </>
+        {/* Desktop Menu */}
+        <nav className="hidden md:flex items-center space-x-8">
+          <Link 
+            href="/"
+            className={`${
+              isActive('/') && router.pathname === '/' 
+                ? 'text-primary dark:text-primary' 
+                : scrolled ? 'text-gray-700 dark:text-gray-200' : 'text-white'
+            } hover:text-primary dark:hover:text-primary font-medium`}
+          >
+            Trang Chủ
+          </Link>
+          <Link 
+            href="/thoi-ky"
+            className={`${
+              isActive('/thoi-ky') 
+                ? 'text-primary dark:text-primary' 
+                : scrolled ? 'text-gray-700 dark:text-gray-200' : 'text-white'
+            } hover:text-primary dark:hover:text-primary font-medium`}
+          >
+            Thời Kỳ
+          </Link>
+          <Link 
+            href="/su-kien"
+            className={`${
+              isActive('/su-kien') 
+                ? 'text-primary dark:text-primary' 
+                : scrolled ? 'text-gray-700 dark:text-gray-200' : 'text-white'
+            } hover:text-primary dark:hover:text-primary font-medium`}
+          >
+            Sự Kiện
+          </Link>
+          <Link 
+            href="/nhan-vat"
+            className={`${
+              isActive('/nhan-vat') 
+                ? 'text-primary dark:text-primary' 
+                : scrolled ? 'text-gray-700 dark:text-gray-200' : 'text-white'
+            } hover:text-primary dark:hover:text-primary font-medium`}
+          >
+            Nhân Vật
+          </Link>
+          <Link 
+            href="/di-tich"
+            className={`${
+              isActive('/di-tich') 
+                ? 'text-primary dark:text-primary' 
+                : scrolled ? 'text-gray-700 dark:text-gray-200' : 'text-white'
+            } hover:text-primary dark:hover:text-primary font-medium`}
+          >
+            Di Tích
+          </Link>
+          <button
+            onClick={onOpenSearch}
+            className={`${
+              scrolled ? 'text-gray-700 dark:text-gray-200' : 'text-white'
+            } hover:text-primary dark:hover:text-primary focus:outline-none transition-colors`}
+            aria-label="Tìm kiếm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
+        </nav>
+
+        {/* Mobile Menu Button */}
+        <div className="flex md:hidden items-center space-x-4">
+          <button
+            onClick={onOpenSearch}
+            className={`${
+              scrolled ? 'text-gray-700 dark:text-gray-200' : 'text-white'
+            } hover:text-primary dark:hover:text-primary focus:outline-none transition-colors`}
+            aria-label="Tìm kiếm"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </button>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className={`${
+              scrolled ? 'text-gray-700 dark:text-gray-200' : 'text-white'
+            } hover:text-primary dark:hover:text-primary focus:outline-none transition-colors`}
+            aria-label="Mở menu"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              {mobileMenuOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <>
-                  <li>
-                    <Link 
-                      href="/#timeline"
-                      className="block py-2 hover:text-red-500 transition-colors"
-                      onClick={closeMobileMenu}
-                    >
-                      Dòng thời gian
-                    </Link>
-                  </li>
-                </>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
-              <li>
-                <Link 
-                  href="/su-kien"
-                  className={`block py-2 hover:text-red-500 transition-colors ${
-                    isActive('/su-kien') ? 'font-semibold text-red-500' : ''
-                  }`}
-                >
-                  Sự kiện lịch sử
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  href="/nhan-vat"
-                  className={`block py-2 hover:text-red-500 transition-colors ${
-                    isActive('/nhan-vat') ? 'font-semibold text-red-500' : ''
-                  }`}
-                >
-                  Nhân vật lịch sử
-                </Link>
-              </li>
-              <li>
-                <Link 
-                  href="/di-tich"
-                  className={`block py-2 hover:text-red-500 transition-colors ${
-                    isActive('/di-tich') ? 'font-semibold text-red-500' : ''
-                  }`}
-                >
-                  Di tích lịch sử
-                </Link>
-              </li>
-            </ul>
-          </nav>
+            </svg>
+          </button>
         </div>
-      </header>
+      </div>
 
-      {/* Search Overlay - keeping for backward compatibility */}
-      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
-
-      {/* Spacer for fixed header */}
-      <div className="h-16 md:h-20"></div>
-    </>
+      {/* Mobile Menu */}
+      <div
+        className={`md:hidden transition-all duration-300 overflow-hidden ${
+          mobileMenuOpen ? 'max-h-64' : 'max-h-0'
+        } bg-white dark:bg-gray-900 shadow-md`}
+      >
+        <nav className="flex flex-col space-y-4 px-4 py-4">
+          <Link 
+            href="/"
+            className={`${
+              isActive('/') && router.pathname === '/' 
+                ? 'text-primary dark:text-primary' 
+                : 'text-gray-700 dark:text-gray-200'
+            } hover:text-primary dark:hover:text-primary font-medium`}
+          >
+            Trang Chủ
+          </Link>
+          <Link 
+            href="/thoi-ky"
+            className={`${
+              isActive('/thoi-ky') 
+                ? 'text-primary dark:text-primary' 
+                : 'text-gray-700 dark:text-gray-200'
+            } hover:text-primary dark:hover:text-primary font-medium`}
+          >
+            Thời Kỳ
+          </Link>
+          <Link 
+            href="/su-kien"
+            className={`${
+              isActive('/su-kien') 
+                ? 'text-primary dark:text-primary' 
+                : 'text-gray-700 dark:text-gray-200'
+            } hover:text-primary dark:hover:text-primary font-medium`}
+          >
+            Sự Kiện
+          </Link>
+          <Link 
+            href="/nhan-vat"
+            className={`${
+              isActive('/nhan-vat') 
+                ? 'text-primary dark:text-primary' 
+                : 'text-gray-700 dark:text-gray-200'
+            } hover:text-primary dark:hover:text-primary font-medium`}
+          >
+            Nhân Vật
+          </Link>
+          <Link 
+            href="/di-tich"
+            className={`${
+              isActive('/di-tich') 
+                ? 'text-primary dark:text-primary' 
+                : 'text-gray-700 dark:text-gray-200'
+            } hover:text-primary dark:hover:text-primary font-medium`}
+          >
+            Di Tích
+          </Link>
+        </nav>
+      </div>
+    </header>
   );
-};
-
-export default Header;
+}

@@ -1,59 +1,35 @@
-import React from 'react';
-import { Html, Head, Main, NextScript } from 'next/document';
+import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document';
 
-export default function Document() {
-  return (
-    <Html lang="vi">
-      <Head>
-        {/* Preconnect to domains */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://connect.facebook.net" />
-        
-        {/* DNS Prefetch */}
-        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-        <link rel="dns-prefetch" href="//connect.facebook.net" />
-        
-        {/* Material Icons for timeline */}
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+class MyDocument extends Document {
+  static async getInitialProps(ctx: DocumentContext) {
+    const initialProps = await Document.getInitialProps(ctx);
+    return { ...initialProps };
+  }
 
-        {/* Primary font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-        
-        {/* NProgress styles */}
-        <style>{`
-          #nprogress {
-            pointer-events: none;
-          }
-          #nprogress .bar {
-            background: #e11d48;
-            position: fixed;
-            z-index: 1031;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-          }
-          #nprogress .peg {
-            display: block;
-            position: absolute;
-            right: 0px;
-            width: 100px;
-            height: 100%;
-            box-shadow: 0 0 10px #e11d48, 0 0 5px #e11d48;
-            opacity: 1.0;
-            transform: rotate(3deg) translate(0px, -4px);
-          }
-        `}</style>
-      </Head>
-      <body>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
-  );
+  render() {
+    return (
+      <Html lang="vi">
+        <Head>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+          />
+          <meta name="application-name" content="Lịch Sử Việt Nam" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta name="apple-mobile-web-app-title" content="Lịch Sử Việt Nam" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="theme-color" content="#b91c1c" />
+        </Head>
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    );
+  }
 }
+
+export default MyDocument;

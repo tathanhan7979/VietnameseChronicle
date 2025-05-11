@@ -1,47 +1,40 @@
-import React from 'react';
+import '@/styles/globals.css';
 import { AppProps } from 'next/app';
+import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import Router from 'next/router';
 import NProgress from 'nprogress';
-import '../styles/globals.css';
+import 'nprogress/nprogress.css';
+import Layout from '@/components/Layout';
 
-// Type declaration for Google Analytics
-declare global {
-  interface Window {
-    gtag?: (command: string, id: string, config: any) => void;
-  }
-}
+// Cấu hình NProgress
+NProgress.configure({ showSpinner: false });
 
-// NProgress configuration
-NProgress.configure({ 
-  showSpinner: false,
-  minimum: 0.1,
-  easing: 'ease',
-  speed: 300
-});
+export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
 
-// Configure progress bar
-Router.events.on('routeChangeStart', () => NProgress.start());
-Router.events.on('routeChangeComplete', () => NProgress.done());
-Router.events.on('routeChangeError', () => NProgress.done());
-
-export default function MyApp({ Component, pageProps }: AppProps) {
-  // Add global event listeners or other app-wide logic
   useEffect(() => {
-    // You could add analytics or other page view logic here
-    const handleRouteChange = (url: string) => {
-      // Example: track page view with Google Analytics
-      window.gtag?.('config', 'G-XXXXXXXXXX', {
-        page_path: url,
-      });
+    const handleStart = () => {
+      NProgress.start();
     };
-
-    Router.events.on('routeChangeComplete', handleRouteChange);
     
-    return () => {
-      Router.events.off('routeChangeComplete', handleRouteChange);
+    const handleStop = () => {
+      NProgress.done();
     };
-  }, []);
 
-  return <Component {...pageProps} />;
+    router.events.on('routeChangeStart', handleStart);
+    router.events.on('routeChangeComplete', handleStop);
+    router.events.on('routeChangeError', handleStop);
+
+    return () => {
+      router.events.off('routeChangeStart', handleStart);
+      router.events.off('routeChangeComplete', handleStop);
+      router.events.off('routeChangeError', handleStop);
+    };
+  }, [router]);
+
+  return (
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  );
 }

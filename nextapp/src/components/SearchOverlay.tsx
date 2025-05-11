@@ -1,132 +1,161 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, KeyboardEvent } from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
-import Image from 'next/image';
+import { API_ENDPOINTS } from '@/lib/constants';
+import { SearchResult } from '@/lib/types';
 
 interface SearchOverlayProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface SearchResult {
-  id: number;
-  title: string;
-  description: string;
-  type: 'event' | 'figure' | 'site' | 'period';
-  url: string;
-  imageUrl?: string;
-}
-
-const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
+export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
+  // Focus input và reset state khi overlay mở
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  useEffect(() => {
-    if (isOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
+    if (isOpen) {
+      setSearchTerm('');
+      setResults([]);
+      setSelectedResultIndex(-1);
+      setIsLoading(false);
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
     }
   }, [isOpen]);
 
+  // Đóng overlay khi nhấn ESC
   useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (overlayRef.current && !overlayRef.current.contains(e.target as Node)) {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
         onClose();
       }
     };
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleOutsideClick);
-    }
-
+    document.addEventListener('keydown', handleKeyDown as any);
     return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown as any);
     };
-  }, [isOpen, onClose]);
+  }, [onClose]);
 
+  // Tìm kiếm
   useEffect(() => {
-    if (!searchTerm.trim() || searchTerm.length < 2) {
-      setResults([]);
-      return;
-    }
-
-    const searchData = async () => {
-      setIsLoading(true);
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setResults(data);
+    const delayDebounce = setTimeout(async () => {
+      if (searchTerm.trim().length >= 2) {
+        setIsLoading(true);
+        try {
+          const response = await fetch(`${API_ENDPOINTS.SEARCH}?term=${encodeURIComponent(searchTerm)}`);
+          if (response.ok) {
+            const data = await response.json();
+            setResults(data);
+          } else {
+            setResults([]);
+          }
+        } catch (error) {
+          console.error('Search error:', error);
+          setResults([]);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error('Lỗi tìm kiếm:', error);
-      } finally {
-        setIsLoading(false);
+      } else {
+        setResults([]);
       }
-    };
-
-    const debounceTimer = setTimeout(() => {
-      searchData();
     }, 300);
 
-    return () => clearTimeout(debounceTimer);
+    return () => clearTimeout(delayDebounce);
   }, [searchTerm]);
 
-  if (!isOpen) return null;
-  
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'event': return 'Sự kiện';
-      case 'figure': return 'Nhân vật';
-      case 'site': return 'Di tích';
-      case 'period': return 'Thời kỳ';
-      default: return 'Khác';
+  // Xử lý phím mũi tên và Enter cho kết quả tìm kiếm
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedResultIndex(prev => (prev < results.length - 1 ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedResultIndex(prev => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedResultIndex >= 0 && results[selectedResultIndex]) {
+        navigateToResult(results[selectedResultIndex]);
+      } else {
+        // Nếu không có kết quả nào được chọn, chuyển đến trang tìm kiếm với từ khóa hiện tại
+        router.push(`/tim-kiem?q=${encodeURIComponent(searchTerm)}`);
+        onClose();
+      }
     }
   };
 
-  const getTypeBadgeColor = (type: string) => {
+  // Chuyển đến kết quả tìm kiếm
+  const navigateToResult = (result: SearchResult) => {
+    router.push(result.link);
+    onClose();
+  };
+
+  // Icon dựa trên loại kết quả
+  const renderIcon = (type: string) => {
     switch (type) {
-      case 'event': return 'bg-red-500';
-      case 'figure': return 'bg-blue-500';
-      case 'site': return 'bg-green-500';
-      case 'period': return 'bg-purple-500';
-      default: return 'bg-gray-500';
+      case 'period':
+        return (
+          <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        );
+      case 'event':
+        return (
+          <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        );
+      case 'figure':
+        return (
+          <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        );
+      case 'site':
+        return (
+          <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+        );
+      default:
+        return (
+          <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+          </svg>
+        );
     }
   };
+
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-start justify-center pt-20">
-      <div 
-        ref={overlayRef}
-        className="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden"
-      >
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center">
-            <div className="flex-1 relative">
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      {/* Backdrop */}
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
+      {/* Search container */}
+      <div className="relative min-h-screen flex items-start justify-center pt-16 pb-8 px-4">
+        <div className="bg-white dark:bg-gray-800 w-full max-w-2xl rounded-lg shadow-xl overflow-hidden">
+          {/* Search input */}
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="relative">
               <input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Tìm kiếm sự kiện, nhân vật, di tích lịch sử..."
-                className="w-full py-2 pl-10 pr-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full py-3 pl-10 pr-4 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Tìm kiếm..."
               />
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <div className="absolute left-3 top-3.5 text-gray-400">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5"
@@ -141,98 +170,84 @@ const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose }) => {
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Results */}
+          <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
+            {isLoading && (
+              <div className="p-4 text-center">
+                <div className="inline-block w-6 h-6 border-2 border-gray-300 border-t-primary rounded-full animate-spin"></div>
+                <p className="mt-2 text-gray-500 dark:text-gray-400">Đang tìm kiếm...</p>
+              </div>
+            )}
+
+            {!isLoading && results.length === 0 && searchTerm.trim().length >= 2 && (
+              <div className="p-4 text-center">
+                <p className="text-gray-500 dark:text-gray-400">Không tìm thấy kết quả nào cho "{searchTerm}"</p>
+              </div>
+            )}
+
+            {!isLoading && searchTerm.trim().length < 2 && (
+              <div className="p-4 text-center">
+                <p className="text-gray-500 dark:text-gray-400">Nhập ít nhất 2 ký tự để tìm kiếm</p>
+              </div>
+            )}
+
+            {!isLoading && results.length > 0 && (
+              <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                {results.map((result, index) => (
+                  <li key={result.id}>
+                    <Link 
+                      href={result.link}
+                      className={`block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                        index === selectedResultIndex ? 'bg-gray-100 dark:bg-gray-700' : ''
+                      }`}
+                      onClick={onClose}
+                    >
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 mr-3">
+                          {renderIcon(result.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {result.title}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {result.subtitle}
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Footer with shortcut hints */}
+          <div className="p-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+            <div>
+              <span className="inline-flex items-center mr-3">
+                <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">↑</kbd>
+                <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded ml-1">↓</kbd>
+                <span className="ml-1">để chọn</span>
+              </span>
+              <span className="inline-flex items-center">
+                <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Enter</kbd>
+                <span className="ml-1">để mở</span>
               </span>
             </div>
-            <button
-              onClick={onClose}
-              className="ml-4 text-gray-500 hover:text-gray-800"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+            <div>
+              <span className="inline-flex items-center">
+                <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-gray-600 rounded">Esc</kbd>
+                <span className="ml-1">để đóng</span>
+              </span>
+            </div>
           </div>
-        </div>
-
-        <div className="max-h-96 overflow-y-auto p-4">
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-500"></div>
-            </div>
-          ) : searchTerm.length > 0 ? (
-            results.length > 0 ? (
-              <div className="space-y-4">
-                {results.map((result) => (
-                  <Link 
-                    href={result.url} 
-                    key={`${result.type}-${result.id}`}
-                    className="flex items-start p-3 hover:bg-gray-50 rounded-lg transition-colors border border-gray-100"
-                    onClick={onClose}
-                  >
-                    <div className="flex-shrink-0 h-16 w-16 rounded-md overflow-hidden bg-gray-100 mr-3">
-                      {result.imageUrl ? (
-                        <Image
-                          src={result.imageUrl}
-                          alt={result.title}
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-semibold text-gray-900">{result.title}</h4>
-                        <span className={`text-xs text-white px-2 py-1 rounded-full ${getTypeBadgeColor(result.type)}`}>
-                          {getTypeLabel(result.type)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600 line-clamp-2">{result.description}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-10 text-gray-500">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 2a10 10 0 110 20 10 10 0 010-20z" />
-                </svg>
-                <p>Không tìm thấy kết quả phù hợp với từ khóa "{searchTerm}"</p>
-              </div>
-            )
-          ) : (
-            <div className="text-center py-10 text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p>Nhập từ khóa để tìm kiếm thông tin về lịch sử Việt Nam</p>
-            </div>
-          )}
-        </div>
-        
-        <div className="p-4 border-t border-gray-200 bg-gray-50 text-xs text-gray-500">
-          Nhấn ESC để đóng
         </div>
       </div>
     </div>
   );
-};
-
-export default SearchOverlay;
+}
