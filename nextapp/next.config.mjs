@@ -1,34 +1,46 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Cấu hình Next.js
   reactStrictMode: true,
-  swcMinify: true,
-  
-  // Cấu hình cho API routes
-  async rewrites() {
-    return [
-      // Chuyển hướng API calls đến Express backend
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*',
-      },
-    ];
-  },
-  
-  // Cấu hình hình ảnh
   images: {
-    domains: ['lichsuviet.edu.vn'],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'lichsuviet.edu.vn',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        pathname: '/uploads/**',
+      },
     ],
   },
-
-  // Static export (nếu cần)
-  // output: 'export',
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: 'http://localhost:5000/admin',
+        permanent: false,
+      },
+      {
+        source: '/admin/:path*',
+        destination: 'http://localhost:5000/admin/:path*',
+        permanent: false,
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:5000/api/:path*',
+      },
+      {
+        source: '/uploads/:path*',
+        destination: 'http://localhost:5000/uploads/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
