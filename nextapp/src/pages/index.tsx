@@ -3,9 +3,10 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { GetStaticProps } from 'next';
-import { API_ENDPOINTS, DEFAULT_SEO_IMAGE } from '@/lib/constants';
-import { PeriodData, EventData, HistoricalFigure, HistoricalSite } from '@/lib/types';
-import HeroSection from '@/components/HeroSection';
+import { API_ENDPOINTS, DEFAULT_SEO_IMAGE } from '../lib/constants';
+import { PeriodData, EventData, HistoricalFigure, HistoricalSite } from '../lib/types';
+import HeroSection from '../components/HeroSection';
+import Layout from '../components/Layout';
 
 interface HomePageProps {
   periods: PeriodData[];
@@ -49,27 +50,12 @@ export default function HomePage({ periods, events, figures, sites, heroImageUrl
     : sites.slice(0, 4);
 
   return (
-    <>
-      <Head>
-        <title>Lịch Sử Việt Nam - Khám phá hành trình lịch sử dân tộc</title>
-        <meta name="description" content="Khám phá lịch sử Việt Nam từ thời kỳ Tiền sử đến hiện đại thông qua các sự kiện, nhân vật và di tích lịch sử quan trọng." />
-        <link rel="canonical" href="https://lichsuviet.edu.vn" />
-        
-        {/* Open Graph / Facebook */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://lichsuviet.edu.vn" />
-        <meta property="og:title" content="Lịch Sử Việt Nam - Khám phá hành trình lịch sử dân tộc" />
-        <meta property="og:description" content="Khám phá lịch sử Việt Nam từ thời kỳ Tiền sử đến hiện đại thông qua các sự kiện, nhân vật và di tích lịch sử quan trọng." />
-        <meta property="og:image" content={heroImageUrl || DEFAULT_SEO_IMAGE} />
-        
-        {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://lichsuviet.edu.vn" />
-        <meta property="twitter:title" content="Lịch Sử Việt Nam - Khám phá hành trình lịch sử dân tộc" />
-        <meta property="twitter:description" content="Khám phá lịch sử Việt Nam từ thời kỳ Tiền sử đến hiện đại thông qua các sự kiện, nhân vật và di tích lịch sử quan trọng." />
-        <meta property="twitter:image" content={heroImageUrl || DEFAULT_SEO_IMAGE} />
-      </Head>
-
+    <Layout
+      title="Lịch Sử Việt Nam - Khám phá hành trình lịch sử dân tộc"
+      description="Khám phá lịch sử Việt Nam từ thời kỳ Tiền sử đến hiện đại thông qua các sự kiện, nhân vật và di tích lịch sử quan trọng."
+      url="https://lichsuviet.edu.vn"
+      image={heroImageUrl || DEFAULT_SEO_IMAGE}
+    >
       {/* Hero Section */}
       <HeroSection 
         onStartExplore={handleStartExplore} 
@@ -246,7 +232,7 @@ export default function HomePage({ periods, events, figures, sites, heroImageUrl
           </div>
         </div>
       </section>
-    </>
+    </Layout>
   );
 }
 

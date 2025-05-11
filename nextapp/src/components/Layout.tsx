@@ -8,9 +8,21 @@ import { DEFAULT_SEO_IMAGE, SITE_NAME, SITE_DESCRIPTION } from '../lib/constants
 
 interface LayoutProps {
   children: ReactNode;
+  title?: string;
+  description?: string;
+  url?: string;
+  image?: string;
+  noIndex?: boolean;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ 
+  children, 
+  title = SITE_NAME, 
+  description = SITE_DESCRIPTION, 
+  url = 'https://lichsuviet.edu.vn', 
+  image = DEFAULT_SEO_IMAGE,
+  noIndex = false
+}: LayoutProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleOpenSearch = () => {
@@ -24,22 +36,24 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <>
       <Head>
-        <title>{SITE_NAME}</title>
-        <meta name="description" content={SITE_DESCRIPTION} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
+        {/* Robots */}
+        {noIndex && <meta name="robots" content="noindex,nofollow" />}
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://lichsuviet.edu.vn/" />
-        <meta property="og:title" content="Lịch Sử Việt Nam" />
-        <meta property="og:description" content="Khám phá hành trình lịch sử Việt Nam từ thời kỳ Tiền sử đến hiện đại" />
-        <meta property="og:image" content={DEFAULT_SEO_IMAGE} />
+        <meta property="og:url" content={url} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={image} />
         {/* Twitter */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://lichsuviet.edu.vn/" />
-        <meta property="twitter:title" content="Lịch Sử Việt Nam" />
-        <meta property="twitter:description" content="Khám phá hành trình lịch sử Việt Nam từ thời kỳ Tiền sử đến hiện đại" />
-        <meta property="twitter:image" content={DEFAULT_SEO_IMAGE} />
+        <meta property="twitter:url" content={url} />
+        <meta property="twitter:title" content={title} />
+        <meta property="twitter:description" content={description} />
+        <meta property="twitter:image" content={image} />
       </Head>
       <div className="flex flex-col min-h-screen">
         <Header onOpenSearch={handleOpenSearch} />
