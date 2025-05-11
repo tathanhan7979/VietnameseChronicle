@@ -1,8 +1,17 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@db';
 import { periods, events, historicalFigures, historicalSites, eventTypes } from '@shared/schema';
-import { and, like, eq } from 'drizzle-orm';
-import { SearchResult } from '../../lib/types';
+import { and, like, eq, sql } from 'drizzle-orm';
+
+// Search result interface
+interface SearchResult {
+  id: string;
+  type: 'period' | 'event' | 'figure' | 'site';
+  title: string;
+  subtitle: string;
+  link: string;
+  icon: string;
+}
 
 export default async function handler(
   req: NextApiRequest,

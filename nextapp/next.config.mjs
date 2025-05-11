@@ -3,14 +3,12 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     domains: ['lichsuviet.edu.vn', 'localhost'],
-  },
-  async rewrites() {
-    return [
+    remotePatterns: [
       {
-        source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*',
+        protocol: 'https',
+        hostname: 'lichsuviet.edu.vn',
       },
-    ];
+    ],
   },
   async redirects() {
     return [
