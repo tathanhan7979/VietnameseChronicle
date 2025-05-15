@@ -1105,7 +1105,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/settings/:key`,
     requireAuth,
-    requireAdmin,
     async (req, res) => {
       try {
         const { value } = req.body;
@@ -1133,7 +1132,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/settings/initialize`,
     requireAuth,
-    requireAdmin,
     async (req, res) => {
       try {
         await storage.initializeDefaultSettings();
@@ -2992,8 +2990,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/users`,
     requireAuth,
-    requireAdmin,
     async (req, res) => {
+      // Check if user is admin
+      if (!req.user?.isAdmin) {
+        return res.status(403).json({ error: "Chỉ quản trị viên mới có thể thêm người dùng mới" });
+      }
       try {
         const { 
           username, 
