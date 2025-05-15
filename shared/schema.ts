@@ -12,6 +12,11 @@ export const users = pgTable("users", {
   email: text("email"),
   isAdmin: boolean("is_admin").default(false).notNull(),
   isActive: boolean("is_active").default(true).notNull(),
+  // Quyền quản lý nội dung
+  canManagePeriods: boolean("can_manage_periods").default(false).notNull(),
+  canManageEvents: boolean("can_manage_events").default(false).notNull(), 
+  canManageFigures: boolean("can_manage_figures").default(false).notNull(),
+  canManageSites: boolean("can_manage_sites").default(false).notNull(),
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
@@ -58,7 +63,11 @@ export const insertUserSchema = createInsertSchema(users).pick({
   fullName: true,
   email: true,
   isAdmin: true,
-  isActive: true
+  isActive: true,
+  canManagePeriods: true,
+  canManageEvents: true,
+  canManageFigures: true,
+  canManageSites: true
 });
 
 export const insertRoleSchema = createInsertSchema(roles);

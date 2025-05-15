@@ -56,10 +56,16 @@ interface User {
 // Form schema cho tạo người dùng mới
 const userFormSchema = z.object({
   username: z.string().min(3, 'Tên người dùng phải có ít nhất 3 ký tự'),
-  password: z.union([
-    z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
-    z.string().length(0, 'Để trống nếu không muốn thay đổi mật khẩu')
-  ]).optional(),
+  password: z.string().refine(val => {
+    // Trường hợp tạo mới hoặc muốn đổi mật khẩu (val.length > 0)
+    if (val.length > 0) {
+      return val.length >= 6;
+    }
+    // Trường hợp chỉnh sửa và không muốn đổi mật khẩu (val.length === 0) 
+    return true;
+  }, {
+    message: 'Mật khẩu phải có ít nhất 6 ký tự hoặc để trống nếu không muốn thay đổi'
+  }),
   fullName: z.string().min(3, 'Họ tên phải có ít nhất 3 ký tự'),
   email: z.string().email('Email không hợp lệ').nullable().optional(),
   isAdmin: z.boolean().default(false),
