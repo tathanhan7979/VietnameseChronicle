@@ -197,7 +197,7 @@ const requireSitesPermission = async (
     }
 
     if (!user || (!user.isAdmin && !user.canManageSites)) {
-      return res.status(403).json({ error: "Bạn không có quyền quản lý di tích lịch sử" });
+      return res.status(403).json({ error: "Bạn không có quyền quản lý địa danh lịch sử" });
     }
 
     next();
