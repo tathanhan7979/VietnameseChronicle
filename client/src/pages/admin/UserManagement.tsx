@@ -53,9 +53,34 @@ interface User {
   lastLoginAt: string | null;
 }
 
-// Form schema cho tạo người dùng mới
-const userFormSchema = z.object({
+// Form schema chung
+const baseUserSchema = {
   username: z.string().min(3, 'Tên người dùng phải có ít nhất 3 ký tự'),
+  fullName: z.string().min(3, 'Họ tên phải có ít nhất 3 ký tự'),
+  email: z.string().email('Email không hợp lệ').nullable().optional(),
+  isAdmin: z.boolean().default(false),
+  isActive: z.boolean().default(true),
+  canManagePeriods: z.boolean().default(false),
+  canManageEvents: z.boolean().default(false),
+  canManageFigures: z.boolean().default(false),
+  canManageSites: z.boolean().default(false),
+};
+
+// Schema cho tạo mới
+const createUserSchema = z.object({
+  ...baseUserSchema,
+  password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
+});
+
+// Schema cho cập nhật (password là tùy chọn)
+const updateUserSchema = z.object({
+  ...baseUserSchema,
+  password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự').optional(),
+});
+
+// Schema chung cho form (sử dụng cho cả tạo mới và cập nhật)
+const userFormSchema = z.object({
+  ...baseUserSchema,
   password: z.string().refine(val => {
     // Trường hợp tạo mới hoặc muốn đổi mật khẩu (val.length > 0)
     if (val.length > 0) {
@@ -66,14 +91,6 @@ const userFormSchema = z.object({
   }, {
     message: 'Mật khẩu phải có ít nhất 6 ký tự hoặc để trống nếu không muốn thay đổi'
   }),
-  fullName: z.string().min(3, 'Họ tên phải có ít nhất 3 ký tự'),
-  email: z.string().email('Email không hợp lệ').nullable().optional(),
-  isAdmin: z.boolean().default(false),
-  isActive: z.boolean().default(true),
-  canManagePeriods: z.boolean().default(false),
-  canManageEvents: z.boolean().default(false),
-  canManageFigures: z.boolean().default(false),
-  canManageSites: z.boolean().default(false),
 });
 
 // Form schema cho reset mật khẩu
@@ -150,7 +167,7 @@ export default function UserManagement() {
 
   // Mutation để cập nhật người dùng
   const updateUserMutation = useMutation({
-    mutationFn: async (data: z.infer<typeof userFormSchema>) => {
+    mutationFn: async (data: Partial<z.infer<typeof userFormSchema>>) => {
       if (!selectedUser) return null;
       const res = await apiRequest('PUT', `/api/admin/users/${selectedUser.id}`, data);
       return res.json();
@@ -231,11 +248,13 @@ export default function UserManagement() {
 
   const handleUpdateUser = form.handleSubmit((data) => {
     // Loại bỏ password nếu không được nhập khi cập nhật
-    const formData = { ...data };
-    if (!formData.password || formData.password.trim() === '') {
-      delete formData.password;
+    if (!data.password || data.password.trim() === '') {
+      // Tạo một đối tượng mới không chứa password
+      const { password, ...formDataWithoutPassword } = data;
+      updateUserMutation.mutate(formDataWithoutPassword);
+    } else {
+      updateUserMutation.mutate(data);
     }
-    updateUserMutation.mutate(formData);
   });
 
   const handleResetPassword = resetPasswordForm.handleSubmit((data) => {
@@ -648,6 +667,92 @@ export default function UserManagement() {
                       </FormItem>
                     )}
                   />
+                </div>
+                
+                <div className="mt-4">
+                  <h3 className="text-lg font-medium mb-2">Quyền quản lý nội dung</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="canManagePeriods"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Thời kỳ lịch sử</FormLabel>
+                            <FormDescription>
+                              Có thể thêm, sửa, xóa thời kỳ lịch sử
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="canManageEvents"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Sự kiện lịch sử</FormLabel>
+                            <FormDescription>
+                              Có thể thêm, sửa, xóa sự kiện lịch sử
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="canManageFigures"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Nhân vật lịch sử</FormLabel>
+                            <FormDescription>
+                              Có thể thêm, sửa, xóa nhân vật lịch sử
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="canManageSites"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Địa danh lịch sử</FormLabel>
+                            <FormDescription>
+                              Có thể thêm, sửa, xóa địa danh lịch sử
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button
