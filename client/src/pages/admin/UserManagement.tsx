@@ -249,7 +249,7 @@ export default function UserManagement() {
   const handleUpdateUser = form.handleSubmit((data) => {
     // Chuyển đổi dữ liệu từ form thành dữ liệu cập nhật
     const updateData = { ...data };
-    
+
     // Loại bỏ password nếu không được nhập khi cập nhật
     if (!updateData.password || updateData.password.trim() === '') {
       // Dùng kiểu as để nói với TypeScript rằng dữ liệu này sẽ được xử lý an toàn
@@ -543,7 +543,7 @@ export default function UserManagement() {
                     )}
                   />
                 </div>
-                
+
                 <h3 className="text-lg font-medium mt-4">Quyền quản lý nội dung</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
@@ -755,7 +755,7 @@ export default function UserManagement() {
                     )}
                   />
                 </div>
-                
+
                 <h3 className="text-lg font-medium mt-4">Quyền quản lý nội dung</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
@@ -916,10 +916,15 @@ export default function UserManagement() {
                     </FormItem>
                   )}
                 />
+                />
+                  </div>
+                </div>
+                </form>
                 <DialogFooter>
                   <Button
                     type="submit"
                     disabled={resetPasswordMutation.isPending}
+                    onClick={handleResetPassword}
                   >
                     {resetPasswordMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -927,7 +932,6 @@ export default function UserManagement() {
                     Đặt lại mật khẩu
                   </Button>
                 </DialogFooter>
-              </form>
             </Form>
           </DialogContent>
         </Dialog>
