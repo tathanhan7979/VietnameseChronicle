@@ -1,8 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://lichsuviet.edu.vn/sitemap.xml
-
-# Không cho phép các crawler vào trang admin
-User-agent: *
-Disallow: /admin/
-Disallow: /api/

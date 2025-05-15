@@ -95,118 +95,6 @@ const requireAdmin = async (
   }
 };
 
-// Middleware kiểm tra quyền quản lý thời kỳ
-const requirePeriodsPermission = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    let user: User | null = null;
-
-    // Trường hợp sử dụng session
-    if (req.isAuthenticated?.()) {
-      user = req.user as User;
-    } else {
-      // Trường hợp sử dụng JWT token
-      user = (req as any).user as User;
-    }
-
-    if (!user || (!user.isAdmin && !user.canManagePeriods)) {
-      return res.status(403).json({ error: "Bạn không có quyền quản lý thời kỳ lịch sử" });
-    }
-
-    next();
-  } catch (error) {
-    console.error("Authorization error:", error);
-    res.status(403).json({ error: "Forbidden" });
-  }
-};
-
-// Middleware kiểm tra quyền quản lý sự kiện
-const requireEventsPermission = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    let user: User | null = null;
-
-    // Trường hợp sử dụng session
-    if (req.isAuthenticated?.()) {
-      user = req.user as User;
-    } else {
-      // Trường hợp sử dụng JWT token
-      user = (req as any).user as User;
-    }
-
-    if (!user || (!user.isAdmin && !user.canManageEvents)) {
-      return res.status(403).json({ error: "Bạn không có quyền quản lý sự kiện lịch sử" });
-    }
-
-    next();
-  } catch (error) {
-    console.error("Authorization error:", error);
-    res.status(403).json({ error: "Forbidden" });
-  }
-};
-
-// Middleware kiểm tra quyền quản lý nhân vật
-const requireFiguresPermission = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    let user: User | null = null;
-
-    // Trường hợp sử dụng session
-    if (req.isAuthenticated?.()) {
-      user = req.user as User;
-    } else {
-      // Trường hợp sử dụng JWT token
-      user = (req as any).user as User;
-    }
-
-    if (!user || (!user.isAdmin && !user.canManageFigures)) {
-      return res.status(403).json({ error: "Bạn không có quyền quản lý nhân vật lịch sử" });
-    }
-
-    next();
-  } catch (error) {
-    console.error("Authorization error:", error);
-    res.status(403).json({ error: "Forbidden" });
-  }
-};
-
-// Middleware kiểm tra quyền quản lý di tích
-const requireSitesPermission = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    let user: User | null = null;
-
-    // Trường hợp sử dụng session
-    if (req.isAuthenticated?.()) {
-      user = req.user as User;
-    } else {
-      // Trường hợp sử dụng JWT token
-      user = (req as any).user as User;
-    }
-
-    if (!user || (!user.isAdmin && !user.canManageSites)) {
-      return res.status(403).json({ error: "Bạn không có quyền quản lý địa danh lịch sử" });
-    }
-
-    next();
-  } catch (error) {
-    console.error("Authorization error:", error);
-    res.status(403).json({ error: "Forbidden" });
-  }
-};
-
 // Hàm xóa tập tin - chức năng chung
 function deleteFile(filePath: string): boolean {
   try {
@@ -471,22 +359,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Phục vụ thư mục uploads qua URL /uploads
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-  
-  // Middleware để đếm lượt truy cập
-  app.use(async (req, res, next) => {
-    // Chỉ đếm cho các yêu cầu trang web, không đếm các yêu cầu API hoặc tài nguyên tĩnh
-    if (!req.path.startsWith('/api') && 
-        !req.path.startsWith('/uploads') && 
-        !req.path.includes('.') && 
-        req.method === 'GET') {
-      try {
-        await storage.incrementVisitCount();
-      } catch (error) {
-        console.error('Error incrementing visit count:', error);
-      }
-    }
-    next();
-  });
 
   // Sử dụng hàm deleteFile đã được định nghĩa ở trên
 
@@ -688,9 +560,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Bỏ yêu cầu phải có ít nhất một trong các tham số
       // để cho phép tìm kiếm chỉ với bộ lọc hoặc không có điều kiện
 
-      // Tăng số lượt tìm kiếm
-      await storage.incrementSearchCount();
-
       const results = await storage.search(
         term ? String(term) : undefined,
         period ? String(period) : undefined,
@@ -777,17 +646,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Internal server error" });
     }
   });
-  
-  // Admin API - Get all historical sites (with permission check)
-  app.get(`${apiPrefix}/admin/historical-sites`, requireAuth, requireSitesPermission, async (req, res) => {
-    try {
-      const sites = await storage.getAllHistoricalSites();
-      res.json(sites);
-    } catch (error) {
-      console.error("Error fetching historical sites for admin:", error);
-      res.status(500).json({ error: "Lỗi khi lấy danh sách địa danh lịch sử." });
-    }
-  });
 
   // Get historical site by ID
   app.get(`${apiPrefix}/historical-sites/:id`, async (req, res) => {
@@ -857,55 +715,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(allSettings);
     } catch (error) {
       console.error("Error fetching settings:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-  
-  // API để lấy số liệu thống kê cơ bản
-  app.get(`${apiPrefix}/stats`, async (req, res) => {
-    try {
-      const visitCount = await storage.getVisitCount();
-      const searchCount = await storage.getSearchCount();
-      
-      res.json({
-        visitCount,
-        searchCount
-      });
-    } catch (error) {
-      console.error("Error fetching stats:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-  
-  // API để lấy số liệu thống kê cho bảng điều khiển admin
-  app.get(`${apiPrefix}/admin/dashboard-stats`, requireAuth, async (req, res) => {
-    try {
-      // Lấy số lượng visit và search
-      const visitCount = await storage.getVisitCount();
-      const searchCount = await storage.getSearchCount();
-      
-      // Lấy số lượng các loại nội dung
-      const periodsCount = await storage.getPeriodsCount();
-      const eventsCount = await storage.getEventsCount();
-      const figuresCount = await storage.getHistoricalFiguresCount();
-      const sitesCount = await storage.getHistoricalSitesCount();
-      const feedbackCount = await storage.getFeedbackCount();
-      const usersCount = await storage.getUsersCount();
-      
-      // Trả về tổng hợp số liệu
-      res.json({
-        visitCount,
-        searchCount,
-        periodsCount,
-        eventsCount,
-        figuresCount,
-        sitesCount,
-        feedbackCount,
-        usersCount,
-        lastUpdated: new Date()
-      });
-    } catch (error) {
-      console.error("Error fetching admin dashboard stats:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1247,6 +1056,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/stats`,
     requireAuth,
+    requireAdmin,
     async (req, res) => {
       try {
         // Đếm tổng số các mục
@@ -1266,9 +1076,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sitesCount,
           eventTypesCount,
           pendingFeedbackCount,
-          // Số liệu thống kê thực tế từ cơ sở dữ liệu
-          visitsCount: await storage.getVisitCount(),
-          searchCount: await storage.getSearchCount(),
+          // Các số liệu thống kê giả lập vì chưa có thông tin thực tế
+          visitsCount: 1245,
+          searchCount: 532,
         });
       } catch (error) {
         console.error("Error fetching admin stats:", error);
@@ -1281,7 +1091,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/periods`,
     requireAuth,
-    requirePeriodsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const periods = await storage.getAllPeriods();
@@ -1296,7 +1106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/periods`,
     requireAuth,
-    requirePeriodsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const periodData = req.body;
@@ -1354,7 +1164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/periods/:id`,
     requireAuth,
-    requirePeriodsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const periodId = parseInt(req.params.id);
@@ -1413,7 +1223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/periods/:id/related-entities`,
     requireAuth,
-    requirePeriodsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const periodId = parseInt(req.params.id);
@@ -1459,7 +1269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/periods/reassign-entities`,
     requireAuth,
-    requirePeriodsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const { newPeriodId, eventIds, figureIds, siteIds } = req.body;
@@ -1532,7 +1342,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/periods/:id`,
     requireAuth,
-    requirePeriodsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const periodId = parseInt(req.params.id);
@@ -1748,7 +1558,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/periods/sort`,
     requireAuth,
-    requirePeriodsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         console.log("PERIOD SORT REQUEST:", req.body);
@@ -1805,7 +1615,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/event-types`,
     requireAuth,
-    requireEventsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const eventTypes = await storage.getAllEventTypes();
@@ -1820,7 +1630,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/event-types`,
     requireAuth,
-    requireEventsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const typeData = req.body;
@@ -1871,7 +1681,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/event-types/:id`,
     requireAuth,
-    requireEventsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const typeId = parseInt(req.params.id);
@@ -1924,7 +1734,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/event-types/:id`,
     requireAuth,
-    requireEventsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const typeId = parseInt(req.params.id);
@@ -2009,7 +1819,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/events`,
     requireAuth,
-    requireEventsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         // Lấy danh sách sự kiện kèm theo thông tin loại sự kiện
@@ -2025,7 +1835,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/events`,
     requireAuth,
-    requireEventsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const eventData = req.body;
@@ -2095,7 +1905,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/events/:id`,
     requireAuth,
-    requireEventsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const eventId = parseInt(req.params.id);
@@ -2181,7 +1991,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/events/:id`,
     requireAuth,
-    requireEventsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const eventId = parseInt(req.params.id);
@@ -2226,7 +2036,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/events/reorder`,
     requireAuth,
-    requireEventsPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const { orderedIds } = req.body;
@@ -2265,7 +2075,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/historical-figures`,
     requireAuth,
-    requireFiguresPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const figures = await storage.getAllHistoricalFigures();
@@ -2280,7 +2090,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-figures`,
     requireAuth,
-    requireFiguresPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const figureData = req.body;
@@ -2338,7 +2148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/historical-figures/:id`,
     requireAuth,
-    requireFiguresPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const figureId = parseInt(req.params.id);
@@ -2413,7 +2223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/historical-figures/:id`,
     requireAuth,
-    requireFiguresPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const figureId = parseInt(req.params.id);
@@ -2454,7 +2264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-figures/reorder`,
     requireAuth,
-    requireFiguresPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const { orderedIds } = req.body;
@@ -2514,7 +2324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-sites`,
     requireAuth,
-    requireSitesPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const siteData = req.body;
@@ -2557,7 +2367,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/historical-sites/:id`,
     requireAuth,
-    requireSitesPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const { id } = req.params;
@@ -2633,7 +2443,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/historical-sites/:id`,
     requireAuth,
-    requireSitesPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const { id } = req.params;
@@ -2676,7 +2486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-sites/reorder`,
     requireAuth,
-    requireSitesPermission,
+    requireAdmin,
     async (req, res) => {
       try {
         const { orderedIds } = req.body;
@@ -2984,230 +2794,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
-  // API quản lý người dùng
-  app.get(
-    `${apiPrefix}/admin/users`,
-    requireAuth,
-    requireAdmin,
-    async (req, res) => {
-      try {
-        const users = await storage.getAllUsers();
-        res.json(users);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        res.status(500).json({ success: false, message: "Lỗi khi lấy danh sách người dùng" });
-      }
-    }
-  );
-  
-  app.post(
-    `${apiPrefix}/admin/users`,
-    requireAuth,
-    async (req, res) => {
-      // Check if user is admin
-      if (!req.user?.isAdmin) {
-        return res.status(403).json({ error: "Chỉ quản trị viên mới có thể thêm người dùng mới" });
-      }
-      try {
-        const { 
-          username, 
-          password, 
-          fullName, 
-          email, 
-          isAdmin, 
-          isActive,
-          canManagePeriods,
-          canManageEvents,
-          canManageFigures,
-          canManageSites 
-        } = req.body;
-        
-        // Kiểm tra xem username đã tồn tại hay chưa
-        const existingUser = await storage.getUserByUsername(username);
-        if (existingUser) {
-          return res.status(400).json({ 
-            success: false, 
-            message: "Tên người dùng đã tồn tại" 
-          });
-        }
-        
-        // Mã hóa mật khẩu
-        const hashedPassword = await storage.hashPassword(password);
-        
-        // Tạo người dùng mới
-        const newUser = await storage.createUser({
-          username,
-          password: hashedPassword,
-          fullName,
-          email,
-          isAdmin: Boolean(isAdmin),
-          isActive: Boolean(isActive),
-          canManagePeriods: Boolean(canManagePeriods),
-          canManageEvents: Boolean(canManageEvents),
-          canManageFigures: Boolean(canManageFigures),
-          canManageSites: Boolean(canManageSites)
-        });
-        
-        // Gán vai trò
-        if (isAdmin) {
-          await storage.assignUserRole(newUser.id, 1); // Admin role
-        } else {
-          await storage.assignUserRole(newUser.id, 2); // Editor role
-        }
-        
-        res.status(201).json({ 
-          success: true, 
-          message: "Tạo người dùng thành công", 
-          user: newUser 
-        });
-      } catch (error) {
-        console.error("Error creating user:", error);
-        res.status(500).json({ success: false, message: "Lỗi khi tạo người dùng mới" });
-      }
-    }
-  );
-  
-  app.put(
-    `${apiPrefix}/admin/users/:id`,
-    requireAuth,
-    requireAdmin,
-    async (req, res) => {
-      try {
-        const userId = parseInt(req.params.id);
-        const { 
-          fullName, 
-          email, 
-          isAdmin, 
-          isActive,
-          canManagePeriods,
-          canManageEvents,
-          canManageFigures,
-          canManageSites 
-        } = req.body;
-        
-        // Kiểm tra xem người dùng có tồn tại không
-        const existingUser = await storage.getUserById(userId);
-        if (!existingUser) {
-          return res.status(404).json({ 
-            success: false, 
-            message: "Không tìm thấy người dùng" 
-          });
-        }
-        
-        // Cập nhật thông tin người dùng
-        const updatedUser = await storage.updateUser(userId, {
-          fullName,
-          email,
-          isAdmin: Boolean(isAdmin),
-          isActive: Boolean(isActive),
-          canManagePeriods: Boolean(canManagePeriods),
-          canManageEvents: Boolean(canManageEvents),
-          canManageFigures: Boolean(canManageFigures),
-          canManageSites: Boolean(canManageSites)
-        });
-        
-        // Cập nhật vai trò
-        if (isAdmin !== existingUser.isAdmin) {
-          if (isAdmin) {
-            await storage.assignUserRole(userId, 1); // Admin role
-          } else {
-            await storage.assignUserRole(userId, 2); // Editor role
-          }
-        }
-        
-        res.json({ 
-          success: true, 
-          message: "Cập nhật người dùng thành công", 
-          user: updatedUser 
-        });
-      } catch (error) {
-        console.error("Error updating user:", error);
-        res.status(500).json({ success: false, message: "Lỗi khi cập nhật người dùng" });
-      }
-    }
-  );
-  
-  app.delete(
-    `${apiPrefix}/admin/users/:id`,
-    requireAuth,
-    requireAdmin,
-    async (req, res) => {
-      try {
-        const userId = parseInt(req.params.id);
-        
-        // Kiểm tra xem người dùng có tồn tại không
-        const existingUser = await storage.getUserById(userId);
-        if (!existingUser) {
-          return res.status(404).json({ 
-            success: false, 
-            message: "Không tìm thấy người dùng" 
-          });
-        }
-        
-        // Ngăn chặn xóa tài khoản admin chính
-        if (userId === 1) {
-          return res.status(403).json({ 
-            success: false, 
-            message: "Không thể xóa tài khoản admin chính" 
-          });
-        }
-        
-        // Xóa người dùng
-        await storage.deleteUser(userId);
-        
-        res.json({ 
-          success: true, 
-          message: "Xóa người dùng thành công" 
-        });
-      } catch (error) {
-        console.error("Error deleting user:", error);
-        res.status(500).json({ success: false, message: "Lỗi khi xóa người dùng" });
-      }
-    }
-  );
-  
-  app.post(
-    `${apiPrefix}/admin/users/:id/reset-password`,
-    requireAuth,
-    requireAdmin,
-    async (req, res) => {
-      try {
-        const userId = parseInt(req.params.id);
-        const { newPassword } = req.body;
-        
-        if (!newPassword || newPassword.length < 6) {
-          return res.status(400).json({ 
-            success: false, 
-            message: "Mật khẩu phải có ít nhất 6 ký tự" 
-          });
-        }
-        
-        // Kiểm tra xem người dùng có tồn tại không
-        const existingUser = await storage.getUserById(userId);
-        if (!existingUser) {
-          return res.status(404).json({ 
-            success: false, 
-            message: "Không tìm thấy người dùng" 
-          });
-        }
-        
-        // Mã hóa mật khẩu mới
-        const hashedPassword = await storage.hashPassword(newPassword);
-        
-        // Cập nhật mật khẩu
-        await storage.updateUserPassword(userId, hashedPassword);
-        
-        res.json({ 
-          success: true, 
-          message: "Đặt lại mật khẩu thành công" 
-        });
-      } catch (error) {
-        console.error("Error resetting password:", error);
-        res.status(500).json({ success: false, message: "Lỗi khi đặt lại mật khẩu" });
-      }
-    }
-  );
-  
   // API quản lý feedback
   app.get(
     `${apiPrefix}/admin/feedback`,

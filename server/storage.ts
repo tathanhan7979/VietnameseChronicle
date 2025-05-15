@@ -1,5 +1,4 @@
 import { db } from "@db";
-import bcrypt from 'bcrypt';
 import { 
   periods, 
   events, 
@@ -9,11 +8,6 @@ import {
   historicalSites,
   feedback,
   settings,
-  users,
-  roles,
-  userRoles,
-  permissions,
-  rolePermissions,
   type Period,
   type Event,
   type HistoricalFigure,
@@ -23,13 +17,7 @@ import {
   type Feedback,
   type InsertFeedback,
   type Setting,
-  type InsertSetting,
-  type User,
-  type InsertUser,
-  type Role,
-  type UserRole,
-  type Permission, 
-  type RolePermission
+  type InsertSetting
 } from "@shared/schema";
 import { eq, and, or, like, sql, desc, asc, count, max } from "drizzle-orm";
 
@@ -47,32 +35,6 @@ export const storage = {
       return results;
     } catch (error) {
       handleDbError(error, "getAllEventToEventTypes");
-      return [];
-    }
-  },
-  
-  getEventTypesForEvent: async (eventId: number) => {
-    try {
-      // Lấy các liên kết event-eventType cho sự kiện
-      const eventToTypes = await db
-        .select()
-        .from(eventToEventType)
-        .where(eq(eventToEventType.eventId, eventId));
-      
-      if (!eventToTypes || eventToTypes.length === 0) {
-        return [];
-      }
-      
-      // Lấy thông tin đầy đủ về các loại sự kiện
-      const typeIds = eventToTypes.map(et => et.eventTypeId);
-      const types = await db
-        .select()
-        .from(eventTypes)
-        .where(sql`${eventTypes.id} IN (${typeIds.join(',')})`);
-      
-      return types;
-    } catch (error) {
-      handleDbError(error, "getEventTypesForEvent");
       return [];
     }
   },
@@ -157,113 +119,6 @@ export const storage = {
     } catch (error) {
       handleDbError(error, "updateSetting");
       return null;
-    }
-  },
-  
-  // Các hàm đếm lượt truy cập và tìm kiếm
-  incrementVisitCount: async (): Promise<number> => {
-    try {
-      // Lấy giá trị hiện tại
-      const visitSetting = await db.query.settings.findFirst({
-        where: eq(settings.key, 'visit_count')
-      });
-      
-      if (!visitSetting) {
-        // Nếu chưa có, tạo mới với giá trị 1
-        await db.insert(settings).values({
-          key: 'visit_count',
-          value: '1',
-          displayName: 'Lượt truy cập',
-          description: 'Tổng số lượt truy cập trang web',
-          category: 'analytics',
-          inputType: 'number',
-          sortOrder: 10
-        });
-        return 1;
-      } else {
-        // Tăng giá trị lên 1
-        const currentCount = parseInt(visitSetting.value || '0', 10);
-        const newCount = currentCount + 1;
-        
-        await db
-          .update(settings)
-          .set({ 
-            value: newCount.toString(),
-            updatedAt: new Date()
-          })
-          .where(eq(settings.key, 'visit_count'));
-        
-        return newCount;
-      }
-    } catch (error) {
-      handleDbError(error, "incrementVisitCount");
-      return 0;
-    }
-  },
-  
-  incrementSearchCount: async (): Promise<number> => {
-    try {
-      // Lấy giá trị hiện tại
-      const searchSetting = await db.query.settings.findFirst({
-        where: eq(settings.key, 'search_count')
-      });
-      
-      if (!searchSetting) {
-        // Nếu chưa có, tạo mới với giá trị 1
-        await db.insert(settings).values({
-          key: 'search_count',
-          value: '1',
-          displayName: 'Lượt tìm kiếm',
-          description: 'Tổng số lượt tìm kiếm',
-          category: 'analytics',
-          inputType: 'number',
-          sortOrder: 11
-        });
-        return 1;
-      } else {
-        // Tăng giá trị lên 1
-        const currentCount = parseInt(searchSetting.value || '0', 10);
-        const newCount = currentCount + 1;
-        
-        await db
-          .update(settings)
-          .set({ 
-            value: newCount.toString(),
-            updatedAt: new Date()
-          })
-          .where(eq(settings.key, 'search_count'));
-        
-        return newCount;
-      }
-    } catch (error) {
-      handleDbError(error, "incrementSearchCount");
-      return 0;
-    }
-  },
-  
-  getVisitCount: async (): Promise<number> => {
-    try {
-      const visitSetting = await db.query.settings.findFirst({
-        where: eq(settings.key, 'visit_count')
-      });
-      
-      return visitSetting ? parseInt(visitSetting.value || '0', 10) : 0;
-    } catch (error) {
-      handleDbError(error, "getVisitCount");
-      return 0;
-    }
-  },
-  
-  getSearchCount: async (): Promise<number> => {
-    try {
-      const searchSetting = await db.query.settings.findFirst({
-        where: eq(settings.key, 'search_count')
-      });
-      
-      return searchSetting ? parseInt(searchSetting.value || '0', 10) : 0;
-    } catch (error) {
-      handleDbError(error, "getSearchCount");
-      return 0;
     }
   },
   
@@ -1509,190 +1364,6 @@ export const storage = {
     } catch (error) {
       handleDbError(error, "updateHistoricalSitesPeriod");
       return false;
-    }
-  },
-  
-  // Phương thức đếm số lượng các loại nội dung
-  getPeriodsCount: async (): Promise<number> => {
-    try {
-      const result = await db.select({ count: count() }).from(periods);
-      return result[0]?.count || 0;
-    } catch (error) {
-      handleDbError(error, "getPeriodsCount");
-      return 0;
-    }
-  },
-  
-  getEventsCount: async (): Promise<number> => {
-    try {
-      const result = await db.select({ count: count() }).from(events);
-      return result[0]?.count || 0;
-    } catch (error) {
-      handleDbError(error, "getEventsCount");
-      return 0;
-    }
-  },
-  
-  getHistoricalFiguresCount: async (): Promise<number> => {
-    try {
-      const result = await db.select({ count: count() }).from(historicalFigures);
-      return result[0]?.count || 0;
-    } catch (error) {
-      handleDbError(error, "getHistoricalFiguresCount");
-      return 0;
-    }
-  },
-  
-  getHistoricalSitesCount: async (): Promise<number> => {
-    try {
-      const result = await db.select({ count: count() }).from(historicalSites);
-      return result[0]?.count || 0;
-    } catch (error) {
-      handleDbError(error, "getHistoricalSitesCount");
-      return 0;
-    }
-  },
-  
-  getFeedbackCount: async (): Promise<number> => {
-    try {
-      const result = await db.select({ count: count() }).from(feedback);
-      return result[0]?.count || 0;
-    } catch (error) {
-      handleDbError(error, "getFeedbackCount");
-      return 0;
-    }
-  },
-  
-  getUsersCount: async (): Promise<number> => {
-    try {
-      const result = await db.select({ count: count() }).from(users);
-      return result[0]?.count || 0;
-    } catch (error) {
-      handleDbError(error, "getUsersCount");
-      return 0;
-    }
-  },
-  
-  // Phương thức quản lý người dùng
-  getAllUsers: async (): Promise<User[]> => {
-    try {
-      const allUsers = await db.query.users.findMany({
-        orderBy: [asc(users.id)]
-      });
-      return allUsers;
-    } catch (error) {
-      handleDbError(error, "getAllUsers");
-      return [];
-    }
-  },
-  
-  createUser: async (userData: InsertUser): Promise<User> => {
-    try {
-      const [newUser] = await db.insert(users).values({
-        username: userData.username,
-        password: userData.password,
-        fullName: userData.fullName,
-        email: userData.email,
-        isAdmin: userData.isAdmin || false,
-        isActive: userData.isActive || true,
-        canManagePeriods: userData.canManagePeriods || false,
-        canManageEvents: userData.canManageEvents || false,
-        canManageFigures: userData.canManageFigures || false,
-        canManageSites: userData.canManageSites || false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }).returning();
-      
-      return newUser;
-    } catch (error) {
-      handleDbError(error, "createUser");
-      throw new Error("Lỗi khi tạo người dùng mới");
-    }
-  },
-  
-  updateUser: async (userId: number, userData: Partial<User>): Promise<User> => {
-    try {
-      userData.updatedAt = new Date();
-      
-      const [updatedUser] = await db
-        .update(users)
-        .set(userData)
-        .where(eq(users.id, userId))
-        .returning();
-      
-      return updatedUser;
-    } catch (error) {
-      handleDbError(error, "updateUser");
-      throw new Error("Lỗi khi cập nhật thông tin người dùng");
-    }
-  },
-  
-  deleteUser: async (userId: number): Promise<boolean> => {
-    try {
-      // Xóa vai trò người dùng trước
-      await db
-        .delete(userRoles)
-        .where(eq(userRoles.userId, userId));
-      
-      // Sau đó xóa người dùng
-      await db
-        .delete(users)
-        .where(eq(users.id, userId));
-      
-      return true;
-    } catch (error) {
-      handleDbError(error, "deleteUser");
-      return false;
-    }
-  },
-  
-  updateUserPassword: async (userId: number, newPassword: string): Promise<boolean> => {
-    try {
-      await db
-        .update(users)
-        .set({ 
-          password: newPassword,
-          updatedAt: new Date()
-        })
-        .where(eq(users.id, userId));
-      
-      return true;
-    } catch (error) {
-      handleDbError(error, "updateUserPassword");
-      return false;
-    }
-  },
-  
-  assignUserRole: async (userId: number, roleId: number): Promise<boolean> => {
-    try {
-      // Xóa các vai trò hiện tại của người dùng
-      await db
-        .delete(userRoles)
-        .where(eq(userRoles.userId, userId));
-      
-      // Thêm vai trò mới
-      await db
-        .insert(userRoles)
-        .values({
-          userId,
-          roleId
-        });
-      
-      return true;
-    } catch (error) {
-      handleDbError(error, "assignUserRole");
-      return false;
-    }
-  },
-  
-  // Thêm phương thức mã hóa mật khẩu vào storage
-  hashPassword: async (password: string): Promise<string> => {
-    const saltRounds = 10;
-    try {
-      return await bcrypt.hash(password, saltRounds);
-    } catch (error) {
-      handleDbError(error, "hashPassword");
-      throw new Error("Lỗi khi mã hóa mật khẩu");
     }
   }
 };

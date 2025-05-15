@@ -74,13 +74,7 @@ export default function EventDetail() {
     event.description ||
     `Thông tin chi tiết về sự kiện lịch sử ${event.title} ${period ? `trong thời kỳ ${period.name}` : "Việt Nam"}`;
   const seoImage = event.imageUrl || DEFAULT_SEO_IMAGE;
-  const seoUrl = `https://lichsuviet.edu.vn/su-kien/${eventId}/${slugify(event.title)}`;
-  
-  // Thêm thông tin thời gian và từ khóa nâng cao
-  const periodKeyword = period ? period.name : "lịch sử Việt Nam";
-  const eventTypeKeywords = event.eventTypes?.map((t) => t.name).join(", ") || "";
-  const seoKeywords = `sự kiện lịch sử, ${event.title}, ${event.year || ""}, ${periodKeyword}, ${eventTypeKeywords}, lịch sử Việt Nam, biến cố lịch sử`;
-  const articlePublishedTime = new Date().toISOString();
+  const seoUrl = window.location.href;
 
   return (
     <div className="bg-[hsl(var(--background))] min-h-screen">
@@ -90,13 +84,12 @@ export default function EventDetail() {
         image={seoImage}
         url={seoUrl}
         type="article"
-        keywords={seoKeywords}
-        articlePublishedTime={articlePublishedTime}
+        keywords={`sự kiện lịch sử, ${event.title}, ${event.year || ""}, ${period ? period.name : "lịch sử Việt Nam"}, ${event.eventTypes?.map((t) => t.name).join(", ") || ""}`}
         siteName="Lịch Sử Việt Nam"
       />
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
-          <Link href={`/?period=${period?.slug || ''}#timeline`}>
+          <Link href={`/?period=${period.slug}#timeline`}>
             <Button variant="outline" className="mb-6">
               <ArrowLeft className="mr-2" />
               Trở về dòng thời gian

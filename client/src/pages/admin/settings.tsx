@@ -6,13 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { z } from 'zod';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
@@ -202,8 +195,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'color': [] }, { 'background': [] }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }],
-      [{ 'align': [] }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       ['link', 'image'],
       ['clean']
     ],
@@ -286,9 +278,8 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
   const isImageSetting = setting.key === 'home_background_url' || setting.key === 'site_favicon';
 
   // Determine if this setting should use the rich text editor
-  const shouldUseRichText = 
-    (setting.inputType === 'textarea' && (setting.key === 'privacy_policy' || setting.key === 'terms_of_service')) ||
-    (setting.inputType === 'richtext');
+  const shouldUseRichText = setting.inputType === 'textarea' && 
+    (setting.key === 'privacy_policy' || setting.key === 'terms_of_service');
 
   // Initialize image preview if it's an image setting
   useEffect(() => {
@@ -427,19 +418,6 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                           className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           {...field}
                         />
-                      ) : setting.inputType === 'select' ? (
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn giá trị" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="true">Bật</SelectItem>
-                            <SelectItem value="false">Tắt</SelectItem>
-                          </SelectContent>
-                        </Select>
                       ) : (
                         <Input {...field} />
                       )}

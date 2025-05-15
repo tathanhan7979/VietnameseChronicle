@@ -3,7 +3,6 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import BackToTop from "@/components/BackToTop";
-import PopupNotification from "@/components/PopupNotification";
 import Home from "@/pages/Home";
 import EventDetail from "@/pages/EventDetail";
 import HistoricalFigureDetail from "@/pages/HistoricalFigureDetail";
@@ -24,7 +23,6 @@ import HistoricalFiguresAdmin from "@/pages/admin/historical-figures";
 import HistoricalSitesAdmin from "@/pages/admin/historical-sites";
 import FeedbackAdmin from "@/pages/admin/feedback";
 import SettingsAdmin from "@/pages/admin/settings";
-import UserManagement from "@/pages/admin/UserManagement";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
@@ -49,15 +47,14 @@ function Router() {
       
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />
-      <ProtectedRoute path="/admin" component={AdminDashboard} requiredPermission='any' />
-      <ProtectedRoute path="/admin/periods" component={PeriodsAdmin} requiredPermission='periods' />
+      <ProtectedRoute path="/admin" component={AdminDashboard} adminOnly={true} />
+      <ProtectedRoute path="/admin/periods" component={PeriodsAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/event-types" component={EventTypesAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/events" component={EventsAdmin} requiredPermission='events' />
-      <ProtectedRoute path="/admin/historical-figures" component={HistoricalFiguresAdmin} requiredPermission='figures' />
-      <ProtectedRoute path="/admin/historical-sites" component={HistoricalSitesAdmin} requiredPermission='sites' />
+      <ProtectedRoute path="/admin/events" component={EventsAdmin} adminOnly={true} />
+      <ProtectedRoute path="/admin/historical-figures" component={HistoricalFiguresAdmin} adminOnly={true} />
+      <ProtectedRoute path="/admin/historical-sites" component={HistoricalSitesAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/feedback" component={FeedbackAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/settings" component={SettingsAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/users" component={UserManagement} adminOnly={true} />
       
       {/* Catch all route for 404 */}
       <Route component={NotFound} />
@@ -153,7 +150,6 @@ function App() {
         <Router />
         <Toaster />
         <BackToTop />
-        <PopupNotification />
       </AuthProvider>
     </QueryClientProvider>
   );

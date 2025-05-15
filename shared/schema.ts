@@ -8,103 +8,19 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  fullName: text("full_name"),
-  email: text("email"),
   isAdmin: boolean("is_admin").default(false).notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
-  // Quyền quản lý nội dung
-  canManagePeriods: boolean("can_manage_periods").default(false).notNull(),
-  canManageEvents: boolean("can_manage_events").default(false).notNull(), 
-  canManageFigures: boolean("can_manage_figures").default(false).notNull(),
-  canManageSites: boolean("can_manage_sites").default(false).notNull(),
-  lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull()
+  lastLoginAt: timestamp("last_login_at")
 });
 
-// Vai trò / quyền của người dùng
-export const roles = pgTable("roles", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull().unique(),
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow().notNull()
-});
-
-// Bảng liên kết giữa người dùng và vai trò
-export const userRoles = pgTable("user_roles", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  roleId: integer("role_id").references(() => roles.id).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull()
-});
-
-// Quyền hạn cụ thể
-export const permissions = pgTable("permissions", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull().unique(),
-  description: text("description"),
-  module: text("module").notNull(), // periods, events, figures, sites
-  action: text("action").notNull(), // create, read, update, delete
-  createdAt: timestamp("created_at").defaultNow().notNull()
-});
-
-// Bảng liên kết giữa vai trò và quyền hạn
-export const rolePermissions = pgTable("role_permissions", {
-  id: serial("id").primaryKey(),
-  roleId: integer("role_id").references(() => roles.id).notNull(),
-  permissionId: integer("permission_id").references(() => permissions.id).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull()
-});
-
-// Thêm schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
-  fullName: true,
-  email: true,
   isAdmin: true,
-  isActive: true,
-  canManagePeriods: true,
-  canManageEvents: true,
-  canManageFigures: true,
-  canManageSites: true
 });
-
-export const insertRoleSchema = createInsertSchema(roles);
-export const insertUserRoleSchema = createInsertSchema(userRoles);
-export const insertPermissionSchema = createInsertSchema(permissions);
-export const insertRolePermissionSchema = createInsertSchema(rolePermissions);
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
-export type Role = typeof roles.$inferSelect;
-export type UserRole = typeof userRoles.$inferSelect;
-export type Permission = typeof permissions.$inferSelect;
-export type RolePermission = typeof rolePermissions.$inferSelect;
-
-// Thiết lập mối quan hệ giữa các bảng user, role, permission
-export const usersRelations = relations(users, ({ many }) => ({
-  userRoles: many(userRoles)
-}));
-
-export const rolesRelations = relations(roles, ({ many }) => ({
-  userRoles: many(userRoles),
-  rolePermissions: many(rolePermissions)
-}));
-
-export const userRolesRelations = relations(userRoles, ({ one }) => ({
-  user: one(users, { fields: [userRoles.userId], references: [users.id] }),
-  role: one(roles, { fields: [userRoles.roleId], references: [roles.id] })
-}));
-
-export const permissionsRelations = relations(permissions, ({ many }) => ({
-  rolePermissions: many(rolePermissions)
-}));
-
-export const rolePermissionsRelations = relations(rolePermissions, ({ one }) => ({
-  role: one(roles, { fields: [rolePermissions.roleId], references: [roles.id] }),
-  permission: one(permissions, { fields: [rolePermissions.permissionId], references: [permissions.id] })
-}));
 
 // Historical Periods table
 export const periods = pgTable("periods", {
