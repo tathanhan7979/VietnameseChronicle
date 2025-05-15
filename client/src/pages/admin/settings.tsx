@@ -195,7 +195,8 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'color': [] }, { 'background': [] }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }],
+      [{ 'align': [] }],
       ['link', 'image'],
       ['clean']
     ],
@@ -278,8 +279,9 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
   const isImageSetting = setting.key === 'home_background_url' || setting.key === 'site_favicon';
 
   // Determine if this setting should use the rich text editor
-  const shouldUseRichText = setting.inputType === 'textarea' && 
-    (setting.key === 'privacy_policy' || setting.key === 'terms_of_service');
+  const shouldUseRichText = 
+    (setting.inputType === 'textarea' && (setting.key === 'privacy_policy' || setting.key === 'terms_of_service')) ||
+    (setting.inputType === 'richtext');
 
   // Initialize image preview if it's an image setting
   useEffect(() => {
