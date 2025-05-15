@@ -1105,6 +1105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/settings/:key`,
     requireAuth,
+    requireAdmin,
     async (req, res) => {
       try {
         const { value } = req.body;
@@ -1132,6 +1133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/settings/initialize`,
     requireAuth,
+    requireAdmin,
     async (req, res) => {
       try {
         await storage.initializeDefaultSettings();
