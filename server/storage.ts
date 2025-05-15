@@ -8,6 +8,11 @@ import {
   historicalSites,
   feedback,
   settings,
+  users,
+  roles,
+  userRoles,
+  permissions,
+  rolePermissions,
   type Period,
   type Event,
   type HistoricalFigure,
@@ -17,7 +22,17 @@ import {
   type Feedback,
   type InsertFeedback,
   type Setting,
-  type InsertSetting
+  type InsertSetting,
+  type User,
+  type InsertUser,
+  type Role,
+  type InsertRole,
+  type UserRole,
+  type InsertUserRole,
+  type Permission,
+  type InsertPermission,
+  type RolePermission,
+  type InsertRolePermission
 } from "@shared/schema";
 import { eq, and, or, like, sql, desc, asc, count, max } from "drizzle-orm";
 
