@@ -777,6 +777,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+  
+  // Admin API - Get all historical sites (with permission check)
+  app.get(`${apiPrefix}/admin/historical-sites`, requireAuth, requireSitesPermission, async (req, res) => {
+    try {
+      const sites = await storage.getAllHistoricalSites();
+      res.json(sites);
+    } catch (error) {
+      console.error("Error fetching historical sites for admin:", error);
+      res.status(500).json({ error: "Lỗi khi lấy danh sách địa danh lịch sử." });
+    }
+  });
 
   // Get historical site by ID
   app.get(`${apiPrefix}/historical-sites/:id`, async (req, res) => {
