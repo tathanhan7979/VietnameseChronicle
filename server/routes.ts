@@ -359,6 +359,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Phục vụ thư mục uploads qua URL /uploads
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+  
+  // Middleware để đếm lượt truy cập
+  app.use(async (req, res, next) => {
+    // Chỉ đếm cho các yêu cầu trang web, không đếm các yêu cầu API hoặc tài nguyên tĩnh
+    if (!req.path.startsWith('/api') && 
+        !req.path.startsWith('/uploads') && 
+        !req.path.includes('.') && 
+        req.method === 'GET') {
+      try {
+        await storage.incrementVisitCount();
+      } catch (error) {
+        console.error('Error incrementing visit count:', error);
+      }
+    }
+    next();
+  });
 
   // Sử dụng hàm deleteFile đã được định nghĩa ở trên
 
@@ -1076,9 +1092,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sitesCount,
           eventTypesCount,
           pendingFeedbackCount,
-          // Các số liệu thống kê giả lập vì chưa có thông tin thực tế
-          visitsCount: 1245,
-          searchCount: 532,
+          // Số liệu thống kê thực tế từ cơ sở dữ liệu
+          visitsCount: await storage.getVisitCount(),
+          searchCount: await storage.getSearchCount(),
         });
       } catch (error) {
         console.error("Error fetching admin stats:", error);
