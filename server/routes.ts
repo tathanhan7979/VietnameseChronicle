@@ -576,6 +576,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Bỏ yêu cầu phải có ít nhất một trong các tham số
       // để cho phép tìm kiếm chỉ với bộ lọc hoặc không có điều kiện
 
+      // Tăng số lượt tìm kiếm
+      await storage.incrementSearchCount();
+
       const results = await storage.search(
         term ? String(term) : undefined,
         period ? String(period) : undefined,
