@@ -1792,7 +1792,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/event-types`,
     requireAuth,
-    requireAdmin,
+    requireEventsPermission,
     async (req, res) => {
       try {
         const eventTypes = await storage.getAllEventTypes();
@@ -1807,7 +1807,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/event-types`,
     requireAuth,
-    requireAdmin,
+    requireEventsPermission,
     async (req, res) => {
       try {
         const typeData = req.body;
@@ -1858,7 +1858,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/event-types/:id`,
     requireAuth,
-    requireAdmin,
+    requireEventsPermission,
     async (req, res) => {
       try {
         const typeId = parseInt(req.params.id);
@@ -1911,7 +1911,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/event-types/:id`,
     requireAuth,
-    requireAdmin,
+    requireEventsPermission,
     async (req, res) => {
       try {
         const typeId = parseInt(req.params.id);
@@ -2441,7 +2441,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-figures/reorder`,
     requireAuth,
-    requireAdmin,
+    requireFiguresPermission,
     async (req, res) => {
       try {
         const { orderedIds } = req.body;
