@@ -159,6 +159,113 @@ export const storage = {
     }
   },
   
+  // Các hàm đếm lượt truy cập và tìm kiếm
+  incrementVisitCount: async (): Promise<number> => {
+    try {
+      // Lấy giá trị hiện tại
+      const visitSetting = await db.query.settings.findFirst({
+        where: eq(settings.key, 'visit_count')
+      });
+      
+      if (!visitSetting) {
+        // Nếu chưa có, tạo mới với giá trị 1
+        await db.insert(settings).values({
+          key: 'visit_count',
+          value: '1',
+          displayName: 'Lượt truy cập',
+          description: 'Tổng số lượt truy cập trang web',
+          category: 'analytics',
+          inputType: 'number',
+          sortOrder: 10
+        });
+        return 1;
+      } else {
+        // Tăng giá trị lên 1
+        const currentCount = parseInt(visitSetting.value || '0', 10);
+        const newCount = currentCount + 1;
+        
+        await db
+          .update(settings)
+          .set({ 
+            value: newCount.toString(),
+            updatedAt: new Date()
+          })
+          .where(eq(settings.key, 'visit_count'));
+        
+        return newCount;
+      }
+    } catch (error) {
+      handleDbError(error, "incrementVisitCount");
+      return 0;
+    }
+  },
+  
+  incrementSearchCount: async (): Promise<number> => {
+    try {
+      // Lấy giá trị hiện tại
+      const searchSetting = await db.query.settings.findFirst({
+        where: eq(settings.key, 'search_count')
+      });
+      
+      if (!searchSetting) {
+        // Nếu chưa có, tạo mới với giá trị 1
+        await db.insert(settings).values({
+          key: 'search_count',
+          value: '1',
+          displayName: 'Lượt tìm kiếm',
+          description: 'Tổng số lượt tìm kiếm',
+          category: 'analytics',
+          inputType: 'number',
+          sortOrder: 11
+        });
+        return 1;
+      } else {
+        // Tăng giá trị lên 1
+        const currentCount = parseInt(searchSetting.value || '0', 10);
+        const newCount = currentCount + 1;
+        
+        await db
+          .update(settings)
+          .set({ 
+            value: newCount.toString(),
+            updatedAt: new Date()
+          })
+          .where(eq(settings.key, 'search_count'));
+        
+        return newCount;
+      }
+    } catch (error) {
+      handleDbError(error, "incrementSearchCount");
+      return 0;
+    }
+  },
+  
+  getVisitCount: async (): Promise<number> => {
+    try {
+      const visitSetting = await db.query.settings.findFirst({
+        where: eq(settings.key, 'visit_count')
+      });
+      
+      return visitSetting ? parseInt(visitSetting.value || '0', 10) : 0;
+    } catch (error) {
+      handleDbError(error, "getVisitCount");
+      return 0;
+    }
+  },
+  
+  getSearchCount: async (): Promise<number> => {
+    try {
+      const searchSetting = await db.query.settings.findFirst({
+        where: eq(settings.key, 'search_count')
+      });
+      
+      return searchSetting ? parseInt(searchSetting.value || '0', 10) : 0;
+    } catch (error) {
+      handleDbError(error, "getSearchCount");
+      return 0;
+    }
+  },
+  
   deleteSetting: async (key: string): Promise<boolean> => {
     try {
       await db
