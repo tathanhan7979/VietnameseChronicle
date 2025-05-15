@@ -1236,7 +1236,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/stats`,
     requireAuth,
-    requireAdmin,
     async (req, res) => {
       try {
         // Đếm tổng số các mục
