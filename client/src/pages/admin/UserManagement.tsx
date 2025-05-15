@@ -927,6 +927,7 @@ export default function UserManagement() {
                     Đặt lại mật khẩu
                   </Button>
                 </DialogFooter>
+              </form>
             </Form>
           </DialogContent>
         </Dialog>
