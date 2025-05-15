@@ -867,7 +867,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // API để lấy số liệu thống kê cho bảng điều khiển admin
-  app.get(`${apiPrefix}/admin/dashboard-stats`, requireAuth, requireAdmin, async (req, res) => {
+  app.get(`${apiPrefix}/admin/dashboard-stats`, requireAuth, async (req, res) => {
     try {
       // Lấy số lượng visit và search
       const visitCount = await storage.getVisitCount();
@@ -1737,7 +1737,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/periods/sort`,
     requireAuth,
-    requireAdmin,
+    requirePeriodsPermission,
     async (req, res) => {
       try {
         console.log("PERIOD SORT REQUEST:", req.body);
