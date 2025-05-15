@@ -1268,7 +1268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/periods`,
     requireAuth,
-    requireAdmin,
+    requirePeriodsPermission,
     async (req, res) => {
       try {
         const periods = await storage.getAllPeriods();
@@ -1283,7 +1283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/periods`,
     requireAuth,
-    requireAdmin,
+    requirePeriodsPermission,
     async (req, res) => {
       try {
         const periodData = req.body;
@@ -1341,7 +1341,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/periods/:id`,
     requireAuth,
-    requireAdmin,
+    requirePeriodsPermission,
     async (req, res) => {
       try {
         const periodId = parseInt(req.params.id);
@@ -1519,7 +1519,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/periods/:id`,
     requireAuth,
-    requireAdmin,
+    requirePeriodsPermission,
     async (req, res) => {
       try {
         const periodId = parseInt(req.params.id);
