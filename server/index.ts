@@ -80,6 +80,33 @@ passport.deserializeUser(async (id: number, done) => {
 // Phục vụ thư mục uploads dưới dạng static files
 //app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// Middleware để đếm lượt truy cập
+app.use(async (req, res, next) => {
+  // Chỉ đếm cho các request GET không phải API và không phải assets/static files
+  if (
+    req.method === 'GET' && 
+    !req.path.startsWith('/api') && 
+    !req.path.startsWith('/assets') && 
+    !req.path.startsWith('/uploads') && 
+    !req.path.includes('.') && 
+    req.path !== '/favicon.ico' &&
+    !req.path.startsWith('/admin')
+  ) {
+    // Kiểm tra xem session đã có visit_counted chưa để tránh đếm trùng
+    const session = req.session as any;
+    const now = new Date();
+    
+    // Nếu chưa đếm hoặc đã quá 30 phút kể từ lần đếm trước đó
+    if (!session.visit_counted || 
+        (now.getTime() - new Date(session.visit_counted).getTime() > 30 * 60 * 1000)) {
+      await storage.incrementVisitCount();
+      session.visit_counted = now;
+    }
+  }
+  next();
+});
+
+// Middleware để ghi log và bắt response
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;

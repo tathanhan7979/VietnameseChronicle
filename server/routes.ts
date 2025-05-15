@@ -2862,6 +2862,199 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
+  // API quản lý người dùng
+  app.get(
+    `${apiPrefix}/admin/users`,
+    requireAuth,
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const users = await storage.getAllUsers();
+        res.json(users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({ success: false, message: "Lỗi khi lấy danh sách người dùng" });
+      }
+    }
+  );
+  
+  app.post(
+    `${apiPrefix}/admin/users`,
+    requireAuth,
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const { username, password, fullName, email, isAdmin, isActive } = req.body;
+        
+        // Kiểm tra xem username đã tồn tại hay chưa
+        const existingUser = await storage.getUserByUsername(username);
+        if (existingUser) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "Tên người dùng đã tồn tại" 
+          });
+        }
+        
+        // Mã hóa mật khẩu
+        const hashedPassword = await storage.hashPassword(password);
+        
+        // Tạo người dùng mới
+        const newUser = await storage.createUser({
+          username,
+          password: hashedPassword,
+          fullName,
+          email,
+          isAdmin: Boolean(isAdmin),
+          isActive: Boolean(isActive),
+        });
+        
+        // Gán vai trò
+        if (isAdmin) {
+          await storage.assignUserRole(newUser.id, 1); // Admin role
+        } else {
+          await storage.assignUserRole(newUser.id, 2); // Editor role
+        }
+        
+        res.status(201).json({ 
+          success: true, 
+          message: "Tạo người dùng thành công", 
+          user: newUser 
+        });
+      } catch (error) {
+        console.error("Error creating user:", error);
+        res.status(500).json({ success: false, message: "Lỗi khi tạo người dùng mới" });
+      }
+    }
+  );
+  
+  app.put(
+    `${apiPrefix}/admin/users/:id`,
+    requireAuth,
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const userId = parseInt(req.params.id);
+        const { fullName, email, isAdmin, isActive } = req.body;
+        
+        // Kiểm tra xem người dùng có tồn tại không
+        const existingUser = await storage.getUserById(userId);
+        if (!existingUser) {
+          return res.status(404).json({ 
+            success: false, 
+            message: "Không tìm thấy người dùng" 
+          });
+        }
+        
+        // Cập nhật thông tin người dùng
+        const updatedUser = await storage.updateUser(userId, {
+          fullName,
+          email,
+          isAdmin: Boolean(isAdmin),
+          isActive: Boolean(isActive)
+        });
+        
+        // Cập nhật vai trò
+        if (isAdmin !== existingUser.isAdmin) {
+          if (isAdmin) {
+            await storage.assignUserRole(userId, 1); // Admin role
+          } else {
+            await storage.assignUserRole(userId, 2); // Editor role
+          }
+        }
+        
+        res.json({ 
+          success: true, 
+          message: "Cập nhật người dùng thành công", 
+          user: updatedUser 
+        });
+      } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({ success: false, message: "Lỗi khi cập nhật người dùng" });
+      }
+    }
+  );
+  
+  app.delete(
+    `${apiPrefix}/admin/users/:id`,
+    requireAuth,
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const userId = parseInt(req.params.id);
+        
+        // Kiểm tra xem người dùng có tồn tại không
+        const existingUser = await storage.getUserById(userId);
+        if (!existingUser) {
+          return res.status(404).json({ 
+            success: false, 
+            message: "Không tìm thấy người dùng" 
+          });
+        }
+        
+        // Ngăn chặn xóa tài khoản admin chính
+        if (userId === 1) {
+          return res.status(403).json({ 
+            success: false, 
+            message: "Không thể xóa tài khoản admin chính" 
+          });
+        }
+        
+        // Xóa người dùng
+        await storage.deleteUser(userId);
+        
+        res.json({ 
+          success: true, 
+          message: "Xóa người dùng thành công" 
+        });
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({ success: false, message: "Lỗi khi xóa người dùng" });
+      }
+    }
+  );
+  
+  app.post(
+    `${apiPrefix}/admin/users/:id/reset-password`,
+    requireAuth,
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const userId = parseInt(req.params.id);
+        const { newPassword } = req.body;
+        
+        if (!newPassword || newPassword.length < 6) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "Mật khẩu phải có ít nhất 6 ký tự" 
+          });
+        }
+        
+        // Kiểm tra xem người dùng có tồn tại không
+        const existingUser = await storage.getUserById(userId);
+        if (!existingUser) {
+          return res.status(404).json({ 
+            success: false, 
+            message: "Không tìm thấy người dùng" 
+          });
+        }
+        
+        // Mã hóa mật khẩu mới
+        const hashedPassword = await storage.hashPassword(newPassword);
+        
+        // Cập nhật mật khẩu
+        await storage.updateUserPassword(userId, hashedPassword);
+        
+        res.json({ 
+          success: true, 
+          message: "Đặt lại mật khẩu thành công" 
+        });
+      } catch (error) {
+        console.error("Error resetting password:", error);
+        res.status(500).json({ success: false, message: "Lỗi khi đặt lại mật khẩu" });
+      }
+    }
+  );
+  
   // API quản lý feedback
   app.get(
     `${apiPrefix}/admin/feedback`,

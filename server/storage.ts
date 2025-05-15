@@ -1570,5 +1570,124 @@ export const storage = {
       handleDbError(error, "getUsersCount");
       return 0;
     }
+  },
+  
+  // Phương thức quản lý người dùng
+  getAllUsers: async (): Promise<User[]> => {
+    try {
+      const allUsers = await db.query.users.findMany({
+        orderBy: [asc(users.id)]
+      });
+      return allUsers;
+    } catch (error) {
+      handleDbError(error, "getAllUsers");
+      return [];
+    }
+  },
+  
+  createUser: async (userData: InsertUser): Promise<User> => {
+    try {
+      const [newUser] = await db.insert(users).values({
+        username: userData.username,
+        password: userData.password,
+        fullName: userData.fullName,
+        email: userData.email,
+        isAdmin: userData.isAdmin || false,
+        isActive: userData.isActive || true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }).returning();
+      
+      return newUser;
+    } catch (error) {
+      handleDbError(error, "createUser");
+      throw new Error("Lỗi khi tạo người dùng mới");
+    }
+  },
+  
+  updateUser: async (userId: number, userData: Partial<User>): Promise<User> => {
+    try {
+      userData.updatedAt = new Date();
+      
+      const [updatedUser] = await db
+        .update(users)
+        .set(userData)
+        .where(eq(users.id, userId))
+        .returning();
+      
+      return updatedUser;
+    } catch (error) {
+      handleDbError(error, "updateUser");
+      throw new Error("Lỗi khi cập nhật thông tin người dùng");
+    }
+  },
+  
+  deleteUser: async (userId: number): Promise<boolean> => {
+    try {
+      // Xóa vai trò người dùng trước
+      await db
+        .delete(userRoles)
+        .where(eq(userRoles.userId, userId));
+      
+      // Sau đó xóa người dùng
+      await db
+        .delete(users)
+        .where(eq(users.id, userId));
+      
+      return true;
+    } catch (error) {
+      handleDbError(error, "deleteUser");
+      return false;
+    }
+  },
+  
+  updateUserPassword: async (userId: number, newPassword: string): Promise<boolean> => {
+    try {
+      await db
+        .update(users)
+        .set({ 
+          password: newPassword,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
+      
+      return true;
+    } catch (error) {
+      handleDbError(error, "updateUserPassword");
+      return false;
+    }
+  },
+  
+  assignUserRole: async (userId: number, roleId: number): Promise<boolean> => {
+    try {
+      // Xóa các vai trò hiện tại của người dùng
+      await db
+        .delete(userRoles)
+        .where(eq(userRoles.userId, userId));
+      
+      // Thêm vai trò mới
+      await db
+        .insert(userRoles)
+        .values({
+          userId,
+          roleId
+        });
+      
+      return true;
+    } catch (error) {
+      handleDbError(error, "assignUserRole");
+      return false;
+    }
+  },
+  
+  // Thêm phương thức mã hóa mật khẩu vào storage
+  hashPassword: async (password: string): Promise<string> => {
+    const saltRounds = 10;
+    try {
+      return await bcrypt.hash(password, saltRounds);
+    } catch (error) {
+      handleDbError(error, "hashPassword");
+      throw new Error("Lỗi khi mã hóa mật khẩu");
+    }
   }
 };
