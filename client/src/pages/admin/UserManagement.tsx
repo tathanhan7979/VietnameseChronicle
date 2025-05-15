@@ -44,6 +44,10 @@ interface User {
   email: string | null;
   isAdmin: boolean;
   isActive: boolean;
+  canManagePeriods: boolean;
+  canManageEvents: boolean;
+  canManageFigures: boolean;
+  canManageSites: boolean;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
@@ -52,11 +56,18 @@ interface User {
 // Form schema cho tạo người dùng mới
 const userFormSchema = z.object({
   username: z.string().min(3, 'Tên người dùng phải có ít nhất 3 ký tự'),
-  password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự').optional(),
+  password: z.union([
+    z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
+    z.string().length(0, 'Để trống nếu không muốn thay đổi mật khẩu')
+  ]).optional(),
   fullName: z.string().min(3, 'Họ tên phải có ít nhất 3 ký tự'),
   email: z.string().email('Email không hợp lệ').nullable().optional(),
   isAdmin: z.boolean().default(false),
   isActive: z.boolean().default(true),
+  canManagePeriods: z.boolean().default(false),
+  canManageEvents: z.boolean().default(false),
+  canManageFigures: z.boolean().default(false),
+  canManageSites: z.boolean().default(false),
 });
 
 // Form schema cho reset mật khẩu
@@ -83,6 +94,10 @@ export default function UserManagement() {
       email: '',
       isAdmin: false,
       isActive: true,
+      canManagePeriods: false,
+      canManageEvents: false,
+      canManageFigures: false,
+      canManageSites: false,
     },
   });
 
@@ -229,6 +244,10 @@ export default function UserManagement() {
       email: '',
       isAdmin: false,
       isActive: true,
+      canManagePeriods: false,
+      canManageEvents: false,
+      canManageFigures: false,
+      canManageSites: false,
     });
     setIsCreateDialogOpen(true);
   };
@@ -241,6 +260,10 @@ export default function UserManagement() {
       email: user.email || '',
       isAdmin: user.isAdmin,
       isActive: user.isActive,
+      canManagePeriods: user.canManagePeriods || false,
+      canManageEvents: user.canManageEvents || false,
+      canManageFigures: user.canManageFigures || false,
+      canManageSites: user.canManageSites || false,
     });
     setSelectedUser(user);
     setIsEditDialogOpen(true);
