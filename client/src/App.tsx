@@ -48,12 +48,12 @@ function Router() {
       
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />
-      <ProtectedRoute path="/admin" component={AdminDashboard} adminOnly={true} />
-      <ProtectedRoute path="/admin/periods" component={PeriodsAdmin} adminOnly={true} />
+      <ProtectedRoute path="/admin" component={AdminDashboard} requiredPermission='any' />
+      <ProtectedRoute path="/admin/periods" component={PeriodsAdmin} requiredPermission='periods' />
       <ProtectedRoute path="/admin/event-types" component={EventTypesAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/events" component={EventsAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/historical-figures" component={HistoricalFiguresAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/historical-sites" component={HistoricalSitesAdmin} adminOnly={true} />
+      <ProtectedRoute path="/admin/events" component={EventsAdmin} requiredPermission='events' />
+      <ProtectedRoute path="/admin/historical-figures" component={HistoricalFiguresAdmin} requiredPermission='figures' />
+      <ProtectedRoute path="/admin/historical-sites" component={HistoricalSitesAdmin} requiredPermission='sites' />
       <ProtectedRoute path="/admin/feedback" component={FeedbackAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/settings" component={SettingsAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/users" component={UserManagement} adminOnly={true} />
