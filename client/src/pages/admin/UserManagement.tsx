@@ -916,15 +916,10 @@ export default function UserManagement() {
                     </FormItem>
                   )}
                 />
-                />
-                  </div>
-                </div>
-                </form>
                 <DialogFooter>
                   <Button
                     type="submit"
                     disabled={resetPasswordMutation.isPending}
-                    onClick={handleResetPassword}
                   >
                     {resetPasswordMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
