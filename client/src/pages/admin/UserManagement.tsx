@@ -167,7 +167,7 @@ export default function UserManagement() {
 
   // Mutation để cập nhật người dùng
   const updateUserMutation = useMutation({
-    mutationFn: async (data: Partial<z.infer<typeof userFormSchema>>) => {
+    mutationFn: async (data: z.infer<typeof updateUserSchema>) => {
       if (!selectedUser) return null;
       const res = await apiRequest('PUT', `/api/admin/users/${selectedUser.id}`, data);
       return res.json();
@@ -247,13 +247,16 @@ export default function UserManagement() {
   });
 
   const handleUpdateUser = form.handleSubmit((data) => {
+    // Chuyển đổi dữ liệu từ form thành dữ liệu cập nhật
+    const updateData = { ...data };
+    
     // Loại bỏ password nếu không được nhập khi cập nhật
-    if (!data.password || data.password.trim() === '') {
-      // Tạo một đối tượng mới không chứa password
-      const { password, ...formDataWithoutPassword } = data;
-      updateUserMutation.mutate(formDataWithoutPassword);
+    if (!updateData.password || updateData.password.trim() === '') {
+      // Dùng kiểu as để nói với TypeScript rằng dữ liệu này sẽ được xử lý an toàn
+      const { password, ...dataWithoutPassword } = updateData;
+      updateUserMutation.mutate(dataWithoutPassword as typeof updateUserSchema._type);
     } else {
-      updateUserMutation.mutate(data);
+      updateUserMutation.mutate(updateData);
     }
   });
 

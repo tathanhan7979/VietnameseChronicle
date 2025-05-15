@@ -2934,7 +2934,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req, res) => {
       try {
         const userId = parseInt(req.params.id);
-        const { fullName, email, isAdmin, isActive } = req.body;
+        const { 
+          fullName, 
+          email, 
+          isAdmin, 
+          isActive,
+          canManagePeriods,
+          canManageEvents,
+          canManageFigures,
+          canManageSites 
+        } = req.body;
         
         // Kiểm tra xem người dùng có tồn tại không
         const existingUser = await storage.getUserById(userId);
@@ -2950,7 +2959,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           fullName,
           email,
           isAdmin: Boolean(isAdmin),
-          isActive: Boolean(isActive)
+          isActive: Boolean(isActive),
+          canManagePeriods: Boolean(canManagePeriods),
+          canManageEvents: Boolean(canManageEvents),
+          canManageFigures: Boolean(canManageFigures),
+          canManageSites: Boolean(canManageSites)
         });
         
         // Cập nhật vai trò
