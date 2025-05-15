@@ -2501,7 +2501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-sites`,
     requireAuth,
-    requireAdmin,
+    requireSitesPermission,
     async (req, res) => {
       try {
         const siteData = req.body;
