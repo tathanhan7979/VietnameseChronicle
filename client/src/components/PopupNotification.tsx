@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,10 @@ interface PopupNotificationProps {}
 
 export default function PopupNotification({}: PopupNotificationProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [location] = useLocation();
+  
+  // Kiểm tra xem đang ở trang admin hay không
+  const isAdminPage = location.includes('/admin');
 
   const { data: popupEnabled } = useQuery({
     queryKey: ["/api/settings/popup_enabled"],
@@ -31,6 +36,11 @@ export default function PopupNotification({}: PopupNotificationProps) {
   });
 
   useEffect(() => {
+    // Nếu đang ở trang admin thì không hiển thị popup
+    if (isAdminPage) {
+      return;
+    }
+    
     // Kiểm tra xem đã ẩn popup trong 24h chưa
     const hiddenUntil = localStorage.getItem("popupHiddenUntil");
     const currentTime = new Date().getTime();
@@ -42,7 +52,7 @@ export default function PopupNotification({}: PopupNotificationProps) {
     ) {
       setIsOpen(true);
     }
-  }, [popupEnabled, popupContent]);
+  }, [popupEnabled, popupContent, isAdminPage, location]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -55,7 +65,15 @@ export default function PopupNotification({}: PopupNotificationProps) {
     setIsOpen(false);
   };
 
-  if (!popupEnabled?.value || popupEnabled?.value !== "true" || !popupContent?.value) {
+  // Không hiển thị popup nếu:
+  // 1. Đang ở trang admin
+  // 2. Popup bị tắt hoặc không có nội dung
+  if (
+    isAdminPage ||
+    !popupEnabled?.value ||
+    popupEnabled?.value !== "true" ||
+    !popupContent?.value
+  ) {
     return null;
   }
 
@@ -66,14 +84,6 @@ export default function PopupNotification({}: PopupNotificationProps) {
           <DialogTitle className="text-xl font-semibold">
             {popupTitle?.value || "Thông báo"}
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-4 top-4"
-            onClick={handleClose}
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
         <div
           className="popup-content py-4"
