@@ -115,8 +115,12 @@ export async function createInitialAdminUser(): Promise<void> {
       const [newUser] = await db.insert(users).values({
         username: 'TaThanhAnGroup',
         password: hashedPassword,
+        fullName: 'Quản trị viên',
+        email: 'admin@lichsuviet.edu.vn',
         isAdmin: true,
-        createdAt: new Date()
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }).returning();
       
       console.log('Tài khoản admin mặc định đã được tạo', { username: newUser.username });
