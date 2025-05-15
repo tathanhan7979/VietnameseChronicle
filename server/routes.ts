@@ -2884,7 +2884,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     requireAdmin,
     async (req, res) => {
       try {
-        const { username, password, fullName, email, isAdmin, isActive } = req.body;
+        const { 
+          username, 
+          password, 
+          fullName, 
+          email, 
+          isAdmin, 
+          isActive,
+          canManagePeriods,
+          canManageEvents,
+          canManageFigures,
+          canManageSites 
+        } = req.body;
         
         // Kiểm tra xem username đã tồn tại hay chưa
         const existingUser = await storage.getUserByUsername(username);
@@ -2906,6 +2917,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           email,
           isAdmin: Boolean(isAdmin),
           isActive: Boolean(isActive),
+          canManagePeriods: Boolean(canManagePeriods),
+          canManageEvents: Boolean(canManageEvents),
+          canManageFigures: Boolean(canManageFigures),
+          canManageSites: Boolean(canManageSites)
         });
         
         // Gán vai trò
