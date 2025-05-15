@@ -33,17 +33,30 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     }
   };
 
-  const menuItems = [
-    { path: '/admin', label: 'Tổng quan', icon: <LayoutDashboard size={20} /> },
-    { path: '/admin/periods', label: 'Thời kỳ lịch sử', icon: <Clock size={20} /> },
-    { path: '/admin/event-types', label: 'Loại sự kiện', icon: <FileText size={20} /> },
-    { path: '/admin/events', label: 'Sự kiện lịch sử', icon: <BarChart3 size={20} /> },
-    { path: '/admin/historical-figures', label: 'Nhân vật lịch sử', icon: <User size={20} /> },
-    { path: '/admin/historical-sites', label: 'Địa danh lịch sử', icon: <Home size={20} /> },
-    { path: '/admin/feedback', label: 'Phản hồi', icon: <MessageSquare size={20} /> },
-    { path: '/admin/users', label: 'Quản lý người dùng', icon: <Users size={20} /> },
-    { path: '/admin/settings', label: 'Thiết lập', icon: <Settings size={20} /> },
+  const { user } = useAuth();
+  
+  // Danh sách tất cả menu items
+  const allMenuItems = [
+    { path: '/admin', label: 'Tổng quan', icon: <LayoutDashboard size={20} />, requiredPermission: null },
+    { path: '/admin/periods', label: 'Thời kỳ lịch sử', icon: <Clock size={20} />, requiredPermission: 'canManagePeriods' },
+    { path: '/admin/event-types', label: 'Loại sự kiện', icon: <FileText size={20} />, requiredPermission: 'isAdmin' },
+    { path: '/admin/events', label: 'Sự kiện lịch sử', icon: <BarChart3 size={20} />, requiredPermission: 'canManageEvents' },
+    { path: '/admin/historical-figures', label: 'Nhân vật lịch sử', icon: <User size={20} />, requiredPermission: 'canManageFigures' },
+    { path: '/admin/historical-sites', label: 'Địa danh lịch sử', icon: <Home size={20} />, requiredPermission: 'canManageSites' },
+    { path: '/admin/feedback', label: 'Phản hồi', icon: <MessageSquare size={20} />, requiredPermission: 'isAdmin' },
+    { path: '/admin/users', label: 'Quản lý người dùng', icon: <Users size={20} />, requiredPermission: 'isAdmin' },
+    { path: '/admin/settings', label: 'Thiết lập', icon: <Settings size={20} />, requiredPermission: 'isAdmin' },
   ];
+  
+  // Lọc menu items dựa trên quyền của người dùng
+  const menuItems = allMenuItems.filter(item => {
+    if (!item.requiredPermission) return true; // Menu không yêu cầu quyền đặc biệt
+    if (user?.isAdmin) return true; // Admin có tất cả quyền
+    
+    // Kiểm tra quyền cụ thể
+    if (item.requiredPermission === 'isAdmin') return false;
+    return user?.[item.requiredPermission as keyof typeof user] === true;
+  });
 
   return (
     <div className="flex h-screen bg-gray-100">
