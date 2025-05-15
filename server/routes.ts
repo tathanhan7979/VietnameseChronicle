@@ -737,6 +737,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+  
+  // API để lấy số liệu thống kê cơ bản
+  app.get(`${apiPrefix}/stats`, async (req, res) => {
+    try {
+      const visitCount = await storage.getVisitCount();
+      const searchCount = await storage.getSearchCount();
+      
+      res.json({
+        visitCount,
+        searchCount
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
+  // API để lấy số liệu thống kê cho bảng điều khiển admin
+  app.get(`${apiPrefix}/admin/dashboard-stats`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      // Lấy số lượng visit và search
+      const visitCount = await storage.getVisitCount();
+      const searchCount = await storage.getSearchCount();
+      
+      // Lấy số lượng các loại nội dung
+      const periodsCount = await storage.getPeriodsCount();
+      const eventsCount = await storage.getEventsCount();
+      const figuresCount = await storage.getHistoricalFiguresCount();
+      const sitesCount = await storage.getHistoricalSitesCount();
+      const feedbackCount = await storage.getFeedbackCount();
+      const usersCount = await storage.getUsersCount();
+      
+      // Trả về tổng hợp số liệu
+      res.json({
+        visitCount,
+        searchCount,
+        periodsCount,
+        eventsCount,
+        figuresCount,
+        sitesCount,
+        feedbackCount,
+        usersCount,
+        lastUpdated: new Date()
+      });
+    } catch (error) {
+      console.error("Error fetching admin dashboard stats:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
 
   // Cấu hình lưu trữ cho tập tin ảnh
   const imageStorage = multer.diskStorage({

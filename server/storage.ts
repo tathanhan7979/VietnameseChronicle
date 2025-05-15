@@ -1509,5 +1509,66 @@ export const storage = {
       handleDbError(error, "updateHistoricalSitesPeriod");
       return false;
     }
+  },
+  
+  // Phương thức đếm số lượng các loại nội dung
+  getPeriodsCount: async (): Promise<number> => {
+    try {
+      const result = await db.select({ count: count() }).from(periods);
+      return result[0]?.count || 0;
+    } catch (error) {
+      handleDbError(error, "getPeriodsCount");
+      return 0;
+    }
+  },
+  
+  getEventsCount: async (): Promise<number> => {
+    try {
+      const result = await db.select({ count: count() }).from(events);
+      return result[0]?.count || 0;
+    } catch (error) {
+      handleDbError(error, "getEventsCount");
+      return 0;
+    }
+  },
+  
+  getHistoricalFiguresCount: async (): Promise<number> => {
+    try {
+      const result = await db.select({ count: count() }).from(historicalFigures);
+      return result[0]?.count || 0;
+    } catch (error) {
+      handleDbError(error, "getHistoricalFiguresCount");
+      return 0;
+    }
+  },
+  
+  getHistoricalSitesCount: async (): Promise<number> => {
+    try {
+      const result = await db.select({ count: count() }).from(historicalSites);
+      return result[0]?.count || 0;
+    } catch (error) {
+      handleDbError(error, "getHistoricalSitesCount");
+      return 0;
+    }
+  },
+  
+  getFeedbackCount: async (): Promise<number> => {
+    try {
+      const result = await db.select({ count: count() }).from(feedback);
+      return result[0]?.count || 0;
+    } catch (error) {
+      handleDbError(error, "getFeedbackCount");
+      return 0;
+    }
+  },
+  
+  getUsersCount: async (): Promise<number> => {
+    try {
+      const result = await db.select({ count: count() }).from(users);
+      return result[0]?.count || 0;
+    } catch (error) {
+      handleDbError(error, "getUsersCount");
+      return 0;
+    }
   }
 };
