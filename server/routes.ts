@@ -1400,7 +1400,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/periods/:id/related-entities`,
     requireAuth,
-    requireAdmin,
+    requirePeriodsPermission,
     async (req, res) => {
       try {
         const periodId = parseInt(req.params.id);
@@ -2544,7 +2544,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/historical-sites/:id`,
     requireAuth,
-    requireAdmin,
+    requireSitesPermission,
     async (req, res) => {
       try {
         const { id } = req.params;
@@ -2620,7 +2620,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/historical-sites/:id`,
     requireAuth,
-    requireAdmin,
+    requireSitesPermission,
     async (req, res) => {
       try {
         const { id } = req.params;
@@ -2663,7 +2663,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-sites/reorder`,
     requireAuth,
-    requireAdmin,
+    requireSitesPermission,
     async (req, res) => {
       try {
         const { orderedIds } = req.body;
