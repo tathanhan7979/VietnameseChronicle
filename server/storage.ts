@@ -1595,6 +1595,10 @@ export const storage = {
         email: userData.email,
         isAdmin: userData.isAdmin || false,
         isActive: userData.isActive || true,
+        canManagePeriods: userData.canManagePeriods || false,
+        canManageEvents: userData.canManageEvents || false,
+        canManageFigures: userData.canManageFigures || false,
+        canManageSites: userData.canManageSites || false,
         createdAt: new Date(),
         updatedAt: new Date()
       }).returning();
