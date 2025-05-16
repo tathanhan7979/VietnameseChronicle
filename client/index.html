@@ -107,30 +107,60 @@
       src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v22.0&appId=338293120972096"
     ></script>
     <div id="root"></div>
-    <!-- Tùy chỉnh cách tải script module -->
+    <!-- Thay thế cách tải script -->
     <script>
-      // Trình phát hiện lỗi MIME type nâng cao
+      function createSimpleUI() {
+        // Tạo UI tạm thời để điều hướng
+        const root = document.getElementById('root');
+        root.innerHTML = `
+          <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem;">
+            <h1 style="color: #CF2A27;">Lịch Sử Việt Nam</h1>
+            <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 1rem; margin-bottom: 1rem;">
+              <p style="margin: 0;"><strong>Thông báo:</strong> Hệ thống đang gặp vấn đề kỹ thuật. Vui lòng thử lại sau.</p>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+              <a href="/auth" style="display: inline-block; background-color: #CF2A27; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px;">Đăng nhập</a>
+              <a href="/admin" style="display: inline-block; background-color: #333; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px;">Trang quản trị</a>
+            </div>
+          </div>
+        `;
+      }
+
+      // Thử tải main.tsx, nếu không được thì hiển thị UI đơn giản
       window.addEventListener('error', function(e) {
         console.log('Lỗi được phát hiện:', e.message);
         if (e.message && e.message.includes('MIME type')) {
-          console.log('Phát hiện lỗi MIME type, thử tải lại với JavaScript thuần...');
-          
-          // Xóa script module gây lỗi
-          const oldScripts = document.querySelectorAll('script[type="module"]');
-          oldScripts.forEach(script => script.remove());
-          
-          // Thêm meta refresh để tải lại trang sau 1 giây
-          const meta = document.createElement('meta');
-          meta.httpEquiv = 'refresh';
-          meta.content = '1';
-          document.head.appendChild(meta);
+          console.log('Phát hiện lỗi MIME type, hiển thị UI đơn giản...');
+          createSimpleUI();
         }
       }, true);
+
+      // Đặt một timeout để kiểm tra nếu module không tải sau 2 giây
+      setTimeout(function() {
+        if (!window.appLoaded) {
+          console.log('Timeout: Module không tải được, hiển thị UI đơn giản');
+          createSimpleUI();
+        }
+      }, 2000);
     </script>
-    <script>
-      // Tạo URL với timestamp để tránh cache
-      const timestamp = Date.now();
-      document.write('<script type="module" src="/src/main.tsx?v=' + timestamp + '"><\/script>');
+    <!-- Thử tải script với nhiều cách khác nhau -->
+    <script type="module">
+      // Đánh dấu khi ứng dụng đã tải thành công
+      window.appLoaded = false;
+      try {
+        import('/src/main.tsx?v=' + Date.now())
+          .then(() => {
+            window.appLoaded = true;
+            console.log('Module đã tải thành công');
+          })
+          .catch(error => {
+            console.error('Lỗi khi tải module:', error);
+            createSimpleUI();
+          });
+      } catch (error) {
+        console.error('Lỗi khi import module:', error);
+        createSimpleUI();
+      }
     </script>
   </body>
 </html>
