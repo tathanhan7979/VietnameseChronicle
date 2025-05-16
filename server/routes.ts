@@ -10,7 +10,6 @@ import {
   createInitialAdminUser,
   loginUser,
   registerUser,
-  getUserFromToken,
   generateToken,
   hashPassword,
 } from "./auth";
@@ -22,6 +21,14 @@ import path from "path";
 import fs from "fs";
 import { randomUUID } from "crypto";
 import { generateSitemap } from "./sitemap-generator";
+import { 
+  requireAuth, 
+  requireAdmin, 
+  requirePeriodsPermission,
+  requireEventsPermission,
+  requireFiguresPermission,
+  requireSitesPermission 
+} from "./middlewares";
 
 // Thêm các định nghĩa type cho express-session
 declare module "express-session" {
@@ -39,180 +46,7 @@ declare module "express" {
   }
 }
 
-// Middleware kiểm tra xác thực (hỗ trợ cả JWT token và session cookie)
-const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // Kiểm tra nếu user đã được xác thực thông qua session (express-session)
-    if (req.isAuthenticated?.()) {
-      return next();
-    }
-
-    // Nếu không có session, thử kiểm tra JWT token
-    const authToken = req.headers.authorization?.split(" ")[1];
-
-    if (!authToken) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    const user = await getUserFromToken(authToken);
-
-    if (!user) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    // Lưu thông tin user vào req để sử dụng ở các route handler
-    (req as any).user = user;
-    next();
-  } catch (error) {
-    console.error("Authentication error:", error);
-    res.status(401).json({ error: "Unauthorized" });
-  }
-};
-
-// Middleware kiểm tra quyền admin
-const requireAdmin = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    let user: User | null = null;
-
-    // Trường hợp sử dụng session
-    if (req.isAuthenticated?.()) {
-      user = req.user as User;
-    } else {
-      // Trường hợp sử dụng JWT token
-      user = (req as any).user as User;
-    }
-
-    if (!user || !user.isAdmin) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-
-    next();
-  } catch (error) {
-    console.error("Authorization error:", error);
-    res.status(403).json({ error: "Forbidden" });
-  }
-};
-
-// Lấy user từ request để sử dụng trong middleware kiểm tra quyền
-const getUserFromRequest = (req: Request): User | null => {
-  if (req.isAuthenticated?.()) {
-    return req.user as User;
-  } else {
-    return (req as any).user as User;
-  }
-};
-
-// Middleware kiểm tra quyền quản lý thời kỳ lịch sử
-const requirePeriodsPermission = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const user = getUserFromRequest(req);
-
-    if (!user) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    if (user.isAdmin || user.can_manage_periods) {
-      return next();
-    }
-
-    return res.status(403).json({ 
-      error: "Forbidden", 
-      message: "Bạn không có quyền quản lý thời kỳ lịch sử" 
-    });
-  } catch (error) {
-    console.error("Authorization error:", error);
-    res.status(403).json({ error: "Forbidden" });
-  }
-};
-
-// Middleware kiểm tra quyền quản lý sự kiện lịch sử
-const requireEventsPermission = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const user = getUserFromRequest(req);
-
-    if (!user) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    if (user.isAdmin || user.can_manage_events) {
-      return next();
-    }
-
-    return res.status(403).json({ 
-      error: "Forbidden", 
-      message: "Bạn không có quyền quản lý sự kiện lịch sử" 
-    });
-  } catch (error) {
-    console.error("Authorization error:", error);
-    res.status(403).json({ error: "Forbidden" });
-  }
-};
-
-// Middleware kiểm tra quyền quản lý nhân vật lịch sử
-const requireFiguresPermission = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const user = getUserFromRequest(req);
-
-    if (!user) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    if (user.isAdmin || user.can_manage_figures) {
-      return next();
-    }
-
-    return res.status(403).json({ 
-      error: "Forbidden", 
-      message: "Bạn không có quyền quản lý nhân vật lịch sử" 
-    });
-  } catch (error) {
-    console.error("Authorization error:", error);
-    res.status(403).json({ error: "Forbidden" });
-  }
-};
-
-// Middleware kiểm tra quyền quản lý địa danh lịch sử
-const requireSitesPermission = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const user = getUserFromRequest(req);
-
-    if (!user) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    if (user.isAdmin || user.can_manage_sites) {
-      return next();
-    }
-
-    return res.status(403).json({ 
-      error: "Forbidden", 
-      message: "Bạn không có quyền quản lý địa danh lịch sử" 
-    });
-  } catch (error) {
-    console.error("Authorization error:", error);
-    res.status(403).json({ error: "Forbidden" });
-  }
-};
+// Tất cả middleware đã được import từ middlewares.ts
 
 // Hàm xóa tập tin - chức năng chung
 function deleteFile(filePath: string): boolean {
@@ -1455,7 +1289,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/periods`,
     requireAuth,
-    requireAdmin,
+    requirePeriodsPermission,
     async (req, res) => {
       try {
         const periods = await storage.getAllPeriods();
@@ -1470,6 +1304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/periods`,
     requireAuth,
+    requirePeriodsPermission,
     requireAdmin,
     async (req, res) => {
       try {
@@ -1528,7 +1363,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/periods/:id`,
     requireAuth,
-    requireAdmin,
+    requirePeriodsPermission,
     async (req, res) => {
       try {
         const periodId = parseInt(req.params.id);
