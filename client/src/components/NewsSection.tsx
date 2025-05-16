@@ -26,13 +26,12 @@ interface News {
   summary: string;
   content: string;
   imageUrl: string | null;
-  is_published: boolean;
-  is_featured: boolean;
-  view_count: number;
-  period_id: number | null;
-  event_id: number | null;
-  figure_id: number | null;
-  site_id: number | null;
+  published: boolean;
+  viewCount: number;
+  periodId: number | null;
+  eventId: number | null;
+  historicalFigureId: number | null;
+  historicalSiteId: number | null;
   createdAt: string;
   updatedAt: string | null;
 }
@@ -113,7 +112,7 @@ export default function NewsSection() {
           Đọc tiếp
         </Link>
         <div className="ml-auto text-sm text-gray-500">
-          {news.view_count} lượt xem
+          {news.viewCount} lượt xem
         </div>
       </CardFooter>
     </Card>

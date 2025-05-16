@@ -311,15 +311,12 @@ export const newsController = {
    */
   getFeaturedNews: async (limit: number = 5): Promise<News[]> => {
     try {
+      // Sử dụng cột 'published' thay vì 'is_published'
+      // Vì chưa có cột 'is_featured', tạm thời lấy tất cả bài đã published
       return await db
         .select()
         .from(news)
-        .where(
-          and(
-            eq(news.is_published, true),
-            eq(news.is_featured, true)
-          )
-        )
+        .where(eq(news.published, true))
         .orderBy(desc(news.createdAt))
         .limit(limit);
     } catch (error) {
@@ -336,7 +333,7 @@ export const newsController = {
       return await db
         .select()
         .from(news)
-        .where(eq(news.is_published, true))
+        .where(eq(news.published, true))
         .orderBy(desc(news.createdAt))
         .limit(limit);
     } catch (error) {
@@ -353,7 +350,7 @@ export const newsController = {
       return await db
         .select()
         .from(news)
-        .where(eq(news.is_published, true))
+        .where(eq(news.published, true))
         .orderBy(desc(news.view_count))
         .limit(limit);
     } catch (error) {
