@@ -295,8 +295,10 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
   const isImageSetting = setting.key === 'home_background_url' || setting.key === 'site_favicon';
 
   // Determine if this setting should use the rich text editor
-  const shouldUseRichText = setting.inputType === 'textarea' && 
-    (setting.key === 'privacy_policy' || setting.key === 'terms_of_service');
+  const shouldUseRichText = setting.inputType === 'textarea' || 
+    setting.inputType === 'rich_text' || 
+    (setting.key === 'privacy_policy' || setting.key === 'terms_of_service' || 
+     setting.key === 'popup_notification');
 
   // Initialize image preview if it's an image setting
   useEffect(() => {
@@ -417,6 +419,50 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                     </FormControl>
                     <FormDescription className="text-xs text-muted-foreground">
                       Key: {setting.key}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : setting.key === 'popup_enabled' || setting.inputType === 'select' ? (
+              <FormField
+                control={form.control}
+                name="value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{setting.displayName}</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center space-x-2">
+                        <select
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                        >
+                          {setting.key === 'popup_enabled' || setting.key === 'sitemap_auto_update' ? (
+                            <>
+                              <option value="true">Bật</option>
+                              <option value="false">Tắt</option>
+                            </>
+                          ) : setting.key === 'sitemap_changefreq' ? (
+                            <>
+                              <option value="always">Luôn luôn</option>
+                              <option value="hourly">Hàng giờ</option>
+                              <option value="daily">Hàng ngày</option>
+                              <option value="weekly">Hàng tuần</option>
+                              <option value="monthly">Hàng tháng</option>
+                              <option value="yearly">Hàng năm</option>
+                              <option value="never">Không bao giờ</option>
+                            </>
+                          ) : (
+                            <>
+                              <option value={field.value}>{field.value}</option>
+                            </>
+                          )}
+                        </select>
+                      </div>
+                    </FormControl>
+                    <FormDescription className="text-xs text-muted-foreground">
+                      {setting.description}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

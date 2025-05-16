@@ -1,0 +1,18 @@
+-- Thêm cài đặt cho popup notification nếu chưa tồn tại
+INSERT INTO settings (key, value, description, display_name, category, input_type, sort_order)
+SELECT 'popup_notification', '', 'Nội dung thông báo popup hiển thị cho người dùng khi truy cập trang', 'Nội dung thông báo', 'Thông báo', 'rich_text', 500
+WHERE NOT EXISTS (SELECT 1 FROM settings WHERE key = 'popup_notification');
+
+INSERT INTO settings (key, value, description, display_name, category, input_type, sort_order)
+SELECT 'popup_enabled', 'false', 'Bật/tắt tính năng hiển thị thông báo popup', 'Bật thông báo', 'Thông báo', 'select', 510
+WHERE NOT EXISTS (SELECT 1 FROM settings WHERE key = 'popup_enabled');
+
+INSERT INTO settings (key, value, description, display_name, category, input_type, sort_order)
+SELECT 'popup_duration', '24', 'Thời gian (giờ) hiển thị lại thông báo sau khi đã đóng', 'Thời gian hiển thị lại (giờ)', 'Thông báo', 'number', 520
+WHERE NOT EXISTS (SELECT 1 FROM settings WHERE key = 'popup_duration');
+
+-- Cập nhật input_type cho popup_enabled nếu đã tồn tại nhưng không phải kiểu select
+UPDATE settings SET input_type = 'select' WHERE key = 'popup_enabled' AND input_type != 'select';
+
+-- Cập nhật category nếu chưa được thiết lập đúng
+UPDATE settings SET category = 'Thông báo' WHERE key IN ('popup_notification', 'popup_enabled', 'popup_duration') AND category != 'Thông báo';
