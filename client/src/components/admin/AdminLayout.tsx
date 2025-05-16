@@ -51,7 +51,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       path: '/admin/event-types', 
       label: 'Loại sự kiện', 
       icon: <FileText size={20} />,
-      accessControl: () => user?.isAdmin || user?.can_manage_events
+      accessControl: () => user?.isAdmin
     },
     { 
       path: '/admin/events', 
