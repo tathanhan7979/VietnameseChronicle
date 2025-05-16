@@ -109,17 +109,28 @@
     <div id="root"></div>
     <!-- Tùy chỉnh cách tải script module -->
     <script>
-      // Kiểm tra lỗi MIME type và thử tải lại
+      // Trình phát hiện lỗi MIME type nâng cao
       window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('MIME type') && e.filename && e.filename.includes('main.tsx')) {
-          console.log('Phát hiện lỗi MIME type, thử tải lại script...');
-          const script = document.createElement('script');
-          script.type = 'module';
-          script.src = '/src/main.tsx?v=' + Date.now();
-          document.body.appendChild(script);
+        console.log('Lỗi được phát hiện:', e.message);
+        if (e.message && e.message.includes('MIME type')) {
+          console.log('Phát hiện lỗi MIME type, thử tải lại với JavaScript thuần...');
+          
+          // Xóa script module gây lỗi
+          const oldScripts = document.querySelectorAll('script[type="module"]');
+          oldScripts.forEach(script => script.remove());
+          
+          // Thêm meta refresh để tải lại trang sau 1 giây
+          const meta = document.createElement('meta');
+          meta.httpEquiv = 'refresh';
+          meta.content = '1';
+          document.head.appendChild(meta);
         }
       }, true);
     </script>
-    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Tạo URL với timestamp để tránh cache
+      const timestamp = Date.now();
+      document.write('<script type="module" src="/src/main.tsx?v=' + timestamp + '"><\/script>');
+    </script>
   </body>
 </html>
