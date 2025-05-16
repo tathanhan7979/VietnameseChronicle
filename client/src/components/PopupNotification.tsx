@@ -9,6 +9,7 @@ export function PopupNotification() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+  const [duration, setDuration] = useState(24);
   const [location] = useLocation();
   
   // Kiểm tra xem đang ở trang admin hay không
@@ -76,6 +77,16 @@ export function PopupNotification() {
 
   const handleClose = () => {
     setIsOpen(false);
+    
+    // Ẩn popup sau khi animation kết thúc
+    setTimeout(() => {
+      setShowPopup(false);
+    }, 300);
+  };
+  
+  const handleDontShowAgain = () => {
+    setIsOpen(false);
+    
     // Lưu thời gian đóng popup vào localStorage
     localStorage.setItem('popup_dismissed_at', new Date().toISOString());
     
@@ -91,8 +102,8 @@ export function PopupNotification() {
 
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
-      <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
-      <Card className="w-full max-w-md max-h-[80vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-black/70" onClick={handleClose} />
+      <Card className="w-full max-w-md max-h-[80vh] overflow-y-auto shadow-[0_0_15px_rgba(255,255,255,0.15)] border-2 border-primary/20 animate-[fadeIn_0.3s_ease-in-out]">
         <div className="absolute top-2 right-2">
           <Button variant="ghost" size="icon" onClick={handleClose}>
             <X className="h-4 w-4" />
@@ -100,14 +111,21 @@ export function PopupNotification() {
         </div>
         <CardContent className="pt-6 pb-2">
           {title && (
-            <h3 className="text-lg font-semibold text-center mb-4">{title}</h3>
+            <h3 className="text-xl font-semibold text-center mb-4 text-primary">{title}</h3>
           )}
           <div 
             className="prose dark:prose-invert max-w-none" 
             dangerouslySetInnerHTML={{ __html: content }} 
           />
         </CardContent>
-        <CardFooter className="flex justify-end pt-0">
+        <CardFooter className="flex justify-between pt-2 pb-3 gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleDontShowAgain}
+            className="text-sm px-3"
+          >
+            Không hiển thị lại ({duration}h)
+          </Button>
           <Button variant="default" onClick={handleClose}>
             Đóng
           </Button>
