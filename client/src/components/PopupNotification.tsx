@@ -6,6 +6,7 @@ import { useLocation } from "wouter";
 
 export function PopupNotification() {
   const [isOpen, setIsOpen] = useState(false);
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [location] = useLocation();
@@ -22,15 +23,17 @@ export function PopupNotification() {
     const fetchPopupSettings = async () => {
       try {
         // Lấy cài đặt popup từ server
-        const [enabledResponse, contentResponse, durationResponse] = await Promise.all([
+        const [enabledResponse, contentResponse, titleResponse, durationResponse] = await Promise.all([
           fetch('/api/settings/popup_enabled'),
           fetch('/api/settings/popup_notification'),
+          fetch('/api/settings/popup_title'),
           fetch('/api/settings/popup_duration')
         ]);
 
-        if (enabledResponse.ok && contentResponse.ok && durationResponse.ok) {
+        if (enabledResponse.ok && contentResponse.ok && titleResponse.ok && durationResponse.ok) {
           const enabledData = await enabledResponse.json();
           const contentData = await contentResponse.json();
+          const titleData = await titleResponse.json();
           const durationData = await durationResponse.json();
 
           // Chuyển đổi giá trị string "true"/"false" thành boolean
@@ -39,6 +42,7 @@ export function PopupNotification() {
           // Kiểm tra nếu popup được bật và có nội dung
           if (isEnabled && contentData.value) {
             setContent(contentData.value);
+            setTitle(titleData.value || "Thông báo");
             
             // Kiểm tra localStorage để xem người dùng đã đóng popup này chưa
             const lastDismissed = localStorage.getItem('popup_dismissed_at');
@@ -95,6 +99,9 @@ export function PopupNotification() {
           </Button>
         </div>
         <CardContent className="pt-6 pb-2">
+          {title && (
+            <h3 className="text-lg font-semibold text-center mb-4">{title}</h3>
+          )}
           <div 
             className="prose dark:prose-invert max-w-none" 
             dangerouslySetInnerHTML={{ __html: content }} 
