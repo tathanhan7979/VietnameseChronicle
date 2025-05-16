@@ -92,6 +92,10 @@ const UsersPage = () => {
       username: "",
       password: "",
       isAdmin: false,
+      can_manage_periods: false,
+      can_manage_events: false,
+      can_manage_figures: false,
+      can_manage_sites: false,
     },
   });
 
@@ -655,6 +659,94 @@ const UsersPage = () => {
                   </FormItem>
                 )}
               />
+
+              {!form.watch("isAdmin") && (
+                <div className="space-y-4 border rounded-md p-4 mt-4">
+                  <h3 className="font-medium text-sm">Phân quyền chi tiết</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="can_manage_periods"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Quản lý thời kỳ</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Thêm, sửa, xóa thời kỳ lịch sử
+                            </p>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="can_manage_events"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Quản lý sự kiện</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Thêm, sửa, xóa sự kiện lịch sử
+                            </p>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="can_manage_figures"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Quản lý nhân vật</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Thêm, sửa, xóa nhân vật lịch sử
+                            </p>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="can_manage_sites"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Quản lý di tích</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Thêm, sửa, xóa di tích lịch sử
+                            </p>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-end space-x-2 pt-4">
                 <Button
