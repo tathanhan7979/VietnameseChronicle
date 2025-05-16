@@ -13,6 +13,7 @@ import {
   Settings,
   User,
   X,
+  Newspaper
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -70,6 +71,12 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       label: 'Địa danh lịch sử', 
       icon: <Home size={20} />,
       accessControl: () => user?.isAdmin || user?.can_manage_sites
+    },
+    { 
+      path: '/admin/news', 
+      label: 'Quản lý tin tức', 
+      icon: <Newspaper size={20} />,
+      accessControl: () => user?.isAdmin || user?.can_manage_news
     },
     { 
       path: '/admin/feedback', 

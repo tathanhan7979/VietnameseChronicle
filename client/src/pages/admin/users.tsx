@@ -52,6 +52,7 @@ const userFormSchema = z.object({
   can_manage_events: z.boolean().default(false),
   can_manage_figures: z.boolean().default(false),
   can_manage_sites: z.boolean().default(false),
+  can_manage_news: z.boolean().default(false),
 });
 
 interface User {
@@ -62,6 +63,7 @@ interface User {
   can_manage_events: boolean;
   can_manage_figures: boolean;
   can_manage_sites: boolean;
+  can_manage_news: boolean;
   createdAt: string;
   lastLoginAt: string | null;
 }
@@ -96,6 +98,7 @@ const UsersPage = () => {
       can_manage_events: false,
       can_manage_figures: false,
       can_manage_sites: false,
+      can_manage_news: false,
     },
   });
 
