@@ -8,6 +8,7 @@ import {
   historicalSites,
   feedback,
   settings,
+  users,
   type Period,
   type Event,
   type HistoricalFigure,
@@ -17,7 +18,8 @@ import {
   type Feedback,
   type InsertFeedback,
   type Setting,
-  type InsertSetting
+  type InsertSetting,
+  type User
 } from "@shared/schema";
 import { eq, and, or, like, sql, desc, asc, count, max } from "drizzle-orm";
 
@@ -60,6 +62,101 @@ export const storage = {
       return userResult || null;
     } catch (error) {
       handleDbError(error, "getUserByUsername");
+      return null;
+    }
+  },
+  
+  getAllUsers: async () => {
+    try {
+      return await db.query.users.findMany({
+        orderBy: [asc(sql`username`)]
+      });
+    } catch (error) {
+      handleDbError(error, "getAllUsers");
+      return [];
+    }
+  },
+  
+  createUser: async (userData: { 
+    username: string, 
+    password: string, 
+    isAdmin: boolean,
+    canManagePeriods: boolean,
+    canManageEvents: boolean,
+    canManageFigures: boolean,
+    canManageSites: boolean
+  }) => {
+    try {
+      const [newUser] = await db.insert(users)
+        .values({
+          ...userData,
+          createdAt: new Date()
+        })
+        .returning();
+      return newUser;
+    } catch (error) {
+      handleDbError(error, "createUser");
+      return null;
+    }
+  },
+  
+  updateUser: async (
+    id: number, 
+    userData: {
+      username?: string,
+      password?: string,
+      isAdmin?: boolean,
+      canManagePeriods?: boolean,
+      canManageEvents?: boolean,
+      canManageFigures?: boolean,
+      canManageSites?: boolean
+    }
+  ) => {
+    try {
+      const [updatedUser] = await db.update(users)
+        .set(userData)
+        .where(eq(users.id, id))
+        .returning();
+      
+      return updatedUser;
+    } catch (error) {
+      handleDbError(error, "updateUser");
+      return null;
+    }
+  },
+  
+  deleteUser: async (id: number) => {
+    try {
+      const [deletedUser] = await db.delete(users)
+        .where(eq(users.id, id))
+        .returning();
+      
+      return deletedUser || null;
+    } catch (error) {
+      handleDbError(error, "deleteUser");
+      return null;
+    }
+  },
+  
+  updateUserPermissions: async (
+    id: number,
+    permissions: {
+      isAdmin?: boolean,
+      canManagePeriods?: boolean,
+      canManageEvents?: boolean,
+      canManageFigures?: boolean,
+      canManageSites?: boolean
+    }
+  ) => {
+    try {
+      const [updatedUser] = await db.update(users)
+        .set(permissions)
+        .where(eq(users.id, id))
+        .returning();
+      
+      return updatedUser;
+    } catch (error) {
+      handleDbError(error, "updateUserPermissions");
       return null;
     }
   },
