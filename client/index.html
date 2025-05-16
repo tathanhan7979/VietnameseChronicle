@@ -107,6 +107,19 @@
       src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v22.0&appId=338293120972096"
     ></script>
     <div id="root"></div>
+    <!-- Tùy chỉnh cách tải script module -->
+    <script>
+      // Kiểm tra lỗi MIME type và thử tải lại
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('MIME type') && e.filename && e.filename.includes('main.tsx')) {
+          console.log('Phát hiện lỗi MIME type, thử tải lại script...');
+          const script = document.createElement('script');
+          script.type = 'module';
+          script.src = '/src/main.tsx?v=' + Date.now();
+          document.body.appendChild(script);
+        }
+      }, true);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
