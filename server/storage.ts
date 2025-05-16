@@ -157,6 +157,51 @@ export const storage = {
           sortOrder: 1
         },
         {
+          key: "last_sitemap_update",
+          value: "",
+          description: "Thời gian cập nhật sitemap.xml gần nhất",
+          displayName: "Cập nhật sitemap gần nhất",
+          category: "seo",
+          inputType: "readonly",
+          sortOrder: 0
+        },
+        {
+          key: "sitemap_auto_update",
+          value: "false",
+          description: "Tự động cập nhật sitemap.xml khi có thay đổi nội dung",
+          displayName: "Tự động cập nhật sitemap",
+          category: "seo",
+          inputType: "select",
+          sortOrder: 1
+        },
+        {
+          key: "site_url",
+          value: "https://lichsuviet.edu.vn",
+          description: "URL chính của trang web, sử dụng cho sitemap và các liên kết tuyệt đối",
+          displayName: "URL trang web",
+          category: "seo",
+          inputType: "text",
+          sortOrder: 2
+        },
+        {
+          key: "sitemap_changefreq",
+          value: "daily",
+          description: "Tần suất thay đổi nội dung mặc định (daily, weekly, monthly)",
+          displayName: "Tần suất cập nhật",
+          category: "seo",
+          inputType: "select",
+          sortOrder: 3
+        },
+        {
+          key: "sitemap_priority",
+          value: "0.8",
+          description: "Mức độ ưu tiên mặc định cho các trang (0.1 đến 1.0)",
+          displayName: "Mức độ ưu tiên",
+          category: "seo",
+          inputType: "text",
+          sortOrder: 4
+        },
+        {
           key: "telegram_bot_token",
           value: "",
           description: "Token của bot Telegram",

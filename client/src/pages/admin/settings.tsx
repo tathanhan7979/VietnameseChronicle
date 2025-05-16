@@ -206,6 +206,23 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
     form.setValue('value', value);
   };
 
+  // Handle sitemap regeneration
+  const handleRegenerateSitemap = async () => {
+    try {
+      const res = await apiRequest('POST', '/api/admin/generate-sitemap', {});
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          // Cập nhật giá trị thời gian cập nhật
+          form.setValue('value', new Date().toISOString());
+          onUpdate(new Date().toISOString());
+        }
+      }
+    } catch (error) {
+      console.error('Lỗi khi tạo sitemap:', error);
+    }
+  };
+
   // Handle image file upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -397,6 +414,88 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                           className="h-64"
                         />
                       </div>
+                    </FormControl>
+                    <FormDescription className="text-xs text-muted-foreground">
+                      Key: {setting.key}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : setting.key === 'last_sitemap_update' ? (
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="value"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Thời gian cập nhật gần nhất</FormLabel>
+                      <FormControl>
+                        <div className="flex space-x-2">
+                          <Input {...field} readOnly className="flex-1" />
+                          <Button 
+                            type="button" 
+                            onClick={handleRegenerateSitemap}
+                            className="whitespace-nowrap"
+                            variant="secondary"
+                          >
+                            Tạo lại Sitemap
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Nhấn nút "Tạo lại Sitemap" để cập nhật sitemap.xml từ dữ liệu mới nhất
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex flex-col space-y-2 p-4 bg-slate-50 dark:bg-slate-900 rounded-md">
+                  <h4 className="text-sm font-medium">Thông tin sitemap</h4>
+                  <p className="text-xs text-gray-500">
+                    Sitemap được tạo tự động bao gồm các trang sau:
+                  </p>
+                  <ul className="text-xs text-gray-500 list-disc pl-5 space-y-1">
+                    <li>Trang chủ</li>
+                    <li>Tất cả các thời kỳ lịch sử</li>
+                    <li>Tất cả các sự kiện lịch sử</li>
+                    <li>Tất cả các nhân vật lịch sử</li>
+                    <li>Tất cả các di tích lịch sử</li>
+                  </ul>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Tệp sitemap.xml được tạo tại: <code className="text-xs bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">client/public/sitemap.xml</code>
+                  </p>
+                </div>
+              </div>
+            ) : setting.key === 'sitemap_auto_update' || setting.key === 'sitemap_changefreq' ? (
+              <FormField
+                control={form.control}
+                name="value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Giá trị</FormLabel>
+                    <FormControl>
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        {...field}
+                      >
+                        {setting.key === 'sitemap_auto_update' ? (
+                          <>
+                            <option value="true">Bật</option>
+                            <option value="false">Tắt</option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="always">Luôn luôn</option>
+                            <option value="hourly">Hàng giờ</option>
+                            <option value="daily">Hàng ngày</option>
+                            <option value="weekly">Hàng tuần</option>
+                            <option value="monthly">Hàng tháng</option>
+                            <option value="yearly">Hàng năm</option>
+                            <option value="never">Không bao giờ</option>
+                          </>
+                        )}
+                      </select>
                     </FormControl>
                     <FormDescription className="text-xs text-muted-foreground">
                       Key: {setting.key}

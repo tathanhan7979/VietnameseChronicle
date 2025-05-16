@@ -13,17 +13,26 @@ export async function generateSitemap() {
     const figures = await storage.getAllHistoricalFigures();
     const sites = await storage.getAllHistoricalSites();
 
+    // Lấy các thiết lập SEO từ cơ sở dữ liệu
+    const siteUrlSetting = await storage.getSetting('site_url');
+    const changeFreqSetting = await storage.getSetting('sitemap_changefreq');
+    const prioritySetting = await storage.getSetting('sitemap_priority');
+    
+    // Sử dụng giá trị thiết lập hoặc giá trị mặc định
+    const baseUrl = siteUrlSetting?.value || "https://lichsuviet.edu.vn";
+    const defaultChangeFreq = changeFreqSetting?.value || "daily";
+    const defaultPriority = prioritySetting?.value || "0.8";
+    const currentDate = new Date().toISOString().split("T")[0];
+    
     // Chuẩn bị các URL
     const urls = [];
-    const baseUrl = "https://lichsuviet.edu.vn";
-    const currentDate = new Date().toISOString().split("T")[0];
 
     // Thêm trang chủ và các trang tĩnh
     urls.push({
       loc: `${baseUrl}/`,
       lastmod: currentDate,
-      priority: "1.0",
-      changefreq: "daily",
+      priority: "1.0",  // Trang chủ luôn có mức ưu tiên cao nhất
+      changefreq: defaultChangeFreq,
     });
 
     // Thêm các thời kỳ lịch sử
@@ -32,8 +41,8 @@ export async function generateSitemap() {
         urls.push({
           loc: `${baseUrl}/thoi-ky/${period.slug}`,
           lastmod: currentDate,
-          priority: "0.9",
-          changefreq: "weekly",
+          priority: "0.9",  // Thời kỳ có mức ưu tiên cao thứ hai
+          changefreq: defaultChangeFreq,
         });
       }
     }
@@ -43,8 +52,8 @@ export async function generateSitemap() {
       urls.push({
         loc: `${baseUrl}/su-kien/${event.id}`,
         lastmod: currentDate,
-        priority: "0.8",
-        changefreq: "weekly",
+        priority: defaultPriority,  // Sử dụng mức ưu tiên từ thiết lập
+        changefreq: defaultChangeFreq,
       });
     }
 
@@ -53,8 +62,8 @@ export async function generateSitemap() {
       urls.push({
         loc: `${baseUrl}/nhan-vat/${figure.id}`,
         lastmod: currentDate,
-        priority: "0.8",
-        changefreq: "weekly",
+        priority: defaultPriority,  // Sử dụng mức ưu tiên từ thiết lập
+        changefreq: defaultChangeFreq,
       });
     }
 
@@ -63,8 +72,8 @@ export async function generateSitemap() {
       urls.push({
         loc: `${baseUrl}/di-tich/${site.id}`,
         lastmod: currentDate,
-        priority: "0.8",
-        changefreq: "weekly",
+        priority: defaultPriority,  // Sử dụng mức ưu tiên từ thiết lập
+        changefreq: defaultChangeFreq,
       });
     }
 
@@ -100,6 +109,7 @@ export async function generateSitemap() {
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /auth/
 
 Sitemap: ${baseUrl}/sitemap.xml
 `;

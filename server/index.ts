@@ -115,6 +115,21 @@ app.use((req, res, next) => {
     log("Initializing default settings...");
     await storage.initializeDefaultSettings();
     log("Default settings initialized successfully!");
+    
+    // Kiểm tra cài đặt tự động cập nhật sitemap
+    const autoUpdateSitemap = await storage.getSetting('sitemap_auto_update');
+    if (autoUpdateSitemap?.value === 'true') {
+      try {
+        const { generateSitemap } = await import('./sitemap-generator');
+        await generateSitemap();
+        log("Sitemap.xml auto-generated at startup");
+        
+        // Cập nhật thời gian cập nhật sitemap
+        await storage.updateSetting('last_sitemap_update', new Date().toISOString());
+      } catch (sitemapError) {
+        console.error("Error auto-generating sitemap:", sitemapError);
+      }
+    }
   } catch (error) {
     console.error("Error initializing default settings:", error);
   }
