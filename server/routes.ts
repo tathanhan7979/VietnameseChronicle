@@ -1887,6 +1887,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (eventTypeIds.length > 0) {
           await storage.associateEventWithTypes(newEvent.id, eventTypeIds);
         }
+        
+        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
+        try {
+          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
+          await updateSitemapIfEnabled();
+        } catch (sitemapError) {
+          console.error("Error updating sitemap after creating event:", sitemapError);
+        }
 
         res.status(201).json({
           success: true,
@@ -1972,6 +1980,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.removeEventTypeAssociations(eventId); // Xóa liên kết hiện tại
         if (eventTypeIds.length > 0) {
           await storage.associateEventWithTypes(eventId, eventTypeIds); // Thêm liên kết mới
+        }
+        
+        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
+        try {
+          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
+          await updateSitemapIfEnabled();
+        } catch (sitemapError) {
+          console.error("Error updating sitemap after updating event:", sitemapError);
         }
 
         res.json({
