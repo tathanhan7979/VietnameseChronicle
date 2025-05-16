@@ -20,6 +20,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { randomUUID } from "crypto";
+import { generateSitemap } from "./sitemap-generator";
 
 // Thêm các định nghĩa type cho express-session
 declare module "express-session" {
@@ -2885,6 +2886,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`/seo-preview`, (req, res) =>
     generateSocialShareHTML(req, res, req.query.url as string),
   );
+
+  // Endpoint cho sitemap.xml
+  app.get('/sitemap.xml', async (req, res) => {
+    try {
+      const publicDir = path.join(process.cwd(), 'client', 'public');
+      const sitemapPath = path.join(publicDir, 'sitemap.xml');
+      
+      // Tạo sitemap.xml nếu chưa tồn tại hoặc đã cũ (thời gian tạo > 24h)
+      let needsUpdate = true;
+      if (fs.existsSync(sitemapPath)) {
+        const stats = fs.statSync(sitemapPath);
+        const fileDate = new Date(stats.mtime);
+        const now = new Date();
+        const hoursSinceLastUpdate = (now.getTime() - fileDate.getTime()) / (1000 * 60 * 60);
+        
+        // Chỉ tạo lại nếu file cũ hơn 24 giờ
+        needsUpdate = hoursSinceLastUpdate > 24;
+      }
+      
+      if (needsUpdate) {
+        await generateSitemap();
+      }
+      
+      // Trả về file sitemap.xml
+      if (fs.existsSync(sitemapPath)) {
+        res.header('Content-Type', 'application/xml');
+        res.sendFile(sitemapPath);
+      } else {
+        res.status(404).send('Sitemap not found');
+      }
+    } catch (error) {
+      console.error('Error serving sitemap:', error);
+      res.status(500).send('Error generating sitemap');
+    }
+  });
+  
+  // Endpoint cho robots.txt
+  app.get('/robots.txt', (req, res) => {
+    try {
+      const publicDir = path.join(process.cwd(), 'client', 'public');
+      const robotsPath = path.join(publicDir, 'robots.txt');
+      
+      // Tạo robots.txt nếu chưa tồn tại
+      if (!fs.existsSync(robotsPath)) {
+        const baseUrl = `https://${req.get('host')}`;
+        const robotsContent = `User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: ${baseUrl}/sitemap.xml
+`;
+        
+        // Đảm bảo thư mục public tồn tại
+        if (!fs.existsSync(publicDir)) {
+          fs.mkdirSync(publicDir, { recursive: true });
+        }
+        
+        fs.writeFileSync(robotsPath, robotsContent);
+      }
+      
+      // Trả về file robots.txt
+      if (fs.existsSync(robotsPath)) {
+        res.header('Content-Type', 'text/plain');
+        res.sendFile(robotsPath);
+      } else {
+        res.status(404).send('Robots.txt not found');
+      }
+    } catch (error) {
+      console.error('Error serving robots.txt:', error);
+      res.status(500).send('Error generating robots.txt');
+    }
+  });
+  
+  // Admin endpoint để tạo/cập nhật sitemap
+  app.post(`${apiPrefix}/admin/generate-sitemap`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const result = await generateSitemap();
+      res.json(result);
+    } catch (error) {
+      console.error('Error generating sitemap:', error);
+      res.status(500).json({ success: false, message: 'Error generating sitemap' });
+    }
+  });
 
   // Create HTTP server
   const httpServer = createServer(app);
