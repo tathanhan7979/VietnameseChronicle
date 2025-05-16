@@ -12,6 +12,7 @@ import {
   registerUser,
   generateToken,
   hashPassword,
+  getUserFromToken,
 } from "./auth";
 import { type User, periods, events, historicalSites } from "@shared/schema";
 import { eq } from "drizzle-orm";
