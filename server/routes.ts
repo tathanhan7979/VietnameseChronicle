@@ -507,6 +507,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
+        // Không cho phép xóa tài khoản admin chính (ID=1)
+        if (userId === 1) {
+          return res.status(403).json({
+            success: false,
+            message: "Không thể xóa tài khoản admin chính"
+          });
+        }
+        
         // Kiểm tra xem người dùng có tồn tại không
         const existingUser = await storage.getUserById(userId);
         if (!existingUser) {
