@@ -2388,6 +2388,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         siteData.sortOrder = allSites.length;
 
         const newSite = await storage.createHistoricalSite(siteData);
+        
+        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
+        try {
+          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
+          await updateSitemapIfEnabled();
+        } catch (sitemapError) {
+          console.error("Error updating sitemap after creating historical site:", sitemapError);
+        }
 
         return res.status(201).json({
           success: true,
@@ -2464,6 +2472,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           parseInt(id),
           siteData,
         );
+        
+        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
+        try {
+          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
+          await updateSitemapIfEnabled();
+        } catch (sitemapError) {
+          console.error("Error updating sitemap after updating historical site:", sitemapError);
+        }
 
         return res.status(200).json({
           success: true,
@@ -2507,6 +2523,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (oldImageUrl && oldImageUrl.startsWith("/uploads/")) {
           deleteFile(oldImageUrl);
           console.log(`Xóa hình ảnh của địa danh: ${oldImageUrl}`);
+        }
+        
+        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
+        try {
+          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
+          await updateSitemapIfEnabled();
+        } catch (sitemapError) {
+          console.error("Error updating sitemap after deleting historical site:", sitemapError);
         }
 
         return res.status(200).json({

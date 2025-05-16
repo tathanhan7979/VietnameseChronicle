@@ -43,6 +43,7 @@ export const events = pgTable("events", {
   id: serial("id").primaryKey(),
   periodId: integer("period_id").references(() => periods.id).notNull(),
   title: text("title").notNull(),
+  slug: text("slug"),  // Thêm trường slug cho URL thân thiện
   description: text("description").notNull(),
   detailedDescription: text("detailed_description"),
   year: text("year").notNull(),
@@ -59,6 +60,7 @@ export type Event = typeof events.$inferSelect;
 export const historicalFigures = pgTable("historical_figures", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  slug: text("slug"),  // Thêm trường slug cho URL thân thiện
   periodId: integer("period_id").references(() => periods.id).notNull(), // Làm cho periodId bắt buộc
   periodText: text("period"), // Để lại trường nhưng không bắt buộc - sẽ dần dần loại bỏ
   lifespan: text("lifespan").notNull(),
