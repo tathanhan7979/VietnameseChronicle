@@ -1,6 +1,11 @@
 import React from "react";
-import { FormField, FormItem, FormControl, FormLabel } from "@/components/ui/form";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
 
 export const NewsPermissionField = ({ control }: { control: any }) => {
   return (
@@ -8,21 +13,20 @@ export const NewsPermissionField = ({ control }: { control: any }) => {
       control={control}
       name="can_manage_news"
       render={({ field }) => (
-        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+          <div className="space-y-0.5">
+            <FormLabel>Quản lý tin tức</FormLabel>
+          </div>
           <FormControl>
-            <Checkbox
+            <Switch
               checked={field.value}
               onCheckedChange={field.onChange}
             />
           </FormControl>
-          <div className="space-y-1 leading-none">
-            <FormLabel>Quản lý tin tức</FormLabel>
-            <p className="text-xs text-muted-foreground">
-              Thêm, sửa, xóa bài viết tin tức
-            </p>
-          </div>
         </FormItem>
       )}
     />
   );
 };
+
+export default NewsPermissionField;

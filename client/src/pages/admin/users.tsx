@@ -556,6 +556,27 @@ const UsersPage = () => {
                         </FormItem>
                       )}
                     />
+                    
+                    <FormField
+                      control={form.control}
+                      name="can_manage_news"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Quản lý tin tức</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Thêm, sửa, xóa tin tức và bài viết
+                            </p>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
               )}

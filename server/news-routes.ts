@@ -1,361 +1,343 @@
-import { Express, Request, Response } from "express";
-import { requireAuth, requireAdmin, requireNewsPermission } from "./middlewares";
+import { Express, Request, Response, NextFunction } from "express";
+import { requireAuth, requireNewsPermission } from "./middlewares";
 import { newsController } from "./news-methods";
+import { stringify } from "querystring";
+import { updateSitemapIfEnabled } from "./sitemap-helper";
 import multer from "multer";
 import path from "path";
-import { v4 as uuidv4 } from "uuid";
+import fs from "fs";
 
-// Cấu hình storage cho upload hình ảnh tin tức
-const newsImageStorage = multer.diskStorage({
+// Cấu hình multer lưu trữ uploads
+const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(process.cwd(), "uploads/news"));
+    const uploadDir = path.join(process.cwd(), "uploads");
+    // Tạo thư mục uploads nếu chưa tồn tại
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${uuidv4()}`;
-    const fileExtension = path.extname(file.originalname);
-    cb(null, `news-image-${uniqueSuffix}${fileExtension}`);
+    // Tạo tên file duy nhất với timestamp
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const ext = path.extname(file.originalname);
+    cb(null, `news-${uniqueSuffix}${ext}`);
   },
 });
 
-// Tạo middleware upload với các cài đặt từ storage
-const uploadNewsImage = multer({
-  storage: newsImageStorage,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // Giới hạn kích thước file 5MB
-  },
-  fileFilter: (req, file, cb) => {
-    // Kiểm tra loại file
-    const allowedFileTypes = /jpeg|jpg|png|gif|webp/;
-    const mimetype = allowedFileTypes.test(file.mimetype);
-    const extname = allowedFileTypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
+// Lọc file chỉ cho phép hình ảnh
+const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Chỉ chấp nhận file hình ảnh"));
+  }
+};
 
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(
-      new Error(
-        "Lỗi: Chỉ chấp nhận file hình ảnh (jpeg, jpg, png, gif, webp)!"
-      )
-    );
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Giới hạn 5MB
   },
+  fileFilter,
 });
 
 export function registerNewsRoutes(app: Express) {
-  const apiPrefix = "/api";
+  // ===== API ROUTES CHO ADMIN =====
 
-  // Lấy danh sách tin tức (public)
-  app.get(`${apiPrefix}/news`, async (req, res) => {
+  // Lấy danh sách tin tức có phân trang (cho admin)
+  app.get("/api/admin/news", requireAuth, requireNewsPermission, async (req: Request, res: Response) => {
     try {
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-      const page = req.query.page ? parseInt(req.query.page as string) : 1;
-      const publishedOnly = req.query.publishedOnly === "true";
-      const periodId = req.query.periodId ? parseInt(req.query.periodId as string) : undefined;
-      const eventId = req.query.eventId ? parseInt(req.query.eventId as string) : undefined;
-      const historicalFigureId = req.query.historicalFigureId 
-        ? parseInt(req.query.historicalFigureId as string) 
-        : undefined;
-      const historicalSiteId = req.query.historicalSiteId
-        ? parseInt(req.query.historicalSiteId as string)
-        : undefined;
-      const eventTypeId = req.query.eventTypeId
-        ? parseInt(req.query.eventTypeId as string)
-        : undefined;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const status = (req.query.status as string) || "all";
+      const searchQuery = (req.query.search as string) || "";
 
-      const result = await newsController.getNewsList({
-        limit,
-        page,
-        publishedOnly,
-        periodId,
-        eventId,
-        historicalFigureId,
-        historicalSiteId,
-        eventTypeId,
-      });
-
-      return res.json(result);
+      const result = await newsController.getNewsPaginated(page, limit, status, searchQuery);
+      res.json(result);
     } catch (error) {
-      console.error("Error fetching news:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Lỗi khi lấy danh sách tin tức.",
-      });
+      console.error("Error getting news list:", error);
+      res.status(500).json({ error: "Không thể lấy danh sách tin tức" });
     }
   });
 
-  // Lấy tin tức theo slug (public)
-  app.get(`${apiPrefix}/news/:slug`, async (req, res) => {
+  // Lấy tin tức theo ID (cho admin)
+  app.get("/api/admin/news/:id", requireAuth, requireNewsPermission, async (req: Request, res: Response) => {
     try {
-      const { slug } = req.params;
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "ID không hợp lệ" });
+      }
 
-      const news = await newsController.getNewsBySlug(slug);
+      const news = await newsController.getNewsById(id);
       if (!news) {
-        return res.status(404).json({
-          success: false,
-          message: "Không tìm thấy tin tức.",
-        });
+        return res.status(404).json({ error: "Không tìm thấy tin tức" });
       }
 
-      // Tăng số lượt xem
-      await newsController.incrementNewsViewCount(news.id);
-
-      return res.json({
-        success: true,
-        data: news,
-      });
+      res.json(news);
     } catch (error) {
-      console.error("Error fetching news by slug:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Lỗi khi lấy thông tin tin tức.",
-      });
+      console.error(`Error getting news ${req.params.id}:`, error);
+      res.status(500).json({ error: "Không thể lấy chi tiết tin tức" });
     }
   });
 
-  // Lấy danh sách tin tức liên quan
-  app.get(`${apiPrefix}/news/:id/related`, async (req, res) => {
+  // Tạo tin tức mới
+  app.post("/api/admin/news", requireAuth, requireNewsPermission, async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 4;
-
-      const relatedNews = await newsController.getRelatedNews(parseInt(id), limit);
-
-      return res.json({
-        success: true,
-        data: relatedNews,
-      });
+      const data = req.body;
+      
+      // Validate dữ liệu
+      if (!data.title) {
+        return res.status(400).json({ error: "Tiêu đề không được để trống" });
+      }
+      
+      if (!data.content) {
+        return res.status(400).json({ error: "Nội dung không được để trống" });
+      }
+      
+      // Tạo tin tức mới
+      const newNews = await newsController.createNews(data);
+      
+      // Cập nhật sitemap
+      updateSitemapIfEnabled();
+      
+      res.status(201).json(newNews);
     } catch (error) {
-      console.error("Error fetching related news:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Lỗi khi lấy tin tức liên quan.",
-      });
+      console.error("Error creating news:", error);
+      res.status(500).json({ error: "Không thể tạo tin tức mới" });
     }
   });
 
-  // API Admin - Lấy danh sách tất cả tin tức
-  app.get(
-    `${apiPrefix}/admin/news`,
-    requireAuth,
-    requireNewsPermission,
-    async (req, res) => {
-      try {
-        const allNews = await newsController.getAllNews();
-        return res.json(allNews);
-      } catch (error) {
-        console.error("Error fetching all news:", error);
-        return res.status(500).json({
-          success: false,
-          message: "Lỗi khi lấy danh sách tin tức.",
-        });
+  // Cập nhật tin tức
+  app.put("/api/admin/news/:id", requireAuth, requireNewsPermission, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "ID không hợp lệ" });
       }
-    }
-  );
 
-  // API Admin - Lấy chi tiết tin tức theo ID
-  app.get(
-    `${apiPrefix}/admin/news/:id`,
-    requireAuth,
-    requireNewsPermission,
-    async (req, res) => {
-      try {
-        const { id } = req.params;
-        const news = await newsController.getNewsById(parseInt(id));
-
-        if (!news) {
-          return res.status(404).json({
-            success: false,
-            message: "Không tìm thấy tin tức.",
-          });
-        }
-
-        return res.json(news);
-      } catch (error) {
-        console.error("Error fetching news by id:", error);
-        return res.status(500).json({
-          success: false,
-          message: "Lỗi khi lấy thông tin tin tức.",
-        });
+      const data = req.body;
+      
+      // Validate dữ liệu
+      if (!data.title) {
+        return res.status(400).json({ error: "Tiêu đề không được để trống" });
       }
-    }
-  );
-
-  // API Admin - Thêm tin tức mới
-  app.post(
-    `${apiPrefix}/admin/news`,
-    requireAuth,
-    requireNewsPermission,
-    uploadNewsImage.single("image"),
-    async (req, res) => {
-      try {
-        const newsData = {
-          title: req.body.title,
-          content: req.body.content,
-          summary: req.body.summary,
-          imageUrl: req.file ? `/${req.file.path.replace(/\\/g, "/").split("/").slice(1).join("/")}` : req.body.imageUrl,
-          published: req.body.published === "true" || req.body.published === true,
-          periodId: req.body.periodId ? parseInt(req.body.periodId) : undefined,
-          eventId: req.body.eventId ? parseInt(req.body.eventId) : undefined,
-          historicalFigureId: req.body.historicalFigureId ? parseInt(req.body.historicalFigureId) : undefined,
-          historicalSiteId: req.body.historicalSiteId ? parseInt(req.body.historicalSiteId) : undefined,
-          eventTypeId: req.body.eventTypeId ? parseInt(req.body.eventTypeId) : undefined,
-        };
-
-        const news = await newsController.createNews(newsData);
-
-        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
-        try {
-          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
-          await updateSitemapIfEnabled();
-        } catch (sitemapError) {
-          console.error("Error updating sitemap after creating news:", sitemapError);
-        }
-
-        return res.status(201).json({
-          success: true,
-          message: "Thêm tin tức thành công.",
-          data: news,
-        });
-      } catch (error) {
-        console.error("Error creating news:", error);
-        return res.status(500).json({
-          success: false,
-          message: "Lỗi khi thêm tin tức mới.",
-          error: error instanceof Error ? error.message : String(error),
-        });
+      
+      if (!data.content) {
+        return res.status(400).json({ error: "Nội dung không được để trống" });
       }
-    }
-  );
-
-  // API Admin - Cập nhật tin tức
-  app.put(
-    `${apiPrefix}/admin/news/:id`,
-    requireAuth,
-    requireNewsPermission,
-    uploadNewsImage.single("image"),
-    async (req, res) => {
-      try {
-        const { id } = req.params;
-        
-        const newsData = {
-          title: req.body.title,
-          content: req.body.content,
-          summary: req.body.summary,
-          imageUrl: req.file ? `/${req.file.path.replace(/\\/g, "/").split("/").slice(1).join("/")}` : req.body.imageUrl,
-          published: req.body.published === "true" || req.body.published === true,
-          periodId: req.body.periodId ? parseInt(req.body.periodId) : null,
-          eventId: req.body.eventId ? parseInt(req.body.eventId) : null,
-          historicalFigureId: req.body.historicalFigureId ? parseInt(req.body.historicalFigureId) : null,
-          historicalSiteId: req.body.historicalSiteId ? parseInt(req.body.historicalSiteId) : null,
-          eventTypeId: req.body.eventTypeId ? parseInt(req.body.eventTypeId) : null,
-        };
-
-        const updatedNews = await newsController.updateNews(parseInt(id), newsData);
-
-        if (!updatedNews) {
-          return res.status(404).json({
-            success: false,
-            message: "Không tìm thấy tin tức cần cập nhật.",
-          });
-        }
-
-        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
-        try {
-          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
-          await updateSitemapIfEnabled();
-        } catch (sitemapError) {
-          console.error("Error updating sitemap after updating news:", sitemapError);
-        }
-
-        return res.json({
-          success: true,
-          message: "Cập nhật tin tức thành công.",
-          data: updatedNews,
-        });
-      } catch (error) {
-        console.error("Error updating news:", error);
-        return res.status(500).json({
-          success: false,
-          message: "Lỗi khi cập nhật tin tức.",
-          error: error instanceof Error ? error.message : String(error),
-        });
+      
+      // Kiểm tra tin tức tồn tại
+      const existingNews = await newsController.getNewsById(id);
+      if (!existingNews) {
+        return res.status(404).json({ error: "Không tìm thấy tin tức" });
       }
+      
+      // Cập nhật tin tức
+      const updatedNews = await newsController.updateNews(id, data);
+      
+      // Cập nhật sitemap
+      updateSitemapIfEnabled();
+      
+      res.json(updatedNews);
+    } catch (error) {
+      console.error(`Error updating news ${req.params.id}:`, error);
+      res.status(500).json({ error: "Không thể cập nhật tin tức" });
     }
-  );
+  });
 
-  // API Admin - Xóa tin tức
-  app.delete(
-    `${apiPrefix}/admin/news/:id`,
-    requireAuth,
-    requireNewsPermission,
-    async (req, res) => {
-      try {
-        const { id } = req.params;
-
-        // Kiểm tra tin tức có tồn tại không
-        const existingNews = await newsController.getNewsById(parseInt(id));
-        if (!existingNews) {
-          return res.status(404).json({
-            success: false,
-            message: "Không tìm thấy tin tức.",
-          });
-        }
-
-        await newsController.deleteNews(parseInt(id));
-
-        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
-        try {
-          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
-          await updateSitemapIfEnabled();
-        } catch (sitemapError) {
-          console.error("Error updating sitemap after deleting news:", sitemapError);
-        }
-
-        return res.status(200).json({
-          success: true,
-          message: "Xóa tin tức thành công.",
-        });
-      } catch (error) {
-        console.error("Error deleting news:", error);
-        return res.status(500).json({
-          success: false,
-          message: "Lỗi khi xóa tin tức.",
-        });
+  // Xóa tin tức
+  app.delete("/api/admin/news/:id", requireAuth, requireNewsPermission, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "ID không hợp lệ" });
       }
-    }
-  );
 
-  // API upload hình ảnh tin tức
-  app.post(
-    `${apiPrefix}/upload/news-image`,
-    requireAuth,
-    requireAdmin,
-    uploadNewsImage.single("file"),
-    (req, res) => {
-      try {
-        if (!req.file) {
-          return res.status(400).json({
-            success: false,
-            message: "Không có tập tin được tải lên",
-          });
-        }
-
-        const filePath = req.file.path.replace(/\\/g, "/");
-        const urlPath = "/" + filePath.split("/").slice(1).join("/");
-
-        res.json({
-          success: true,
-          url: urlPath,
-          message: "Tải lên hình ảnh thành công",
-        });
-      } catch (error) {
-        console.error("Error uploading news image:", error);
-        res.status(500).json({
-          success: false,
-          message: "Lỗi khi tải lên hình ảnh",
-        });
+      // Kiểm tra tin tức tồn tại
+      const existingNews = await newsController.getNewsById(id);
+      if (!existingNews) {
+        return res.status(404).json({ error: "Không tìm thấy tin tức" });
       }
+      
+      // Xóa tin tức
+      const deletedNews = await newsController.deleteNews(id);
+      
+      // Cập nhật sitemap
+      updateSitemapIfEnabled();
+      
+      res.json(deletedNews);
+    } catch (error) {
+      console.error(`Error deleting news ${req.params.id}:`, error);
+      res.status(500).json({ error: "Không thể xóa tin tức" });
     }
-  );
+  });
+
+  // Upload hình ảnh cho tin tức
+  app.post("/api/admin/news/upload", requireAuth, requireNewsPermission, upload.single("image"), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Không có file được upload" });
+      }
+      
+      // Trả về URL của file đã upload
+      const fileUrl = `/uploads/${req.file.filename}`;
+      res.json({ url: fileUrl });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      res.status(500).json({ error: "Không thể upload hình ảnh" });
+    }
+  });
+
+  // ===== API ROUTES CHO FRONTEND =====
+
+  // Lấy tin tức nổi bật
+  app.get("/api/news/featured", async (req: Request, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      const featuredNews = await newsController.getFeaturedNews(limit);
+      res.json(featuredNews);
+    } catch (error) {
+      console.error("Error getting featured news:", error);
+      res.status(500).json({ error: "Không thể lấy tin tức nổi bật" });
+    }
+  });
+
+  // Lấy tin tức mới nhất
+  app.get("/api/news/latest", async (req: Request, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const latestNews = await newsController.getLatestNews(limit);
+      res.json(latestNews);
+    } catch (error) {
+      console.error("Error getting latest news:", error);
+      res.status(500).json({ error: "Không thể lấy tin tức mới nhất" });
+    }
+  });
+
+  // Lấy tin tức phổ biến
+  app.get("/api/news/popular", async (req: Request, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      const popularNews = await newsController.getPopularNews(limit);
+      res.json(popularNews);
+    } catch (error) {
+      console.error("Error getting popular news:", error);
+      res.status(500).json({ error: "Không thể lấy tin tức phổ biến" });
+    }
+  });
+
+  // Lấy danh sách tin tức có phân trang (cho frontend)
+  app.get("/api/news", async (req: Request, res: Response) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const searchQuery = (req.query.search as string) || "";
+
+      // Chỉ lấy tin tức đã xuất bản cho frontend
+      const result = await newsController.getNewsPaginated(page, limit, "published", searchQuery);
+      res.json(result);
+    } catch (error) {
+      console.error("Error getting public news list:", error);
+      res.status(500).json({ error: "Không thể lấy danh sách tin tức" });
+    }
+  });
+
+  // Lấy chi tiết tin tức theo slug
+  app.get("/api/news/:slug", async (req: Request, res: Response) => {
+    try {
+      const slug = req.params.slug;
+      const news = await newsController.getNewsBySlug(slug);
+      
+      if (!news) {
+        return res.status(404).json({ error: "Không tìm thấy tin tức" });
+      }
+      
+      if (!news.is_published) {
+        return res.status(404).json({ error: "Tin tức chưa được xuất bản" });
+      }
+      
+      // Tăng lượt xem
+      await newsController.incrementViewCount(news.id);
+      
+      // Lấy tin tức liên quan
+      const relatedNews = await newsController.getRelatedNews(news.id, 5);
+      
+      res.json({
+        news,
+        relatedNews
+      });
+    } catch (error) {
+      console.error(`Error getting news with slug ${req.params.slug}:`, error);
+      res.status(500).json({ error: "Không thể lấy chi tiết tin tức" });
+    }
+  });
+
+  // Lấy tin tức theo thời kỳ
+  app.get("/api/news/period/:periodId", async (req: Request, res: Response) => {
+    try {
+      const periodId = parseInt(req.params.periodId);
+      if (isNaN(periodId)) {
+        return res.status(400).json({ error: "ID thời kỳ không hợp lệ" });
+      }
+      
+      const limit = parseInt(req.query.limit as string) || 10;
+      const news = await newsController.getNewsByPeriod(periodId, limit);
+      res.json(news);
+    } catch (error) {
+      console.error(`Error getting news for period ${req.params.periodId}:`, error);
+      res.status(500).json({ error: "Không thể lấy tin tức theo thời kỳ" });
+    }
+  });
+
+  // Lấy tin tức theo sự kiện
+  app.get("/api/news/event/:eventId", async (req: Request, res: Response) => {
+    try {
+      const eventId = parseInt(req.params.eventId);
+      if (isNaN(eventId)) {
+        return res.status(400).json({ error: "ID sự kiện không hợp lệ" });
+      }
+      
+      const limit = parseInt(req.query.limit as string) || 10;
+      const news = await newsController.getNewsByEvent(eventId, limit);
+      res.json(news);
+    } catch (error) {
+      console.error(`Error getting news for event ${req.params.eventId}:`, error);
+      res.status(500).json({ error: "Không thể lấy tin tức theo sự kiện" });
+    }
+  });
+
+  // Lấy tin tức theo nhân vật
+  app.get("/api/news/figure/:figureId", async (req: Request, res: Response) => {
+    try {
+      const figureId = parseInt(req.params.figureId);
+      if (isNaN(figureId)) {
+        return res.status(400).json({ error: "ID nhân vật không hợp lệ" });
+      }
+      
+      const limit = parseInt(req.query.limit as string) || 10;
+      const news = await newsController.getNewsByFigure(figureId, limit);
+      res.json(news);
+    } catch (error) {
+      console.error(`Error getting news for figure ${req.params.figureId}:`, error);
+      res.status(500).json({ error: "Không thể lấy tin tức theo nhân vật" });
+    }
+  });
+
+  // Lấy tin tức theo di tích
+  app.get("/api/news/site/:siteId", async (req: Request, res: Response) => {
+    try {
+      const siteId = parseInt(req.params.siteId);
+      if (isNaN(siteId)) {
+        return res.status(400).json({ error: "ID di tích không hợp lệ" });
+      }
+      
+      const limit = parseInt(req.query.limit as string) || 10;
+      const news = await newsController.getNewsBySite(siteId, limit);
+      res.json(news);
+    } catch (error) {
+      console.error(`Error getting news for site ${req.params.siteId}:`, error);
+      res.status(500).json({ error: "Không thể lấy tin tức theo di tích" });
+    }
+  });
 }

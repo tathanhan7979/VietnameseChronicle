@@ -1,1062 +1,1300 @@
-import React, { useState } from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import AdminLayout from "@/components/admin/AdminLayout";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { SelectItem, Select, SelectTrigger, SelectValue, SelectContent } from '@/components/ui/select';
-import { apiRequest, queryClient } from '@/lib/queryClient';
-import { Loader2, PenLine, Plus, Search, Trash2, Image } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import RichTextEditor from '@/components/ui/rich-text-editor';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/components/ui/form";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Loader2, Trash2, Search, Edit, Plus, Eye, ImageIcon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { formatDate } from "@/lib/utils";
+import { apiRequest } from "@/lib/queryClient";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { NewsPermissionField } from "./news-permission";
 
-// Schema cho form tin tức
+// Định nghĩa kiểu dữ liệu cho tin tức
+interface News {
+  id: number;
+  title: string;
+  slug: string;
+  summary: string;
+  content: string;
+  imageUrl: string | null;
+  is_published: boolean;
+  is_featured: boolean;
+  view_count: number;
+  period_id: number | null;
+  event_id: number | null;
+  figure_id: number | null;
+  site_id: number | null;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+// Schema cho form tạo/cập nhật tin tức
 const newsFormSchema = z.object({
-  title: z.string().min(1, { message: 'Tiêu đề không được để trống' }),
-  content: z.string().min(1, { message: 'Nội dung không được để trống' }),
-  summary: z.string().optional(),
-  imageUrl: z.string().optional(),
-  eventTypeId: z.string().optional(),
-  periodId: z.string().optional(),
-  eventId: z.string().optional(),
-  historicalFigureId: z.string().optional(),
-  historicalSiteId: z.string().optional(),
-  published: z.boolean().default(true),
+  title: z.string().min(1, { message: "Tiêu đề không được để trống" }),
+  slug: z.string().optional(),
+  summary: z.string().min(1, { message: "Tóm tắt không được để trống" }),
+  content: z.string().min(1, { message: "Nội dung không được để trống" }),
+  imageUrl: z.string().optional().nullable(),
+  is_published: z.boolean().default(false),
+  is_featured: z.boolean().default(false),
+  period_id: z.number().nullable().optional(),
+  event_id: z.number().nullable().optional(),
+  figure_id: z.number().nullable().optional(),
+  site_id: z.number().nullable().optional(),
 });
 
 type NewsFormValues = z.infer<typeof newsFormSchema>;
 
-// Hiển thị thời gian định dạng Việt Nam
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
-export default function NewsPage() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+const NewsPage: React.FC = () => {
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [status, setStatus] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedNewsId, setSelectedNewsId] = useState<number | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedNews, setSelectedNews] = useState<News | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  // Form cho thêm tin tức mới
-  const addForm = useForm<NewsFormValues>({
+  // Form tạo tin tức mới
+  const createForm = useForm<NewsFormValues>({
     resolver: zodResolver(newsFormSchema),
     defaultValues: {
-      title: '',
-      content: '',
-      summary: '',
-      imageUrl: '',
-      eventTypeId: '',
-      periodId: '',
-      eventId: '',
-      historicalFigureId: '',
-      historicalSiteId: '',
-      published: true,
+      title: "",
+      slug: "",
+      summary: "",
+      content: "",
+      imageUrl: null,
+      is_published: false,
+      is_featured: false,
+      period_id: null,
+      event_id: null,
+      figure_id: null,
+      site_id: null,
     },
   });
 
-  // Form cho chỉnh sửa tin tức
+  // Form cập nhật tin tức
   const editForm = useForm<NewsFormValues>({
     resolver: zodResolver(newsFormSchema),
     defaultValues: {
-      title: '',
-      content: '',
-      summary: '',
-      imageUrl: '',
-      eventTypeId: '',
-      periodId: '',
-      eventId: '',
-      historicalFigureId: '',
-      historicalSiteId: '',
-      published: true,
+      title: "",
+      slug: "",
+      summary: "",
+      content: "",
+      imageUrl: null,
+      is_published: false,
+      is_featured: false,
+      period_id: null,
+      event_id: null,
+      figure_id: null,
+      site_id: null,
     },
   });
 
   // Query lấy danh sách tin tức
-  const { data: newsData, isLoading: isLoadingNews } = useQuery<any[]>({
-    queryKey: ['/api/admin/news'],
+  const {
+    data: newsData,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["/api/admin/news", page, limit, status, searchQuery],
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/admin/news');
-      const data = await response.json();
-      return data;
-    },
-  });
-
-  // Query lấy danh sách loại sự kiện
-  const { data: eventTypes, isLoading: isLoadingEventTypes } = useQuery<any[]>({
-    queryKey: ['/api/admin/event-types'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/admin/event-types');
-      const data = await response.json();
-      return data;
-    },
-  });
-
-  // Query lấy danh sách thời kỳ
-  const { data: periods, isLoading: isLoadingPeriods } = useQuery<any[]>({
-    queryKey: ['/api/admin/periods'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/admin/periods');
-      const data = await response.json();
-      return data;
-    },
-  });
-
-  // Query lấy danh sách sự kiện
-  const { data: events, isLoading: isLoadingEvents } = useQuery<any[]>({
-    queryKey: ['/api/admin/events'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/admin/events');
-      const data = await response.json();
-      return data;
-    },
-  });
-
-  // Query lấy danh sách nhân vật lịch sử
-  const { data: historicalFigures, isLoading: isLoadingFigures } = useQuery<any[]>({
-    queryKey: ['/api/admin/historical-figures'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/admin/historical-figures');
-      const data = await response.json();
-      return data;
-    },
-  });
-
-  // Query lấy danh sách di tích lịch sử
-  const { data: historicalSites, isLoading: isLoadingSites } = useQuery<any[]>({
-    queryKey: ['/api/admin/historical-sites'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/admin/historical-sites');
-      const data = await response.json();
-      return data;
-    },
-  });
-
-  // Lấy thông tin chi tiết của tin tức cần chỉnh sửa
-  const { data: selectedNews, isLoading: isLoadingSelectedNews } = useQuery<any>({
-    queryKey: ['/api/admin/news', selectedNewsId],
-    queryFn: async () => {
-      if (!selectedNewsId) return null;
-      const response = await apiRequest('GET', `/api/admin/news/${selectedNewsId}`);
-      const data = await response.json();
-      return data;
-    },
-    enabled: !!selectedNewsId,
-  });
-
-  // Mutation thêm tin tức mới
-  const addNewsMutation = useMutation({
-    mutationFn: async (data: NewsFormValues) => {
-      const formData = new FormData();
-      
-      // Thêm các trường dữ liệu vào FormData
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, value.toString());
-        }
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        status,
+        search: searchQuery,
       });
-      
-      // Thêm file ảnh nếu có
-      if (imageFile) {
-        formData.append('image', imageFile);
-      }
-      
-      const response = await apiRequest('POST', '/api/admin/news', null, { body: formData, isFormData: true });
-      return await response.json();
+      const response = await apiRequest(
+        "GET",
+        `/api/admin/news?${params.toString()}`
+      );
+      return response.json();
+    },
+  });
+
+  // Queries để lấy dữ liệu cho các dropdown
+  const { data: periodsData } = useQuery({
+    queryKey: ["/api/periods"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/periods");
+      return response.json();
+    },
+  });
+
+  const { data: eventsData } = useQuery({
+    queryKey: ["/api/events"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/events");
+      return response.json();
+    },
+  });
+
+  const { data: figuresData } = useQuery({
+    queryKey: ["/api/historical-figures"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/historical-figures");
+      return response.json();
+    },
+  });
+
+  const { data: sitesData } = useQuery({
+    queryKey: ["/api/historical-sites"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/historical-sites");
+      return response.json();
+    },
+  });
+
+  // Mutation để tạo tin tức mới
+  const createNewsMutation = useMutation({
+    mutationFn: async (data: NewsFormValues) => {
+      const response = await apiRequest("POST", "/api/admin/news", data);
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/news'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/news"] });
       toast({
-        title: 'Thành công',
-        description: 'Đã thêm tin tức mới',
+        title: "Thành công",
+        description: "Đã tạo tin tức mới",
       });
-      setIsAddDialogOpen(false);
-      addForm.reset();
-      setImageFile(null);
+      setIsCreateDialogOpen(false);
+      createForm.reset();
+      setImagePreview(null);
     },
-    onError: (error: Error) => {
+    onError: (error) => {
       toast({
-        title: 'Lỗi',
-        description: `Không thể thêm tin tức: ${error.message}`,
-        variant: 'destructive',
+        title: "Lỗi",
+        description: `Không thể tạo tin tức: ${error.message}`,
+        variant: "destructive",
       });
     },
   });
 
-  // Mutation cập nhật tin tức
+  // Mutation để cập nhật tin tức
   const updateNewsMutation = useMutation({
-    mutationFn: async (data: NewsFormValues) => {
-      const formData = new FormData();
-      
-      // Thêm các trường dữ liệu vào FormData
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, value.toString());
-        }
-      });
-      
-      // Thêm file ảnh nếu có
-      if (imageFile) {
-        formData.append('image', imageFile);
-      }
-      
-      const response = await apiRequest('PUT', `/api/admin/news/${selectedNewsId}`, null, { body: formData, isFormData: true });
-      return await response.json();
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: NewsFormValues;
+    }) => {
+      const response = await apiRequest("PUT", `/api/admin/news/${id}`, data);
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/news'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/news"] });
       toast({
-        title: 'Thành công',
-        description: 'Đã cập nhật tin tức',
+        title: "Thành công",
+        description: "Đã cập nhật tin tức",
       });
       setIsEditDialogOpen(false);
+      setSelectedNews(null);
       editForm.reset();
-      setSelectedNewsId(null);
-      setImageFile(null);
+      setImagePreview(null);
     },
-    onError: (error: Error) => {
+    onError: (error) => {
       toast({
-        title: 'Lỗi',
+        title: "Lỗi",
         description: `Không thể cập nhật tin tức: ${error.message}`,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
 
-  // Mutation xóa tin tức
+  // Mutation để xóa tin tức
   const deleteNewsMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest('DELETE', `/api/admin/news/${selectedNewsId}`);
-      return await response.json();
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/admin/news/${id}`);
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/news'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/news"] });
       toast({
-        title: 'Thành công',
-        description: 'Đã xóa tin tức',
+        title: "Thành công",
+        description: "Đã xóa tin tức",
       });
       setIsDeleteDialogOpen(false);
-      setSelectedNewsId(null);
+      setSelectedNews(null);
     },
-    onError: (error: Error) => {
+    onError: (error) => {
       toast({
-        title: 'Lỗi',
+        title: "Lỗi",
         description: `Không thể xóa tin tức: ${error.message}`,
-        variant: 'destructive',
+        variant: "destructive",
       });
     },
   });
 
-  // Upload ảnh
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, formType: 'add' | 'edit') => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      // Cập nhật trường imageUrl trong form với tên file để hiển thị
-      if (formType === 'add') {
-        addForm.setValue('imageUrl', file.name);
-      } else {
-        editForm.setValue('imageUrl', file.name);
-      }
+  // Sử dụng để tải lại dữ liệu khi các tham số thay đổi
+  useEffect(() => {
+    refetch();
+  }, [page, limit, status, searchQuery, refetch]);
+
+  // Reset form khi mở dialog tạo mới
+  useEffect(() => {
+    if (isCreateDialogOpen) {
+      createForm.reset({
+        title: "",
+        slug: "",
+        summary: "",
+        content: "",
+        imageUrl: null,
+        is_published: false,
+        is_featured: false,
+        period_id: null,
+        event_id: null,
+        figure_id: null,
+        site_id: null,
+      });
+      setImagePreview(null);
     }
-  };
+  }, [isCreateDialogOpen, createForm]);
 
-  // Mở form chỉnh sửa và điền thông tin
-  const handleEditNews = (newsId: number) => {
-    setSelectedNewsId(newsId);
-    setIsEditDialogOpen(true);
-  };
-
-  // Điền thông tin vào form chỉnh sửa khi có dữ liệu
-  React.useEffect(() => {
+  // Điền dữ liệu vào form khi chọn tin tức để chỉnh sửa
+  useEffect(() => {
     if (selectedNews && isEditDialogOpen) {
-      editForm.setValue('title', selectedNews.title);
-      editForm.setValue('content', selectedNews.content);
-      editForm.setValue('summary', selectedNews.summary || '');
-      editForm.setValue('imageUrl', selectedNews.imageUrl || '');
-      editForm.setValue('eventTypeId', selectedNews.eventTypeId ? String(selectedNews.eventTypeId) : '');
-      editForm.setValue('periodId', selectedNews.periodId ? String(selectedNews.periodId) : '');
-      editForm.setValue('eventId', selectedNews.eventId ? String(selectedNews.eventId) : '');
-      editForm.setValue('historicalFigureId', selectedNews.historicalFigureId ? String(selectedNews.historicalFigureId) : '');
-      editForm.setValue('historicalSiteId', selectedNews.historicalSiteId ? String(selectedNews.historicalSiteId) : '');
-      editForm.setValue('published', selectedNews.published);
+      editForm.reset({
+        title: selectedNews.title,
+        slug: selectedNews.slug,
+        summary: selectedNews.summary || "",
+        content: selectedNews.content,
+        imageUrl: selectedNews.imageUrl,
+        is_published: selectedNews.is_published,
+        is_featured: selectedNews.is_featured,
+        period_id: selectedNews.period_id,
+        event_id: selectedNews.event_id,
+        figure_id: selectedNews.figure_id,
+        site_id: selectedNews.site_id,
+      });
+      setImagePreview(selectedNews.imageUrl);
     }
   }, [selectedNews, isEditDialogOpen, editForm]);
 
-  // Lọc tin tức theo từ khóa tìm kiếm
-  const filteredNews = React.useMemo(() => {
-    if (!newsData) return [];
+  // Hàm xử lý khi submit form tạo tin tức
+  const handleCreateSubmit = (data: NewsFormValues) => {
+    createNewsMutation.mutate(data);
+  };
+
+  // Hàm xử lý khi submit form cập nhật tin tức
+  const handleEditSubmit = (data: NewsFormValues) => {
+    if (selectedNews) {
+      updateNewsMutation.mutate({ id: selectedNews.id, data });
+    }
+  };
+
+  // Hàm xử lý khi xác nhận xóa tin tức
+  const handleDeleteConfirm = () => {
+    if (selectedNews) {
+      deleteNewsMutation.mutate(selectedNews.id);
+    }
+  };
+
+  // Hàm xử lý upload hình ảnh
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, formType: 'create' | 'edit') => {
+    const form = formType === 'create' ? createForm : editForm;
     
-    return newsData.filter(news => 
-      news.title.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [newsData, searchQuery]);
-
-  // Xử lý khi submit form thêm mới
-  const onAddSubmit = (values: NewsFormValues) => {
-    addNewsMutation.mutate(values);
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    
+    // Kiểm tra loại file
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Lỗi",
+        description: "Chỉ chấp nhận file hình ảnh",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Kiểm tra kích thước file (tối đa 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Lỗi",
+        description: "Kích thước file không được vượt quá 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      setUploadingImage(true);
+      
+      // Tạo FormData để upload
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      // Gọi API upload
+      const response = await fetch('/api/admin/news/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Không thể upload hình ảnh');
+      }
+      
+      const data = await response.json();
+      
+      // Cập nhật form với URL hình ảnh mới
+      form.setValue('imageUrl', data.url);
+      setImagePreview(data.url);
+      
+      toast({
+        title: "Thành công",
+        description: "Đã upload hình ảnh",
+      });
+    } catch (error) {
+      toast({
+        title: "Lỗi",
+        description: `Không thể upload hình ảnh: ${error instanceof Error ? error.message : 'Lỗi không xác định'}`,
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
-  // Xử lý khi submit form chỉnh sửa
-  const onEditSubmit = (values: NewsFormValues) => {
-    updateNewsMutation.mutate(values);
+  // Hàm xóa hình ảnh
+  const handleRemoveImage = (formType: 'create' | 'edit') => {
+    const form = formType === 'create' ? createForm : editForm;
+    form.setValue('imageUrl', null);
+    setImagePreview(null);
   };
 
-  return (
-    <AdminLayout title="Quản lý tin tức">
+  // Xử lý khi nhập vào ô tìm kiếm
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Xử lý khi nhấn Enter trong ô tìm kiếm
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      refetch();
+    }
+  };
+
+  // Tạo các trang cho phân trang
+  const renderPagination = () => {
+    if (!newsData || !newsData.total) return null;
+
+    const totalPages = Math.ceil(newsData.total / limit);
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage + 1 < maxPagesToShow && startPage > 1) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    const pageItems = [];
+    for (let i = startPage; i <= endPage; i++) {
+      pageItems.push(
+        <PaginationItem key={i}>
+          <PaginationLink
+            onClick={() => setPage(i)}
+            isActive={page === i}
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return (
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => setPage((old) => Math.max(1, old - 1))}
+              disabled={page === 1}
+            />
+          </PaginationItem>
+          {startPage > 1 && (
+            <>
+              <PaginationItem>
+                <PaginationLink onClick={() => setPage(1)}>1</PaginationLink>
+              </PaginationItem>
+              {startPage > 2 && (
+                <PaginationItem>
+                  <PaginationLink disabled>...</PaginationLink>
+                </PaginationItem>
+              )}
+            </>
+          )}
+          {pageItems}
+          {endPage < totalPages && (
+            <>
+              {endPage < totalPages - 1 && (
+                <PaginationItem>
+                  <PaginationLink disabled>...</PaginationLink>
+                </PaginationItem>
+              )}
+              <PaginationItem>
+                <PaginationLink onClick={() => setPage(totalPages)}>
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            </>
+          )}
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => setPage((old) => Math.min(totalPages, old + 1))}
+              disabled={page === totalPages}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    );
+  };
+
+  const imageUploadField = (formType: 'create' | 'edit') => {
+    const form = formType === 'create' ? createForm : editForm;
+    
+    return (
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
+        <FormLabel>Hình ảnh đại diện</FormLabel>
+        <div className="flex flex-col space-y-2">
+          {imagePreview ? (
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Tìm kiếm tin tức..."
-                className="pl-8 w-[300px]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="w-full max-h-[200px] object-cover rounded-md" 
+              />
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="absolute top-2 right-2"
+                onClick={() => handleRemoveImage(formType)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="border-2 border-dashed border-gray-300 p-4 rounded-md flex flex-col items-center justify-center h-[150px]">
+              <ImageIcon className="h-10 w-10 text-gray-400 mb-2" />
+              <p className="text-sm text-gray-500">Chưa có hình ảnh</p>
+            </div>
+          )}
+          
+          <div className="flex space-x-2">
+            <Input
+              type="file"
+              id={`image-upload-${formType}`}
+              accept="image/*"
+              onChange={(e) => handleImageUpload(e, formType)}
+              disabled={uploadingImage}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => document.getElementById(`image-upload-${formType}`)?.click()}
+              disabled={uploadingImage}
+              className="w-full"
+            >
+              {uploadingImage ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang tải lên...
+                </>
+              ) : (
+                <>Chọn hình ảnh</>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Form tạo tin tức mới
+  const createNewsForm = (
+    <Form {...createForm}>
+      <form onSubmit={createForm.handleSubmit(handleCreateSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <FormField
+              control={createForm.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tiêu đề</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nhập tiêu đề tin tức" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={createForm.control}
+              name="slug"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Slug (tùy chọn)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Tự động tạo từ tiêu đề nếu để trống"
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={createForm.control}
+              name="summary"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tóm tắt</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nhập tóm tắt tin tức" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={createForm.control}
+                name="is_published"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Xuất bản</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={createForm.control}
+                name="is_featured"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Nổi bật</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <FormField
+                control={createForm.control}
+                name="period_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Thời kỳ liên quan</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      value={field.value?.toString() || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn thời kỳ" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Không có</SelectItem>
+                        {periodsData?.map((period: any) => (
+                          <SelectItem key={period.id} value={period.id.toString()}>
+                            {period.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={createForm.control}
+                name="event_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sự kiện liên quan</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      value={field.value?.toString() || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn sự kiện" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Không có</SelectItem>
+                        {eventsData?.map((event: any) => (
+                          <SelectItem key={event.id} value={event.id.toString()}>
+                            {event.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={createForm.control}
+                name="figure_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nhân vật liên quan</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      value={field.value?.toString() || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn nhân vật" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Không có</SelectItem>
+                        {figuresData?.map((figure: any) => (
+                          <SelectItem key={figure.id} value={figure.id.toString()}>
+                            {figure.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={createForm.control}
+                name="site_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Di tích liên quan</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      value={field.value?.toString() || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn di tích" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Không có</SelectItem>
+                        {sitesData?.map((site: any) => (
+                          <SelectItem key={site.id} value={site.id.toString()}>
+                            {site.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
           </div>
-          <Button onClick={() => setIsAddDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Thêm tin tức
-          </Button>
+
+          <div className="space-y-6">
+            {imageUploadField('create')}
+
+            <FormField
+              control={createForm.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nội dung</FormLabel>
+                  <FormControl>
+                    <RichTextEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                      uploadPath="/api/admin/news/upload"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
-        {isLoadingNews ? (
-          <div className="flex justify-center items-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredNews.map((news) => (
-              <Card key={news.id} className="overflow-hidden">
-                <CardHeader className="p-0">
-                  {news.imageUrl && (
-                    <div className="h-40 overflow-hidden">
-                      <img 
-                        src={news.imageUrl} 
-                        alt={news.title} 
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://placehold.co/600x400?text=Không+có+ảnh';
-                        }}
-                      />
-                    </div>
-                  )}
-                  {!news.imageUrl && (
-                    <div className="h-40 bg-muted flex items-center justify-center">
-                      <Image className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  )}
-                </CardHeader>
-                <CardContent className="p-4 space-y-2">
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg line-clamp-2">{news.title}</CardTitle>
-                    <Badge variant={news.published ? "default" : "outline"}>
-                      {news.published ? "Đã đăng" : "Nháp"}
-                    </Badge>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Ngày tạo: {formatDate(news.createdAt)}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Lượt xem: {news.viewCount || 0}
-                  </div>
-                  {news.summary && (
-                    <p className="text-sm line-clamp-3">{news.summary}</p>
-                  )}
-                </CardContent>
-                <CardFooter className="flex justify-end gap-2 p-4 pt-0">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditNews(news.id)}
-                  >
-                    <PenLine className="h-4 w-4 mr-1" /> Sửa
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedNewsId(news.id);
-                      setIsDeleteDialogOpen(true);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" /> Xóa
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-            {filteredNews.length === 0 && (
-              <div className="col-span-full py-8 text-center text-muted-foreground">
-                Không tìm thấy tin tức nào
-              </div>
+        <DialogFooter>
+          <Button
+            type="submit"
+            disabled={createNewsMutation.isPending}
+            className="w-[150px]"
+          >
+            {createNewsMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Đang tạo...
+              </>
+            ) : (
+              "Tạo tin tức"
             )}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
+  );
+
+  // Form chỉnh sửa tin tức
+  const editNewsForm = (
+    <Form {...editForm}>
+      <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <FormField
+              control={editForm.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tiêu đề</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nhập tiêu đề tin tức" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={editForm.control}
+              name="slug"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Slug</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Tự động tạo từ tiêu đề nếu để trống"
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={editForm.control}
+              name="summary"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tóm tắt</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nhập tóm tắt tin tức" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={editForm.control}
+                name="is_published"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Xuất bản</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="is_featured"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Nổi bật</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <FormField
+                control={editForm.control}
+                name="period_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Thời kỳ liên quan</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      value={field.value?.toString() || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn thời kỳ" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Không có</SelectItem>
+                        {periodsData?.map((period: any) => (
+                          <SelectItem key={period.id} value={period.id.toString()}>
+                            {period.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="event_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sự kiện liên quan</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      value={field.value?.toString() || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn sự kiện" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Không có</SelectItem>
+                        {eventsData?.map((event: any) => (
+                          <SelectItem key={event.id} value={event.id.toString()}>
+                            {event.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="figure_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nhân vật liên quan</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      value={field.value?.toString() || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn nhân vật" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Không có</SelectItem>
+                        {figuresData?.map((figure: any) => (
+                          <SelectItem key={figure.id} value={figure.id.toString()}>
+                            {figure.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="site_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Di tích liên quan</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      value={field.value?.toString() || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn di tích" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Không có</SelectItem>
+                        {sitesData?.map((site: any) => (
+                          <SelectItem key={site.id} value={site.id.toString()}>
+                            {site.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {imageUploadField('edit')}
+
+            <FormField
+              control={editForm.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nội dung</FormLabel>
+                  <FormControl>
+                    <RichTextEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                      uploadPath="/api/admin/news/upload"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button
+            type="submit"
+            disabled={updateNewsMutation.isPending}
+            className="w-[150px]"
+          >
+            {updateNewsMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Đang cập nhật...
+              </>
+            ) : (
+              "Cập nhật"
+            )}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
+  );
+
+  return (
+    <AdminLayout>
+      <div className="container mx-auto py-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Quản lý tin tức</h1>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Tạo tin tức mới
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Tạo tin tức mới</DialogTitle>
+              </DialogHeader>
+              {createNewsForm}
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+              <Input
+                placeholder="Tìm kiếm tin tức..."
+                className="pl-8 md:w-[300px]"
+                value={searchQuery}
+                onChange={handleSearchInputChange}
+                onKeyDown={handleSearchKeyDown}
+              />
+            </div>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả</SelectItem>
+                <SelectItem value="published">Đã xuất bản</SelectItem>
+                <SelectItem value="draft">Bản nháp</SelectItem>
+                <SelectItem value="featured">Nổi bật</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Hiển thị</span>
+            <Select value={limit.toString()} onValueChange={(value) => setLimit(parseInt(value))}>
+              <SelectTrigger className="w-[80px]">
+                <SelectValue placeholder="10" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5</SelectItem>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-gray-500">tin tức mỗi trang</span>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : isError ? (
+          <div className="flex justify-center items-center h-64 text-red-500">
+            Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.
+          </div>
+        ) : newsData && newsData.data && newsData.data.length > 0 ? (
+          <>
+            <div className="rounded-md border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>Tiêu đề</TableHead>
+                    <TableHead className="hidden md:table-cell">Trạng thái</TableHead>
+                    <TableHead className="hidden lg:table-cell">Lượt xem</TableHead>
+                    <TableHead className="hidden lg:table-cell">Ngày tạo</TableHead>
+                    <TableHead className="text-right">Thao tác</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {newsData.data.map((item: News) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.id}</TableCell>
+                      <TableCell>
+                        <div className="font-medium">{item.title}</div>
+                        <div className="text-sm text-gray-500 truncate max-w-[200px]">
+                          {item.summary}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <div className="flex flex-wrap gap-1">
+                          {item.is_published ? (
+                            <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
+                              Đã xuất bản
+                            </span>
+                          ) : (
+                            <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-0.5 rounded">
+                              Bản nháp
+                            </span>
+                          )}
+                          {item.is_featured && (
+                            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">
+                              Nổi bật
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {item.view_count}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {formatDate(item.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          {item.is_published && (
+                            <a
+                              href={`/news/${item.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-gray-500 transition-colors hover:bg-gray-50"
+                            >
+                              <Eye className="h-4 w-4" />
+                              <span className="sr-only">Xem</span>
+                            </a>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setSelectedNews(item);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Sửa</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setSelectedNews(item);
+                              setIsDeleteDialogOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Xóa</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="mt-4 flex justify-center">
+              {renderPagination()}
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-64 p-4 text-center">
+            <div className="text-3xl font-semibold text-gray-400 mb-2">
+              Không có tin tức nào
+            </div>
+            <p className="text-gray-500 mb-4">
+              Bạn chưa tạo tin tức nào. Hãy bắt đầu bằng cách tạo tin tức mới.
+            </p>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Tạo tin tức đầu tiên
+            </Button>
           </div>
         )}
       </div>
 
-      {/* Dialog thêm tin tức mới */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <DialogTitle>Thêm tin tức mới</DialogTitle>
-            <DialogDescription>
-              Nhập thông tin chi tiết về tin tức mới.
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="flex-1 overflow-auto">
-            <div className="p-1">
-              <Form {...addForm}>
-                <form onSubmit={addForm.handleSubmit(onAddSubmit)} className="space-y-4">
-                  <FormField
-                    control={addForm.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tiêu đề *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Nhập tiêu đề tin tức" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={addForm.control}
-                    name="summary"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tóm tắt</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Nhập tóm tắt ngắn về tin tức"
-                            className="resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Tóm tắt ngắn gọn về nội dung tin tức (không bắt buộc).
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={addForm.control}
-                    name="content"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nội dung chi tiết *</FormLabel>
-                        <FormControl>
-                          <RichTextEditor 
-                            value={field.value} 
-                            onChange={field.onChange}
-                            placeholder="Nhập nội dung chi tiết của tin tức..." 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={addForm.control}
-                      name="imageUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Hình ảnh đại diện</FormLabel>
-                          <div className="flex space-x-2">
-                            <Input 
-                              placeholder="URL hình ảnh hoặc tải lên" 
-                              {...field} 
-                              className="flex-1"
-                            />
-                            <label className="cursor-pointer">
-                              <div className="px-3 h-10 py-2 bg-secondary text-secondary-foreground rounded-md flex items-center text-sm font-medium">
-                                Tải lên
-                              </div>
-                              <Input 
-                                type="file" 
-                                className="hidden" 
-                                accept="image/*"
-                                onChange={(e) => handleImageUpload(e, 'add')} 
-                              />
-                            </label>
-                          </div>
-                          <FormDescription>
-                            Nhập URL hình ảnh hoặc tải lên từ máy tính.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={addForm.control}
-                      name="eventTypeId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Loại sự kiện</FormLabel>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Chọn loại sự kiện" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="">Không có</SelectItem>
-                              {eventTypes?.map((type) => (
-                                <SelectItem key={type.id} value={type.id.toString()}>
-                                  {type.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormDescription>
-                            Loại sự kiện liên quan đến tin tức (không bắt buộc).
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={addForm.control}
-                      name="periodId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Thời kỳ liên quan</FormLabel>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Chọn thời kỳ" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="">Không có</SelectItem>
-                              {periods?.map((period) => (
-                                <SelectItem key={period.id} value={period.id.toString()}>
-                                  {period.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={addForm.control}
-                      name="eventId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Sự kiện liên quan</FormLabel>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Chọn sự kiện" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="">Không có</SelectItem>
-                              {events?.map((event) => (
-                                <SelectItem key={event.id} value={event.id.toString()}>
-                                  {event.title}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={addForm.control}
-                      name="historicalFigureId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nhân vật lịch sử liên quan</FormLabel>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Chọn nhân vật" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="">Không có</SelectItem>
-                              {historicalFigures?.map((figure) => (
-                                <SelectItem key={figure.id} value={figure.id.toString()}>
-                                  {figure.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={addForm.control}
-                      name="historicalSiteId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Di tích lịch sử liên quan</FormLabel>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Chọn di tích" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="">Không có</SelectItem>
-                              {historicalSites?.map((site) => (
-                                <SelectItem key={site.id} value={site.id.toString()}>
-                                  {site.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={addForm.control}
-                    name="published"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">Trạng thái xuất bản</FormLabel>
-                          <FormDescription>
-                            Chọn trạng thái xuất bản cho tin tức này.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <DialogFooter>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsAddDialogOpen(false)}
-                    >
-                      Hủy
-                    </Button>
-                    <Button type="submit" disabled={addNewsMutation.isPending}>
-                      {addNewsMutation.isPending && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Thêm tin tức
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
-
       {/* Dialog chỉnh sửa tin tức */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Chỉnh sửa tin tức</DialogTitle>
-            <DialogDescription>
-              Chỉnh sửa thông tin chi tiết về tin tức.
-            </DialogDescription>
           </DialogHeader>
-          
-          {isLoadingSelectedNews ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            <ScrollArea className="flex-1 overflow-auto">
-              <div className="p-1">
-                <Form {...editForm}>
-                  <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
-                    <FormField
-                      control={editForm.control}
-                      name="title"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tiêu đề *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Nhập tiêu đề tin tức" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={editForm.control}
-                      name="summary"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tóm tắt</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Nhập tóm tắt ngắn về tin tức"
-                              className="resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Tóm tắt ngắn gọn về nội dung tin tức (không bắt buộc).
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={editForm.control}
-                      name="content"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Nội dung chi tiết *</FormLabel>
-                          <FormControl>
-                            <RichTextEditor 
-                              value={field.value} 
-                              onChange={field.onChange}
-                              placeholder="Nhập nội dung chi tiết của tin tức..." 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={editForm.control}
-                        name="imageUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Hình ảnh đại diện</FormLabel>
-                            <div className="flex space-x-2">
-                              <Input 
-                                placeholder="URL hình ảnh hoặc tải lên" 
-                                {...field} 
-                                className="flex-1"
-                              />
-                              <label className="cursor-pointer">
-                                <div className="px-3 h-10 py-2 bg-secondary text-secondary-foreground rounded-md flex items-center text-sm font-medium">
-                                  Tải lên
-                                </div>
-                                <Input 
-                                  type="file" 
-                                  className="hidden" 
-                                  accept="image/*"
-                                  onChange={(e) => handleImageUpload(e, 'edit')} 
-                                />
-                              </label>
-                            </div>
-                            <FormDescription>
-                              Nhập URL hình ảnh hoặc tải lên từ máy tính.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={editForm.control}
-                        name="eventTypeId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Loại sự kiện</FormLabel>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn loại sự kiện" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="">Không có</SelectItem>
-                                {eventTypes?.map((type) => (
-                                  <SelectItem key={type.id} value={type.id.toString()}>
-                                    {type.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormDescription>
-                              Loại sự kiện liên quan đến tin tức (không bắt buộc).
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={editForm.control}
-                        name="periodId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Thời kỳ liên quan</FormLabel>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn thời kỳ" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="">Không có</SelectItem>
-                                {periods?.map((period) => (
-                                  <SelectItem key={period.id} value={period.id.toString()}>
-                                    {period.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={editForm.control}
-                        name="eventId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Sự kiện liên quan</FormLabel>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn sự kiện" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="">Không có</SelectItem>
-                                {events?.map((event) => (
-                                  <SelectItem key={event.id} value={event.id.toString()}>
-                                    {event.title}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={editForm.control}
-                        name="historicalFigureId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nhân vật lịch sử liên quan</FormLabel>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn nhân vật" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="">Không có</SelectItem>
-                                {historicalFigures?.map((figure) => (
-                                  <SelectItem key={figure.id} value={figure.id.toString()}>
-                                    {figure.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={editForm.control}
-                        name="historicalSiteId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Di tích lịch sử liên quan</FormLabel>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn di tích" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="">Không có</SelectItem>
-                                {historicalSites?.map((site) => (
-                                  <SelectItem key={site.id} value={site.id.toString()}>
-                                    {site.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <FormField
-                      control={editForm.control}
-                      name="published"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">Trạng thái xuất bản</FormLabel>
-                            <FormDescription>
-                              Chọn trạng thái xuất bản cho tin tức này.
-                            </FormDescription>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <DialogFooter>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsEditDialogOpen(false)}
-                      >
-                        Hủy
-                      </Button>
-                      <Button type="submit" disabled={updateNewsMutation.isPending}>
-                        {updateNewsMutation.isPending && (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        )}
-                        Lưu thay đổi
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </div>
-            </ScrollArea>
-          )}
+          {editNewsForm}
         </DialogContent>
       </Dialog>
 
-      {/* Dialog xác nhận xóa tin tức */}
+      {/* Dialog xác nhận xóa */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn xóa tin tức này? Hành động này không thể hoàn tác.
-            </DialogDescription>
+            <DialogTitle>Xác nhận xóa tin tức</DialogTitle>
           </DialogHeader>
+          <div className="py-4">
+            <p>
+              Bạn có chắc chắn muốn xóa tin tức "{selectedNews?.title}"? Hành động này
+              không thể hoàn tác.
+            </p>
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Hủy
-            </Button>
+            <DialogClose asChild>
+              <Button variant="outline">Hủy</Button>
+            </DialogClose>
             <Button
               variant="destructive"
-              onClick={() => deleteNewsMutation.mutate()}
+              onClick={handleDeleteConfirm}
               disabled={deleteNewsMutation.isPending}
             >
-              {deleteNewsMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {deleteNewsMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xóa...
+                </>
+              ) : (
+                "Xóa"
               )}
-              Xóa
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </AdminLayout>
   );
-}
+};
+
+export default NewsPage;
