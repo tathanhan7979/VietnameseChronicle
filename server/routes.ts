@@ -360,6 +360,231 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Phục vụ thư mục uploads qua URL /uploads
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+  
+  // API quản lý người dùng
+  // Lấy danh sách người dùng (chỉ admin)
+  app.get(
+    `${apiPrefix}/admin/users`,
+    requireAuth,
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const users = await storage.getAllUsers();
+        res.json(users);
+      } catch (error) {
+        console.error("Error getting users:", error);
+        res.status(500).json({ 
+          success: false, 
+          message: "Lỗi khi lấy danh sách người dùng" 
+        });
+      }
+    }
+  );
+  
+  // Tạo người dùng mới (chỉ admin)
+  app.post(
+    `${apiPrefix}/admin/users`,
+    requireAuth,
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const userData = req.body;
+        
+        // Kiểm tra dữ liệu cơ bản
+        if (!userData.username || !userData.password) {
+          return res.status(400).json({
+            success: false,
+            message: "Thiếu thông tin tài khoản hoặc mật khẩu"
+          });
+        }
+        
+        // Kiểm tra tên đăng nhập đã tồn tại chưa
+        const existingUser = await storage.getUserByUsername(userData.username);
+        if (existingUser) {
+          return res.status(400).json({
+            success: false,
+            message: "Tên đăng nhập đã tồn tại"
+          });
+        }
+        
+        // Hash mật khẩu
+        userData.password = await hashPassword(userData.password);
+        
+        // Tạo người dùng mới
+        const newUser = await storage.createUser(userData);
+        
+        // Loại bỏ password từ kết quả trả về
+        if (newUser) {
+          const { password, ...userWithoutPassword } = newUser;
+          res.status(201).json({
+            success: true,
+            message: "Tạo người dùng thành công",
+            user: userWithoutPassword
+          });
+        } else {
+          throw new Error("Không thể tạo người dùng");
+        }
+      } catch (error) {
+        console.error("Error creating user:", error);
+        res.status(500).json({
+          success: false,
+          message: "Lỗi khi tạo người dùng mới"
+        });
+      }
+    }
+  );
+  
+  // Lấy thông tin người dùng theo ID (chỉ admin)
+  app.get(
+    `${apiPrefix}/admin/users/:id`,
+    requireAuth,
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const userId = parseInt(req.params.id);
+        const user = await storage.getUserById(userId);
+        
+        if (!user) {
+          return res.status(404).json({
+            success: false,
+            message: "Không tìm thấy người dùng"
+          });
+        }
+        
+        // Loại bỏ password từ kết quả trả về
+        const { password, ...userWithoutPassword } = user;
+        res.json(userWithoutPassword);
+      } catch (error) {
+        console.error("Error getting user:", error);
+        res.status(500).json({
+          success: false,
+          message: "Lỗi khi lấy thông tin người dùng"
+        });
+      }
+    }
+  );
+  
+  // Cập nhật thông tin người dùng (chỉ admin)
+  app.put(
+    `${apiPrefix}/admin/users/:id`,
+    requireAuth,
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const userId = parseInt(req.params.id);
+        const userData = req.body;
+        const currentUser = req.user as User;
+        
+        // Kiểm tra xem người dùng có tồn tại không
+        const existingUser = await storage.getUserById(userId);
+        if (!existingUser) {
+          return res.status(404).json({
+            success: false,
+            message: "Không tìm thấy người dùng"
+          });
+        }
+        
+        // Không cho phép tự hạ quyền admin của chính mình
+        if (currentUser.id === userId && currentUser.isAdmin && userData.isAdmin === false) {
+          return res.status(403).json({
+            success: false,
+            message: "Không thể hạ quyền admin của chính mình"
+          });
+        }
+        
+        // Nếu thay đổi username, kiểm tra xem username mới đã tồn tại chưa
+        if (userData.username && userData.username !== existingUser.username) {
+          const userWithSameUsername = await storage.getUserByUsername(userData.username);
+          if (userWithSameUsername) {
+            return res.status(400).json({
+              success: false,
+              message: "Tên đăng nhập đã tồn tại"
+            });
+          }
+        }
+        
+        // Hash mật khẩu nếu có thay đổi
+        if (userData.password) {
+          userData.password = await hashPassword(userData.password);
+        }
+        
+        // Cập nhật thông tin người dùng
+        const updatedUser = await storage.updateUser(userId, userData);
+        
+        if (!updatedUser) {
+          return res.status(500).json({
+            success: false,
+            message: "Không thể cập nhật thông tin người dùng"
+          });
+        }
+        
+        // Loại bỏ password từ kết quả trả về
+        const { password, ...userWithoutPassword } = updatedUser;
+        res.json({
+          success: true,
+          message: "Cập nhật thông tin người dùng thành công",
+          user: userWithoutPassword
+        });
+      } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({
+          success: false,
+          message: "Lỗi khi cập nhật thông tin người dùng"
+        });
+      }
+    }
+  );
+  
+  // Xóa người dùng (chỉ admin)
+  app.delete(
+    `${apiPrefix}/admin/users/:id`,
+    requireAuth,
+    requireAdmin,
+    async (req, res) => {
+      try {
+        const userId = parseInt(req.params.id);
+        const currentUser = req.user as User;
+        
+        // Không cho phép tự xóa tài khoản của chính mình
+        if (currentUser.id === userId) {
+          return res.status(403).json({
+            success: false,
+            message: "Không thể xóa tài khoản của chính mình"
+          });
+        }
+        
+        // Kiểm tra xem người dùng có tồn tại không
+        const existingUser = await storage.getUserById(userId);
+        if (!existingUser) {
+          return res.status(404).json({
+            success: false,
+            message: "Không tìm thấy người dùng"
+          });
+        }
+        
+        // Xóa người dùng
+        const deletedUser = await storage.deleteUser(userId);
+        
+        if (!deletedUser) {
+          return res.status(500).json({
+            success: false,
+            message: "Không thể xóa người dùng"
+          });
+        }
+        
+        res.json({
+          success: true,
+          message: "Xóa người dùng thành công"
+        });
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({
+          success: false,
+          message: "Lỗi khi xóa người dùng"
+        });
+      }
+    }
+  );
 
   // Sử dụng hàm deleteFile đã được định nghĩa ở trên
 
