@@ -4,6 +4,7 @@ import HeroSection from "@/components/HeroSection";
 import TimelineSection from "@/components/TimelineSection";
 import HistoricalFiguresSection from "@/components/HistoricalFiguresSection";
 import HistoricalSitesSection from "@/components/HistoricalSitesSection";
+import NewsSection from "@/components/NewsSection";
 import SearchOverlay from "@/components/SearchOverlay";
 import Footer from "@/components/Footer";
 import {
@@ -163,6 +164,7 @@ export default function Home() {
       />
       <HistoricalFiguresSection figures={figures} periods={periods} />
       <HistoricalSitesSection sites={sites} />
+      <NewsSection />
       <Footer />
       <BackToTop />
 

@@ -25,6 +25,7 @@ import HistoricalSitesAdmin from "@/pages/admin/historical-sites";
 import FeedbackAdmin from "@/pages/admin/feedback";
 import SettingsAdmin from "@/pages/admin/settings";
 import UsersAdmin from "@/pages/admin/users";
+import NewsAdmin from "@/pages/admin/news";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
@@ -91,6 +92,11 @@ function Router() {
       <ProtectedRoute path="/admin/settings" 
         component={SettingsAdmin} 
         adminOnly={true} />
+        
+      {/* Quản lý tin tức - cần quyền "can_manage_news" */}
+      <ProtectedRoute path="/admin/news" 
+        component={NewsAdmin} 
+        requirePermission="news" />
       
       {/* Catch all route for 404 */}
       <Route component={NotFound} />
