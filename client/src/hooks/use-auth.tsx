@@ -59,7 +59,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Lưu token vào localStorage
       if (data.token) {
         localStorage.setItem("authToken", data.token);
-        // Cập nhật thông tin người dùng
+        // Cập nhật thông tin người dùng và đặt trực tiếp vào queryClient
+        if (data.user) {
+          queryClient.setQueryData(["/api/auth/user"], data.user);
+        }
+        
+        // Đồng thời refetch để đảm bảo
         refetch();
         
         toast({

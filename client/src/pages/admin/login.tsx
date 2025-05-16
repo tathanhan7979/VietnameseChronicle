@@ -36,7 +36,14 @@ export default function AdminLogin() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    loginMutation.mutate(data);
+    loginMutation.mutate(data, {
+      onSuccess: (data) => {
+        if (data.success && data.token) {
+          // Chuyển hướng đến trang admin sau khi đăng nhập thành công
+          window.location.href = "/admin";
+        }
+      }
+    });
   };
 
   // Nếu đã đăng nhập, chuyển hướng đến trang quản trị
