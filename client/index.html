@@ -111,18 +111,38 @@
     <script>
       // Kiểm tra lỗi MIME type và thử tải lại
       window.addEventListener('error', function(e) {
-        if (e.message && (e.message.includes('MIME type') || e.message.includes('module specifier')) && 
-            e.filename && e.filename.includes('main')) {
+        console.log('Lỗi tải trang:', e.message);
+        if ((e.message && (e.message.includes('MIME type') || e.message.includes('module specifier') || e.message.includes('Failed to fetch'))) && 
+            (e.filename && e.filename.includes('main') || !e.filename)) {
           console.log('Phát hiện lỗi tải module, thử tải lại script...');
+          // Thêm timestamp để tránh cache
+          const timestamp = Date.now();
           setTimeout(function() {
             const script = document.createElement('script');
             script.type = 'module';
-            script.src = '/src/main.tsx?v=' + Date.now();
+            script.setAttribute('crossorigin', 'anonymous');
+            script.src = '/src/main.tsx?v=' + timestamp;
             document.body.appendChild(script);
-          }, 500);
+          }, 1000);
         }
       }, true);
+      
+      // Sao lưu phương thức fetch
+      const originalFetch = window.fetch;
+      // Ghi đè phương thức fetch để xử lý lỗi MIME type
+      window.fetch = function(url, options) {
+        return originalFetch(url, options)
+          .catch(error => {
+            console.error('Lỗi khi fetch:', url, error);
+            // Nếu là lỗi MIME type, thử lại với tham số cache-busting
+            if (error.message && error.message.includes('MIME type')) {
+              const bustCache = url.includes('?') ? '&_cb=' + Date.now() : '?_cb=' + Date.now();
+              return originalFetch(url + bustCache, options);
+            }
+            throw error;
+          });
+      };
     </script>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx?v=20250516"></script>
   </body>
 </html>

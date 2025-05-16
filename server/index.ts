@@ -18,25 +18,33 @@ app.use(compression());
 app.use((req, res, next) => {
   const url = req.url;
   
+  // Debug log
+  if (url.includes('main.tsx') || url.includes('/src/') || url.includes('.js') || url.includes('.ts')) {
+    console.log(`Serving URL: ${url}`);
+  }
+  
   // Xử lý các file JavaScript module
-  if (url.endsWith('.js') || url.endsWith('.mjs') || url.match(/\.js(\?|$)/) || url.includes('.js?')) {
-    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  if (url.endsWith('.js') || url.endsWith('.mjs') || url.includes('.js?') || url.match(/\.js(\?|$)/)) {
+    res.type('application/javascript').set('X-Content-Type-Options', 'nosniff');
   }
   
   // Xử lý các file TypeScript (vite sẽ chuyển đổi thành JS)
   else if (url.endsWith('.ts') || url.endsWith('.tsx') || url.endsWith('.jsx') || 
-      url.match(/\.tsx(\?|$)/) || url.match(/\.ts(\?|$)/) || url.match(/\.jsx(\?|$)/)) {
-    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+          url.includes('.ts?') || url.includes('.tsx?') || url.includes('.jsx?') ||
+          url.match(/\.tsx(\?|$)/) || url.match(/\.ts(\?|$)/) || url.match(/\.jsx(\?|$)/)) {
+    res.type('application/javascript').set('X-Content-Type-Options', 'nosniff');
   }
   
-  // Xử lý các module ESM
-  else if (url.includes('/src/') && !url.includes('.') && !url.endsWith('/')) {
-    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  // Xử lý cho main.tsx, đây là entry point
+  else if (url.includes('main.tsx')) {
+    res.type('application/javascript').set('X-Content-Type-Options', 'nosniff');
   }
   
-  // Xử lý riêng cho các file module và các đường dẫn quan trọng
-  else if (url.includes('main.tsx') || url.includes('?v=') || url.includes('?t=') || url.includes('?import')) {
-    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  // Xử lý các module ESM và các đường dẫn cụ thể
+  else if ((url.includes('/src/') && !url.includes('.') && !url.endsWith('/')) ||
+           url.includes('?v=') || url.includes('?t=') || url.includes('?import') ||
+           url.includes('/@id/') || url.includes('/@fs/') || url.includes('/@vite/')) {
+    res.type('application/javascript').set('X-Content-Type-Options', 'nosniff');
   }
   
   next();
