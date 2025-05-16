@@ -567,6 +567,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         eventType ? String(eventType) : undefined,
       );
 
+      // Tăng bộ đếm lượt tìm kiếm
+      try {
+        const searchCounterSetting = await storage.getSetting('search_counter');
+        if (searchCounterSetting) {
+          const currentCount = parseInt(searchCounterSetting.value || '0', 10);
+          const newCount = currentCount + 1;
+          await storage.updateSetting('search_counter', newCount.toString());
+        }
+      } catch (countError) {
+        console.error("Lỗi khi cập nhật bộ đếm tìm kiếm:", countError);
+        // Không dừng xử lý nếu việc đếm gặp lỗi
+      }
+
       res.json(results);
     } catch (error) {
       console.error("Error searching:", error);
@@ -1069,6 +1082,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Feedback chưa được xử lý
         const pendingFeedbackCount = await storage.getPendingFeedbackCount();
+        
+        // Lấy số liệu từ settings
+        const totalViewsSetting = await storage.getSetting('total_views');
+        const searchCounterSetting = await storage.getSetting('search_counter');
+        
+        // Chuyển đổi string sang số
+        const visitsCount = totalViewsSetting ? parseInt(totalViewsSetting.value || '0', 10) : 0;
+        const searchCount = searchCounterSetting ? parseInt(searchCounterSetting.value || '0', 10) : 0;
 
         res.json({
           periodsCount,
@@ -1077,9 +1098,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sitesCount,
           eventTypesCount,
           pendingFeedbackCount,
-          // Các số liệu thống kê giả lập vì chưa có thông tin thực tế
-          visitsCount: 1245,
-          searchCount: 532,
+          visitsCount,
+          searchCount,
         });
       } catch (error) {
         console.error("Error fetching admin stats:", error);

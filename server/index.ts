@@ -14,6 +14,37 @@ const app = express();
 // Sử dụng middleware nén (compression) để giảm kích thước response
 app.use(compression());
 
+// Middleware đếm lượt truy cập website
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Bỏ qua các request từ admin, API, và các static assets
+    if (
+      req.path.startsWith('/api/') || 
+      req.path.startsWith('/admin') || 
+      req.path.includes('.') ||
+      req.path.startsWith('/assets/')
+    ) {
+      return next();
+    }
+    
+    // Chỉ đếm yêu cầu GET cho các trang chính
+    if (req.method === 'GET') {
+      // Lấy giá trị hiện tại từ cơ sở dữ liệu
+      const totalViewsSetting = await storage.getSetting('total_views');
+      if (totalViewsSetting) {
+        // Tăng giá trị lên 1 và cập nhật vào cơ sở dữ liệu
+        const currentCount = parseInt(totalViewsSetting.value || '0', 10);
+        const newCount = currentCount + 1;
+        await storage.updateSetting('total_views', newCount.toString());
+      }
+    }
+  } catch (error) {
+    console.error('Lỗi khi đếm lượt truy cập:', error);
+  }
+  
+  next();
+});
+
 // Middleware để thêm cache control headers
 app.use((req, res, next) => {
   // Không cache cho các route API yêu cầu xác thực
