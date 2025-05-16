@@ -111,12 +111,15 @@
     <script>
       // Kiểm tra lỗi MIME type và thử tải lại
       window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('MIME type') && e.filename && e.filename.includes('main.tsx')) {
-          console.log('Phát hiện lỗi MIME type, thử tải lại script...');
-          const script = document.createElement('script');
-          script.type = 'module';
-          script.src = '/src/main.tsx?v=' + Date.now();
-          document.body.appendChild(script);
+        if (e.message && (e.message.includes('MIME type') || e.message.includes('module specifier')) && 
+            e.filename && e.filename.includes('main')) {
+          console.log('Phát hiện lỗi tải module, thử tải lại script...');
+          setTimeout(function() {
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = '/src/main.tsx?v=' + Date.now();
+            document.body.appendChild(script);
+          }, 500);
         }
       }, true);
     </script>
