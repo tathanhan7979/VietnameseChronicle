@@ -253,7 +253,7 @@ export function registerNewsRoutes(app: Express) {
         return res.status(404).json({ error: "Không tìm thấy tin tức" });
       }
       
-      if (!news.is_published) {
+      if (!news.published) {
         return res.status(404).json({ error: "Tin tức chưa được xuất bản" });
       }
       
