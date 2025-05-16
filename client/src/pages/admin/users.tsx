@@ -104,8 +104,8 @@ export default function UsersPage() {
     error,
   } = useQuery({
     queryKey: ["/api/admin/users"],
-    queryFn: async ({ signal }) => {
-      const response = await apiRequest("GET", "/api/admin/users", undefined, { signal });
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/admin/users");
       return await response.json();
     }
   });
