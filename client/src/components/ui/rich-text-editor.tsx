@@ -13,6 +13,7 @@ interface RichTextEditorProps {
   error?: string;
   className?: string;
   style?: React.CSSProperties;
+  uploadPath?: string;
 }
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({

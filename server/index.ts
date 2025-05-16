@@ -19,18 +19,23 @@ app.use((req, res, next) => {
   const url = req.url;
   
   // Xử lý các file JavaScript module
-  if (url.endsWith('.js') || url.endsWith('.mjs') || url.match(/\.js\?v=.*$/)) {
+  if (url.endsWith('.js') || url.endsWith('.mjs') || url.match(/\.js(\?|$)/) || url.includes('.js?')) {
     res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
   }
   
   // Xử lý các file TypeScript (vite sẽ chuyển đổi thành JS)
   else if (url.endsWith('.ts') || url.endsWith('.tsx') || url.endsWith('.jsx') || 
-      url.match(/\.tsx\?v=.*$/) || url.match(/\.ts\?v=.*$/)) {
+      url.match(/\.tsx(\?|$)/) || url.match(/\.ts(\?|$)/) || url.match(/\.jsx(\?|$)/)) {
     res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
   }
   
-  // Xử lý riêng cho file main.tsx
-  else if (url.includes('main.tsx')) {
+  // Xử lý các module ESM
+  else if (url.includes('/src/') && !url.includes('.') && !url.endsWith('/')) {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  }
+  
+  // Xử lý riêng cho các file module và các đường dẫn quan trọng
+  else if (url.includes('main.tsx') || url.includes('?v=') || url.includes('?t=') || url.includes('?import')) {
     res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
   }
   
