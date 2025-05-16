@@ -18,11 +18,20 @@ app.use(compression());
 app.use((req, res, next) => {
   const url = req.url;
   
-  // Xử lý các file JavaScript và TypeScript
-  if (url.endsWith('.js') || url.endsWith('.mjs') || url.match(/\.js\?v=.*$/) ||
-      url.endsWith('.ts') || url.endsWith('.tsx') || url.endsWith('.jsx') || 
+  // Xử lý các file JavaScript module
+  if (url.endsWith('.js') || url.endsWith('.mjs') || url.match(/\.js\?v=.*$/)) {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  }
+  
+  // Xử lý các file TypeScript (vite sẽ chuyển đổi thành JS)
+  else if (url.endsWith('.ts') || url.endsWith('.tsx') || url.endsWith('.jsx') || 
       url.match(/\.tsx\?v=.*$/) || url.match(/\.ts\?v=.*$/)) {
-    res.type('application/javascript');
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  }
+  
+  // Xử lý riêng cho file main.tsx
+  else if (url.includes('main.tsx')) {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
   }
   
   next();

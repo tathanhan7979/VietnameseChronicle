@@ -620,7 +620,7 @@ const NewsPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={createForm.control}
-                name="is_published"
+                name="published"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                     <div className="space-y-0.5">
@@ -872,7 +872,7 @@ const NewsPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={editForm.control}
-                name="is_published"
+                name="published"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                     <div className="space-y-0.5">
@@ -1165,7 +1165,7 @@ const NewsPage: React.FC = () => {
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
                         <div className="flex flex-wrap gap-1">
-                          {item.is_published ? (
+                          {item.published ? (
                             <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded">
                               Đã xuất bản
                             </span>
@@ -1189,7 +1189,7 @@ const NewsPage: React.FC = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          {item.is_published && (
+                          {item.published && (
                             <a
                               href={`/news/${item.slug}`}
                               target="_blank"
