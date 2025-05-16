@@ -5,6 +5,7 @@ import { useLocation, Link } from "wouter";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { NewsPermissionField } from "./news-permission";
 
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -113,6 +114,7 @@ const UsersPage = () => {
         can_manage_events: selectedUser.can_manage_events,
         can_manage_figures: selectedUser.can_manage_figures,
         can_manage_sites: selectedUser.can_manage_sites,
+        can_manage_news: selectedUser.can_manage_news,
       });
     }
   }, [form, selectedUser, isEditDialogOpen]);
@@ -128,6 +130,7 @@ const UsersPage = () => {
         can_manage_events: false,
         can_manage_figures: false,
         can_manage_sites: false,
+        can_manage_news: false,
       });
     }
   }, [form, isCreateDialogOpen]);
@@ -335,6 +338,11 @@ const UsersPage = () => {
                             {user.can_manage_sites && (
                               <span className="px-2 py-1 bg-red-100 text-red-800 rounded-md text-xs font-semibold">
                                 Di tích
+                              </span>
+                            )}
+                            {user.can_manage_news && (
+                              <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded-md text-xs font-semibold">
+                                Tin tức
                               </span>
                             )}
                           </>
