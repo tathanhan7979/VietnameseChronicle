@@ -52,7 +52,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import RichTextEditor from "@/components/ui/rich-text-editor";
 import { NewsPermissionField } from "./news-permission";
 
 // Định nghĩa kiểu dữ liệu cho tin tức
