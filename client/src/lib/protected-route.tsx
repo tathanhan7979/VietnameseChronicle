@@ -6,10 +6,12 @@ export function ProtectedRoute({
   path,
   component: Component,
   adminOnly = false,
+  requirePermission = null,
 }: {
   path: string;
   component: () => React.JSX.Element;
   adminOnly?: boolean;
+  requirePermission?: 'periods' | 'events' | 'figures' | 'sites' | null;
 }) {
   const { user, isLoading } = useAuth();
 
@@ -31,13 +33,54 @@ export function ProtectedRoute({
     );
   }
 
-  // Nếu yêu cầu quyền admin nhưng người dùng không phải admin
+  // Kiểm tra quyền truy cập
+  let accessDenied = false;
+  let deniedMessage = '';
+
+  // Kiểm tra quyền admin
   if (adminOnly && !user.isAdmin) {
+    accessDenied = true;
+    deniedMessage = 'Đến phần này yêu cầu quyền quản trị viên.';
+  }
+
+  // Kiểm tra quyền truy cập dựa trên loại nội dung
+  if (requirePermission) {
+    switch(requirePermission) {
+      case 'periods':
+        if (!user.isAdmin && !user.can_manage_periods) {
+          accessDenied = true;
+          deniedMessage = 'Bạn không có quyền quản lý thời kỳ lịch sử.';
+        }
+        break;
+      case 'events':
+        if (!user.isAdmin && !user.can_manage_events) {
+          accessDenied = true;
+          deniedMessage = 'Bạn không có quyền quản lý sự kiện lịch sử.';
+        }
+        break;
+      case 'figures':
+        if (!user.isAdmin && !user.can_manage_figures) {
+          accessDenied = true;
+          deniedMessage = 'Bạn không có quyền quản lý nhân vật lịch sử.';
+        }
+        break;
+      case 'sites':
+        if (!user.isAdmin && !user.can_manage_sites) {
+          accessDenied = true;
+          deniedMessage = 'Bạn không có quyền quản lý địa danh lịch sử.';
+        }
+        break;
+    }
+  }
+
+  // Nếu không có quyền truy cập, hiển thị thông báo lỗi
+  if (accessDenied) {
     return (
       <Route path={path}>
         <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
-          <h1 className="text-2xl font-bold mb-4">Đến phần này yêu cầu quyền admin</h1>
-          <p>Bạn không có quyền truy cập vào trang này.</p>
+          <h1 className="text-2xl font-bold mb-4">Quyền truy cập bị từ chối</h1>
+          <p>{deniedMessage}</p>
+          <p className="mt-4">Vui lòng liên hệ quản trị viên nếu bạn cần truy cập vào nội dung này.</p>
         </div>
       </Route>
     );

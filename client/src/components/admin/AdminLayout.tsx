@@ -23,7 +23,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { logoutMutation } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const [location] = useLocation();
 
   const handleLogout = () => {
@@ -32,17 +32,70 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     }
   };
 
-  const menuItems = [
-    { path: '/admin', label: 'Tổng quan', icon: <LayoutDashboard size={20} /> },
-    { path: '/admin/periods', label: 'Thời kỳ lịch sử', icon: <Clock size={20} /> },
-    { path: '/admin/event-types', label: 'Loại sự kiện', icon: <FileText size={20} /> },
-    { path: '/admin/events', label: 'Sự kiện lịch sử', icon: <BarChart3 size={20} /> },
-    { path: '/admin/historical-figures', label: 'Nhân vật lịch sử', icon: <User size={20} /> },
-    { path: '/admin/historical-sites', label: 'Địa danh lịch sử', icon: <Home size={20} /> },
-    { path: '/admin/feedback', label: 'Phản hồi', icon: <MessageSquare size={20} /> },
-    { path: '/admin/users', label: 'Quản lý người dùng', icon: <User size={20} /> },
-    { path: '/admin/settings', label: 'Thiết lập', icon: <Settings size={20} /> },
+  // Tất cả menu items
+  const allMenuItems = [
+    { 
+      path: '/admin', 
+      label: 'Tổng quan', 
+      icon: <LayoutDashboard size={20} />,
+      // Tất cả người dùng đều có thể truy cập trang tổng quan
+      accessControl: () => true
+    },
+    { 
+      path: '/admin/periods', 
+      label: 'Thời kỳ lịch sử', 
+      icon: <Clock size={20} />,
+      accessControl: () => user?.isAdmin || user?.can_manage_periods
+    },
+    { 
+      path: '/admin/event-types', 
+      label: 'Loại sự kiện', 
+      icon: <FileText size={20} />,
+      accessControl: () => user?.isAdmin || user?.can_manage_events
+    },
+    { 
+      path: '/admin/events', 
+      label: 'Sự kiện lịch sử', 
+      icon: <BarChart3 size={20} />,
+      accessControl: () => user?.isAdmin || user?.can_manage_events
+    },
+    { 
+      path: '/admin/historical-figures', 
+      label: 'Nhân vật lịch sử', 
+      icon: <User size={20} />,
+      accessControl: () => user?.isAdmin || user?.can_manage_figures
+    },
+    { 
+      path: '/admin/historical-sites', 
+      label: 'Địa danh lịch sử', 
+      icon: <Home size={20} />,
+      accessControl: () => user?.isAdmin || user?.can_manage_sites
+    },
+    { 
+      path: '/admin/feedback', 
+      label: 'Phản hồi', 
+      icon: <MessageSquare size={20} />,
+      // Chỉ admin mới có thể truy cập phản hồi
+      accessControl: () => user?.isAdmin
+    },
+    { 
+      path: '/admin/users', 
+      label: 'Quản lý người dùng', 
+      icon: <User size={20} />,
+      // Chỉ admin mới có thể quản lý người dùng
+      accessControl: () => user?.isAdmin
+    },
+    { 
+      path: '/admin/settings', 
+      label: 'Thiết lập', 
+      icon: <Settings size={20} />,
+      // Chỉ admin mới có thể truy cập thiết lập
+      accessControl: () => user?.isAdmin
+    },
   ];
+  
+  // Lọc ra các menu mà người dùng có quyền truy cập
+  const menuItems = allMenuItems.filter(item => item.accessControl());
 
   return (
     <div className="flex h-screen bg-gray-100">

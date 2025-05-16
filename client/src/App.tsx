@@ -49,15 +49,48 @@ function Router() {
       
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />
-      <ProtectedRoute path="/admin" component={AdminDashboard} adminOnly={true} />
-      <ProtectedRoute path="/admin/periods" component={PeriodsAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/event-types" component={EventTypesAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/events" component={EventsAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/historical-figures" component={HistoricalFiguresAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/historical-sites" component={HistoricalSitesAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/feedback" component={FeedbackAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/users" component={UsersAdmin} adminOnly={true} />
-      <ProtectedRoute path="/admin/settings" component={SettingsAdmin} adminOnly={true} />
+      {/* Trang tổng quan - tất cả người dùng đã đăng nhập đều có thể truy cập */}
+      <ProtectedRoute path="/admin" component={AdminDashboard} />
+      
+      {/* Quản lý thời kỳ - cần quyền "can_manage_periods" */}
+      <ProtectedRoute path="/admin/periods" 
+        component={PeriodsAdmin} 
+        requirePermission="periods" />
+      
+      {/* Quản lý loại sự kiện - cần quyền "can_manage_events" */}
+      <ProtectedRoute path="/admin/event-types" 
+        component={EventTypesAdmin} 
+        requirePermission="events" />
+      
+      {/* Quản lý sự kiện - cần quyền "can_manage_events" */}
+      <ProtectedRoute path="/admin/events" 
+        component={EventsAdmin} 
+        requirePermission="events" />
+      
+      {/* Quản lý nhân vật lịch sử - cần quyền "can_manage_figures" */}
+      <ProtectedRoute path="/admin/historical-figures" 
+        component={HistoricalFiguresAdmin} 
+        requirePermission="figures" />
+      
+      {/* Quản lý địa danh lịch sử - cần quyền "can_manage_sites" */}
+      <ProtectedRoute path="/admin/historical-sites" 
+        component={HistoricalSitesAdmin} 
+        requirePermission="sites" />
+      
+      {/* Quản lý phản hồi - chỉ dành cho admin */}
+      <ProtectedRoute path="/admin/feedback" 
+        component={FeedbackAdmin} 
+        adminOnly={true} />
+      
+      {/* Quản lý người dùng - chỉ dành cho admin */}
+      <ProtectedRoute path="/admin/users" 
+        component={UsersAdmin} 
+        adminOnly={true} />
+      
+      {/* Thiết lập hệ thống - chỉ dành cho admin */}
+      <ProtectedRoute path="/admin/settings" 
+        component={SettingsAdmin} 
+        adminOnly={true} />
       
       {/* Catch all route for 404 */}
       <Route component={NotFound} />

@@ -97,6 +97,123 @@ const requireAdmin = async (
   }
 };
 
+// Lấy user từ request để sử dụng trong middleware kiểm tra quyền
+const getUserFromRequest = (req: Request): User | null => {
+  if (req.isAuthenticated?.()) {
+    return req.user as User;
+  } else {
+    return (req as any).user as User;
+  }
+};
+
+// Middleware kiểm tra quyền quản lý thời kỳ lịch sử
+const requirePeriodsPermission = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = getUserFromRequest(req);
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (user.isAdmin || user.can_manage_periods) {
+      return next();
+    }
+
+    return res.status(403).json({ 
+      error: "Forbidden", 
+      message: "Bạn không có quyền quản lý thời kỳ lịch sử" 
+    });
+  } catch (error) {
+    console.error("Authorization error:", error);
+    res.status(403).json({ error: "Forbidden" });
+  }
+};
+
+// Middleware kiểm tra quyền quản lý sự kiện lịch sử
+const requireEventsPermission = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = getUserFromRequest(req);
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (user.isAdmin || user.can_manage_events) {
+      return next();
+    }
+
+    return res.status(403).json({ 
+      error: "Forbidden", 
+      message: "Bạn không có quyền quản lý sự kiện lịch sử" 
+    });
+  } catch (error) {
+    console.error("Authorization error:", error);
+    res.status(403).json({ error: "Forbidden" });
+  }
+};
+
+// Middleware kiểm tra quyền quản lý nhân vật lịch sử
+const requireFiguresPermission = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = getUserFromRequest(req);
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (user.isAdmin || user.can_manage_figures) {
+      return next();
+    }
+
+    return res.status(403).json({ 
+      error: "Forbidden", 
+      message: "Bạn không có quyền quản lý nhân vật lịch sử" 
+    });
+  } catch (error) {
+    console.error("Authorization error:", error);
+    res.status(403).json({ error: "Forbidden" });
+  }
+};
+
+// Middleware kiểm tra quyền quản lý địa danh lịch sử
+const requireSitesPermission = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = getUserFromRequest(req);
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (user.isAdmin || user.can_manage_sites) {
+      return next();
+    }
+
+    return res.status(403).json({ 
+      error: "Forbidden", 
+      message: "Bạn không có quyền quản lý địa danh lịch sử" 
+    });
+  } catch (error) {
+    console.error("Authorization error:", error);
+    res.status(403).json({ error: "Forbidden" });
+  }
+};
+
 // Hàm xóa tập tin - chức năng chung
 function deleteFile(filePath: string): boolean {
   try {
