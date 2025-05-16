@@ -168,3 +168,30 @@ export const requireSitesPermission = async (
     res.status(403).json({ error: "Forbidden" });
   }
 };
+
+// Middleware kiểm tra quyền quản lý tin tức
+export const requireNewsPermission = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = getUserFromRequest(req);
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (user.isAdmin || user.can_manage_news) {
+      return next();
+    }
+
+    return res.status(403).json({ 
+      error: "Forbidden", 
+      message: "Bạn không có quyền quản lý tin tức" 
+    });
+  } catch (error) {
+    console.error("Authorization error:", error);
+    res.status(403).json({ error: "Forbidden" });
+  }
+};

@@ -13,6 +13,7 @@ export const users = pgTable("users", {
   can_manage_events: boolean("can_manage_events").default(false).notNull(),
   can_manage_figures: boolean("can_manage_figures").default(false).notNull(),
   can_manage_sites: boolean("can_manage_sites").default(false).notNull(),
+  can_manage_news: boolean("can_manage_news").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   lastLoginAt: timestamp("last_login_at")
 });
@@ -25,6 +26,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   can_manage_events: true,
   can_manage_figures: true,
   can_manage_sites: true,
+  can_manage_news: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

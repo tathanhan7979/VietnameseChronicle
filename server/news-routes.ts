@@ -1,5 +1,5 @@
 import { Express, Request, Response } from "express";
-import { requireAuth, requireAdmin } from "./middlewares";
+import { requireAuth, requireAdmin, requireNewsPermission } from "./middlewares";
 import { newsController } from "./news-methods";
 import multer from "multer";
 import path from "path";
@@ -138,7 +138,7 @@ export function registerNewsRoutes(app: Express) {
   app.get(
     `${apiPrefix}/admin/news`,
     requireAuth,
-    requireAdmin,
+    requireNewsPermission,
     async (req, res) => {
       try {
         const allNews = await newsController.getAllNews();
