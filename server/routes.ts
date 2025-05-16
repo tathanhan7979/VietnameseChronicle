@@ -3014,6 +3014,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Endpoint phụ cho việc cập nhật sitemap từ admin panel
+  app.post(`${apiPrefix}/admin/settings/update-sitemap`, async (req, res) => {
+    try {
+      // Chuyển tiếp đến endpoint chính
+      const { generateSitemap } = await import('./sitemap-generator');
+      const result = await generateSitemap();
+      
+      if (result.success) {
+        // Cập nhật thời gian tạo sitemap trong cơ sở dữ liệu
+        await storage.updateSetting('last_sitemap_update', new Date().toISOString());
+      }
+      
+      res.json({
+        ...result,
+        lastUpdate: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error updating sitemap:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi cập nhật sitemap',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
 
   // Create HTTP server
   const httpServer = createServer(app);

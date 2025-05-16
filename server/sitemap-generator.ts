@@ -47,10 +47,24 @@ export async function generateSitemap() {
       }
     }
 
+    // Hàm giúp tạo slug thân thiện từ chuỗi tiếng Việt
+    function createFriendlySlug(text: string): string {
+      return text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[đĐ]/g, "d")
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .trim();
+    }
+
     // Thêm các sự kiện
     for (const event of events) {
-      const eventSlug = typeof event.slug === 'string' ? event.slug : 
-                        (event.title ? event.title.toLowerCase().replace(/\s+/g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'chi-tiet');
+      // Sử dụng slug từ database hoặc tạo mới từ title nếu không có
+      const eventSlug = event.slug || createFriendlySlug(event.title);
+      
       urls.push({
         loc: `${baseUrl}/su-kien/${event.id}/${eventSlug}`,
         lastmod: currentDate,
@@ -61,8 +75,9 @@ export async function generateSitemap() {
 
     // Thêm các nhân vật lịch sử
     for (const figure of figures) {
-      const figureSlug = typeof figure.slug === 'string' ? figure.slug : 
-                         (figure.name ? figure.name.toLowerCase().replace(/\s+/g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'chi-tiet');
+      // Sử dụng slug từ database hoặc tạo mới từ name nếu không có
+      const figureSlug = figure.slug || createFriendlySlug(figure.name);
+      
       urls.push({
         loc: `${baseUrl}/nhan-vat/${figure.id}/${figureSlug}`,
         lastmod: currentDate,
@@ -73,8 +88,9 @@ export async function generateSitemap() {
 
     // Thêm các di tích lịch sử
     for (const site of sites) {
-      const siteSlug = typeof site.slug === 'string' ? site.slug : 
-                       (site.name ? site.name.toLowerCase().replace(/\s+/g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'chi-tiet');
+      // Sử dụng slug từ database hoặc tạo mới từ name nếu không có
+      const siteSlug = site.slug || createFriendlySlug(site.name);
+      
       urls.push({
         loc: `${baseUrl}/di-tich/${site.id}/${siteSlug}`,
         lastmod: currentDate,

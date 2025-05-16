@@ -126,6 +126,7 @@ export const eventToEventTypeRelations = relations(eventToEventType, ({ one }) =
 export const historicalSites = pgTable("historical_sites", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  slug: text("slug"),  // Thêm trường slug cho URL thân thiện
   location: text("location").notNull(),
   periodId: integer("period_id").references(() => periods.id),
   description: text("description").notNull(),
