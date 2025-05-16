@@ -2035,6 +2035,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           deleteFile(oldImageUrl);
           console.log(`Xóa hình ảnh của sự kiện: ${oldImageUrl}`);
         }
+        
+        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
+        try {
+          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
+          await updateSitemapIfEnabled();
+        } catch (sitemapError) {
+          console.error("Error updating sitemap after deleting event:", sitemapError);
+        }
 
         res.json({
           success: true,
