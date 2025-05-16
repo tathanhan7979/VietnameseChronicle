@@ -2298,7 +2298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/historical-figures`,
     requireAuth,
-    requireAdmin,
+    requireFiguresPermission,
     async (req, res) => {
       try {
         const figures = await storage.getAllHistoricalFigures();
@@ -2313,7 +2313,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-figures`,
     requireAuth,
-    requireAdmin,
+    requireFiguresPermission,
     async (req, res) => {
       try {
         const figureData = req.body;
@@ -2371,7 +2371,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/historical-figures/:id`,
     requireAuth,
-    requireAdmin,
+    requireFiguresPermission,
     async (req, res) => {
       try {
         const figureId = parseInt(req.params.id);
@@ -2503,7 +2503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-figures/reorder`,
     requireAuth,
-    requireAdmin,
+    requireFiguresPermission,
     async (req, res) => {
       try {
         const { orderedIds } = req.body;
@@ -2544,7 +2544,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/historical-sites`,
     requireAuth,
-    requireAdmin,
+    requireSitesPermission,
     async (req, res) => {
       try {
         const sites = await storage.getAllHistoricalSites();
@@ -2563,7 +2563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-sites`,
     requireAuth,
-    requireAdmin,
+    requireSitesPermission,
     async (req, res) => {
       try {
         const siteData = req.body;
@@ -2698,7 +2698,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/historical-sites/:id`,
     requireAuth,
-    requireAdmin,
+    requireSitesPermission,
     async (req, res) => {
       try {
         const { id } = req.params;
@@ -2749,7 +2749,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/historical-sites/reorder`,
     requireAuth,
-    requireAdmin,
+    requireSitesPermission,
     async (req, res) => {
       try {
         const { orderedIds } = req.body;
