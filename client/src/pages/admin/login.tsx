@@ -39,6 +39,7 @@ export default function AdminLogin() {
     loginMutation.mutate(data, {
       onSuccess: (data) => {
         if (data.success && data.token) {
+          console.log("Đăng nhập thành công, chuyển hướng đến /admin");
           // Chuyển hướng đến trang admin sau khi đăng nhập thành công
           window.location.href = "/admin";
         }
