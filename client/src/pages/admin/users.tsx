@@ -68,10 +68,10 @@ const UsersPage = () => {
 
   // Fetch danh sách người dùng
   const {
-    data: users,
+    data: users = [],
     isLoading,
     error,
-  } = useQuery({
+  } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     staleTime: 10000, // 10 giây
   });
@@ -228,7 +228,7 @@ const UsersPage = () => {
 
   if (isLoading) {
     return (
-      <AdminLayout>
+      <AdminLayout title="Quản lý người dùng">
         <div className="p-4">
           <h1 className="text-2xl font-bold mb-6">Quản lý người dùng</h1>
           <div className="flex justify-center items-center h-64">
@@ -241,7 +241,7 @@ const UsersPage = () => {
 
   if (error) {
     return (
-      <AdminLayout>
+      <AdminLayout title="Quản lý người dùng">
         <div className="p-4">
           <h1 className="text-2xl font-bold mb-6">Quản lý người dùng</h1>
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -253,7 +253,7 @@ const UsersPage = () => {
   }
 
   return (
-    <AdminLayout>
+    <AdminLayout title="Quản lý người dùng">
       <div className="p-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Quản lý người dùng</h1>

@@ -40,6 +40,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     { path: '/admin/historical-figures', label: 'Nhân vật lịch sử', icon: <User size={20} /> },
     { path: '/admin/historical-sites', label: 'Địa danh lịch sử', icon: <Home size={20} /> },
     { path: '/admin/feedback', label: 'Phản hồi', icon: <MessageSquare size={20} /> },
+    { path: '/admin/users', label: 'Quản lý người dùng', icon: <User size={20} /> },
     { path: '/admin/settings', label: 'Thiết lập', icon: <Settings size={20} /> },
   ];
 

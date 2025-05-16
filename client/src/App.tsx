@@ -24,6 +24,7 @@ import HistoricalFiguresAdmin from "@/pages/admin/historical-figures";
 import HistoricalSitesAdmin from "@/pages/admin/historical-sites";
 import FeedbackAdmin from "@/pages/admin/feedback";
 import SettingsAdmin from "@/pages/admin/settings";
+import UsersAdmin from "@/pages/admin/users";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
@@ -55,6 +56,7 @@ function Router() {
       <ProtectedRoute path="/admin/historical-figures" component={HistoricalFiguresAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/historical-sites" component={HistoricalSitesAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/feedback" component={FeedbackAdmin} adminOnly={true} />
+      <ProtectedRoute path="/admin/users" component={UsersAdmin} adminOnly={true} />
       <ProtectedRoute path="/admin/settings" component={SettingsAdmin} adminOnly={true} />
       
       {/* Catch all route for 404 */}
