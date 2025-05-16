@@ -112,7 +112,7 @@ export function PopupNotification() {
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
       <div className="fixed inset-0 bg-black/70" onClick={handleClose} />
       <Card 
-        className={`w-full max-w-md max-h-[80vh] overflow-y-auto relative 
+        className={`w-full max-w-xl max-h-[85vh] overflow-y-auto relative 
           shadow-[0_0_25px_rgba(255,255,255,0.3)] 
           border-2 border-primary/30 
           ${animation ? 'animate-bounce-subtle' : 'translate-y-0'}

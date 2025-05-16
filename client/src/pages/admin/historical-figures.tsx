@@ -20,6 +20,7 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import RichTextEditor from "@/components/ui/rich-text-editor";
 import {
   Grid,
   Pencil,
@@ -851,23 +852,12 @@ export default function HistoricalFiguresAdmin() {
               <div className="mb-4">
                 <Label htmlFor="detailedDescription">Mô tả chi tiết</Label>
                 <div className="mt-1">
-                  <ReactQuill
-                    theme="snow"
+                  <RichTextEditor
                     value={detailedDescription}
                     onChange={setDetailedDescription}
                     placeholder="Thêm mô tả chi tiết về nhân vật lịch sử..."
-                    modules={{
-                      toolbar: [
-                        [{ header: [1, 2, 3, 4, 5, 6, false] }],
-                        ["bold", "italic", "underline", "strike"],
-                        [{ list: "ordered" }, { list: "bullet" }],
-                        [{ indent: "-1" }, { indent: "+1" }],
-                        [{ color: [] }, { background: [] }],
-                        ["link", "image"],
-                        ["clean"],
-                      ],
-                    }}
-                    className="min-h-[300px]"
+                    height={400}
+                    label=""
                   />
                 </div>
               </div>

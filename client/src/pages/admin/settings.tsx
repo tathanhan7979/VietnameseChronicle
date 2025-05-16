@@ -15,6 +15,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import RichTextEditor from '@/components/ui/rich-text-editor';
 
 interface Setting {
   id: number;
@@ -407,15 +408,12 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                   <FormItem>
                     <FormLabel>Giá trị</FormLabel>
                     <FormControl>
-                      <div className="min-h-[300px] border border-input rounded-md">
-                        <ReactQuill 
-                          theme="snow"
-                          value={field.value}
-                          onChange={handleRichTextChange}
-                          modules={modules}
-                          className="h-64"
-                        />
-                      </div>
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={handleRichTextChange}
+                        placeholder="Nhập nội dung..."
+                        height={400}
+                      />
                     </FormControl>
                     <FormDescription className="text-xs text-muted-foreground">
                       Key: {setting.key}
