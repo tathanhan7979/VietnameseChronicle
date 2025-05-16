@@ -102,6 +102,10 @@ const UsersPage = () => {
         username: selectedUser.username,
         password: "", // Không điền mật khẩu cũ
         isAdmin: selectedUser.isAdmin,
+        can_manage_periods: selectedUser.can_manage_periods,
+        can_manage_events: selectedUser.can_manage_events,
+        can_manage_figures: selectedUser.can_manage_figures,
+        can_manage_sites: selectedUser.can_manage_sites,
       });
     }
   }, [form, selectedUser, isEditDialogOpen]);
@@ -113,6 +117,10 @@ const UsersPage = () => {
         username: "",
         password: "",
         isAdmin: false,
+        can_manage_periods: false,
+        can_manage_events: false,
+        can_manage_figures: false,
+        can_manage_sites: false,
       });
     }
   }, [form, isCreateDialogOpen]);
