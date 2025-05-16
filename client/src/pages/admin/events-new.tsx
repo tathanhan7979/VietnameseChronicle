@@ -64,6 +64,7 @@ import {
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import RichTextEditor from "@/components/ui/rich-text-editor";
 
 // Định nghĩa schema cho form sự kiện
 const eventFormSchema = z.object({
