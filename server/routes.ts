@@ -2454,7 +2454,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/historical-figures/:id`,
     requireAuth,
-    requireAdmin,
+    requireFiguresPermission,
     async (req, res) => {
       try {
         const figureId = parseInt(req.params.id);
