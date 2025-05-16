@@ -202,3 +202,50 @@ export const settings = pgTable("settings", {
 export const insertSettingSchema = createInsertSchema(settings);
 export type InsertSetting = z.infer<typeof insertSettingSchema>;
 export type Setting = typeof settings.$inferSelect;
+
+// Bảng tin tức
+export const news = pgTable("news", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content").notNull(),
+  summary: text("summary"),
+  imageUrl: text("image_url"),
+  eventTypeId: integer("event_type_id").references(() => eventTypes.id),
+  periodId: integer("period_id").references(() => periods.id),
+  eventId: integer("event_id").references(() => events.id),
+  historicalFigureId: integer("historical_figure_id").references(() => historicalFigures.id),
+  historicalSiteId: integer("historical_site_id").references(() => historicalSites.id),
+  viewCount: integer("view_count").default(0).notNull(),
+  published: boolean("published").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertNewsSchema = createInsertSchema(news);
+export type InsertNews = z.infer<typeof insertNewsSchema>;
+export type News = typeof news.$inferSelect;
+
+// Tạo quan hệ giữa tin tức và các bảng khác
+export const newsRelations = relations(news, ({ one }) => ({
+  eventType: one(eventTypes, {
+    fields: [news.eventTypeId],
+    references: [eventTypes.id],
+  }),
+  period: one(periods, {
+    fields: [news.periodId],
+    references: [periods.id],
+  }),
+  event: one(events, {
+    fields: [news.eventId],
+    references: [events.id],
+  }),
+  historicalFigure: one(historicalFigures, {
+    fields: [news.historicalFigureId],
+    references: [historicalFigures.id],
+  }),
+  historicalSite: one(historicalSites, {
+    fields: [news.historicalSiteId],
+    references: [historicalSites.id],
+  }),
+}));

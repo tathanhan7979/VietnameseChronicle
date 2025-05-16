@@ -22,6 +22,7 @@ import path from "path";
 import fs from "fs";
 import { randomUUID } from "crypto";
 import { generateSitemap } from "./sitemap-generator";
+import { registerNewsRoutes } from "./news-routes";
 import { 
   requireAuth, 
   requireAdmin, 
@@ -3239,6 +3240,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Đăng ký routes cho tính năng tin tức
+  registerNewsRoutes(app);
+  
   // Create HTTP server
   const httpServer = createServer(app);
 
