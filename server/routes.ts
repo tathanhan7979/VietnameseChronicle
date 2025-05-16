@@ -1244,11 +1244,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return res.status(401).json({ error: "Unauthorized" });
   });
 
-  // API Stats - yêu cầu quyền Admin
+  // API Stats - tất cả người dùng đã đăng nhập đều có thể xem
   app.get(
     `${apiPrefix}/admin/stats`,
     requireAuth,
-    requireAdmin,
     async (req, res) => {
       try {
         // Đếm tổng số các mục

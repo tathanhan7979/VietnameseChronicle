@@ -627,9 +627,18 @@ const UsersPage = () => {
                   <FormItem>
                     <FormLabel>Quyền hạn</FormLabel>
                     <Select
-                      onValueChange={(value) =>
-                        field.onChange(value === "true")
-                      }
+                      onValueChange={(value) => {
+                        const isAdmin = value === "true";
+                        field.onChange(isAdmin);
+                        
+                        // Nếu là admin, tự động bật tất cả quyền
+                        if (isAdmin) {
+                          form.setValue("can_manage_periods", true);
+                          form.setValue("can_manage_events", true);
+                          form.setValue("can_manage_figures", true);
+                          form.setValue("can_manage_sites", true);
+                        }
+                      }}
                       value={field.value ? "true" : "false"}
                     >
                       <FormControl>
