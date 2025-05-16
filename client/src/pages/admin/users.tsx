@@ -81,14 +81,14 @@ type UpdateUserFormValues = z.infer<typeof updateUserFormSchema>;
 
 export default function UsersPage() {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth();
   const [openNewDialog, setOpenNewDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
   // Kiểm tra quyền admin
-  if (!user?.isAdmin) {
+  if (!currentUser?.isAdmin) {
     return (
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold mb-4">Không có quyền truy cập</h1>
@@ -104,8 +104,10 @@ export default function UsersPage() {
     error,
   } = useQuery({
     queryKey: ["/api/admin/users"],
-    queryFn: ({ signal }) =>
-      apiRequest("GET", "/api/admin/users", undefined, { signal }),
+    queryFn: async ({ signal }) => {
+      const response = await apiRequest("GET", "/api/admin/users", undefined, { signal });
+      return await response.json();
+    }
   });
 
   // Form tạo người dùng mới
@@ -496,7 +498,7 @@ export default function UsersPage() {
                       >
                         <PenSquare className="h-4 w-4" />
                       </Button>
-                      {user.id !== user.id && (
+                      {user.id !== currentUser?.id && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button

@@ -94,6 +94,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
           <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
             {menuItems.map((item) => {
+              if (!item) return null;
               const isActive = location === item.path;
               return (
                 <Link key={item.path} href={item.path}
