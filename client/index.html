@@ -2,229 +2,124 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1"
+    />
+    <!-- Primary Meta Tags -->
     <title>Lịch Sử Việt Nam | Từ Thời Vua Hùng Đến Hiện Đại</title>
+    <meta
+      name="title"
+      content="Lịch Sử Việt Nam | Từ Thời Vua Hùng Đến Hiện Đại"
+    />
+    <meta
+      name="description"
+      content="Khám phá hành trình lịch sử Việt Nam qua các thời kỳ từ thời Vua Hùng đến hiện đại với những sự kiện, nhân vật và di tích lịch sử nổi bật."
+    />
+    <meta
+      name="keywords"
+      content="lịch sử Việt Nam, thời kỳ lịch sử, Vua Hùng, nhân vật lịch sử, di tích lịch sử, văn hóa Việt Nam, dòng thời gian lịch sử"
+    />
+    <meta name="author" content="lichsuviet.edu.vn" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="Vietnamese" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lichsuviet.edu.vn/" />
+    <meta
+      property="og:title"
+      content="Lịch Sử Việt Nam | Từ Thời Vua Hùng Đến Hiện Đại"
+    />
+    <meta
+      property="og:description"
+      content="Khám phá hành trình lịch sử Việt Nam qua các thời kỳ từ thời Vua Hùng đến hiện đại với những sự kiện, nhân vật và di tích lịch sử nổi bật."
+    />
+    <meta
+      property="og:image"
+      content="https://lichsuviet.edu.vn/uploads/banner-image.png"
+    />
+    <meta property="og:site_name" content="Lịch Sử Việt Nam" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://lichsuviet.edu.vn/" />
+    <meta
+      property="twitter:title"
+      content="Lịch Sử Việt Nam | Từ Thời Vua Hùng Đến Hiện Đại"
+    />
+    <meta
+      property="twitter:description"
+      content="Khám phá hành trình lịch sử Việt Nam qua các thời kỳ từ thời Vua Hùng đến hiện đại với những sự kiện, nhân vật và di tích lịch sử nổi bật."
+    />
+    <meta
+      property="twitter:image"
+      content="https://lichsuviet.edu.vn/uploads/banner-image.png"
+    />
+
+    <!-- Mobile App Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Lịch Sử Việt Nam" />
+    <meta name="application-name" content="Lịch Sử Việt Nam" />
+    <meta name="theme-color" content="#CF2A27" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://lichsuviet.edu.vn/" />
     <style>
-      /* Reset CSS */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+      .ql-container.ql-snow {
+        max-height: 500px;
+        overflow-y: scroll;
       }
-      
-      body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        line-height: 1.5;
-        color: #333;
-        background-color: #f5f5f5;
-      }
-      
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-      
-      .header {
-        background-color: #CF2A27;
-        color: white;
-        padding: 1.5rem;
-        text-align: center;
-        margin-bottom: 2rem;
-      }
-      
-      .header h1 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-      }
-      
-      .header p {
-        font-size: 1.2rem;
-        opacity: 0.9;
-      }
-      
-      .card {
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        padding: 2rem;
-        margin-bottom: 2rem;
-      }
-      
-      h2 {
-        color: #CF2A27;
-        margin-bottom: 1rem;
-        font-size: 1.5rem;
-      }
-      
-      .alert {
-        background-color: #f8d7da;
-        color: #721c24;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        border: 1px solid #f5c6cb;
-      }
-      
-      .btn {
-        display: inline-block;
-        padding: 0.75rem 1.5rem;
-        background-color: #CF2A27;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: 500;
-        margin-right: 1rem;
-        transition: background-color 0.3s;
-      }
-      
-      .btn:hover {
-        background-color: #a52521;
-      }
-      
-      .btn-secondary {
-        background-color: #333;
-      }
-      
-      .btn-secondary:hover {
-        background-color: #555;
-      }
-      
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-top: 1.5rem;
-      }
-      
-      .grid-item {
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        padding: 1.5rem;
-        border: 1px solid #eee;
-      }
-      
-      .grid-item h3 {
-        color: #333;
-        margin-bottom: 0.5rem;
-        font-size: 1.2rem;
-      }
-      
-      .admin-login {
-        background-color: #f2f2f2;
-        border: 1px solid #ddd;
-        padding: 2rem;
-        border-radius: 8px;
-        max-width: 400px;
-        margin: 2rem auto;
-      }
-      
-      .form-group {
-        margin-bottom: 1rem;
-      }
-      
-      label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-      }
-      
-      input[type="text"],
-      input[type="password"] {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 1rem;
-      }
-      
-      .auth-links {
-        margin-top: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-      }
-      
-      .mt-4 {
-        margin-top: 1.5rem;
+
+      .ql-align-center {
+        text-align: -webkit-center;
       }
     </style>
+    <!-- Favicon is dynamically loaded from settings in App.tsx -->
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-GDN25M8C0N");
+    </script>
   </head>
   <body>
-    <div class="header">
-      <h1>Lịch Sử Việt Nam</h1>
-      <p>Từ Thời Vua Hùng Đến Hiện Đại</p>
-    </div>
-    
-    <div class="container">
-      <div class="alert">
-        <strong>Thông báo:</strong> Trang web đang trong quá trình bảo trì. Một số chức năng có thể không hoạt động đúng.
-      </div>
-      
-      <div class="card">
-        <h2>Chào mừng bạn đến với Trang Lịch Sử Việt Nam</h2>
-        <p>Đây là nguồn thông tin đầy đủ về lịch sử Việt Nam từ thời Vua Hùng đến hiện đại, giúp bạn tìm hiểu chi tiết về các sự kiện, nhân vật và di tích lịch sử quan trọng của dân tộc.</p>
-        
-        <div class="mt-4">
-          <a href="/auth" class="btn">Đăng nhập</a>
-          <a href="/admin" class="btn btn-secondary">Trang quản trị</a>
-        </div>
-      </div>
-      
-      <div class="card">
-        <h2>Thử lại trang quản lý người dùng</h2>
-        <p>Để truy cập trang quản lý người dùng, vui lòng đăng nhập với tài khoản admin và đi đến đường dẫn sau:</p>
-        <div class="mt-4">
-          <a href="/admin/users" class="btn">Quản lý người dùng</a>
-        </div>
-      </div>
-      
-      <div id="loginForm" class="admin-login">
-        <h2>Đăng nhập quản trị</h2>
-        <div class="form-group">
-          <label for="username">Tên đăng nhập</label>
-          <input type="text" id="username" value="TaThanhAnGroup" />
-        </div>
-        <div class="form-group">
-          <label for="password">Mật khẩu</label>
-          <input type="password" id="password" placeholder="Nhập mật khẩu" />
-        </div>
-        <button class="btn" onclick="handleLogin()">Đăng nhập</button>
-      </div>
-      
-      <div class="card">
-        <h2>Các phần chính của trang web</h2>
-        <div class="grid">
-          <div class="grid-item">
-            <h3>Thời kỳ lịch sử</h3>
-            <p>Thông tin chi tiết về các thời kỳ lịch sử Việt Nam từ thời Vua Hùng đến hiện đại.</p>
-          </div>
-          <div class="grid-item">
-            <h3>Sự kiện lịch sử</h3>
-            <p>Danh sách các sự kiện quan trọng đánh dấu những mốc lịch sử của dân tộc Việt Nam.</p>
-          </div>
-          <div class="grid-item">
-            <h3>Nhân vật lịch sử</h3>
-            <p>Thông tin về các nhân vật tiêu biểu đã có đóng góp lớn trong lịch sử Việt Nam.</p>
-          </div>
-          <div class="grid-item">
-            <h3>Di tích lịch sử</h3>
-            <p>Giới thiệu các di tích lịch sử quan trọng còn lưu giữ đến ngày nay.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
+    <div id="fb-root"></div>
+    <script
+      async
+      defer
+      crossorigin="anonymous"
+      src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v22.0&appId=338293120972096"
+    ></script>
+    <div id="root"></div>
+    <!-- Tùy chỉnh cách tải script module -->
     <script>
-      function handleLogin() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        
-        // Thông báo cho người dùng
-        alert('Đang thử đăng nhập với tài khoản: ' + username);
-        
-        // Chuyển hướng đến trang admin
-        window.location.href = '/admin';
-      }
+      // Kiểm tra lỗi MIME type và thử tải lại
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('MIME type') && e.filename && e.filename.includes('main.tsx')) {
+          console.log('Phát hiện lỗi MIME type, thử tải lại script...');
+          const script = document.createElement('script');
+          script.type = 'module';
+          script.src = '/src/main.tsx?v=' + Date.now();
+          document.body.appendChild(script);
+        }
+      }, true);
     </script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

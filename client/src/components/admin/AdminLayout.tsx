@@ -12,7 +12,6 @@ import {
   MessageSquare,
   Settings,
   User,
-  Users,
   X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -33,33 +32,16 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     }
   };
 
-  const { user } = useAuth();
-  
   const menuItems = [
     { path: '/admin', label: 'Tổng quan', icon: <LayoutDashboard size={20} /> },
-    // Chỉ hiển thị các mục dựa trên quyền của người dùng
-    user?.canManagePeriods || user?.isAdmin 
-      ? { path: '/admin/periods', label: 'Thời kỳ lịch sử', icon: <Clock size={20} /> } 
-      : null,
-    user?.canManageEvents || user?.isAdmin 
-      ? { path: '/admin/event-types', label: 'Loại sự kiện', icon: <FileText size={20} /> } 
-      : null,
-    user?.canManageEvents || user?.isAdmin 
-      ? { path: '/admin/events', label: 'Sự kiện lịch sử', icon: <BarChart3 size={20} /> } 
-      : null,
-    user?.canManageFigures || user?.isAdmin 
-      ? { path: '/admin/historical-figures', label: 'Nhân vật lịch sử', icon: <User size={20} /> } 
-      : null,
-    user?.canManageSites || user?.isAdmin 
-      ? { path: '/admin/historical-sites', label: 'Địa danh lịch sử', icon: <Home size={20} /> } 
-      : null,
+    { path: '/admin/periods', label: 'Thời kỳ lịch sử', icon: <Clock size={20} /> },
+    { path: '/admin/event-types', label: 'Loại sự kiện', icon: <FileText size={20} /> },
+    { path: '/admin/events', label: 'Sự kiện lịch sử', icon: <BarChart3 size={20} /> },
+    { path: '/admin/historical-figures', label: 'Nhân vật lịch sử', icon: <User size={20} /> },
+    { path: '/admin/historical-sites', label: 'Địa danh lịch sử', icon: <Home size={20} /> },
     { path: '/admin/feedback', label: 'Phản hồi', icon: <MessageSquare size={20} /> },
     { path: '/admin/settings', label: 'Thiết lập', icon: <Settings size={20} /> },
-    // Chỉ admin mới thấy mục quản lý người dùng
-    user?.isAdmin 
-      ? { path: '/admin/users', label: 'Quản lý người dùng', icon: <Users size={20} /> } 
-      : null,
-  ].filter(Boolean);
+  ];
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -94,7 +76,6 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
           <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
             {menuItems.map((item) => {
-              if (!item) return null;
               const isActive = location === item.path;
               return (
                 <Link key={item.path} href={item.path}

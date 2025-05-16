@@ -1,16 +1,18 @@
 import { db } from "@db";
 import { 
   periods, 
-  events, 
+  events,
+  users, 
   historicalFigures,
   eventTypes,
   eventToEventType,
   historicalSites,
   feedback,
   settings,
-  users,
   type Period,
   type Event,
+  type User,
+  type InsertUser,
   type HistoricalFigure,
   type InsertHistoricalFigure,
   type EventType,
@@ -18,8 +20,7 @@ import {
   type Feedback,
   type InsertFeedback,
   type Setting,
-  type InsertSetting,
-  type User
+  type InsertSetting
 } from "@shared/schema";
 import { eq, and, or, like, sql, desc, asc, count, max } from "drizzle-orm";
 
@@ -68,30 +69,20 @@ export const storage = {
   
   getAllUsers: async () => {
     try {
-      return await db.query.users.findMany({
+      const users = await db.query.users.findMany({
         orderBy: [asc(sql`username`)]
       });
+      return users;
     } catch (error) {
       handleDbError(error, "getAllUsers");
       return [];
     }
   },
   
-  createUser: async (userData: { 
-    username: string, 
-    password: string, 
-    isAdmin: boolean,
-    canManagePeriods: boolean,
-    canManageEvents: boolean,
-    canManageFigures: boolean,
-    canManageSites: boolean
-  }) => {
+  createUser: async (userData: any) => {
     try {
       const [newUser] = await db.insert(users)
-        .values({
-          ...userData,
-          createdAt: new Date()
-        })
+        .values(userData)
         .returning();
       return newUser;
     } catch (error) {
@@ -100,25 +91,18 @@ export const storage = {
     }
   },
   
-  updateUser: async (
-    id: number, 
-    userData: {
-      username?: string,
-      password?: string,
-      isAdmin?: boolean,
-      canManagePeriods?: boolean,
-      canManageEvents?: boolean,
-      canManageFigures?: boolean,
-      canManageSites?: boolean
-    }
-  ) => {
+  updateUser: async (id: number, userData: any) => {
     try {
+      // Loại bỏ password khỏi cập nhật nếu nó trống
+      if (userData.password === undefined || userData.password === '') {
+        delete userData.password;
+      }
+      
       const [updatedUser] = await db.update(users)
         .set(userData)
         .where(eq(users.id, id))
         .returning();
-      
-      return updatedUser;
+      return updatedUser || null;
     } catch (error) {
       handleDbError(error, "updateUser");
       return null;
@@ -130,33 +114,9 @@ export const storage = {
       const [deletedUser] = await db.delete(users)
         .where(eq(users.id, id))
         .returning();
-      
       return deletedUser || null;
     } catch (error) {
       handleDbError(error, "deleteUser");
-      return null;
-    }
-  },
-  
-  updateUserPermissions: async (
-    id: number,
-    permissions: {
-      isAdmin?: boolean,
-      canManagePeriods?: boolean,
-      canManageEvents?: boolean,
-      canManageFigures?: boolean,
-      canManageSites?: boolean
-    }
-  ) => {
-    try {
-      const [updatedUser] = await db.update(users)
-        .set(permissions)
-        .where(eq(users.id, id))
-        .returning();
-      
-      return updatedUser;
-    } catch (error) {
-      handleDbError(error, "updateUserPermissions");
       return null;
     }
   },

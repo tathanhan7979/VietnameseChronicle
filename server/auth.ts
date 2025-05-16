@@ -35,15 +35,11 @@ export async function registerUser(userData: InsertUser): Promise<AuthResult> {
     // Mã hóa mật khẩu trước khi lưu
     const hashedPassword = await hashPassword(userData.password);
     
-    // Tạo người dùng mới với mật khẩu đã mã hóa và phân quyền
+    // Tạo người dùng mới với mật khẩu đã mã hóa
     const [newUser] = await db.insert(users).values({
       username: userData.username,
       password: hashedPassword,
       isAdmin: userData.isAdmin || false,
-      canManagePeriods: userData.canManagePeriods || false,
-      canManageEvents: userData.canManageEvents || false,
-      canManageFigures: userData.canManageFigures || false,
-      canManageSites: userData.canManageSites || false,
       createdAt: new Date()
     }).returning();
     
@@ -120,10 +116,6 @@ export async function createInitialAdminUser(): Promise<void> {
         username: 'TaThanhAnGroup',
         password: hashedPassword,
         isAdmin: true,
-        canManagePeriods: true,
-        canManageEvents: true,
-        canManageFigures: true,
-        canManageSites: true,
         createdAt: new Date()
       }).returning();
       
