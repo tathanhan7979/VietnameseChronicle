@@ -41,18 +41,27 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Định nghĩa schema cho form
 const userFormSchema = z.object({
   username: z.string().min(3, "Tên người dùng phải có ít nhất 3 ký tự"),
   password: z.string().optional(),
   isAdmin: z.boolean().default(false),
+  can_manage_periods: z.boolean().default(false),
+  can_manage_events: z.boolean().default(false),
+  can_manage_figures: z.boolean().default(false),
+  can_manage_sites: z.boolean().default(false),
 });
 
 interface User {
   id: number;
   username: string;
   isAdmin: boolean;
+  can_manage_periods: boolean;
+  can_manage_events: boolean;
+  can_manage_figures: boolean;
+  can_manage_sites: boolean;
   createdAt: string;
   lastLoginAt: string | null;
 }
@@ -281,15 +290,41 @@ const UsersPage = () => {
                     <TableCell>{user.id}</TableCell>
                     <TableCell>{user.username}</TableCell>
                     <TableCell>
-                      {user.isAdmin ? (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs font-semibold">
-                          Quản trị viên
-                        </span>
-                      ) : (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-xs font-semibold">
-                          Người dùng
-                        </span>
-                      )}
+                      <div className="flex flex-wrap gap-1">
+                        {user.isAdmin ? (
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs font-semibold">
+                            Quản trị viên
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-xs font-semibold">
+                            Người dùng
+                          </span>
+                        )}
+                        {!user.isAdmin && (
+                          <>
+                            {user.can_manage_periods && (
+                              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-xs font-semibold">
+                                Thời kỳ
+                              </span>
+                            )}
+                            {user.can_manage_events && (
+                              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-md text-xs font-semibold">
+                                Sự kiện
+                              </span>
+                            )}
+                            {user.can_manage_figures && (
+                              <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded-md text-xs font-semibold">
+                                Nhân vật
+                              </span>
+                            )}
+                            {user.can_manage_sites && (
+                              <span className="px-2 py-1 bg-red-100 text-red-800 rounded-md text-xs font-semibold">
+                                Di tích
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>{formatDate(user.createdAt)}</TableCell>
                     <TableCell>{formatDate(user.lastLoginAt)}</TableCell>
@@ -382,9 +417,18 @@ const UsersPage = () => {
                   <FormItem>
                     <FormLabel>Quyền hạn</FormLabel>
                     <Select
-                      onValueChange={(value) =>
-                        field.onChange(value === "true")
-                      }
+                      onValueChange={(value) => {
+                        const isAdmin = value === "true";
+                        field.onChange(isAdmin);
+                        
+                        // Nếu là admin, tự động bật tất cả quyền
+                        if (isAdmin) {
+                          form.setValue("can_manage_periods", true);
+                          form.setValue("can_manage_events", true);
+                          form.setValue("can_manage_figures", true);
+                          form.setValue("can_manage_sites", true);
+                        }
+                      }}
                       defaultValue={field.value ? "true" : "false"}
                     >
                       <FormControl>
@@ -401,6 +445,97 @@ const UsersPage = () => {
                   </FormItem>
                 )}
               />
+              
+              {!form.watch("isAdmin") && (
+                <div className="space-y-4 border rounded-md p-4 mt-4">
+                  <h3 className="font-medium text-sm">Phân quyền chi tiết</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="can_manage_periods"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Quản lý thời kỳ</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Thêm, sửa, xóa thời kỳ lịch sử
+                            </p>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="can_manage_events"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Quản lý sự kiện</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Thêm, sửa, xóa sự kiện lịch sử
+                            </p>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="can_manage_figures"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Quản lý nhân vật</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Thêm, sửa, xóa nhân vật lịch sử
+                            </p>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="can_manage_sites"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel>Quản lý di tích</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Thêm, sửa, xóa di tích lịch sử
+                            </p>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-end space-x-2 pt-4">
                 <Button

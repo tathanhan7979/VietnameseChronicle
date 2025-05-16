@@ -9,6 +9,10 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   isAdmin: boolean("is_admin").default(false).notNull(),
+  can_manage_periods: boolean("can_manage_periods").default(false).notNull(),
+  can_manage_events: boolean("can_manage_events").default(false).notNull(),
+  can_manage_figures: boolean("can_manage_figures").default(false).notNull(),
+  can_manage_sites: boolean("can_manage_sites").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   lastLoginAt: timestamp("last_login_at")
 });
@@ -17,6 +21,10 @@ export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
   isAdmin: true,
+  can_manage_periods: true,
+  can_manage_events: true,
+  can_manage_figures: true,
+  can_manage_sites: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
