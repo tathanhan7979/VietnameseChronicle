@@ -63,11 +63,11 @@ export const newsController = {
       // Lọc theo trạng thái
       if (status !== "all") {
         if (status === "published") {
-          query = query.where(eq(news.is_published, true));
-          countQuery = countQuery.where(eq(news.is_published, true));
+          query = query.where(eq(news.published, true));
+          countQuery = countQuery.where(eq(news.published, true));
         } else if (status === "draft") {
-          query = query.where(eq(news.is_published, false));
-          countQuery = countQuery.where(eq(news.is_published, false));
+          query = query.where(eq(news.published, false));
+          countQuery = countQuery.where(eq(news.published, false));
         } else if (status === "featured") {
           query = query.where(eq(news.is_featured, true));
           countQuery = countQuery.where(eq(news.is_featured, true));
@@ -243,7 +243,7 @@ export const newsController = {
           // Không lấy tin tức hiện tại
           sql`${news.id} != ${newsId}`,
           // Chỉ lấy tin tức đã xuất bản
-          eq(news.is_published, true)
+          eq(news.published, true)
         )
       );
 
@@ -288,7 +288,7 @@ export const newsController = {
           .where(
             and(
               sql`${news.id} != ${newsId}`,
-              eq(news.is_published, true),
+              eq(news.published, true),
               // Loại bỏ những tin đã có trong danh sách liên quan
               sql`${news.id} NOT IN (${relatedNews.map((n) => n.id).join(",")})`
             )
@@ -369,7 +369,7 @@ export const newsController = {
         .from(news)
         .where(
           and(
-            eq(news.is_published, true),
+            eq(news.published, true),
             eq(news.period_id, periodId)
           )
         )
@@ -391,7 +391,7 @@ export const newsController = {
         .from(news)
         .where(
           and(
-            eq(news.is_published, true),
+            eq(news.published, true),
             eq(news.event_id, eventId)
           )
         )
@@ -413,7 +413,7 @@ export const newsController = {
         .from(news)
         .where(
           and(
-            eq(news.is_published, true),
+            eq(news.published, true),
             eq(news.figure_id, figureId)
           )
         )
@@ -435,7 +435,7 @@ export const newsController = {
         .from(news)
         .where(
           and(
-            eq(news.is_published, true),
+            eq(news.published, true),
             eq(news.site_id, siteId)
           )
         )
