@@ -49,8 +49,10 @@ export async function generateSitemap() {
 
     // Thêm các sự kiện
     for (const event of events) {
+      const eventSlug = typeof event.slug === 'string' ? event.slug : 
+                        (event.title ? event.title.toLowerCase().replace(/\s+/g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'chi-tiet');
       urls.push({
-        loc: `${baseUrl}/su-kien/${event.id}`,
+        loc: `${baseUrl}/su-kien/${event.id}/${eventSlug}`,
         lastmod: currentDate,
         priority: defaultPriority,  // Sử dụng mức ưu tiên từ thiết lập
         changefreq: defaultChangeFreq,
@@ -59,8 +61,10 @@ export async function generateSitemap() {
 
     // Thêm các nhân vật lịch sử
     for (const figure of figures) {
+      const figureSlug = typeof figure.slug === 'string' ? figure.slug : 
+                         (figure.name ? figure.name.toLowerCase().replace(/\s+/g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'chi-tiet');
       urls.push({
-        loc: `${baseUrl}/nhan-vat/${figure.id}`,
+        loc: `${baseUrl}/nhan-vat/${figure.id}/${figureSlug}`,
         lastmod: currentDate,
         priority: defaultPriority,  // Sử dụng mức ưu tiên từ thiết lập
         changefreq: defaultChangeFreq,
@@ -69,8 +73,10 @@ export async function generateSitemap() {
 
     // Thêm các di tích lịch sử
     for (const site of sites) {
+      const siteSlug = typeof site.slug === 'string' ? site.slug : 
+                       (site.name ? site.name.toLowerCase().replace(/\s+/g, '-').normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'chi-tiet');
       urls.push({
-        loc: `${baseUrl}/di-tich/${site.id}`,
+        loc: `${baseUrl}/di-tich/${site.id}/${siteSlug}`,
         lastmod: currentDate,
         priority: defaultPriority,  // Sử dụng mức ưu tiên từ thiết lập
         changefreq: defaultChangeFreq,

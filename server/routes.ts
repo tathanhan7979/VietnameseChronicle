@@ -2229,6 +2229,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             message: "Không tìm thấy nhân vật lịch sử",
           });
         }
+        
+        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
+        try {
+          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
+          await updateSitemapIfEnabled();
+        } catch (sitemapError) {
+          console.error("Error updating sitemap after updating historical figure:", sitemapError);
+        }
 
         res.json({
           success: true,
@@ -2270,6 +2278,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (oldImageUrl && oldImageUrl.startsWith("/uploads/")) {
           deleteFile(oldImageUrl);
           console.log(`Xóa hình ảnh của nhân vật: ${oldImageUrl}`);
+        }
+        
+        // Cập nhật sitemap nếu tính năng tự động cập nhật được bật
+        try {
+          const { updateSitemapIfEnabled } = await import('./sitemap-helper');
+          await updateSitemapIfEnabled();
+        } catch (sitemapError) {
+          console.error("Error updating sitemap after deleting historical figure:", sitemapError);
         }
 
         res.json({
