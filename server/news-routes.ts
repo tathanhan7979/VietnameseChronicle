@@ -157,7 +157,7 @@ export function registerNewsRoutes(app: Express) {
   app.get(
     `${apiPrefix}/admin/news/:id`,
     requireAuth,
-    requireAdmin,
+    requireNewsPermission,
     async (req, res) => {
       try {
         const { id } = req.params;
@@ -185,7 +185,7 @@ export function registerNewsRoutes(app: Express) {
   app.post(
     `${apiPrefix}/admin/news`,
     requireAuth,
-    requireAdmin,
+    requireNewsPermission,
     uploadNewsImage.single("image"),
     async (req, res) => {
       try {
@@ -232,7 +232,7 @@ export function registerNewsRoutes(app: Express) {
   app.put(
     `${apiPrefix}/admin/news/:id`,
     requireAuth,
-    requireAdmin,
+    requireNewsPermission,
     uploadNewsImage.single("image"),
     async (req, res) => {
       try {
@@ -288,7 +288,7 @@ export function registerNewsRoutes(app: Express) {
   app.delete(
     `${apiPrefix}/admin/news/:id`,
     requireAuth,
-    requireAdmin,
+    requireNewsPermission,
     async (req, res) => {
       try {
         const { id } = req.params;
