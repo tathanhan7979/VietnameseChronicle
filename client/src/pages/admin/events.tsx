@@ -74,6 +74,7 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import RichTextEditor from "@/components/ui/rich-text-editor";
 
 // Định nghĩa schema cho form sự kiện
 const eventFormSchema = z.object({
@@ -1093,11 +1094,12 @@ export default function EventsAdmin() {
                           name="detailedDescription"
                           control={createForm.control}
                           render={({ field }) => (
-                            <ReactQuill
-                              theme="snow"
-                              modules={quillModules}
-                              formats={quillFormats}
-                              {...field}
+                            <RichTextEditor
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Thêm mô tả chi tiết về sự kiện..."
+                              height={400}
+                              label=""
                             />
                           )}
                         />
@@ -1365,11 +1367,12 @@ export default function EventsAdmin() {
                           name="detailedDescription"
                           control={editForm.control}
                           render={({ field }) => (
-                            <ReactQuill
-                              theme="snow"
-                              modules={quillModules}
-                              formats={quillFormats}
-                              {...field}
+                            <RichTextEditor
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Thêm mô tả chi tiết về sự kiện..."
+                              height={400}
+                              label=""
                             />
                           )}
                         />
