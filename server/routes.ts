@@ -1468,7 +1468,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/periods/reassign-entities`,
     requireAuth,
-    requireAdmin,
+    requirePeriodsPermission,
     async (req, res) => {
       try {
         const { newPeriodId, eventIds, figureIds, siteIds } = req.body;
@@ -2018,7 +2018,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(
     `${apiPrefix}/admin/events`,
     requireAuth,
-    requireAdmin,
+    requireEventsPermission,
     async (req, res) => {
       try {
         // Lấy danh sách sự kiện kèm theo thông tin loại sự kiện
@@ -2034,7 +2034,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/admin/events`,
     requireAuth,
-    requireAdmin,
+    requireEventsPermission,
     async (req, res) => {
       try {
         const eventData = req.body;
@@ -2112,7 +2112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/events/:id`,
     requireAuth,
-    requireAdmin,
+    requireEventsPermission,
     async (req, res) => {
       try {
         const eventId = parseInt(req.params.id);
@@ -2206,7 +2206,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(
     `${apiPrefix}/admin/events/:id`,
     requireAuth,
-    requireAdmin,
+    requireEventsPermission,
     async (req, res) => {
       try {
         const eventId = parseInt(req.params.id);
@@ -2614,7 +2614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put(
     `${apiPrefix}/admin/historical-sites/:id`,
     requireAuth,
-    requireAdmin,
+    requireSitesPermission,
     async (req, res) => {
       try {
         const { id } = req.params;
