@@ -63,7 +63,7 @@ interface News {
   summary: string;
   content: string;
   imageUrl: string | null;
-  is_published: boolean;
+  published: boolean;
   is_featured: boolean;
   view_count: number;
   period_id: number | null;
@@ -81,7 +81,7 @@ const newsFormSchema = z.object({
   summary: z.string().min(1, { message: "Tóm tắt không được để trống" }),
   content: z.string().min(1, { message: "Nội dung không được để trống" }),
   imageUrl: z.string().optional().nullable(),
-  is_published: z.boolean().default(false),
+  published: z.boolean().default(false),
   is_featured: z.boolean().default(false),
   period_id: z.number().nullable().optional(),
   event_id: z.number().nullable().optional(),
@@ -115,7 +115,7 @@ const NewsPage: React.FC = () => {
       summary: "",
       content: "",
       imageUrl: null,
-      is_published: false,
+      published: false,
       is_featured: false,
       period_id: null,
       event_id: null,
@@ -133,7 +133,7 @@ const NewsPage: React.FC = () => {
       summary: "",
       content: "",
       imageUrl: null,
-      is_published: false,
+      published: false,
       is_featured: false,
       period_id: null,
       event_id: null,
@@ -313,7 +313,7 @@ const NewsPage: React.FC = () => {
         summary: selectedNews.summary || "",
         content: selectedNews.content,
         imageUrl: selectedNews.imageUrl,
-        is_published: selectedNews.is_published,
+        published: selectedNews.published,
         is_featured: selectedNews.is_featured,
         period_id: selectedNews.period_id,
         event_id: selectedNews.event_id,
