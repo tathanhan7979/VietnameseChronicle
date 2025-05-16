@@ -20,9 +20,6 @@ export const advancedQuillModules = {
   ],
   clipboard: {
     matchVisual: false
-  },
-  imageResize: {
-    displaySize: true
   }
 };
 
