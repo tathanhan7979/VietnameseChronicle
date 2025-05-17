@@ -111,7 +111,7 @@
     <script>
       // Kiểm tra lỗi MIME type và thử tải lại
       window.addEventListener('error', function(e) {
-        console.log('Lỗi tải trang:', e.message);
+        // Chỉ log lỗi liên quan đến MIME type và module
         if ((e.message && (e.message.includes('MIME type') || e.message.includes('module specifier') || e.message.includes('Failed to fetch'))) && 
             (e.filename && e.filename.includes('main') || !e.filename)) {
           console.log('Phát hiện lỗi tải module, thử tải lại script...');
