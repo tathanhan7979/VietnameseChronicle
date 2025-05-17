@@ -274,13 +274,13 @@ const NewsListPage: React.FC = () => {
                         alt={news.title}
                         className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
                         onError={(e) => {
-                          e.currentTarget.src = "/error-img.png";
+                          e.currentTarget.src = "/uploads/error-img.png";
                           e.currentTarget.onerror = null; // Tránh lặp vô hạn nếu error-img.png cũng lỗi
                         }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-amber-200 text-amber-700">
-                        <img src="/error-img.png" alt="Không có hình ảnh" className="w-16 h-16 opacity-60" />
+                        <img src="/uploads/error-img.png" alt="Không có hình ảnh" className="w-16 h-16 opacity-60" />
                       </div>
                     )}
                     {news.is_featured && (

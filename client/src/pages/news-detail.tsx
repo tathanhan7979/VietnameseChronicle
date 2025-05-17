@@ -249,7 +249,7 @@ const NewsDetailPage: React.FC = () => {
                     alt={news.news.title}
                     className="w-full h-auto"
                     onError={(e) => {
-                      e.currentTarget.src = "/error-img.png";
+                      e.currentTarget.src = "/uploads/error-img.png";
                       e.currentTarget.onerror = null; // Tránh lặp vô hạn nếu error-img.png cũng lỗi
                     }}
                   />
@@ -319,7 +319,7 @@ const NewsDetailPage: React.FC = () => {
                                 alt={item.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                 onError={(e) => {
-                                  e.currentTarget.src = "/error-img.png";
+                                  e.currentTarget.src = "/uploads/error-img.png";
                                   e.currentTarget.onerror = null;
                                 }}
                               />

@@ -64,7 +64,7 @@ export default function NewsSection() {
           alt={news.title}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
           onError={(e) => {
-            e.currentTarget.src = "/error-img.png";
+            e.currentTarget.src = "/uploads/error-img.png";
             e.currentTarget.onerror = null; // Tránh lặp vô hạn nếu error-img.png cũng lỗi
           }}
         />
