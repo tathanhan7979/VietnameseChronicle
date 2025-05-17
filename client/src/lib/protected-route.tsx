@@ -11,7 +11,7 @@ export function ProtectedRoute({
   path: string;
   component: () => React.JSX.Element;
   adminOnly?: boolean;
-  requirePermission?: 'periods' | 'events' | 'figures' | 'sites' | null;
+  requirePermission?: 'periods' | 'events' | 'figures' | 'sites' | 'news' | null;
 }) {
   const { user, isLoading } = useAuth();
 
@@ -68,6 +68,12 @@ export function ProtectedRoute({
         if (!user.isAdmin && !user.can_manage_sites) {
           accessDenied = true;
           deniedMessage = 'Bạn không có quyền quản lý địa danh lịch sử.';
+        }
+        break;
+      case 'news':
+        if (!user.isAdmin && !user.can_manage_news) {
+          accessDenied = true;
+          deniedMessage = 'Bạn không có quyền quản lý tin tức.';
         }
         break;
     }
