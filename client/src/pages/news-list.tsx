@@ -410,10 +410,10 @@ const NewsListPage: React.FC = () => {
             </div>
             
             {/* Bộ lọc nâng cao */}
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="filters" className="border-amber-200">
-                <AccordionTrigger className="text-amber-700 font-medium">
-                  <div className="flex items-center">
+            <Accordion type="single" collapsible>
+              <AccordionItem value="filters">
+                <AccordionTrigger>
+                  <div className="flex items-center text-amber-700 font-medium">
                     <Filter className="w-4 h-4 mr-2" />
                     Bộ lọc nâng cao
                   </div>
