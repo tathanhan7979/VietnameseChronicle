@@ -453,9 +453,9 @@ const NewsListPage: React.FC = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all_events">Tất cả sự kiện</SelectItem>
-                          {events && events.map((event: Event) => (
+                          {events && events.map((event: any) => (
                             <SelectItem key={event.id} value={event.id.toString()}>
-                              {event.name}
+                              {event.title}
                             </SelectItem>
                           ))}
                         </SelectContent>
