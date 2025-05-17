@@ -431,7 +431,7 @@ const NewsListPage: React.FC = () => {
                           <SelectValue placeholder="Tất cả thời kỳ" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Tất cả thời kỳ</SelectItem>
+                          <SelectItem value="all_periods">Tất cả thời kỳ</SelectItem>
                           {periods && periods.map((period: Period) => (
                             <SelectItem key={period.id} value={period.id.toString()}>
                               {period.name}
@@ -452,7 +452,7 @@ const NewsListPage: React.FC = () => {
                           <SelectValue placeholder="Tất cả sự kiện" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Tất cả sự kiện</SelectItem>
+                          <SelectItem value="all_events">Tất cả sự kiện</SelectItem>
                           {events && events.map((event: Event) => (
                             <SelectItem key={event.id} value={event.id.toString()}>
                               {event.name}
@@ -473,7 +473,7 @@ const NewsListPage: React.FC = () => {
                           <SelectValue placeholder="Tất cả nhân vật" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Tất cả nhân vật</SelectItem>
+                          <SelectItem value="all_figures">Tất cả nhân vật</SelectItem>
                           {figures && figures.map((figure: HistoricalFigure) => (
                             <SelectItem key={figure.id} value={figure.id.toString()}>
                               {figure.name}
@@ -494,7 +494,7 @@ const NewsListPage: React.FC = () => {
                           <SelectValue placeholder="Tất cả địa danh" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Tất cả địa danh</SelectItem>
+                          <SelectItem value="all_sites">Tất cả địa danh</SelectItem>
                           {sites && sites.map((site: HistoricalSite) => (
                             <SelectItem key={site.id} value={site.id.toString()}>
                               {site.name}
