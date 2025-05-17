@@ -173,7 +173,7 @@ const NewsDetailPage: React.FC = () => {
       <Header onOpenSearch={() => {}} />
       
       <main className="container mx-auto px-4 py-8 pt-24 md:pt-28">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Breadcrumb */}
           <div className="flex items-center text-sm text-gray-500 mb-6">
             <Link href="/">
@@ -188,23 +188,23 @@ const NewsDetailPage: React.FC = () => {
           </div>
           
           {/* Tiêu đề và thông tin */}
-          <h1 className="text-3xl font-bold text-amber-900 mb-4">{news?.news?.title}</h1>
+          <h1 className="text-4xl font-bold text-amber-900 mb-4 leading-tight">{news?.news?.title}</h1>
           
-          <div className="flex flex-wrap items-center text-sm text-gray-500 mb-6 gap-4">
-            <div className="flex items-center">
-              <Calendar className="w-4 h-4 mr-1" />
+          <div className="flex flex-wrap items-center text-sm text-gray-600 mb-8 gap-4">
+            <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full">
+              <Calendar className="w-4 h-4 mr-1.5 text-amber-600" />
               {news?.news ? formatDate(news.news.createdAt) : ""}
             </div>
             
-            <div className="flex items-center">
-              <Eye className="w-4 h-4 mr-1" />
+            <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full">
+              <Eye className="w-4 h-4 mr-1.5 text-amber-600" />
               {news?.news?.viewCount} lượt xem
             </div>
             
             {news?.news?.period && (
               <Link href={`/thoi-ky/${news.news.period.slug}`}>
-                <span className="flex items-center hover:text-amber-600 transition-colors">
-                  <Clock className="w-4 h-4 mr-1" />
+                <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
+                  <Clock className="w-4 h-4 mr-1.5 text-amber-600" />
                   {news.news.period.name}
                 </span>
               </Link>
@@ -212,8 +212,8 @@ const NewsDetailPage: React.FC = () => {
             
             {news?.news?.historicalFigure && (
               <Link href={`/nhan-vat/${news.news.historicalFigure.id}/${news.news.historicalFigure.slug}`}>
-                <span className="flex items-center hover:text-amber-600 transition-colors">
-                  <User className="w-4 h-4 mr-1" />
+                <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
+                  <User className="w-4 h-4 mr-1.5 text-amber-600" />
                   {news.news.historicalFigure.name}
                 </span>
               </Link>
@@ -221,8 +221,8 @@ const NewsDetailPage: React.FC = () => {
             
             {news?.news?.historicalSite && (
               <Link href={`/di-tich/${news.news.historicalSite.id}/${news.news.historicalSite.slug}`}>
-                <span className="flex items-center hover:text-amber-600 transition-colors">
-                  <MapPin className="w-4 h-4 mr-1" />
+                <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
+                  <MapPin className="w-4 h-4 mr-1.5 text-amber-600" />
                   {news.news.historicalSite.name}
                 </span>
               </Link>
@@ -230,42 +230,116 @@ const NewsDetailPage: React.FC = () => {
             
             {news?.news?.event && (
               <Link href={`/su-kien/${news.news.event.id}/${news.news.event.slug}`}>
-                <span className="flex items-center hover:text-amber-600 transition-colors">
-                  <BookOpen className="w-4 h-4 mr-1" />
+                <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
+                  <BookOpen className="w-4 h-4 mr-1.5 text-amber-600" />
                   {news.news.event.name}
                 </span>
               </Link>
             )}
           </div>
           
-          {/* Hình ảnh chính */}
-          {news?.news?.imageUrl && (
-            <div className="mb-8">
-              <img
-                src={news.news.imageUrl}
-                alt={news.news.title}
-                className="w-full h-auto rounded-lg shadow-md"
-              />
+          {/* Chia bố cục thành 2 cột trên màn hình lớn */}
+          <div className="lg:flex lg:gap-8">
+            <div className="lg:w-2/3">
+              {/* Hình ảnh chính */}
+              {news?.news?.imageUrl && (
+                <div className="mb-8 overflow-hidden rounded-xl shadow-md">
+                  <img
+                    src={news.news.imageUrl}
+                    alt={news.news.title}
+                    className="w-full h-auto"
+                  />
+                </div>
+              )}
+              
+              {/* Tóm tắt */}
+              {news?.news?.summary && (
+                <div className="bg-gradient-to-r from-amber-50 to-amber-100 border-l-4 border-amber-500 p-5 mb-8 italic text-amber-800 rounded-r-lg shadow-sm text-lg">
+                  {news.news.summary}
+                </div>
+              )}
+              
+              {/* Nội dung chính */}
+              {news?.news?.content && (
+                <div 
+                  className="prose prose-amber prose-lg max-w-none mb-12 prose-headings:text-amber-900 prose-a:text-amber-700 prose-a:no-underline hover:prose-a:text-amber-600 prose-img:rounded-lg prose-img:shadow-md"
+                  dangerouslySetInnerHTML={renderContent(news.news.content)}
+                />
+              )}
             </div>
-          )}
-          
-          {/* Tóm tắt */}
-          {news?.news?.summary && (
-            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8 italic text-amber-800">
-              {news.news.summary}
+            
+            <div className="lg:w-1/3 mt-8 lg:mt-0">
+              {/* Thẻ tác giả hoặc thông tin bổ sung */}
+              <div className="bg-amber-50 rounded-xl p-6 shadow-sm mb-8">
+                <h3 className="text-lg font-semibold text-amber-900 mb-3">Thông tin bài viết</h3>
+                <div className="space-y-3 text-gray-600">
+                  <div className="flex items-center">
+                    <Calendar className="w-5 h-5 mr-2 text-amber-600" />
+                    <span>Đăng ngày: {news?.news ? formatDate(news.news.createdAt) : ""}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Eye className="w-5 h-5 mr-2 text-amber-600" />
+                    <span>Lượt xem: {news?.news?.viewCount}</span>
+                  </div>
+                  
+                  {news?.news?.period && (
+                    <div className="flex items-center">
+                      <Clock className="w-5 h-5 mr-2 text-amber-600" />
+                      <span>Thời kỳ: {news.news.period.name}</span>
+                    </div>
+                  )}
+                  
+                  {news?.news?.event && (
+                    <div className="flex items-center">
+                      <BookOpen className="w-5 h-5 mr-2 text-amber-600" />
+                      <span>Sự kiện: {news.news.event.name}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Hiển thị tin tức liên quan nếu có */}
+              {relatedNews && relatedNews.length > 0 && (
+                <div className="bg-amber-50 rounded-xl p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold text-amber-900 mb-3 border-b border-amber-200 pb-2">
+                    Tin tức liên quan
+                  </h3>
+                  <div className="space-y-4 mt-3">
+                    {relatedNews.slice(0, 3).map((item: RelatedNews) => (
+                      <Link key={item.id} href={`/tin-tuc/${item.id}/${item.slug}`}>
+                        <div className="flex gap-3 group">
+                          <div className="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md bg-amber-100">
+                            {item.imageUrl ? (
+                              <img 
+                                src={item.imageUrl} 
+                                alt={item.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <BookOpen className="w-6 h-6 text-amber-700" />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2">
+                              {item.title}
+                            </h4>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {formatDate(item.createdAt)}
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-          
-          {/* Nội dung chính */}
-          {news?.news?.content && (
-            <div 
-              className="prose prose-amber max-w-none mb-12"
-              dangerouslySetInnerHTML={renderContent(news.news.content)}
-            />
-          )}
+          </div>
           
           {/* Facebook comments */}
-          <div className="border-t border-gray-200 pt-8 mb-8">
+          <div className="border-t border-gray-200 pt-8 mt-8 mb-8">
             <h3 className="text-xl font-semibold text-amber-900 mb-4">Bình luận</h3>
             <FacebookComments url={fullUrl} />
           </div>

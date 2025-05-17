@@ -60,7 +60,7 @@ const NewsListPage: React.FC = () => {
   const limit = 12;
 
   // Fetch tất cả tin tức với phân trang
-  const { data, isLoading, error } = useQuery({
+  const { data: apiResponse, isLoading, error } = useQuery({
     queryKey: ["/api/news", page, limit, searchQuery, sortBy],
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -81,12 +81,16 @@ const NewsListPage: React.FC = () => {
     },
   });
 
+  // Xử lý cấu trúc dữ liệu API
+  const newsData = apiResponse?.data || [];
+  const totalItems = apiResponse?.total ? parseInt(apiResponse.total) : 0;
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1); // Reset về trang 1 khi tìm kiếm
   };
 
-  const totalPages = Math.ceil((data?.total || 0) / limit);
+  const totalPages = Math.ceil(totalItems / limit);
 
   const renderPagination = () => {
     const items = [];
@@ -261,18 +265,23 @@ const NewsListPage: React.FC = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {data?.news?.map((news: News) => (
-                <Card key={news.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="aspect-[16/9] overflow-hidden bg-amber-100">
+              {newsData.map((news: News) => (
+                <Card key={news.id} className="overflow-hidden hover:shadow-md transition-shadow group">
+                  <div className="aspect-[16/9] overflow-hidden bg-amber-100 relative">
                     {news.imageUrl ? (
                       <img
                         src={news.imageUrl}
                         alt={news.title}
-                        className="w-full h-full object-cover transition-transform hover:scale-105"
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-300"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-amber-200 text-amber-700">
                         Không có hình ảnh
+                      </div>
+                    )}
+                    {news.is_featured && (
+                      <div className="absolute top-3 right-3 bg-amber-600 text-white text-xs font-medium px-2 py-1 rounded-full shadow-md">
+                        Nổi bật
                       </div>
                     )}
                   </div>
@@ -282,11 +291,10 @@ const NewsListPage: React.FC = () => {
                       <Calendar className="w-4 h-4 mr-1" />
                       {formatDate(news.createdAt)}
                       
-                      {news.is_featured && (
-                        <span className="ml-auto bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full">
-                          Nổi bật
-                        </span>
-                      )}
+                      <div className="ml-auto flex items-center gap-1">
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>{news.viewCount}</span>
+                      </div>
                     </div>
                     <CardTitle className="text-xl leading-tight line-clamp-2">
                       <Link href={`/tin-tuc/${news.id}/${news.slug}`} className="hover:text-amber-700 transition-colors">
@@ -303,21 +311,17 @@ const NewsListPage: React.FC = () => {
                   
                   <CardFooter className="pt-2">
                     <Link href={`/tin-tuc/${news.id}/${news.slug}`}>
-                      <Button variant="link" className="p-0 h-auto text-amber-600 hover:text-amber-700">
+                      <Button variant="link" className="p-0 h-auto text-amber-600 hover:text-amber-700 group-hover:translate-x-1 transition-transform">
                         Đọc thêm <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
                     </Link>
-                    
-                    <div className="ml-auto text-sm text-muted-foreground">
-                      {news.viewCount} lượt xem
-                    </div>
                   </CardFooter>
                 </Card>
               ))}
             </div>
             
             {/* Không có kết quả */}
-            {data?.news?.length === 0 && (
+            {newsData.length === 0 && (
               <div className="text-center py-10 bg-amber-50 rounded-lg">
                 <p className="text-lg text-amber-800 mb-2">Không tìm thấy tin tức nào</p>
                 <p className="text-sm text-muted-foreground">Vui lòng thử tìm kiếm với từ khóa khác.</p>
@@ -325,7 +329,7 @@ const NewsListPage: React.FC = () => {
             )}
             
             {/* Phân trang */}
-            {data?.news?.length > 0 && (
+            {newsData.length > 0 && (
               <Pagination className="mt-8">
                 {renderPagination()}
               </Pagination>
