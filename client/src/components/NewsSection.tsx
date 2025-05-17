@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Calendar, ArrowRight, Eye, BookOpen } from "lucide-react";
 
 // Kiểu dữ liệu cho tin tức
 interface News {
@@ -56,60 +57,77 @@ export default function NewsSection() {
   };
 
   // Render một card tin tức
-  const renderNewsCard = (news: News) => (
-    <Card key={news.id} className="h-full flex flex-col hover:shadow-md transition-shadow duration-300">
-      <div className="relative overflow-hidden h-48">
+  const renderNewsCard = (news: News, index: number) => (
+    <Card 
+      key={news.id} 
+      className="h-full flex flex-col overflow-hidden group hover:shadow-lg transition-all duration-300 border-amber-100 hover:border-amber-300"
+    >
+      <div className="relative overflow-hidden h-52 md:h-56 lg:h-60">
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
         <img
           src={news.imageUrl || "https://lichsuviet.edu.vn/uploads/banner-image.png"}
           alt={news.title}
-          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           onError={(e) => {
             e.currentTarget.src = "/uploads/error-img.png";
-            e.currentTarget.onerror = null; // Tránh lặp vô hạn nếu error-img.png cũng lỗi
+            e.currentTarget.onerror = null;
           }}
         />
+        <div className="absolute top-3 right-3 z-20">
+          {index === 0 && (
+            <span className="bg-amber-600 text-white text-xs font-medium px-2.5 py-1 rounded-full">
+              Mới nhất
+            </span>
+          )}
+        </div>
       </div>
-      <CardHeader className="pb-2 flex-grow">
-        <CardTitle className="text-xl mb-2">
-          <Link href={`/tin-tuc/${news.id}/${news.slug}`} className="hover:text-primary">
+      <CardHeader className="pb-2 flex-grow bg-gradient-to-b from-amber-50/50 to-transparent">
+        <div className="flex items-center text-xs text-muted-foreground mb-2">
+          <Calendar className="w-3.5 h-3.5 mr-1 text-amber-600" />
+          {formatDate(news.createdAt)}
+          <div className="ml-auto flex items-center">
+            <Eye className="w-3.5 h-3.5 mr-1 text-amber-600" />
+            <span>{news.viewCount}</span>
+          </div>
+        </div>
+        <CardTitle className="text-lg sm:text-xl font-bold text-amber-900 leading-tight transition-colors group-hover:text-amber-700">
+          <Link href={`/tin-tuc/${news.id}/${news.slug}`} className="hover:text-amber-600">
             {truncateTitle(news.title)}
           </Link>
         </CardTitle>
-        <CardDescription className="text-muted-foreground text-sm">
-          {formatDate(news.createdAt)}
-        </CardDescription>
       </CardHeader>
-      <CardContent className="pb-4">
-        <p className="text-sm text-gray-700 line-clamp-3">{news.summary}</p>
+      <CardContent className="pb-3">
+        <p className="text-sm text-gray-600 line-clamp-3">{news.summary}</p>
       </CardContent>
       <CardFooter className="pt-0">
-        <Link href={`/tin-tuc/${news.id}/${news.slug}`} className="text-primary hover:underline text-sm font-medium">
-          Đọc tiếp
+        <Link 
+          href={`/tin-tuc/${news.id}/${news.slug}`} 
+          className="flex items-center text-amber-600 hover:text-amber-800 text-sm font-medium transition-colors"
+        >
+          Đọc tiếp <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
         </Link>
-        <div className="ml-auto text-sm text-gray-500">
-          {news.viewCount} lượt xem
-        </div>
       </CardFooter>
     </Card>
   );
 
   // Hiển thị phần loading
   const renderLoading = () => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[1, 2, 3].map((i) => (
-        <Card key={i} className="h-full flex flex-col">
-          <div className="relative overflow-hidden h-48 bg-gray-200 animate-pulse" />
-          <CardHeader className="pb-2">
-            <div className="h-6 w-4/5 bg-gray-200 animate-pulse rounded mb-2" />
-            <div className="h-4 w-1/3 bg-gray-200 animate-pulse rounded" />
+        <Card key={i} className="h-full flex flex-col overflow-hidden">
+          <div className="relative overflow-hidden h-52 md:h-56 lg:h-60 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+          <CardHeader className="pb-2 bg-gradient-to-b from-amber-50/30 to-transparent">
+            <div className="h-4 w-32 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded mb-3" />
+            <div className="h-6 w-4/5 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded mb-1" />
+            <div className="h-6 w-2/3 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded" />
           </CardHeader>
-          <CardContent className="pb-4">
-            <div className="h-4 w-full bg-gray-200 animate-pulse rounded mb-2" />
-            <div className="h-4 w-5/6 bg-gray-200 animate-pulse rounded mb-2" />
-            <div className="h-4 w-4/6 bg-gray-200 animate-pulse rounded" />
+          <CardContent className="pb-3">
+            <div className="h-4 w-full bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded mb-2" />
+            <div className="h-4 w-5/6 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded mb-2" />
+            <div className="h-4 w-4/6 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded" />
           </CardContent>
           <CardFooter className="pt-0">
-            <div className="h-4 w-1/4 bg-gray-200 animate-pulse rounded" />
+            <div className="h-4 w-1/4 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded" />
           </CardFooter>
         </Card>
       ))}
@@ -117,11 +135,14 @@ export default function NewsSection() {
   );
 
   return (
-    <section id="news" className="py-16 bg-gray-50">
+    <section id="news" className="py-16 bg-amber-50/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Tin Tức & Bài Viết</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-amber-900 relative inline-block">
+            Tin Tức & Bài Viết
+            <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2/3 h-1 bg-amber-500 rounded-full"></span>
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto mt-4">
             Cập nhật những tin tức, bài viết mới nhất về lịch sử Việt Nam, các sự kiện, nhân vật và di tích lịch sử.
           </p>
         </div>
@@ -129,18 +150,23 @@ export default function NewsSection() {
         {isLoadingLatest ? (
           renderLoading()
         ) : latestNews && latestNews.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {latestNews.map(renderNewsCard)}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {latestNews.map((news, index) => renderNewsCard(news, index))}
           </div>
         ) : (
-          <div className="text-center py-8">
+          <div className="text-center py-10 bg-white rounded-lg shadow-sm">
+            <BookOpen className="w-12 h-12 mx-auto text-amber-300 mb-3" />
             <p className="text-gray-500">Không có tin tức mới.</p>
           </div>
         )}
 
-        <div className="text-center mt-10">
-          <Link href="/tin-tuc" className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-            Xem Tất Cả Tin Tức
+        <div className="text-center mt-12">
+          <Link 
+            href="/tin-tuc" 
+            className="inline-flex items-center px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors shadow-md hover:shadow-lg group"
+          >
+            <span>Xem Tất Cả Tin Tức</span>
+            <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       </div>

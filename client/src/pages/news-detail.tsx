@@ -4,7 +4,15 @@ import { Link, useParams, useLocation } from "wouter";
 import { Helmet } from "react-helmet";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { ArrowLeft, Calendar, Eye, Clock, MapPin, User, BookOpen } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  Eye,
+  Clock,
+  MapPin,
+  User,
+  BookOpen,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -65,7 +73,11 @@ const NewsDetailPage: React.FC = () => {
   const [location, setLocation] = useLocation();
 
   // Fetch chi tiết tin tức
-  const { data: news, isLoading, error } = useQuery({
+  const {
+    data: news,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["/api/news", newsId],
     queryFn: async () => {
       const response = await fetch(`/api/news/${newsId}`);
@@ -92,8 +104,9 @@ const NewsDetailPage: React.FC = () => {
   // Tăng lượt xem khi người dùng xem tin tức
   useEffect(() => {
     if (newsId && !isNaN(newsId)) {
-      fetch(`/api/news/${newsId}/view`, { method: "POST" })
-        .catch(error => console.error("Error incrementing view count:", error));
+      fetch(`/api/news/${newsId}/view`, { method: "POST" }).catch((error) =>
+        console.error("Error incrementing view count:", error),
+      );
     }
   }, [newsId]);
 
@@ -136,9 +149,13 @@ const NewsDetailPage: React.FC = () => {
     return (
       <>
         <Header onOpenSearch={() => {}} />
-        <main className="container mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Không tìm thấy tin tức</h1>
-          <p className="text-gray-600 mb-6">Tin tức này không tồn tại hoặc đã bị xóa.</p>
+        <main className="container mx-auto mt-6 px-4 py-12 text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">
+            Không tìm thấy tin tức
+          </h1>
+          <p className="text-gray-600 mb-6">
+            Tin tức này không tồn tại hoặc đã bị xóa.
+          </p>
           <Link href="/tin-tuc">
             <Button>
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -152,9 +169,10 @@ const NewsDetailPage: React.FC = () => {
   }
 
   // URL đầy đủ cho Facebook comments
-  const fullUrl = typeof window !== "undefined" && news?.news
-    ? `${window.location.origin}/tin-tuc/${news.news.id}/${news.news.slug}`
-    : "";
+  const fullUrl =
+    typeof window !== "undefined" && news?.news
+      ? `${window.location.origin}/tin-tuc/${news.news.id}/${news.news.slug}`
+      : "";
 
   return (
     <>
@@ -162,45 +180,56 @@ const NewsDetailPage: React.FC = () => {
         <SEO
           title={`${news.news.title} | Lịch Sử Việt Nam`}
           description={news.news.summary}
-          image={news.news.imageUrl || "https://lichsuviet.edu.vn/uploads/banner-image.png"}
+          image={
+            news.news.imageUrl ||
+            "https://lichsuviet.edu.vn/uploads/banner-image.png"
+          }
           type="article"
           url={`/tin-tuc/${news.news.id}/${news.news.slug}`}
           articlePublishedTime={news.news.createdAt}
           articleModifiedTime={news.news.updatedAt || news.news.createdAt}
         />
       )}
-      
+
       <Header onOpenSearch={() => {}} />
-      
+
       <main className="container mx-auto px-4 py-8 pt-24 md:pt-28">
         <div className="max-w-5xl mx-auto">
           {/* Breadcrumb */}
           <div className="flex items-center text-sm text-gray-500 mb-6">
             <Link href="/">
-              <span className="hover:text-amber-600 transition-colors">Trang chủ</span>
+              <span className="hover:text-amber-600 transition-colors">
+                Trang chủ
+              </span>
             </Link>
             <span className="mx-2">/</span>
             <Link href="/tin-tuc">
-              <span className="hover:text-amber-600 transition-colors">Tin tức</span>
+              <span className="hover:text-amber-600 transition-colors">
+                Tin tức
+              </span>
             </Link>
             <span className="mx-2">/</span>
-            <span className="text-amber-600 truncate max-w-[200px]">{news?.news?.title}</span>
+            <span className="text-amber-600 truncate max-w-[200px]">
+              {news?.news?.title}
+            </span>
           </div>
-          
+
           {/* Tiêu đề và thông tin */}
-          <h1 className="text-4xl font-bold text-amber-900 mb-4 leading-tight">{news?.news?.title}</h1>
-          
+          <h1 className="text-4xl font-bold text-amber-900 mb-4 leading-tight">
+            {news?.news?.title}
+          </h1>
+
           <div className="flex flex-wrap items-center text-sm text-gray-600 mb-8 gap-4">
             <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full">
               <Calendar className="w-4 h-4 mr-1.5 text-amber-600" />
               {news?.news ? formatDate(news.news.createdAt) : ""}
             </div>
-            
+
             <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full">
               <Eye className="w-4 h-4 mr-1.5 text-amber-600" />
               {news?.news?.viewCount} lượt xem
             </div>
-            
+
             {news?.news?.period && (
               <Link href={`/thoi-ky/${news.news.period.slug}`}>
                 <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
@@ -209,27 +238,33 @@ const NewsDetailPage: React.FC = () => {
                 </span>
               </Link>
             )}
-            
+
             {news?.news?.historicalFigure && (
-              <Link href={`/nhan-vat/${news.news.historicalFigure.id}/${news.news.historicalFigure.slug}`}>
+              <Link
+                href={`/nhan-vat/${news.news.historicalFigure.id}/${news.news.historicalFigure.slug}`}
+              >
                 <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
                   <User className="w-4 h-4 mr-1.5 text-amber-600" />
                   {news.news.historicalFigure.name}
                 </span>
               </Link>
             )}
-            
+
             {news?.news?.historicalSite && (
-              <Link href={`/di-tich/${news.news.historicalSite.id}/${news.news.historicalSite.slug}`}>
+              <Link
+                href={`/di-tich/${news.news.historicalSite.id}/${news.news.historicalSite.slug}`}
+              >
                 <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
                   <MapPin className="w-4 h-4 mr-1.5 text-amber-600" />
                   {news.news.historicalSite.name}
                 </span>
               </Link>
             )}
-            
+
             {news?.news?.event && (
-              <Link href={`/su-kien/${news.news.event.id}/${news.news.event.slug}`}>
+              <Link
+                href={`/su-kien/${news.news.event.id}/${news.news.event.slug}`}
+              >
                 <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
                   <BookOpen className="w-4 h-4 mr-1.5 text-amber-600" />
                   {news.news.event.name}
@@ -237,7 +272,7 @@ const NewsDetailPage: React.FC = () => {
               </Link>
             )}
           </div>
-          
+
           {/* Chia bố cục thành 2 cột trên màn hình lớn */}
           <div className="lg:flex lg:gap-8">
             <div className="lg:w-2/3">
@@ -255,44 +290,49 @@ const NewsDetailPage: React.FC = () => {
                   />
                 </div>
               )}
-              
+
               {/* Tóm tắt */}
               {news?.news?.summary && (
                 <div className="bg-gradient-to-r from-amber-50 to-amber-100 border-l-4 border-amber-500 p-5 mb-8 italic text-amber-800 rounded-r-lg shadow-sm text-lg">
                   {news.news.summary}
                 </div>
               )}
-              
+
               {/* Nội dung chính */}
               {news?.news?.content && (
-                <div 
-                  className="prose prose-amber prose-lg max-w-none mb-12 prose-headings:text-amber-900 prose-a:text-amber-700 prose-a:no-underline hover:prose-a:text-amber-600 prose-img:rounded-lg prose-img:shadow-md"
+                <div
+                  className="prose prose-amber prose-lg max-w-none mb-12 prose-headings:text-amber-900 prose-a:text-amber-700 prose-a:no-underline hover:prose-a:text-amber-600 prose-img:rounded-lg prose-img:shadow-md prose-p:leading-relaxed prose-p:text-gray-700 prose-li:text-gray-700 prose-h2:border-b prose-h2:border-amber-200 prose-h2:pb-2 prose-blockquote:bg-amber-50 prose-blockquote:rounded-r-lg prose-blockquote:border-l-4 prose-blockquote:border-amber-500 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:not-italic"
                   dangerouslySetInnerHTML={renderContent(news.news.content)}
                 />
               )}
             </div>
-            
+
             <div className="lg:w-1/3 mt-8 lg:mt-0">
               {/* Thẻ tác giả hoặc thông tin bổ sung */}
               <div className="bg-amber-50 rounded-xl p-6 shadow-sm mb-8">
-                <h3 className="text-lg font-semibold text-amber-900 mb-3">Thông tin bài viết</h3>
+                <h3 className="text-lg font-semibold text-amber-900 mb-3">
+                  Thông tin bài viết
+                </h3>
                 <div className="space-y-3 text-gray-600">
                   <div className="flex items-center">
                     <Calendar className="w-5 h-5 mr-2 text-amber-600" />
-                    <span>Đăng ngày: {news?.news ? formatDate(news.news.createdAt) : ""}</span>
+                    <span>
+                      Đăng ngày:{" "}
+                      {news?.news ? formatDate(news.news.createdAt) : ""}
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <Eye className="w-5 h-5 mr-2 text-amber-600" />
                     <span>Lượt xem: {news?.news?.viewCount}</span>
                   </div>
-                  
+
                   {news?.news?.period && (
                     <div className="flex items-center">
                       <Clock className="w-5 h-5 mr-2 text-amber-600" />
                       <span>Thời kỳ: {news.news.period.name}</span>
                     </div>
                   )}
-                  
+
                   {news?.news?.event && (
                     <div className="flex items-center">
                       <BookOpen className="w-5 h-5 mr-2 text-amber-600" />
@@ -301,7 +341,7 @@ const NewsDetailPage: React.FC = () => {
                   )}
                 </div>
               </div>
-              
+
               {/* Hiển thị tin tức liên quan nếu có */}
               {relatedNews && relatedNews.length > 0 && (
                 <div className="bg-amber-50 rounded-xl p-6 shadow-sm">
@@ -309,17 +349,22 @@ const NewsDetailPage: React.FC = () => {
                     Tin tức liên quan
                   </h3>
                   <div className="space-y-4 mt-3">
-                    {relatedNews.slice(0, 3).map((item: RelatedNews) => (
-                      <Link key={item.id} href={`/tin-tuc/${item.id}/${item.slug}`}>
+                    {relatedNews.slice(0, 5).map((item: RelatedNews) => (
+                      <Link
+                        key={item.id}
+                        href={`/tin-tuc/${item.id}/${item.slug}`}
+                        className="mt-3"
+                      >
                         <div className="flex gap-3 group">
                           <div className="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md bg-amber-100">
                             {item.imageUrl ? (
-                              <img 
-                                src={item.imageUrl} 
+                              <img
+                                src={item.imageUrl}
                                 alt={item.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                 onError={(e) => {
-                                  e.currentTarget.src = "/uploads/error-img.png";
+                                  e.currentTarget.src =
+                                    "/uploads/error-img.png";
                                   e.currentTarget.onerror = null;
                                 }}
                               />
@@ -345,18 +390,22 @@ const NewsDetailPage: React.FC = () => {
               )}
             </div>
           </div>
-          
+
           {/* Facebook comments */}
           <div className="border-t border-gray-200 pt-8 mt-8 mb-8">
-            <h3 className="text-xl font-semibold text-amber-900 mb-4">Bình luận</h3>
+            <h3 className="text-xl font-semibold text-amber-900 mb-4">
+              Bình luận
+            </h3>
             <FacebookComments url={fullUrl} />
           </div>
-          
+
           {/* Tin tức liên quan - chỉ hiển thị trên mobile/tablet */}
           {relatedNews?.length > 0 && (
             <div className="border-t border-gray-200 pt-8 mb-12 lg:hidden">
-              <h3 className="text-xl font-semibold text-amber-900 mb-6">Tin tức liên quan</h3>
-              
+              <h3 className="text-xl font-semibold text-amber-900 mb-6">
+                Tin tức liên quan
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {relatedNews.map((item: RelatedNews) => (
                   <Link key={item.id} href={`/tin-tuc/${item.id}/${item.slug}`}>
@@ -378,7 +427,7 @@ const NewsDetailPage: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="p-4">
                         <div className="flex items-center text-xs text-gray-500 mb-2">
                           <Calendar className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
@@ -394,7 +443,7 @@ const NewsDetailPage: React.FC = () => {
               </div>
             </div>
           )}
-          
+
           {/* Nút quay lại */}
           <div className="mt-12 border-t border-gray-200 pt-6">
             <Link href="/tin-tuc">
@@ -406,7 +455,7 @@ const NewsDetailPage: React.FC = () => {
           </div>
         </div>
       </main>
-      
+
       <BackToTop />
       <Footer />
     </>
