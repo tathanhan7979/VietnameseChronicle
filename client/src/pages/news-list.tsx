@@ -86,7 +86,7 @@ const NewsListPage: React.FC = () => {
     setPage(1); // Reset về trang 1 khi tìm kiếm
   };
 
-  const totalPages = data?.totalPages || 1;
+  const totalPages = Math.ceil((data?.total || 0) / limit);
 
   const renderPagination = () => {
     const items = [];
