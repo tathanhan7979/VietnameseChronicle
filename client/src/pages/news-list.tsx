@@ -196,7 +196,18 @@ const NewsListPage: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1); // Reset về trang 1 khi tìm kiếm
+    setPage(1); // Reset về trang 1 khi tìm kiếm hoặc lọc
+  };
+  
+  // Reset tất cả bộ lọc
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setSortBy("latest");
+    setPeriodId("");
+    setEventId("");
+    setFigureId("");
+    setSiteId("");
+    setPage(1);
   };
 
   const totalPages = Math.ceil(totalItems / limit);
@@ -381,10 +392,21 @@ const NewsListPage: React.FC = () => {
                 </Select>
               </div>
               
-              <Button type="submit" className="bg-amber-600 hover:bg-amber-700">
-                <Filter className="w-4 h-4 mr-2" />
-                Lọc
-              </Button>
+              <div className="flex gap-2">
+                <Button type="submit" className="bg-amber-600 hover:bg-amber-700">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Lọc
+                </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="border-amber-300 hover:bg-amber-50"
+                  onClick={handleResetFilters}
+                >
+                  Đặt lại
+                </Button>
+              </div>
             </div>
             
             {/* Bộ lọc nâng cao */}
@@ -452,7 +474,11 @@ const NewsListPage: React.FC = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="">Tất cả nhân vật</SelectItem>
-                          {/* Danh sách nhân vật sẽ được thêm vào sau */}
+                          {figures && figures.map((figure: HistoricalFigure) => (
+                            <SelectItem key={figure.id} value={figure.id.toString()}>
+                              {figure.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -469,7 +495,11 @@ const NewsListPage: React.FC = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="">Tất cả địa danh</SelectItem>
-                          {/* Danh sách địa danh sẽ được thêm vào sau */}
+                          {sites && sites.map((site: HistoricalSite) => (
+                            <SelectItem key={site.id} value={site.id.toString()}>
+                              {site.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
