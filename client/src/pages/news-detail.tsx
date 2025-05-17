@@ -313,51 +313,53 @@ const NewsDetailPage: React.FC = () => {
             </div>
 
             <div className="lg:w-1/3 mt-8 lg:mt-0">
-              {/* Thẻ tác giả hoặc thông tin bổ sung */}
-              <div className="bg-amber-50 rounded-xl p-6 shadow-sm mb-8">
-                <h3 className="text-lg font-semibold text-amber-900 mb-3">
-                  Thông tin bài viết
-                </h3>
-                <div className="space-y-3 text-gray-600">
-                  <div className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-amber-600" />
-                    <span>
-                      Đăng ngày:{" "}
-                      {news?.news ? formatDate(news.news.createdAt) : ""}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <Eye className="w-5 h-5 mr-2 text-amber-600" />
-                    <span>Lượt xem: {news?.news?.viewCount}</span>
-                  </div>
-
-                  {news?.news?.period && (
+              {/* Phần sidebar bên phải với thông tin và tin liên quan - sẽ cuộn theo khi người dùng cuộn trang */}
+              <div className="lg:sticky lg:top-24 space-y-8">
+                {/* Thẻ tác giả hoặc thông tin bổ sung */}
+                <div className="bg-amber-50 rounded-xl p-6 shadow-sm">
+                  <h3 className="text-lg font-semibold text-amber-900 mb-3">
+                    Thông tin bài viết
+                  </h3>
+                  <div className="space-y-3 text-gray-600">
                     <div className="flex items-center">
-                      <Clock className="w-5 h-5 mr-2 text-amber-600" />
-                      <span>Thời kỳ: {news.news.period.name}</span>
+                      <Calendar className="w-5 h-5 mr-2 text-amber-600" />
+                      <span>
+                        Đăng ngày:{" "}
+                        {news?.news ? formatDate(news.news.createdAt) : ""}
+                      </span>
                     </div>
-                  )}
-
-                  {news?.news?.event && (
                     <div className="flex items-center">
-                      <BookOpen className="w-5 h-5 mr-2 text-amber-600" />
-                      <span>Sự kiện: {news.news.event.name}</span>
+                      <Eye className="w-5 h-5 mr-2 text-amber-600" />
+                      <span>Lượt xem: {news?.news?.viewCount}</span>
                     </div>
-                  )}
+
+                    {news?.news?.period && (
+                      <div className="flex items-center">
+                        <Clock className="w-5 h-5 mr-2 text-amber-600" />
+                        <span>Thời kỳ: {news.news.period.name}</span>
+                      </div>
+                    )}
+
+                    {news?.news?.event && (
+                      <div className="flex items-center">
+                        <BookOpen className="w-5 h-5 mr-2 text-amber-600" />
+                        <span>Sự kiện: {news.news.event.name}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Hiển thị tin tức liên quan nếu có */}
-              {relatedNews && relatedNews.length > 0 && (
-                <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl shadow-md border border-amber-200">
-                  <div className="p-4 border-b border-amber-200 bg-amber-100">
-                    <h3 className="text-lg font-semibold text-amber-900 flex items-center">
-                      <BookOpen className="w-5 h-5 mr-2 text-amber-600" />
-                      Tin tức liên quan
-                    </h3>
-                  </div>
-                  <div className="p-4 max-h-[450px] overflow-y-auto custom-scrollbar">
-                    {relatedNews.slice(0, 8).map((item: RelatedNews, index: number) => (
+                {/* Hiển thị tin tức liên quan nếu có */}
+                {relatedNews && relatedNews.length > 0 && (
+                  <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl shadow-md border border-amber-200">
+                    <div className="p-4 border-b border-amber-200 bg-amber-100">
+                      <h3 className="text-lg font-semibold text-amber-900 flex items-center">
+                        <BookOpen className="w-5 h-5 mr-2 text-amber-600" />
+                        Tin tức liên quan
+                      </h3>
+                    </div>
+                    <div className="p-4 max-h-[450px] overflow-y-auto custom-scrollbar">
+                      {relatedNews.slice(0, 8).map((item: RelatedNews, index: number) => (
                       <Link
                         key={item.id}
                         href={`/tin-tuc/${item.id}/${item.slug}`}
