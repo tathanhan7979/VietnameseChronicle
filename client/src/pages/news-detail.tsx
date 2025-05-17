@@ -344,31 +344,32 @@ const NewsDetailPage: React.FC = () => {
             <FacebookComments url={fullUrl} />
           </div>
           
-          {/* Tin tức liên quan */}
+          {/* Tin tức liên quan - chỉ hiển thị trên mobile/tablet */}
           {relatedNews?.length > 0 && (
-            <div className="border-t border-gray-200 pt-8 mb-12">
+            <div className="border-t border-gray-200 pt-8 mb-12 lg:hidden">
               <h3 className="text-xl font-semibold text-amber-900 mb-6">Tin tức liên quan</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {relatedNews.map((item: RelatedNews) => (
                   <Link key={item.id} href={`/tin-tuc/${item.id}/${item.slug}`}>
-                    <div className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                    <div className="group bg-white rounded-lg shadow-sm hover:shadow-md hover:border-amber-200 border border-transparent transition-all duration-300 overflow-hidden">
                       <div className="aspect-[16/9] overflow-hidden bg-amber-100">
                         {item.imageUrl ? (
                           <img
                             src={item.imageUrl}
                             alt={item.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-amber-200 text-amber-700">
-                            Không có hình ảnh
+                            <BookOpen className="w-8 h-8" />
                           </div>
                         )}
                       </div>
                       
                       <div className="p-4">
-                        <div className="text-xs text-gray-500 mb-1">
+                        <div className="flex items-center text-xs text-gray-500 mb-2">
+                          <Calendar className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
                           {formatDate(item.createdAt)}
                         </div>
                         <h4 className="font-medium text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2">
