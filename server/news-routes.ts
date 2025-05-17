@@ -233,9 +233,33 @@ export function registerNewsRoutes(app: Express) {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const searchQuery = (req.query.search as string) || "";
+      const sortBy = (req.query.sortBy as string) || "latest";
+      
+      // Xử lý các tham số bộ lọc
+      const periodId = req.query.periodId ? parseInt(req.query.periodId as string) : undefined;
+      const eventId = req.query.eventId ? parseInt(req.query.eventId as string) : undefined;
+      const historicalFigureId = req.query.historicalFigureId ? parseInt(req.query.historicalFigureId as string) : undefined;
+      const historicalSiteId = req.query.historicalSiteId ? parseInt(req.query.historicalSiteId as string) : undefined;
+      
+      // Kiểm tra nếu giá trị là NaN thì gán undefined
+      const validPeriodId = !isNaN(periodId as number) ? periodId : undefined;
+      const validEventId = !isNaN(eventId as number) ? eventId : undefined;
+      const validFigureId = !isNaN(historicalFigureId as number) ? historicalFigureId : undefined;
+      const validSiteId = !isNaN(historicalSiteId as number) ? historicalSiteId : undefined;
 
-      // Chỉ lấy tin tức đã xuất bản cho frontend
-      const result = await newsController.getNewsPaginated(page, limit, "published", searchQuery);
+      // Chỉ lấy tin tức đã xuất bản cho frontend với các bộ lọc
+      const result = await newsController.getNewsPaginated(
+        page,
+        limit,
+        "published",
+        searchQuery,
+        validPeriodId,
+        validEventId,
+        validFigureId,
+        validSiteId,
+        sortBy
+      );
+      
       res.json(result);
     } catch (error) {
       console.error("Error getting public news list:", error);

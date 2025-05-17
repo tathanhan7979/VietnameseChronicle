@@ -184,6 +184,7 @@ const NewsListPage: React.FC = () => {
       
       const response = await fetch(`/api/news?${params.toString()}`);
       if (!response.ok) {
+        // Không log lỗi vào console để tránh thông báo lỗi gây nhầm lẫn
         throw new Error("Không thể tải tin tức");
       }
       return response.json();
