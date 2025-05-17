@@ -356,8 +356,8 @@ const NewsDetailPage: React.FC = () => {
                       Tin tức liên quan
                     </h3>
                   </div>
-                  <div className="p-4">
-                    {relatedNews.slice(0, 5).map((item: RelatedNews, index) => (
+                  <div className="p-4 max-h-[450px] overflow-y-auto custom-scrollbar">
+                    {relatedNews.slice(0, 8).map((item: RelatedNews, index: number) => (
                       <Link
                         key={item.id}
                         href={`/tin-tuc/${item.id}/${item.slug}`}

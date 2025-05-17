@@ -291,3 +291,27 @@
 .custom-important-text {
   color: #C62828 !important;
 }
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(217, 119, 6, 0.5) rgba(251, 191, 36, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(217, 119, 6, 0.5);
+  border-radius: 10px;
+  border: 2px solid rgba(251, 191, 36, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(217, 119, 6, 0.8);
+}
