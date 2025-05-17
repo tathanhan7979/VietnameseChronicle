@@ -334,6 +334,29 @@ const NewsPage: React.FC = () => {
   // Hàm xử lý khi submit form cập nhật tin tức
   const handleEditSubmit = (data: NewsFormValues) => {
     if (selectedNews) {
+      // Kiểm tra nếu không có thay đổi, thông báo và đóng form
+      const isUnchanged = 
+        data.title === selectedNews.title &&
+        data.slug === selectedNews.slug &&
+        data.summary === selectedNews.summary &&
+        data.content === selectedNews.content &&
+        data.imageUrl === selectedNews.imageUrl &&
+        data.published === selectedNews.published &&
+        data.is_featured === selectedNews.is_featured &&
+        data.period_id === selectedNews.period_id &&
+        data.event_id === selectedNews.event_id &&
+        data.figure_id === selectedNews.figure_id &&
+        data.site_id === selectedNews.site_id;
+      
+      if (isUnchanged) {
+        toast({
+          title: "Không có thay đổi",
+          description: "Bạn chưa thay đổi thông tin bài viết",
+        });
+        setIsEditDialogOpen(false);
+        return;
+      }
+      
       updateNewsMutation.mutate({ id: selectedNews.id, data });
     }
   };
@@ -848,6 +871,29 @@ const NewsPage: React.FC = () => {
         onSubmit={editForm.handleSubmit(handleEditSubmit)}
         className="space-y-6"
       >
+        {selectedNews && (
+          <div className="mb-4 flex flex-wrap gap-2 bg-muted p-3 rounded-md text-sm">
+            <div className="flex items-center gap-1">
+              <ClockIcon className="h-4 w-4" />
+              <span>Ngày tạo: {formatDate(selectedNews.createdAt)}</span>
+            </div>
+            {selectedNews.updatedAt && (
+              <div className="flex items-center gap-1">
+                <RefreshCwIcon className="h-4 w-4" />
+                <span>Cập nhật: {formatDate(selectedNews.updatedAt)}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1">
+              <EyeIcon className="h-4 w-4" />
+              <span>Lượt xem: <Badge variant="outline" className="ml-1 font-mono">{selectedNews.view_count || 0}</Badge></span>
+            </div>
+            <div className="flex items-center gap-1">
+              <LinkIcon className="h-4 w-4" />
+              <span>ID: {selectedNews.id}</span>
+            </div>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <FormField
@@ -1254,10 +1300,11 @@ const NewsPage: React.FC = () => {
                         <div className="flex justify-end gap-2">
                           {item.published && (
                             <a
-                              href={`/tin-tuc/${item.slug}`}
+                              href={`/tin-tuc/${item.id}/${item.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-gray-500 transition-colors hover:bg-gray-50"
+                              title="Xem bài viết"
                             >
                               <Eye className="h-4 w-4" />
                               <span className="sr-only">Xem</span>
@@ -1266,6 +1313,7 @@ const NewsPage: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="icon"
+                            title="Chỉnh sửa bài viết"
                             onClick={() => {
                               setSelectedNews(item);
                               setIsEditDialogOpen(true);
@@ -1277,6 +1325,7 @@ const NewsPage: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="icon"
+                            title="Xóa bài viết"
                             onClick={() => {
                               setSelectedNews(item);
                               setIsDeleteDialogOpen(true);
