@@ -215,62 +215,66 @@ const NewsDetailPage: React.FC = () => {
           </div>
 
           {/* Tiêu đề và thông tin */}
-          <h1 className="text-4xl font-bold text-amber-900 mb-4 leading-tight">
+          <h1 className="text-3xl md:text-4xl font-bold text-amber-900 mb-5 leading-tight">
             {news?.news?.title}
           </h1>
 
-          <div className="flex flex-wrap items-center text-sm text-gray-600 mb-8 gap-4">
-            <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full">
-              <Calendar className="w-4 h-4 mr-1.5 text-amber-600" />
-              {news?.news ? formatDate(news.news.createdAt) : ""}
+          <div className="border-b border-amber-100 pb-5 mb-8">
+            <div className="flex flex-wrap items-center text-sm text-gray-600 gap-3 mb-4">
+              <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full shadow-sm">
+                <Calendar className="w-4 h-4 mr-1.5 text-amber-600" />
+                {news?.news ? formatDate(news.news.createdAt) : ""}
+              </div>
+
+              <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full shadow-sm">
+                <Eye className="w-4 h-4 mr-1.5 text-amber-600" />
+                {news?.news?.viewCount} lượt xem
+              </div>
             </div>
+            
+            <div className="flex flex-wrap gap-2 mt-4">
+              {news?.news?.period && (
+                <Link href={`/thoi-ky/${news.news.period.slug}`}>
+                  <span className="flex items-center bg-gradient-to-r from-amber-50 to-amber-100 px-3 py-1.5 rounded-md hover:shadow-md transition-all border border-amber-200 hover:border-amber-300">
+                    <Clock className="w-4 h-4 mr-1.5 text-amber-600" />
+                    <span className="font-medium">{news.news.period.name}</span>
+                  </span>
+                </Link>
+              )}
 
-            <div className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full">
-              <Eye className="w-4 h-4 mr-1.5 text-amber-600" />
-              {news?.news?.viewCount} lượt xem
+              {news?.news?.historicalFigure && (
+                <Link
+                  href={`/nhan-vat/${news.news.historicalFigure.id}/${news.news.historicalFigure.slug}`}
+                >
+                  <span className="flex items-center bg-gradient-to-r from-amber-50 to-amber-100 px-3 py-1.5 rounded-md hover:shadow-md transition-all border border-amber-200 hover:border-amber-300">
+                    <User className="w-4 h-4 mr-1.5 text-amber-600" />
+                    <span className="font-medium">{news.news.historicalFigure.name}</span>
+                  </span>
+                </Link>
+              )}
+
+              {news?.news?.historicalSite && (
+                <Link
+                  href={`/di-tich/${news.news.historicalSite.id}/${news.news.historicalSite.slug}`}
+                >
+                  <span className="flex items-center bg-gradient-to-r from-amber-50 to-amber-100 px-3 py-1.5 rounded-md hover:shadow-md transition-all border border-amber-200 hover:border-amber-300">
+                    <MapPin className="w-4 h-4 mr-1.5 text-amber-600" />
+                    <span className="font-medium">{news.news.historicalSite.name}</span>
+                  </span>
+                </Link>
+              )}
+
+              {news?.news?.event && (
+                <Link
+                  href={`/su-kien/${news.news.event.id}/${news.news.event.slug}`}
+                >
+                  <span className="flex items-center bg-gradient-to-r from-amber-50 to-amber-100 px-3 py-1.5 rounded-md hover:shadow-md transition-all border border-amber-200 hover:border-amber-300">
+                    <BookOpen className="w-4 h-4 mr-1.5 text-amber-600" />
+                    <span className="font-medium">{news.news.event.name}</span>
+                  </span>
+                </Link>
+              )}
             </div>
-
-            {news?.news?.period && (
-              <Link href={`/thoi-ky/${news.news.period.slug}`}>
-                <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
-                  <Clock className="w-4 h-4 mr-1.5 text-amber-600" />
-                  {news.news.period.name}
-                </span>
-              </Link>
-            )}
-
-            {news?.news?.historicalFigure && (
-              <Link
-                href={`/nhan-vat/${news.news.historicalFigure.id}/${news.news.historicalFigure.slug}`}
-              >
-                <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
-                  <User className="w-4 h-4 mr-1.5 text-amber-600" />
-                  {news.news.historicalFigure.name}
-                </span>
-              </Link>
-            )}
-
-            {news?.news?.historicalSite && (
-              <Link
-                href={`/di-tich/${news.news.historicalSite.id}/${news.news.historicalSite.slug}`}
-              >
-                <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
-                  <MapPin className="w-4 h-4 mr-1.5 text-amber-600" />
-                  {news.news.historicalSite.name}
-                </span>
-              </Link>
-            )}
-
-            {news?.news?.event && (
-              <Link
-                href={`/su-kien/${news.news.event.id}/${news.news.event.slug}`}
-              >
-                <span className="flex items-center bg-amber-50 px-3 py-1.5 rounded-full hover:bg-amber-100 transition-colors">
-                  <BookOpen className="w-4 h-4 mr-1.5 text-amber-600" />
-                  {news.news.event.name}
-                </span>
-              </Link>
-            )}
           </div>
 
           {/* Chia bố cục thành 2 cột trên màn hình lớn */}
@@ -278,11 +282,12 @@ const NewsDetailPage: React.FC = () => {
             <div className="lg:w-2/3">
               {/* Hình ảnh chính */}
               {news?.news?.imageUrl && (
-                <div className="mb-8 overflow-hidden rounded-xl shadow-md">
+                <div className="mb-8 overflow-hidden rounded-xl shadow-md relative group">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <img
                     src={news.news.imageUrl}
                     alt={news.news.title}
-                    className="w-full h-auto"
+                    className="w-full h-auto transition-transform duration-700 group-hover:scale-105"
                     onError={(e) => {
                       e.currentTarget.src = "/uploads/error-img.png";
                       e.currentTarget.onerror = null; // Tránh lặp vô hạn nếu error-img.png cũng lỗi
@@ -417,7 +422,7 @@ const NewsDetailPage: React.FC = () => {
                             alt={item.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             onError={(e) => {
-                              e.currentTarget.src = "/error-img.png";
+                              e.currentTarget.src = "/uploads/error-img.png";
                               e.currentTarget.onerror = null; // Tránh lặp vô hạn nếu error-img.png cũng lỗi
                             }}
                           />
