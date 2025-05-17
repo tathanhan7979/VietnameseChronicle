@@ -212,7 +212,7 @@ const NewsListPage: React.FC = () => {
       />
       <Header onOpenSearch={() => {}} />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 pt-24 md:pt-28">
         <h1 className="text-3xl font-bold text-amber-900 mb-6">Tin tức & Bài viết</h1>
         
         {/* Thanh tìm kiếm và lọc */}

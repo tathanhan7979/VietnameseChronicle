@@ -114,7 +114,7 @@ const NewsDetailPage: React.FC = () => {
     return (
       <>
         <Header onOpenSearch={() => {}} />
-        <main className="container mx-auto px-4 py-12">
+        <main className="container mx-auto px-4 py-12 pt-24 md:pt-28">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-3/4 mb-6"></div>
             <div className="h-4 bg-gray-200 rounded w-1/2 mb-12"></div>
@@ -170,7 +170,7 @@ const NewsDetailPage: React.FC = () => {
       
       <Header onOpenSearch={() => {}} />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 pt-24 md:pt-28">
         <div className="max-w-4xl mx-auto">
           {/* Breadcrumb */}
           <div className="flex items-center text-sm text-gray-500 mb-6">
