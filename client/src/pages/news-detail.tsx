@@ -77,15 +77,14 @@ const NewsDetailPage: React.FC = () => {
     enabled: !!newsId && !isNaN(newsId),
   });
 
-  // Fetch tin tức liên quan
+  // Fetch tin tức liên quan - dùng relatedNews từ API
   const { data: relatedNews } = useQuery({
     queryKey: ["/api/news/related", newsId],
     queryFn: async () => {
-      const response = await fetch(`/api/news/related/${newsId}`);
-      if (!response.ok) {
-        throw new Error("Không thể tải tin tức liên quan");
+      if (news?.relatedNews) {
+        return news.relatedNews;
       }
-      return response.json();
+      return [];
     },
     enabled: !!news,
   });

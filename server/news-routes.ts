@@ -243,11 +243,27 @@ export function registerNewsRoutes(app: Express) {
     }
   });
 
-  // Lấy chi tiết tin tức theo slug
-  app.get("/api/news/:slug", async (req: Request, res: Response) => {
+  // Lấy chi tiết tin tức theo ID
+  app.get("/api/news/:id", async (req: Request, res: Response) => {
     try {
-      const slug = req.params.slug;
-      const news = await newsController.getNewsBySlug(slug);
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        // Nếu không phải số, thử lấy theo slug
+        const news = await newsController.getNewsBySlug(req.params.id);
+        
+        if (!news) {
+          return res.status(404).json({ error: "Không tìm thấy tin tức" });
+        }
+        
+        if (!news.published) {
+          return res.status(404).json({ error: "Tin tức chưa được xuất bản" });
+        }
+        
+        return res.json(news);
+      }
+      
+      const news = await newsController.getNewsById(id);
       
       if (!news) {
         return res.status(404).json({ error: "Không tìm thấy tin tức" });

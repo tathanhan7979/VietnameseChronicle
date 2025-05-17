@@ -148,7 +148,7 @@ export const newsController = {
       await db
         .update(news)
         .set({
-          view_count: sql`${news.view_count} + 1`,
+          viewCount: sql`${news.viewCount} + 1`,
         })
         .where(eq(news.id, id));
     } catch (error) {
