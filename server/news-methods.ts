@@ -53,7 +53,12 @@ export const newsController = {
     page: number = 1,
     limit: number = 10,
     status: string = "all",
-    searchQuery: string = ""
+    searchQuery: string = "",
+    periodId?: number,
+    eventId?: number,
+    historicalFigureId?: number,
+    historicalSiteId?: number,
+    sortBy: string = "latest"
   ): Promise<{ data: News[]; total: number }> => {
     try {
       const offset = (page - 1) * limit;
@@ -93,12 +98,45 @@ export const newsController = {
         );
       }
       
+      // Lọc theo thời kỳ
+      if (periodId) {
+        query = query.where(eq(news.periodId, periodId));
+        countQuery = countQuery.where(eq(news.periodId, periodId));
+      }
+      
+      // Lọc theo sự kiện
+      if (eventId) {
+        query = query.where(eq(news.eventId, eventId));
+        countQuery = countQuery.where(eq(news.eventId, eventId));
+      }
+      
+      // Lọc theo nhân vật lịch sử
+      if (historicalFigureId) {
+        query = query.where(eq(news.historicalFigureId, historicalFigureId));
+        countQuery = countQuery.where(eq(news.historicalFigureId, historicalFigureId));
+      }
+      
+      // Lọc theo di tích lịch sử
+      if (historicalSiteId) {
+        query = query.where(eq(news.historicalSiteId, historicalSiteId));
+        countQuery = countQuery.where(eq(news.historicalSiteId, historicalSiteId));
+      }
+      
       // Lấy tổng số tin tức
       const [{ count }] = await countQuery;
       
+      // Sắp xếp theo thứ tự
+      let orderedQuery = query;
+      if (sortBy === "latest") {
+        orderedQuery = query.orderBy(desc(news.createdAt));
+      } else if (sortBy === "oldest") {
+        orderedQuery = query.orderBy(asc(news.createdAt));
+      } else if (sortBy === "popular") {
+        orderedQuery = query.orderBy(desc(news.viewCount));
+      }
+      
       // Lấy danh sách tin tức có phân trang
-      const data = await query
-        .orderBy(desc(news.createdAt))
+      const data = await orderedQuery
         .limit(limit)
         .offset(offset);
       
