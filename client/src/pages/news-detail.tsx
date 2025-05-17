@@ -360,46 +360,47 @@ const NewsDetailPage: React.FC = () => {
                     </div>
                     <div className="p-4 max-h-[450px] overflow-y-auto custom-scrollbar">
                       {relatedNews.slice(0, 8).map((item: RelatedNews, index: number) => (
-                      <Link
-                        key={item.id}
-                        href={`/tin-tuc/${item.id}/${item.slug}`}
-                      >
-                        <div className={`flex items-start gap-3 group hover:bg-amber-50 p-3 rounded-lg transition-all ${index < relatedNews.slice(0, 8).length - 1 ? 'border-b border-amber-100 pb-3 mb-3' : ''}`}>
-                          <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-lg shadow-sm bg-amber-100 relative">
-                            {item.imageUrl ? (
-                              <>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                                <img
-                                  src={item.imageUrl}
-                                  alt={item.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                  onError={(e) => {
-                                    e.currentTarget.src = "/uploads/error-img.png";
-                                    e.currentTarget.onerror = null;
-                                  }}
-                                />
-                              </>
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <BookOpen className="w-8 h-8 text-amber-700" />
+                        <Link
+                          key={item.id}
+                          href={`/tin-tuc/${item.id}/${item.slug}`}
+                        >
+                          <div className={`flex items-start gap-3 group hover:bg-amber-50 p-3 rounded-lg transition-all ${index < relatedNews.slice(0, 8).length - 1 ? 'border-b border-amber-100 pb-3 mb-3' : ''}`}>
+                            <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-lg shadow-sm bg-amber-100 relative">
+                              {item.imageUrl ? (
+                                <>
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                                  <img
+                                    src={item.imageUrl}
+                                    alt={item.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    onError={(e) => {
+                                      e.currentTarget.src = "/uploads/error-img.png";
+                                      e.currentTarget.onerror = null;
+                                    }}
+                                  />
+                                </>
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <BookOpen className="w-8 h-8 text-amber-700" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-sm font-medium text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-tight">
+                                {item.title}
+                              </h4>
+                              <div className="text-xs text-gray-500 mt-2 flex items-center">
+                                <Calendar className="w-3.5 h-3.5 mr-1 text-amber-500" />
+                                {formatDate(item.createdAt)}
                               </div>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="text-sm font-medium text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-tight">
-                              {item.title}
-                            </h4>
-                            <div className="text-xs text-gray-500 mt-2 flex items-center">
-                              <Calendar className="w-3.5 h-3.5 mr-1 text-amber-500" />
-                              {formatDate(item.createdAt)}
                             </div>
                           </div>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
 
@@ -408,18 +409,18 @@ const NewsDetailPage: React.FC = () => {
             <h3 className="text-xl font-semibold text-amber-900 mb-4">
               Bình luận
             </h3>
-            <FacebookComments url={fullUrl} />
+            {fullUrl && <FacebookComments url={fullUrl} />}
           </div>
 
-          {/* Tin tức liên quan - chỉ hiển thị trên mobile/tablet */}
-          {relatedNews?.length > 0 && (
+          {/* Tin tức có thể bạn quan tâm */}
+          {relatedNews && relatedNews.length > 3 && (
             <div className="border-t border-gray-200 pt-8 mb-12 lg:hidden">
-              <h3 className="text-xl font-semibold text-amber-900 mb-6">
-                Tin tức liên quan
+              <h3 className="text-xl font-semibold text-amber-900 mb-6 flex items-center">
+                <BookOpen className="w-5 h-5 mr-2 text-amber-600" />
+                Có thể bạn quan tâm
               </h3>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {relatedNews.map((item: RelatedNews) => (
+                {relatedNews.slice(0, 4).map((item: RelatedNews) => (
                   <Link key={item.id} href={`/tin-tuc/${item.id}/${item.slug}`}>
                     <div className="group bg-white rounded-lg shadow-sm hover:shadow-md hover:border-amber-200 border border-transparent transition-all duration-300 overflow-hidden">
                       <div className="aspect-[16/9] overflow-hidden bg-amber-100">
@@ -427,25 +428,24 @@ const NewsDetailPage: React.FC = () => {
                           <img
                             src={item.imageUrl}
                             alt={item.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             onError={(e) => {
                               e.currentTarget.src = "/uploads/error-img.png";
-                              e.currentTarget.onerror = null; // Tránh lặp vô hạn nếu error-img.png cũng lỗi
+                              e.currentTarget.onerror = null;
                             }}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-amber-200 text-amber-700">
-                            <BookOpen className="w-8 h-8" />
+                            <BookOpen className="w-12 h-12" />
                           </div>
                         )}
                       </div>
-
                       <div className="p-4">
                         <div className="flex items-center text-xs text-gray-500 mb-2">
-                          <Calendar className="w-3.5 h-3.5 mr-1.5 text-amber-500" />
+                          <Calendar className="w-3.5 h-3.5 mr-1 text-amber-500" />
                           {formatDate(item.createdAt)}
                         </div>
-                        <h4 className="font-medium text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2">
+                        <h4 className="font-medium text-amber-900 group-hover:text-amber-600 transition-colors line-clamp-2">
                           {item.title}
                         </h4>
                       </div>
