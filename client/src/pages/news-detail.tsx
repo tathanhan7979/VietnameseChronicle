@@ -68,7 +68,7 @@ const NewsDetailPage: React.FC = () => {
   const { data: news, isLoading, error } = useQuery({
     queryKey: ["/api/news", newsId],
     queryFn: async () => {
-      const response = await fetch(`/api/news/${params.slug || newsId}`);
+      const response = await fetch(`/api/news/${newsId}`);
       if (!response.ok) {
         throw new Error("Không thể tải tin tức");
       }
