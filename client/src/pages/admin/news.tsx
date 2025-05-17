@@ -45,7 +45,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Trash2, Search, Edit, Plus, Eye, ImageIcon } from "lucide-react";
+import {
+  Loader2,
+  Trash2,
+  Search,
+  Edit,
+  Plus,
+  Eye,
+  ImageIcon,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDate } from "@/lib/utils";
 import { apiRequest } from "@/lib/queryClient";
@@ -102,7 +110,7 @@ const NewsPage: React.FC = () => {
   const [selectedNews, setSelectedNews] = useState<News | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -159,7 +167,7 @@ const NewsPage: React.FC = () => {
       });
       const response = await apiRequest(
         "GET",
-        `/api/admin/news?${params.toString()}`
+        `/api/admin/news?${params.toString()}`,
       );
       return response.json();
     },
@@ -225,13 +233,7 @@ const NewsPage: React.FC = () => {
 
   // Mutation để cập nhật tin tức
   const updateNewsMutation = useMutation({
-    mutationFn: async ({
-      id,
-      data,
-    }: {
-      id: number;
-      data: NewsFormValues;
-    }) => {
+    mutationFn: async ({ id, data }: { id: number; data: NewsFormValues }) => {
       const response = await apiRequest("PUT", `/api/admin/news/${id}`, data);
       return response.json();
     },
@@ -344,16 +346,19 @@ const NewsPage: React.FC = () => {
   };
 
   // Hàm xử lý upload hình ảnh
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, formType: 'create' | 'edit') => {
-    const form = formType === 'create' ? createForm : editForm;
-    
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    formType: "create" | "edit",
+  ) => {
+    const form = formType === "create" ? createForm : editForm;
+
     const files = event.target.files;
     if (!files || files.length === 0) return;
-    
+
     const file = files[0];
-    
+
     // Kiểm tra loại file
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast({
         title: "Lỗi",
         description: "Chỉ chấp nhận file hình ảnh",
@@ -361,7 +366,7 @@ const NewsPage: React.FC = () => {
       });
       return;
     }
-    
+
     // Kiểm tra kích thước file (tối đa 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
@@ -371,30 +376,30 @@ const NewsPage: React.FC = () => {
       });
       return;
     }
-    
+
     try {
       setUploadingImage(true);
-      
+
       // Tạo FormData để upload
       const formData = new FormData();
-      formData.append('image', file);
-      
+      formData.append("image", file);
+
       // Gọi API upload
-      const response = await fetch('/api/admin/news/upload', {
-        method: 'POST',
+      const response = await fetch("/api/admin/news/upload", {
+        method: "POST",
         body: formData,
       });
-      
+
       if (!response.ok) {
-        throw new Error('Không thể upload hình ảnh');
+        throw new Error("Không thể upload hình ảnh");
       }
-      
+
       const data = await response.json();
-      
+
       // Cập nhật form với URL hình ảnh mới
-      form.setValue('imageUrl', data.url);
+      form.setValue("imageUrl", data.url);
       setImagePreview(data.url);
-      
+
       toast({
         title: "Thành công",
         description: "Đã upload hình ảnh",
@@ -402,7 +407,7 @@ const NewsPage: React.FC = () => {
     } catch (error) {
       toast({
         title: "Lỗi",
-        description: `Không thể upload hình ảnh: ${error instanceof Error ? error.message : 'Lỗi không xác định'}`,
+        description: `Không thể upload hình ảnh: ${error instanceof Error ? error.message : "Lỗi không xác định"}`,
         variant: "destructive",
       });
     } finally {
@@ -411,9 +416,9 @@ const NewsPage: React.FC = () => {
   };
 
   // Hàm xóa hình ảnh
-  const handleRemoveImage = (formType: 'create' | 'edit') => {
-    const form = formType === 'create' ? createForm : editForm;
-    form.setValue('imageUrl', null);
+  const handleRemoveImage = (formType: "create" | "edit") => {
+    const form = formType === "create" ? createForm : editForm;
+    form.setValue("imageUrl", null);
     setImagePreview(null);
   };
 
@@ -446,13 +451,10 @@ const NewsPage: React.FC = () => {
     for (let i = startPage; i <= endPage; i++) {
       pageItems.push(
         <PaginationItem key={i}>
-          <PaginationLink
-            onClick={() => setPage(i)}
-            isActive={page === i}
-          >
+          <PaginationLink onClick={() => setPage(i)} isActive={page === i}>
             {i}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       );
     }
 
@@ -503,19 +505,19 @@ const NewsPage: React.FC = () => {
     );
   };
 
-  const imageUploadField = (formType: 'create' | 'edit') => {
-    const form = formType === 'create' ? createForm : editForm;
-    
+  const imageUploadField = (formType: "create" | "edit") => {
+    const form = formType === "create" ? createForm : editForm;
+
     return (
       <div className="space-y-4">
         <FormLabel>Hình ảnh đại diện</FormLabel>
         <div className="flex flex-col space-y-2">
           {imagePreview ? (
             <div className="relative">
-              <img 
-                src={imagePreview} 
-                alt="Preview" 
-                className="w-full max-h-[200px] object-cover rounded-md" 
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-full max-h-[200px] object-cover rounded-md"
               />
               <Button
                 type="button"
@@ -533,7 +535,7 @@ const NewsPage: React.FC = () => {
               <p className="text-sm text-gray-500">Chưa có hình ảnh</p>
             </div>
           )}
-          
+
           <div className="flex space-x-2">
             <Input
               type="file"
@@ -546,7 +548,9 @@ const NewsPage: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => document.getElementById(`image-upload-${formType}`)?.click()}
+              onClick={() =>
+                document.getElementById(`image-upload-${formType}`)?.click()
+              }
               disabled={uploadingImage}
               className="w-full"
             >
@@ -568,7 +572,10 @@ const NewsPage: React.FC = () => {
   // Form tạo tin tức mới
   const createNewsForm = (
     <Form {...createForm}>
-      <form onSubmit={createForm.handleSubmit(handleCreateSubmit)} className="space-y-6">
+      <form
+        onSubmit={createForm.handleSubmit(handleCreateSubmit)}
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <FormField
@@ -663,7 +670,9 @@ const NewsPage: React.FC = () => {
                   <FormItem>
                     <FormLabel>Thời kỳ liên quan</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      onValueChange={(value) =>
+                        field.onChange(value ? parseInt(value) : null)
+                      }
                       value={field.value?.toString() || ""}
                     >
                       <FormControl>
@@ -674,7 +683,10 @@ const NewsPage: React.FC = () => {
                       <SelectContent>
                         <SelectItem value="">Không có</SelectItem>
                         {periodsData?.map((period: any) => (
-                          <SelectItem key={period.id} value={period.id.toString()}>
+                          <SelectItem
+                            key={period.id}
+                            value={period.id.toString()}
+                          >
                             {period.name}
                           </SelectItem>
                         ))}
@@ -692,7 +704,9 @@ const NewsPage: React.FC = () => {
                   <FormItem>
                     <FormLabel>Sự kiện liên quan</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      onValueChange={(value) =>
+                        field.onChange(value ? parseInt(value) : null)
+                      }
                       value={field.value?.toString() || ""}
                     >
                       <FormControl>
@@ -703,7 +717,10 @@ const NewsPage: React.FC = () => {
                       <SelectContent>
                         <SelectItem value="">Không có</SelectItem>
                         {eventsData?.map((event: any) => (
-                          <SelectItem key={event.id} value={event.id.toString()}>
+                          <SelectItem
+                            key={event.id}
+                            value={event.id.toString()}
+                          >
                             {event.name}
                           </SelectItem>
                         ))}
@@ -721,7 +738,9 @@ const NewsPage: React.FC = () => {
                   <FormItem>
                     <FormLabel>Nhân vật liên quan</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      onValueChange={(value) =>
+                        field.onChange(value ? parseInt(value) : null)
+                      }
                       value={field.value?.toString() || ""}
                     >
                       <FormControl>
@@ -732,7 +751,10 @@ const NewsPage: React.FC = () => {
                       <SelectContent>
                         <SelectItem value="">Không có</SelectItem>
                         {figuresData?.map((figure: any) => (
-                          <SelectItem key={figure.id} value={figure.id.toString()}>
+                          <SelectItem
+                            key={figure.id}
+                            value={figure.id.toString()}
+                          >
                             {figure.name}
                           </SelectItem>
                         ))}
@@ -750,7 +772,9 @@ const NewsPage: React.FC = () => {
                   <FormItem>
                     <FormLabel>Di tích liên quan</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      onValueChange={(value) =>
+                        field.onChange(value ? parseInt(value) : null)
+                      }
                       value={field.value?.toString() || ""}
                     >
                       <FormControl>
@@ -775,7 +799,7 @@ const NewsPage: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            {imageUploadField('create')}
+            {imageUploadField("create")}
 
             <FormField
               control={createForm.control}
@@ -820,7 +844,10 @@ const NewsPage: React.FC = () => {
   // Form chỉnh sửa tin tức
   const editNewsForm = (
     <Form {...editForm}>
-      <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-6">
+      <form
+        onSubmit={editForm.handleSubmit(handleEditSubmit)}
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <FormField
@@ -915,7 +942,9 @@ const NewsPage: React.FC = () => {
                   <FormItem>
                     <FormLabel>Thời kỳ liên quan</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      onValueChange={(value) =>
+                        field.onChange(value ? parseInt(value) : null)
+                      }
                       value={field.value?.toString() || ""}
                     >
                       <FormControl>
@@ -926,7 +955,10 @@ const NewsPage: React.FC = () => {
                       <SelectContent>
                         <SelectItem value="">Không có</SelectItem>
                         {periodsData?.map((period: any) => (
-                          <SelectItem key={period.id} value={period.id.toString()}>
+                          <SelectItem
+                            key={period.id}
+                            value={period.id.toString()}
+                          >
                             {period.name}
                           </SelectItem>
                         ))}
@@ -944,7 +976,9 @@ const NewsPage: React.FC = () => {
                   <FormItem>
                     <FormLabel>Sự kiện liên quan</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      onValueChange={(value) =>
+                        field.onChange(value ? parseInt(value) : null)
+                      }
                       value={field.value?.toString() || ""}
                     >
                       <FormControl>
@@ -955,7 +989,10 @@ const NewsPage: React.FC = () => {
                       <SelectContent>
                         <SelectItem value="">Không có</SelectItem>
                         {eventsData?.map((event: any) => (
-                          <SelectItem key={event.id} value={event.id.toString()}>
+                          <SelectItem
+                            key={event.id}
+                            value={event.id.toString()}
+                          >
                             {event.name}
                           </SelectItem>
                         ))}
@@ -973,7 +1010,9 @@ const NewsPage: React.FC = () => {
                   <FormItem>
                     <FormLabel>Nhân vật liên quan</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      onValueChange={(value) =>
+                        field.onChange(value ? parseInt(value) : null)
+                      }
                       value={field.value?.toString() || ""}
                     >
                       <FormControl>
@@ -984,7 +1023,10 @@ const NewsPage: React.FC = () => {
                       <SelectContent>
                         <SelectItem value="">Không có</SelectItem>
                         {figuresData?.map((figure: any) => (
-                          <SelectItem key={figure.id} value={figure.id.toString()}>
+                          <SelectItem
+                            key={figure.id}
+                            value={figure.id.toString()}
+                          >
                             {figure.name}
                           </SelectItem>
                         ))}
@@ -1002,7 +1044,9 @@ const NewsPage: React.FC = () => {
                   <FormItem>
                     <FormLabel>Di tích liên quan</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(value ? parseInt(value) : null)}
+                      onValueChange={(value) =>
+                        field.onChange(value ? parseInt(value) : null)
+                      }
                       value={field.value?.toString() || ""}
                     >
                       <FormControl>
@@ -1027,7 +1071,7 @@ const NewsPage: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            {imageUploadField('edit')}
+            {imageUploadField("edit")}
 
             <FormField
               control={editForm.control}
@@ -1074,7 +1118,10 @@ const NewsPage: React.FC = () => {
       <div className="container mx-auto py-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Quản lý tin tức</h1>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
@@ -1116,7 +1163,10 @@ const NewsPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">Hiển thị</span>
-            <Select value={limit.toString()} onValueChange={(value) => setLimit(parseInt(value))}>
+            <Select
+              value={limit.toString()}
+              onValueChange={(value) => setLimit(parseInt(value))}
+            >
               <SelectTrigger className="w-[80px]">
                 <SelectValue placeholder="10" />
               </SelectTrigger>
@@ -1147,9 +1197,15 @@ const NewsPage: React.FC = () => {
                   <TableRow>
                     <TableHead className="w-12">#</TableHead>
                     <TableHead>Tiêu đề</TableHead>
-                    <TableHead className="hidden md:table-cell">Trạng thái</TableHead>
-                    <TableHead className="hidden lg:table-cell">Lượt xem</TableHead>
-                    <TableHead className="hidden lg:table-cell">Ngày tạo</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Trạng thái
+                    </TableHead>
+                    <TableHead className="hidden lg:table-cell">
+                      Lượt xem
+                    </TableHead>
+                    <TableHead className="hidden lg:table-cell">
+                      Ngày tạo
+                    </TableHead>
                     <TableHead className="text-right">Thao tác</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1162,6 +1218,11 @@ const NewsPage: React.FC = () => {
                         <div className="text-sm text-gray-500 truncate max-w-[200px]">
                           {item.summary}
                         </div>
+                        {item.slug && (
+                          <div className="text-xs text-blue-500 truncate max-w-[200px] mt-1">
+                            /{item.slug}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
                         <div className="flex flex-wrap gap-1">
@@ -1182,7 +1243,9 @@ const NewsPage: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
-                        {item.view_count}
+                        <Badge variant="outline" className="font-mono">
+                          {item.view_count || 0}
+                        </Badge>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         {formatDate(item.createdAt)}
@@ -1191,7 +1254,7 @@ const NewsPage: React.FC = () => {
                         <div className="flex justify-end gap-2">
                           {item.published && (
                             <a
-                              href={`/news/${item.slug}`}
+                              href={`/tin-tuc/${item.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-gray-500 transition-colors hover:bg-gray-50"
@@ -1230,9 +1293,7 @@ const NewsPage: React.FC = () => {
               </Table>
             </div>
 
-            <div className="mt-4 flex justify-center">
-              {renderPagination()}
-            </div>
+            <div className="mt-4 flex justify-center">{renderPagination()}</div>
           </>
         ) : (
           <div className="flex flex-col items-center justify-center h-64 p-4 text-center">
@@ -1268,8 +1329,8 @@ const NewsPage: React.FC = () => {
           </DialogHeader>
           <div className="py-4">
             <p>
-              Bạn có chắc chắn muốn xóa tin tức "{selectedNews?.title}"? Hành động này
-              không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa tin tức "{selectedNews?.title}"? Hành
+              động này không thể hoàn tác.
             </p>
           </div>
           <DialogFooter>
