@@ -86,7 +86,7 @@ const NewsDetailPage: React.FC = () => {
       }
       return [];
     },
-    enabled: !!news,
+    enabled: !!news?.news,
   });
 
   // Tăng lượt xem khi người dùng xem tin tức
@@ -99,8 +99,8 @@ const NewsDetailPage: React.FC = () => {
 
   // Điều hướng đến URL đúng nếu slug không khớp
   useEffect(() => {
-    if (news && params.slug !== news.slug) {
-      setLocation(`/tin-tuc/${news.id}/${news.slug}`);
+    if (news?.news && params.slug !== news.news.slug) {
+      setLocation(`/tin-tuc/${news.news.id}/${news.news.slug}`);
     }
   }, [news, params.slug, setLocation]);
 
@@ -152,21 +152,23 @@ const NewsDetailPage: React.FC = () => {
   }
 
   // URL đầy đủ cho Facebook comments
-  const fullUrl = typeof window !== "undefined" 
-    ? `${window.location.origin}/tin-tuc/${news.id}/${news.slug}`
+  const fullUrl = typeof window !== "undefined" && news?.news
+    ? `${window.location.origin}/tin-tuc/${news.news.id}/${news.news.slug}`
     : "";
 
   return (
     <>
-      <SEO
-        title={`${news.title} | Lịch Sử Việt Nam`}
-        description={news.summary}
-        image={news.imageUrl || "https://lichsuviet.edu.vn/uploads/banner-image.png"}
-        type="article"
-        url={`/tin-tuc/${news.id}/${news.slug}`}
-        articlePublishedTime={news.createdAt}
-        articleModifiedTime={news.updatedAt || news.createdAt}
-      />
+      {news?.news && (
+        <SEO
+          title={`${news.news.title} | Lịch Sử Việt Nam`}
+          description={news.news.summary}
+          image={news.news.imageUrl || "https://lichsuviet.edu.vn/uploads/banner-image.png"}
+          type="article"
+          url={`/tin-tuc/${news.news.id}/${news.news.slug}`}
+          articlePublishedTime={news.news.createdAt}
+          articleModifiedTime={news.news.updatedAt || news.news.createdAt}
+        />
+      )}
       
       <Header onOpenSearch={() => {}} />
       
@@ -182,81 +184,85 @@ const NewsDetailPage: React.FC = () => {
               <span className="hover:text-amber-600 transition-colors">Tin tức</span>
             </Link>
             <span className="mx-2">/</span>
-            <span className="text-amber-600 truncate max-w-[200px]">{news.title}</span>
+            <span className="text-amber-600 truncate max-w-[200px]">{news?.news?.title}</span>
           </div>
           
           {/* Tiêu đề và thông tin */}
-          <h1 className="text-3xl font-bold text-amber-900 mb-4">{news.title}</h1>
+          <h1 className="text-3xl font-bold text-amber-900 mb-4">{news?.news?.title}</h1>
           
           <div className="flex flex-wrap items-center text-sm text-gray-500 mb-6 gap-4">
             <div className="flex items-center">
               <Calendar className="w-4 h-4 mr-1" />
-              {formatDate(news.createdAt)}
+              {news?.news ? formatDate(news.news.createdAt) : ""}
             </div>
             
             <div className="flex items-center">
               <Eye className="w-4 h-4 mr-1" />
-              {news.viewCount} lượt xem
+              {news?.news?.viewCount} lượt xem
             </div>
             
-            {news.period && (
-              <Link href={`/thoi-ky/${news.period.slug}`}>
+            {news?.news?.period && (
+              <Link href={`/thoi-ky/${news.news.period.slug}`}>
                 <span className="flex items-center hover:text-amber-600 transition-colors">
                   <Clock className="w-4 h-4 mr-1" />
-                  {news.period.name}
+                  {news.news.period.name}
                 </span>
               </Link>
             )}
             
-            {news.historicalFigure && (
-              <Link href={`/nhan-vat/${news.historicalFigure.id}/${news.historicalFigure.slug}`}>
+            {news?.news?.historicalFigure && (
+              <Link href={`/nhan-vat/${news.news.historicalFigure.id}/${news.news.historicalFigure.slug}`}>
                 <span className="flex items-center hover:text-amber-600 transition-colors">
                   <User className="w-4 h-4 mr-1" />
-                  {news.historicalFigure.name}
+                  {news.news.historicalFigure.name}
                 </span>
               </Link>
             )}
             
-            {news.historicalSite && (
-              <Link href={`/di-tich/${news.historicalSite.id}/${news.historicalSite.slug}`}>
+            {news?.news?.historicalSite && (
+              <Link href={`/di-tich/${news.news.historicalSite.id}/${news.news.historicalSite.slug}`}>
                 <span className="flex items-center hover:text-amber-600 transition-colors">
                   <MapPin className="w-4 h-4 mr-1" />
-                  {news.historicalSite.name}
+                  {news.news.historicalSite.name}
                 </span>
               </Link>
             )}
             
-            {news.event && (
-              <Link href={`/su-kien/${news.event.id}/${news.event.slug}`}>
+            {news?.news?.event && (
+              <Link href={`/su-kien/${news.news.event.id}/${news.news.event.slug}`}>
                 <span className="flex items-center hover:text-amber-600 transition-colors">
                   <BookOpen className="w-4 h-4 mr-1" />
-                  {news.event.name}
+                  {news.news.event.name}
                 </span>
               </Link>
             )}
           </div>
           
           {/* Hình ảnh chính */}
-          {news.imageUrl && (
+          {news?.news?.imageUrl && (
             <div className="mb-8">
               <img
-                src={news.imageUrl}
-                alt={news.title}
+                src={news.news.imageUrl}
+                alt={news.news.title}
                 className="w-full h-auto rounded-lg shadow-md"
               />
             </div>
           )}
           
           {/* Tóm tắt */}
-          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8 italic text-amber-800">
-            {news.summary}
-          </div>
+          {news?.news?.summary && (
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8 italic text-amber-800">
+              {news.news.summary}
+            </div>
+          )}
           
           {/* Nội dung chính */}
-          <div 
-            className="prose prose-amber max-w-none mb-12"
-            dangerouslySetInnerHTML={renderContent(news.content)}
-          />
+          {news?.news?.content && (
+            <div 
+              className="prose prose-amber max-w-none mb-12"
+              dangerouslySetInnerHTML={renderContent(news.news.content)}
+            />
+          )}
           
           {/* Facebook comments */}
           <div className="border-t border-gray-200 pt-8 mb-8">
