@@ -138,11 +138,15 @@ export default function NewsSection() {
     <section id="news" className="py-16 bg-amber-50/50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-amber-900 relative inline-block">
-            Tin Tức & Bài Viết
-            <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2/3 h-1 bg-amber-500 rounded-full"></span>
-          </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto mt-4">
+          <div className="flex items-center justify-center mb-3">
+            <BookOpen className="h-8 w-8 text-amber-600 mr-3" />
+            <h2 className="text-3xl md:text-4xl font-bold text-amber-900 relative inline-block">
+              Tin Tức & Bài Viết
+            </h2>
+            <BookOpen className="h-8 w-8 text-amber-600 ml-3" />
+          </div>
+          <div className="w-24 h-1 bg-amber-400 mx-auto mb-4 rounded-full"></div>
+          <p className="text-gray-600 max-w-2xl mx-auto">
             Cập nhật những tin tức, bài viết mới nhất về lịch sử Việt Nam, các sự kiện, nhân vật và di tích lịch sử.
           </p>
         </div>

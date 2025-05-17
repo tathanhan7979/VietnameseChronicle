@@ -231,7 +231,7 @@ const NewsDetailPage: React.FC = () => {
                 {news?.news?.viewCount} lượt xem
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-2 mt-4">
               {news?.news?.period && (
                 <Link href={`/thoi-ky/${news.news.period.slug}`}>
@@ -248,7 +248,9 @@ const NewsDetailPage: React.FC = () => {
                 >
                   <span className="flex items-center bg-gradient-to-r from-amber-50 to-amber-100 px-3 py-1.5 rounded-md hover:shadow-md transition-all border border-amber-200 hover:border-amber-300">
                     <User className="w-4 h-4 mr-1.5 text-amber-600" />
-                    <span className="font-medium">{news.news.historicalFigure.name}</span>
+                    <span className="font-medium">
+                      {news.news.historicalFigure.name}
+                    </span>
                   </span>
                 </Link>
               )}
@@ -259,7 +261,9 @@ const NewsDetailPage: React.FC = () => {
                 >
                   <span className="flex items-center bg-gradient-to-r from-amber-50 to-amber-100 px-3 py-1.5 rounded-md hover:shadow-md transition-all border border-amber-200 hover:border-amber-300">
                     <MapPin className="w-4 h-4 mr-1.5 text-amber-600" />
-                    <span className="font-medium">{news.news.historicalSite.name}</span>
+                    <span className="font-medium">
+                      {news.news.historicalSite.name}
+                    </span>
                   </span>
                 </Link>
               )}
@@ -358,45 +362,50 @@ const NewsDetailPage: React.FC = () => {
                         Tin tức liên quan
                       </h3>
                     </div>
-                    <div className="p-4 max-h-[450px] overflow-y-auto custom-scrollbar">
-                      {relatedNews.slice(0, 8).map((item: RelatedNews, index: number) => (
-                        <Link
-                          key={item.id}
-                          href={`/tin-tuc/${item.id}/${item.slug}`}
-                        >
-                          <div className={`flex items-start gap-3 group hover:bg-amber-50 p-3 rounded-lg transition-all ${index < relatedNews.slice(0, 8).length - 1 ? 'border-b border-amber-100 pb-3 mb-3' : ''}`}>
-                            <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-lg shadow-sm bg-amber-100 relative">
-                              {item.imageUrl ? (
-                                <>
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                                  <img
-                                    src={item.imageUrl}
-                                    alt={item.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                    onError={(e) => {
-                                      e.currentTarget.src = "/uploads/error-img.png";
-                                      e.currentTarget.onerror = null;
-                                    }}
-                                  />
-                                </>
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <BookOpen className="w-8 h-8 text-amber-700" />
+                    <div className="p-4 max-h-[1200px] custom-scrollbar">
+                      {relatedNews
+                        .slice(0, 8)
+                        .map((item: RelatedNews, index: number) => (
+                          <Link
+                            key={item.id}
+                            href={`/tin-tuc/${item.id}/${item.slug}`}
+                          >
+                            <div
+                              className={`flex items-start gap-3 group hover:bg-amber-50 p-3 rounded-lg transition-all ${index < relatedNews.slice(0, 8).length - 1 ? "border-b border-amber-100 pb-3 mb-3" : ""}`}
+                            >
+                              <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-lg shadow-sm bg-amber-100 relative">
+                                {item.imageUrl ? (
+                                  <>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                                    <img
+                                      src={item.imageUrl}
+                                      alt={item.title}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                      onError={(e) => {
+                                        e.currentTarget.src =
+                                          "/uploads/error-img.png";
+                                        e.currentTarget.onerror = null;
+                                      }}
+                                    />
+                                  </>
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <BookOpen className="w-8 h-8 text-amber-700" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="text-sm font-medium text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-tight">
+                                  {item.title}
+                                </h4>
+                                <div className="text-xs text-gray-500 mt-2 flex items-center">
+                                  <Calendar className="w-3.5 h-3.5 mr-1 text-amber-500" />
+                                  {formatDate(item.createdAt)}
                                 </div>
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="text-sm font-medium text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-tight">
-                                {item.title}
-                              </h4>
-                              <div className="text-xs text-gray-500 mt-2 flex items-center">
-                                <Calendar className="w-3.5 h-3.5 mr-1 text-amber-500" />
-                                {formatDate(item.createdAt)}
                               </div>
                             </div>
-                          </div>
-                        </Link>
-                      ))}
+                          </Link>
+                        ))}
                     </div>
                   </div>
                 )}
