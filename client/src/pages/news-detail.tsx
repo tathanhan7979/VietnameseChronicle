@@ -364,7 +364,7 @@ const NewsDetailPage: React.FC = () => {
                         key={item.id}
                         href={`/tin-tuc/${item.id}/${item.slug}`}
                       >
-                        <div className={`flex items-start gap-3 group hover:bg-amber-50 p-3 rounded-lg transition-all ${index < relatedNews.slice(0, 5).length - 1 ? 'border-b border-amber-100 pb-3 mb-3' : ''}`}>
+                        <div className={`flex items-start gap-3 group hover:bg-amber-50 p-3 rounded-lg transition-all ${index < relatedNews.slice(0, 8).length - 1 ? 'border-b border-amber-100 pb-3 mb-3' : ''}`}>
                           <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-lg shadow-sm bg-amber-100 relative">
                             {item.imageUrl ? (
                               <>
