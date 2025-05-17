@@ -37,34 +37,12 @@ interface News {
 }
 
 export default function NewsSection() {
-  const [activeTab, setActiveTab] = useState("featured");
-
-  // Query để lấy tin tức nổi bật
-  const { data: featuredNews, isLoading: isLoadingFeatured } = useQuery<News[]>({
-    queryKey: ["/api/news/featured"],
-    queryFn: async () => {
-      const response = await fetch("/api/news/featured");
-      if (!response.ok) throw new Error("Failed to fetch featured news");
-      return response.json();
-    },
-  });
-
-  // Query để lấy tin tức mới nhất
+  // Chỉ lấy tin tức mới nhất
   const { data: latestNews, isLoading: isLoadingLatest } = useQuery<News[]>({
     queryKey: ["/api/news/latest"],
     queryFn: async () => {
       const response = await fetch("/api/news/latest");
       if (!response.ok) throw new Error("Failed to fetch latest news");
-      return response.json();
-    },
-  });
-
-  // Query để lấy tin tức phổ biến nhất
-  const { data: popularNews, isLoading: isLoadingPopular } = useQuery<News[]>({
-    queryKey: ["/api/news/popular"],
-    queryFn: async () => {
-      const response = await fetch("/api/news/popular");
-      if (!response.ok) throw new Error("Failed to fetch popular news");
       return response.json();
     },
   });
@@ -92,6 +70,10 @@ export default function NewsSection() {
           src={news.imageUrl || "https://lichsuviet.edu.vn/uploads/banner-image.png"}
           alt={news.title}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          onError={(e) => {
+            e.currentTarget.src = "/error-img.png";
+            e.currentTarget.onerror = null; // Tránh lặp vô hạn nếu error-img.png cũng lỗi
+          }}
         />
       </div>
       <CardHeader className="pb-2 flex-grow">
