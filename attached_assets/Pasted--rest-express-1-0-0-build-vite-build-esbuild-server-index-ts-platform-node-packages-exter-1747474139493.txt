@@ -1,0 +1,52 @@
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --buvite v5.4.19 building for production...
+✓ 25 modules transformed.
+x Build failed in 2.87s
+error during build:
+[vite:esbuild] Transform failed with 4 errors:
+/home/runner/workspace/client/src/pages/news-detail.tsx:469:8: ERROR: Unexpected closing "main" tag does not match opening "div" tag
+/home/runner/workspace/client/src/pages/news-detail.tsx:472:6: ERROR: Unexpected closing fragment tag does not match opening "main" tag
+/home/runner/workspace/client/src/pages/news-detail.tsx:474:0: ERROR: The character "}" is not valid inside a JSX element
+/home/runner/workspace/client/src/pages/news-detail.tsx:477:0: ERROR: Unexpected end of file before a closing fragment tag
+file: /home/runner/workspace/client/src/pages/news-detail.tsx:469:8
+
+Unexpected closing "main" tag does not match opening "div" tag
+467|            </div>
+468|          </div>
+469|        </main>
+   |          ^
+470|        <BackToTop />
+471|        <Footer />
+
+Unexpected closing fragment tag does not match opening "main" tag
+470|        <BackToTop />
+471|        <Footer />
+472|      </>
+   |        ^
+473|    );
+474|  };
+
+The character "}" is not valid inside a JSX element
+472|      </>
+473|    );
+474|  };
+   |  ^
+475|  
+476|  export default NewsDetailPage;
+
+Unexpected end of file before a closing fragment tag
+475|  
+476|  export default NewsDetailPage;
+477|  
+   |  ^
+
+    at failureErrorWithLog (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:1472:15)
+    at /home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:755:50
+    at responseCallbacks.<computed> (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:622:9)
+    at handleIncomingPacket (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:677:12)
+    at Socket.readFromStdout (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:600:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)
