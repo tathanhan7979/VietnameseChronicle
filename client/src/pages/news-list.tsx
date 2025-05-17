@@ -1,0 +1,342 @@
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { Helmet } from "react-helmet";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Calendar, Filter, Search, ArrowRight } from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
+import { formatDate } from "@/lib/utils";
+
+interface News {
+  id: number;
+  title: string;
+  slug: string;
+  summary: string;
+  content: string;
+  imageUrl: string | null;
+  published: boolean;
+  viewCount: number;
+  periodId: number | null;
+  eventId: number | null;
+  historicalFigureId: number | null;
+  historicalSiteId: number | null;
+  createdAt: string;
+  updatedAt: string | null;
+  is_featured: boolean;
+}
+
+const NewsListPage: React.FC = () => {
+  const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("latest");
+  const limit = 12;
+
+  // Fetch tất cả tin tức với phân trang
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["/api/news", page, limit, searchQuery, sortBy],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        sortBy,
+      });
+      
+      if (searchQuery) {
+        params.append("search", searchQuery);
+      }
+      
+      const response = await fetch(`/api/news?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error("Không thể tải tin tức");
+      }
+      return response.json();
+    },
+  });
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1); // Reset về trang 1 khi tìm kiếm
+  };
+
+  const totalPages = data?.totalPages || 1;
+
+  const renderPagination = () => {
+    const items = [];
+    const maxVisiblePages = 5;
+    const halfVisiblePages = Math.floor(maxVisiblePages / 2);
+    
+    let startPage = Math.max(1, page - halfVisiblePages);
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // Previous button
+    items.push(
+      <PaginationItem key="prev">
+        <PaginationPrevious
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (page > 1) setPage(page - 1);
+          }}
+          className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+        />
+      </PaginationItem>
+    );
+    
+    // First page
+    if (startPage > 1) {
+      items.push(
+        <PaginationItem key="1">
+          <PaginationLink
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setPage(1);
+            }}
+            isActive={page === 1}
+          >
+            1
+          </PaginationLink>
+        </PaginationItem>
+      );
+      
+      // Ellipsis after first page
+      if (startPage > 2) {
+        items.push(
+          <PaginationItem key="start-ellipsis">
+            <span className="px-4 py-2">...</span>
+          </PaginationItem>
+        );
+      }
+    }
+    
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setPage(i);
+            }}
+            isActive={page === i}
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    // Ellipsis before last page
+    if (endPage < totalPages - 1) {
+      items.push(
+        <PaginationItem key="end-ellipsis">
+          <span className="px-4 py-2">...</span>
+        </PaginationItem>
+      );
+    }
+    
+    // Last page
+    if (endPage < totalPages) {
+      items.push(
+        <PaginationItem key={totalPages}>
+          <PaginationLink
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setPage(totalPages);
+            }}
+            isActive={page === totalPages}
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    // Next button
+    items.push(
+      <PaginationItem key="next">
+        <PaginationNext
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (page < totalPages) setPage(page + 1);
+          }}
+          className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+        />
+      </PaginationItem>
+    );
+    
+    return <PaginationContent>{items}</PaginationContent>;
+  };
+
+  return (
+    <>
+      <SEO
+        title="Tin tức | Lịch Sử Việt Nam"
+        description="Cập nhật tin tức, bài viết mới nhất về lịch sử Việt Nam từ các thời kỳ, sự kiện và nhân vật lịch sử."
+        url="/tin-tuc"
+      />
+      <Header onOpenSearch={() => {}} />
+      
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-amber-900 mb-6">Tin tức & Bài viết</h1>
+        
+        {/* Thanh tìm kiếm và lọc */}
+        <div className="bg-amber-50 p-4 rounded-lg mb-8 shadow-sm">
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Input
+                type="text"
+                placeholder="Tìm kiếm tin tức..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+              <Search className="w-5 h-5 text-muted-foreground absolute left-3 top-1/2 transform -translate-y-1/2" />
+            </div>
+            
+            <div className="w-full md:w-48">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sắp xếp theo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="latest">Mới nhất</SelectItem>
+                  <SelectItem value="oldest">Cũ nhất</SelectItem>
+                  <SelectItem value="popular">Phổ biến nhất</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <Button type="submit" className="bg-amber-600 hover:bg-amber-700">
+              <Filter className="w-4 h-4 mr-2" />
+              Lọc
+            </Button>
+          </form>
+        </div>
+        
+        {/* Danh sách tin tức */}
+        {isLoading ? (
+          <div className="grid place-items-center h-60">
+            <div className="animate-spin w-8 h-8 border-4 border-amber-600 border-t-transparent rounded-full"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-10 text-red-500">
+            <p>Đã xảy ra lỗi khi tải tin tức. Vui lòng thử lại sau.</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {data?.news?.map((news: News) => (
+                <Card key={news.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                  <div className="aspect-[16/9] overflow-hidden bg-amber-100">
+                    {news.imageUrl ? (
+                      <img
+                        src={news.imageUrl}
+                        alt={news.title}
+                        className="w-full h-full object-cover transition-transform hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-amber-200 text-amber-700">
+                        Không có hình ảnh
+                      </div>
+                    )}
+                  </div>
+                  
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center text-sm text-muted-foreground mb-1">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      {formatDate(news.createdAt)}
+                      
+                      {news.is_featured && (
+                        <span className="ml-auto bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full">
+                          Nổi bật
+                        </span>
+                      )}
+                    </div>
+                    <CardTitle className="text-xl leading-tight line-clamp-2">
+                      <Link href={`/tin-tuc/${news.id}/${news.slug}`} className="hover:text-amber-700 transition-colors">
+                        {news.title}
+                      </Link>
+                    </CardTitle>
+                  </CardHeader>
+                  
+                  <CardContent className="pb-2">
+                    <p className="text-muted-foreground text-sm line-clamp-3">
+                      {news.summary}
+                    </p>
+                  </CardContent>
+                  
+                  <CardFooter className="pt-2">
+                    <Link href={`/tin-tuc/${news.id}/${news.slug}`}>
+                      <Button variant="link" className="p-0 h-auto text-amber-600 hover:text-amber-700">
+                        Đọc thêm <ArrowRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </Link>
+                    
+                    <div className="ml-auto text-sm text-muted-foreground">
+                      {news.viewCount} lượt xem
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+            
+            {/* Không có kết quả */}
+            {data?.news?.length === 0 && (
+              <div className="text-center py-10 bg-amber-50 rounded-lg">
+                <p className="text-lg text-amber-800 mb-2">Không tìm thấy tin tức nào</p>
+                <p className="text-sm text-muted-foreground">Vui lòng thử tìm kiếm với từ khóa khác.</p>
+              </div>
+            )}
+            
+            {/* Phân trang */}
+            {data?.news?.length > 0 && (
+              <Pagination className="mt-8">
+                {renderPagination()}
+              </Pagination>
+            )}
+          </>
+        )}
+      </main>
+      
+      <Footer />
+    </>
+  );
+};
+
+export default NewsListPage;

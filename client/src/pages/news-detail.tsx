@@ -1,0 +1,324 @@
+import React, { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useParams, useLocation } from "wouter";
+import { Helmet } from "react-helmet";
+import { format } from "date-fns";
+import { vi } from "date-fns/locale";
+import { ArrowLeft, Calendar, Eye, Clock, MapPin, User, BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
+import BackToTop from "@/components/BackToTop";
+import FacebookComments from "@/components/FacebookComments";
+import { formatDate } from "@/lib/utils";
+
+interface News {
+  id: number;
+  title: string;
+  slug: string;
+  summary: string;
+  content: string;
+  imageUrl: string | null;
+  published: boolean;
+  viewCount: number;
+  periodId: number | null;
+  eventId: number | null;
+  historicalFigureId: number | null;
+  historicalSiteId: number | null;
+  createdAt: string;
+  updatedAt: string | null;
+  is_featured: boolean;
+  period?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+  event?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+  historicalFigure?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+  historicalSite?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+}
+
+interface RelatedNews {
+  id: number;
+  title: string;
+  slug: string;
+  imageUrl: string | null;
+  createdAt: string;
+}
+
+const NewsDetailPage: React.FC = () => {
+  const params = useParams<{ id: string; slug?: string }>();
+  const newsId = parseInt(params.id, 10);
+  const [location, setLocation] = useLocation();
+
+  // Fetch chi tiết tin tức
+  const { data: news, isLoading, error } = useQuery({
+    queryKey: ["/api/news", newsId],
+    queryFn: async () => {
+      const response = await fetch(`/api/news/${params.slug || newsId}`);
+      if (!response.ok) {
+        throw new Error("Không thể tải tin tức");
+      }
+      return response.json();
+    },
+    enabled: !!newsId && !isNaN(newsId),
+  });
+
+  // Fetch tin tức liên quan
+  const { data: relatedNews } = useQuery({
+    queryKey: ["/api/news/related", newsId],
+    queryFn: async () => {
+      const response = await fetch(`/api/news/related/${newsId}`);
+      if (!response.ok) {
+        throw new Error("Không thể tải tin tức liên quan");
+      }
+      return response.json();
+    },
+    enabled: !!news,
+  });
+
+  // Tăng lượt xem khi người dùng xem tin tức
+  useEffect(() => {
+    if (newsId && !isNaN(newsId)) {
+      fetch(`/api/news/${newsId}/view`, { method: "POST" })
+        .catch(error => console.error("Error incrementing view count:", error));
+    }
+  }, [newsId]);
+
+  // Điều hướng đến URL đúng nếu slug không khớp
+  useEffect(() => {
+    if (news && params.slug !== news.slug) {
+      setLocation(`/tin-tuc/${news.id}/${news.slug}`);
+    }
+  }, [news, params.slug, setLocation]);
+
+  // Hiển thị nội dung HTML từ rich text editor
+  const renderContent = (content: string) => {
+    return { __html: content };
+  };
+
+  // Nếu đang tải
+  if (isLoading) {
+    return (
+      <>
+        <Header onOpenSearch={() => {}} />
+        <main className="container mx-auto px-4 py-12">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-3/4 mb-6"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mb-12"></div>
+            <div className="h-64 bg-gray-200 rounded mb-8"></div>
+            <div className="space-y-4">
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  // Nếu có lỗi
+  if (error || !news) {
+    return (
+      <>
+        <Header onOpenSearch={() => {}} />
+        <main className="container mx-auto px-4 py-12 text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Không tìm thấy tin tức</h1>
+          <p className="text-gray-600 mb-6">Tin tức này không tồn tại hoặc đã bị xóa.</p>
+          <Link href="/tin-tuc">
+            <Button>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Quay lại danh sách tin tức
+            </Button>
+          </Link>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  // URL đầy đủ cho Facebook comments
+  const fullUrl = typeof window !== "undefined" 
+    ? `${window.location.origin}/tin-tuc/${news.id}/${news.slug}`
+    : "";
+
+  return (
+    <>
+      <SEO
+        title={`${news.title} | Lịch Sử Việt Nam`}
+        description={news.summary}
+        image={news.imageUrl || "https://lichsuviet.edu.vn/uploads/banner-image.png"}
+        type="article"
+        url={`/tin-tuc/${news.id}/${news.slug}`}
+        articlePublishedTime={news.createdAt}
+        articleModifiedTime={news.updatedAt || news.createdAt}
+      />
+      
+      <Header onOpenSearch={() => {}} />
+      
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Breadcrumb */}
+          <div className="flex items-center text-sm text-gray-500 mb-6">
+            <Link href="/">
+              <span className="hover:text-amber-600 transition-colors">Trang chủ</span>
+            </Link>
+            <span className="mx-2">/</span>
+            <Link href="/tin-tuc">
+              <span className="hover:text-amber-600 transition-colors">Tin tức</span>
+            </Link>
+            <span className="mx-2">/</span>
+            <span className="text-amber-600 truncate max-w-[200px]">{news.title}</span>
+          </div>
+          
+          {/* Tiêu đề và thông tin */}
+          <h1 className="text-3xl font-bold text-amber-900 mb-4">{news.title}</h1>
+          
+          <div className="flex flex-wrap items-center text-sm text-gray-500 mb-6 gap-4">
+            <div className="flex items-center">
+              <Calendar className="w-4 h-4 mr-1" />
+              {formatDate(news.createdAt)}
+            </div>
+            
+            <div className="flex items-center">
+              <Eye className="w-4 h-4 mr-1" />
+              {news.viewCount} lượt xem
+            </div>
+            
+            {news.period && (
+              <Link href={`/thoi-ky/${news.period.slug}`}>
+                <span className="flex items-center hover:text-amber-600 transition-colors">
+                  <Clock className="w-4 h-4 mr-1" />
+                  {news.period.name}
+                </span>
+              </Link>
+            )}
+            
+            {news.historicalFigure && (
+              <Link href={`/nhan-vat/${news.historicalFigure.id}/${news.historicalFigure.slug}`}>
+                <span className="flex items-center hover:text-amber-600 transition-colors">
+                  <User className="w-4 h-4 mr-1" />
+                  {news.historicalFigure.name}
+                </span>
+              </Link>
+            )}
+            
+            {news.historicalSite && (
+              <Link href={`/di-tich/${news.historicalSite.id}/${news.historicalSite.slug}`}>
+                <span className="flex items-center hover:text-amber-600 transition-colors">
+                  <MapPin className="w-4 h-4 mr-1" />
+                  {news.historicalSite.name}
+                </span>
+              </Link>
+            )}
+            
+            {news.event && (
+              <Link href={`/su-kien/${news.event.id}/${news.event.slug}`}>
+                <span className="flex items-center hover:text-amber-600 transition-colors">
+                  <BookOpen className="w-4 h-4 mr-1" />
+                  {news.event.name}
+                </span>
+              </Link>
+            )}
+          </div>
+          
+          {/* Hình ảnh chính */}
+          {news.imageUrl && (
+            <div className="mb-8">
+              <img
+                src={news.imageUrl}
+                alt={news.title}
+                className="w-full h-auto rounded-lg shadow-md"
+              />
+            </div>
+          )}
+          
+          {/* Tóm tắt */}
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-8 italic text-amber-800">
+            {news.summary}
+          </div>
+          
+          {/* Nội dung chính */}
+          <div 
+            className="prose prose-amber max-w-none mb-12"
+            dangerouslySetInnerHTML={renderContent(news.content)}
+          />
+          
+          {/* Facebook comments */}
+          <div className="border-t border-gray-200 pt-8 mb-8">
+            <h3 className="text-xl font-semibold text-amber-900 mb-4">Bình luận</h3>
+            <FacebookComments url={fullUrl} />
+          </div>
+          
+          {/* Tin tức liên quan */}
+          {relatedNews?.length > 0 && (
+            <div className="border-t border-gray-200 pt-8 mb-12">
+              <h3 className="text-xl font-semibold text-amber-900 mb-6">Tin tức liên quan</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {relatedNews.map((item: RelatedNews) => (
+                  <Link key={item.id} href={`/tin-tuc/${item.id}/${item.slug}`}>
+                    <div className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                      <div className="aspect-[16/9] overflow-hidden bg-amber-100">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-amber-200 text-amber-700">
+                            Không có hình ảnh
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="p-4">
+                        <div className="text-xs text-gray-500 mb-1">
+                          {formatDate(item.createdAt)}
+                        </div>
+                        <h4 className="font-medium text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2">
+                          {item.title}
+                        </h4>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Nút quay lại */}
+          <div className="mt-12 border-t border-gray-200 pt-6">
+            <Link href="/tin-tuc">
+              <Button variant="outline" className="group">
+                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                Quay lại danh sách tin tức
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </main>
+      
+      <BackToTop />
+      <Footer />
+    </>
+  );
+};
+
+export default NewsDetailPage;

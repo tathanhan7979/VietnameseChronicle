@@ -26,6 +26,8 @@ import FeedbackAdmin from "@/pages/admin/feedback";
 import SettingsAdmin from "@/pages/admin/settings";
 import UsersAdmin from "@/pages/admin/users";
 import NewsAdmin from "@/pages/admin/news";
+import NewsListPage from "@/pages/news-list";
+import NewsDetailPage from "@/pages/news-detail";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
@@ -44,6 +46,9 @@ function Router() {
       <Route path="/di-tich" component={HistoricalSitesList} />
       <Route path="/di-tich/:id" component={HistoricalSiteDetail} />
       <Route path="/di-tich/:id/:slug" component={HistoricalSiteDetail} />
+      <Route path="/tin-tuc" component={NewsListPage} />
+      <Route path="/tin-tuc/:id" component={NewsDetailPage} />
+      <Route path="/tin-tuc/:id/:slug" component={NewsDetailPage} />
       <Route path="/tim-kiem" component={SearchResults} />
       <Route path="/chinh-sach-bao-mat" component={PrivacyPolicy} />
       <Route path="/dieu-khoan-su-dung" component={TermsOfService} />
