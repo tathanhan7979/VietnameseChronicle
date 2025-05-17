@@ -96,7 +96,7 @@ export default function NewsSection() {
       </div>
       <CardHeader className="pb-2 flex-grow">
         <CardTitle className="text-xl mb-2">
-          <Link href={`/tin-tuc/${news.slug}`} className="hover:text-primary">
+          <Link href={`/tin-tuc/${news.id}/${news.slug}`} className="hover:text-primary">
             {truncateTitle(news.title)}
           </Link>
         </CardTitle>
@@ -108,7 +108,7 @@ export default function NewsSection() {
         <p className="text-sm text-gray-700 line-clamp-3">{news.summary}</p>
       </CardContent>
       <CardFooter className="pt-0">
-        <Link href={`/tin-tuc/${news.slug}`} className="text-primary hover:underline text-sm font-medium">
+        <Link href={`/tin-tuc/${news.id}/${news.slug}`} className="text-primary hover:underline text-sm font-medium">
           Đọc tiếp
         </Link>
         <div className="ml-auto text-sm text-gray-500">
