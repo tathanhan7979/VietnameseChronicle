@@ -349,41 +349,46 @@ const NewsDetailPage: React.FC = () => {
 
               {/* Hiển thị tin tức liên quan nếu có */}
               {relatedNews && relatedNews.length > 0 && (
-                <div className="bg-amber-50 rounded-xl p-6 shadow-sm">
-                  <h3 className="text-lg font-semibold text-amber-900 mb-3 border-b border-amber-200 pb-2">
-                    Tin tức liên quan
-                  </h3>
-                  <div className="space-y-4 mt-3">
-                    {relatedNews.slice(0, 5).map((item: RelatedNews) => (
+                <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl shadow-md border border-amber-200">
+                  <div className="p-4 border-b border-amber-200 bg-amber-100">
+                    <h3 className="text-lg font-semibold text-amber-900 flex items-center">
+                      <BookOpen className="w-5 h-5 mr-2 text-amber-600" />
+                      Tin tức liên quan
+                    </h3>
+                  </div>
+                  <div className="p-4">
+                    {relatedNews.slice(0, 5).map((item: RelatedNews, index) => (
                       <Link
                         key={item.id}
                         href={`/tin-tuc/${item.id}/${item.slug}`}
-                        className="mt-3"
                       >
-                        <div className="flex gap-3 group">
-                          <div className="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md bg-amber-100">
+                        <div className={`flex items-start gap-3 group hover:bg-amber-50 p-3 rounded-lg transition-all ${index < relatedNews.slice(0, 5).length - 1 ? 'border-b border-amber-100 pb-3 mb-3' : ''}`}>
+                          <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-lg shadow-sm bg-amber-100 relative">
                             {item.imageUrl ? (
-                              <img
-                                src={item.imageUrl}
-                                alt={item.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                                onError={(e) => {
-                                  e.currentTarget.src =
-                                    "/uploads/error-img.png";
-                                  e.currentTarget.onerror = null;
-                                }}
-                              />
+                              <>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                                <img
+                                  src={item.imageUrl}
+                                  alt={item.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                  onError={(e) => {
+                                    e.currentTarget.src = "/uploads/error-img.png";
+                                    e.currentTarget.onerror = null;
+                                  }}
+                                />
+                              </>
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <BookOpen className="w-6 h-6 text-amber-700" />
+                                <BookOpen className="w-8 h-8 text-amber-700" />
                               </div>
                             )}
                           </div>
-                          <div>
-                            <h4 className="text-sm font-medium text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2">
+                          <div className="flex-1">
+                            <h4 className="text-sm font-medium text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-tight">
                               {item.title}
                             </h4>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-xs text-gray-500 mt-2 flex items-center">
+                              <Calendar className="w-3.5 h-3.5 mr-1 text-amber-500" />
                               {formatDate(item.createdAt)}
                             </div>
                           </div>
