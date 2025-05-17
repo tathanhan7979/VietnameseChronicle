@@ -1,5 +1,5 @@
 import { db } from "@db";
-import { eq, and, desc, sql, isNull, or, like, gt, lt, asc } from "drizzle-orm";
+import { eq, and, desc, sql, isNull, or, like, gt, lt, asc, not, inArray } from "drizzle-orm";
 import { News, InsertNews, news, periods, events, historicalFigures, historicalSites } from "@shared/schema";
 
 /**
@@ -290,7 +290,9 @@ export const newsController = {
               sql`${news.id} != ${newsId}`,
               eq(news.published, true),
               // Loại bỏ những tin đã có trong danh sách liên quan
-              sql`${news.id} NOT IN (${relatedNews.map((n) => n.id).join(",")})`
+              relatedNews.length > 0 
+                ? not(inArray(news.id, relatedNews.map((n) => n.id)))
+                : undefined
             )
           )
           .orderBy(desc(news.createdAt))
