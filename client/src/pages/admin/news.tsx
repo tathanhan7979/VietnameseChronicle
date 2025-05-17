@@ -46,6 +46,10 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import {
+  Clock as ClockIcon,
+  RefreshCw as RefreshCwIcon,
+  Eye as EyeIcon,
+  Link as LinkIcon,
   Loader2,
   Trash2,
   Search,
@@ -60,6 +64,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Badge } from "@/components/ui/badge";
 import RichTextEditor from "@/components/ui/rich-text-editor";
 import { NewsPermissionField } from "./news-permission";
 
