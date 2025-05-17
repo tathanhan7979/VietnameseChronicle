@@ -248,6 +248,10 @@ const NewsDetailPage: React.FC = () => {
                     src={news.news.imageUrl}
                     alt={news.news.title}
                     className="w-full h-auto"
+                    onError={(e) => {
+                      e.currentTarget.src = "/error-img.png";
+                      e.currentTarget.onerror = null; // Tránh lặp vô hạn nếu error-img.png cũng lỗi
+                    }}
                   />
                 </div>
               )}
