@@ -166,19 +166,19 @@ const NewsListPage: React.FC = () => {
         params.append("search", searchQuery);
       }
       
-      if (periodId) {
+      if (periodId && periodId !== "all_periods") {
         params.append("periodId", periodId);
       }
       
-      if (eventId) {
+      if (eventId && eventId !== "all_events") {
         params.append("eventId", eventId);
       }
       
-      if (figureId) {
+      if (figureId && figureId !== "all_figures") {
         params.append("historicalFigureId", figureId);
       }
       
-      if (siteId) {
+      if (siteId && siteId !== "all_sites") {
         params.append("historicalSiteId", siteId);
       }
       
