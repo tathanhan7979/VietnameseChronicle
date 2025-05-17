@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { format } from "date-fns";
@@ -11,12 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 
 // Kiểu dữ liệu cho tin tức
 interface News {
@@ -133,63 +126,17 @@ export default function NewsSection() {
           </p>
         </div>
 
-        <Tabs defaultValue="featured" className="w-full">
-          <div className="flex justify-center mb-8">
-            <TabsList>
-              <TabsTrigger value="featured" onClick={() => setActiveTab("featured")}>
-                Nổi Bật
-              </TabsTrigger>
-              <TabsTrigger value="latest" onClick={() => setActiveTab("latest")}>
-                Mới Nhất
-              </TabsTrigger>
-              <TabsTrigger value="popular" onClick={() => setActiveTab("popular")}>
-                Phổ Biến
-              </TabsTrigger>
-            </TabsList>
+        {isLoadingLatest ? (
+          renderLoading()
+        ) : latestNews && latestNews.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {latestNews.map(renderNewsCard)}
           </div>
-
-          <TabsContent value="featured">
-            {isLoadingFeatured ? (
-              renderLoading()
-            ) : featuredNews && featuredNews.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {featuredNews.map(renderNewsCard)}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">Không có tin tức nổi bật.</p>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="latest">
-            {isLoadingLatest ? (
-              renderLoading()
-            ) : latestNews && latestNews.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {latestNews.map(renderNewsCard)}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">Không có tin tức mới.</p>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="popular">
-            {isLoadingPopular ? (
-              renderLoading()
-            ) : popularNews && popularNews.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {popularNews.map(renderNewsCard)}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">Không có tin tức phổ biến.</p>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500">Không có tin tức mới.</p>
+          </div>
+        )}
 
         <div className="text-center mt-10">
           <Link href="/tin-tuc" className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
