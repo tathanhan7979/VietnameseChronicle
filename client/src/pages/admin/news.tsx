@@ -956,7 +956,7 @@ const NewsPage: React.FC = () => {
             )}
             <div className="flex items-center gap-1">
               <EyeIcon className="h-4 w-4" />
-              <span>Lượt xem: <Badge variant="outline" className="ml-1 font-mono">{typeof selectedNews.view_count === 'number' ? selectedNews.view_count : 0}</Badge></span>
+              <span>Lượt xem: <Badge variant="outline" className="ml-1 font-mono">{selectedNews.view_count}</Badge></span>
             </div>
             <div className="flex items-center gap-1">
               <LinkIcon className="h-4 w-4" />
@@ -1108,10 +1108,11 @@ const NewsPage: React.FC = () => {
                         field.onChange(value === "null" ? null : parseInt(value))
                       }
                       value={field.value?.toString() || ""}
+                      disabled={!editForm.getValues("period_id")}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Chọn sự kiện" />
+                          <SelectValue placeholder={editForm.getValues("period_id") ? "Chọn sự kiện" : "Vui lòng chọn thời kỳ trước"} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -1126,6 +1127,11 @@ const NewsPage: React.FC = () => {
                         ))}
                       </SelectContent>
                     </Select>
+                    {!editForm.getValues("period_id") && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        Hãy chọn thời kỳ trước để lọc sự kiện liên quan
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
