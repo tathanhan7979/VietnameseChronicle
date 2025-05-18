@@ -97,7 +97,7 @@ const newsFormSchema = z.object({
   content: z.string().min(1, { message: "Nội dung không được để trống" }),
   imageUrl: z.string().optional().nullable(),
   published: z.boolean().default(false),
-  is_featured: z.boolean().default(false),
+  // Đã bỏ trường is_featured theo yêu cầu
   period_id: z.number().nullable().optional(),
   event_id: z.number().nullable().optional(),
   figure_id: z.number().nullable().optional(),
@@ -684,8 +684,7 @@ const NewsPage: React.FC = () => {
         onSubmit={createForm.handleSubmit(handleCreateSubmit)}
         className="space-y-6"
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-6">
+        <div className="space-y-6">
             <FormField
               control={createForm.control}
               name="title"
@@ -732,43 +731,25 @@ const NewsPage: React.FC = () => {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={createForm.control}
-                name="published"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Xuất bản</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={createForm.control}
+              name="published"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm w-full md:w-1/3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Xuất bản</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={createForm.control}
-                name="is_featured"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Nổi bật</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+            {imageUploadField("create")}
 
             <div className="space-y-4">
               <FormField
@@ -904,10 +885,6 @@ const NewsPage: React.FC = () => {
                 )}
               />
             </div>
-          </div>
-
-          <div className="space-y-6">
-            {imageUploadField("create")}
 
             <FormField
               control={createForm.control}
@@ -927,7 +904,6 @@ const NewsPage: React.FC = () => {
               )}
             />
           </div>
-        </div>
 
         <DialogFooter>
           <Button
