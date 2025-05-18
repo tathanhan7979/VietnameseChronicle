@@ -115,6 +115,8 @@ const NewsPage: React.FC = () => {
   const [selectedNews, setSelectedNews] = useState<News | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [filteredEvents, setFilteredEvents] = useState<any[]>();
+  const [useImageUrl, setUseImageUrl] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -300,7 +302,7 @@ const NewsPage: React.FC = () => {
         summary: "",
         content: "",
         imageUrl: null,
-        is_published: false,
+        published: false,
         is_featured: false,
         period_id: null,
         event_id: null,
@@ -535,6 +537,7 @@ const NewsPage: React.FC = () => {
 
   const imageUploadField = (formType: "create" | "edit") => {
     const form = formType === "create" ? createForm : editForm;
+    const [useURL, setUseURL] = useState(false);
 
     return (
       <div className="space-y-4">
@@ -564,34 +567,80 @@ const NewsPage: React.FC = () => {
             </div>
           )}
 
-          <div className="flex space-x-2">
-            <Input
-              type="file"
-              id={`image-upload-${formType}`}
-              accept="image/*"
-              onChange={(e) => handleImageUpload(e, formType)}
-              disabled={uploadingImage}
-              className="hidden"
-            />
+          <div className="grid grid-cols-2 gap-2 mb-2">
             <Button
               type="button"
-              variant="outline"
-              onClick={() =>
-                document.getElementById(`image-upload-${formType}`)?.click()
-              }
-              disabled={uploadingImage}
+              variant={!useURL ? "default" : "outline"}
+              onClick={() => setUseURL(false)}
               className="w-full"
             >
-              {uploadingImage ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Đang tải lên...
-                </>
-              ) : (
-                <>Chọn hình ảnh</>
-              )}
+              Tải lên
+            </Button>
+            <Button
+              type="button"
+              variant={useURL ? "default" : "outline"}
+              onClick={() => setUseURL(true)}
+              className="w-full"
+            >
+              Nhập URL
             </Button>
           </div>
+
+          {useURL ? (
+            <div className="flex space-x-2">
+              <Input
+                type="text"
+                placeholder="Nhập URL hình ảnh"
+                value={form.getValues("imageUrl") || ""}
+                onChange={(e) => {
+                  form.setValue("imageUrl", e.target.value);
+                  setImagePreview(e.target.value);
+                }}
+                className="flex-grow"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (form.getValues("imageUrl")) {
+                    setImagePreview(form.getValues("imageUrl"));
+                  }
+                }}
+                className="whitespace-nowrap"
+              >
+                Xem trước
+              </Button>
+            </div>
+          ) : (
+            <div className="flex space-x-2">
+              <Input
+                type="file"
+                id={`image-upload-${formType}`}
+                accept="image/*"
+                onChange={(e) => handleImageUpload(e, formType)}
+                disabled={uploadingImage}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  document.getElementById(`image-upload-${formType}`)?.click()
+                }
+                disabled={uploadingImage}
+                className="w-full"
+              >
+                {uploadingImage ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Đang tải lên...
+                  </>
+                ) : (
+                  <>Chọn hình ảnh</>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -890,7 +939,7 @@ const NewsPage: React.FC = () => {
             )}
             <div className="flex items-center gap-1">
               <EyeIcon className="h-4 w-4" />
-              <span>Lượt xem: <Badge variant="outline" className="ml-1 font-mono">{selectedNews.view_count || 0}</Badge></span>
+              <span>Lượt xem: <Badge variant="outline" className="ml-1 font-mono">{typeof selectedNews.view_count === 'number' ? selectedNews.view_count : 0}</Badge></span>
             </div>
             <div className="flex items-center gap-1">
               <LinkIcon className="h-4 w-4" />
