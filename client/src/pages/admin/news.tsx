@@ -1262,7 +1262,7 @@ const NewsPage: React.FC = () => {
                 Tạo tin tức mới
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Tạo tin tức mới</DialogTitle>
               </DialogHeader>
@@ -1450,7 +1450,7 @@ const NewsPage: React.FC = () => {
 
       {/* Dialog chỉnh sửa tin tức */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Chỉnh sửa tin tức</DialogTitle>
           </DialogHeader>
