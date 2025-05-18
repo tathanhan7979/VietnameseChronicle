@@ -337,12 +337,13 @@ const NewsPage: React.FC = () => {
       });
       setImagePreview(selectedNews.imageUrl);
       setUseImageUrl(!!selectedNews.imageUrl);
-      
+
       // Nếu có period_id, lọc danh sách sự kiện theo thời kỳ
       if (selectedNews.period_id && eventsData) {
         const periodId = selectedNews.period_id;
-        const filteredEvents = eventsData.filter((event: any) => 
-          event.periodId === periodId || event.period_id === periodId
+        const filteredEvents = eventsData.filter(
+          (event: any) =>
+            event.periodId === periodId || event.period_id === periodId,
         );
         setFilteredEvents(filteredEvents);
       } else {
@@ -360,7 +361,7 @@ const NewsPage: React.FC = () => {
   const handleEditSubmit = (data: NewsFormValues) => {
     if (selectedNews) {
       // Kiểm tra nếu không có thay đổi, thông báo và đóng form
-      const isUnchanged = 
+      const isUnchanged =
         data.title === selectedNews.title &&
         data.slug === selectedNews.slug &&
         data.summary === selectedNews.summary &&
@@ -372,7 +373,7 @@ const NewsPage: React.FC = () => {
         data.event_id === selectedNews.event_id &&
         data.figure_id === selectedNews.figure_id &&
         data.site_id === selectedNews.site_id;
-      
+
       if (isUnchanged) {
         toast({
           title: "Không có thay đổi",
@@ -381,7 +382,7 @@ const NewsPage: React.FC = () => {
         setIsEditDialogOpen(false);
         return;
       }
-      
+
       updateNewsMutation.mutate({ id: selectedNews.id, data });
     }
   };
@@ -510,9 +511,9 @@ const NewsPage: React.FC = () => {
       <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage((old) => Math.max(1, old - 1))}
               disabled={page === 1}
               className="gap-1"
@@ -528,7 +529,9 @@ const NewsPage: React.FC = () => {
               </PaginationItem>
               {startPage > 2 && (
                 <PaginationItem>
-                  <span className="flex h-9 w-9 items-center justify-center opacity-50">...</span>
+                  <span className="flex h-9 w-9 items-center justify-center opacity-50">
+                    ...
+                  </span>
                 </PaginationItem>
               )}
             </>
@@ -538,7 +541,9 @@ const NewsPage: React.FC = () => {
             <>
               {endPage < totalPages - 1 && (
                 <PaginationItem>
-                  <span className="flex h-9 w-9 items-center justify-center opacity-50">...</span>
+                  <span className="flex h-9 w-9 items-center justify-center opacity-50">
+                    ...
+                  </span>
                 </PaginationItem>
               )}
               <PaginationItem>
@@ -549,8 +554,8 @@ const NewsPage: React.FC = () => {
             </>
           )}
           <PaginationItem>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => setPage((old) => Math.min(totalPages, old + 1))}
               disabled={page === totalPages}
@@ -567,11 +572,11 @@ const NewsPage: React.FC = () => {
 
   const imageUploadField = (formType: "create" | "edit") => {
     const form = formType === "create" ? createForm : editForm;
-    
+
     // Tạo state riêng cho component này để theo dõi xem đang sử dụng tùy chọn URL hay Upload
     // Sử dụng useState với cùng giá trị khởi tạo mỗi lần render sẽ tạo ra state mới mỗi lần render
     // Do đó, chúng ta cần sử dụng state từ component cha đã được khai báo ở trên
-    
+
     return (
       <div className="space-y-4">
         <FormLabel>Hình ảnh đại diện</FormLabel>
@@ -685,15 +690,102 @@ const NewsPage: React.FC = () => {
         className="space-y-6"
       >
         <div className="space-y-6">
+          <FormField
+            control={createForm.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tiêu đề</FormLabel>
+                <FormControl>
+                  <Input placeholder="Nhập tiêu đề tin tức" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={createForm.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Slug (tùy chọn)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Tự động tạo từ tiêu đề nếu để trống"
+                    {...field}
+                    value={field.value || ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={createForm.control}
+            name="summary"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tóm tắt</FormLabel>
+                <FormControl>
+                  <Input placeholder="Nhập tóm tắt tin tức" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={createForm.control}
+            name="published"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm w-full md:w-1/3">
+                <div className="space-y-0.5">
+                  <FormLabel>Xuất bản</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {imageUploadField("create")}
+
+          <div className="space-y-4">
             <FormField
               control={createForm.control}
-              name="title"
+              name="period_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tiêu đề</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nhập tiêu đề tin tức" {...field} />
-                  </FormControl>
+                  <FormLabel>Thời kỳ liên quan</FormLabel>
+                  <Select
+                    onValueChange={(value) =>
+                      field.onChange(value ? parseInt(value) : null)
+                    }
+                    value={field.value?.toString() || ""}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn thời kỳ" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="null">Không có</SelectItem>
+                      {periodsData?.map((period: any) => (
+                        <SelectItem
+                          key={period.id}
+                          value={period.id.toString()}
+                        >
+                          {period.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -701,17 +793,30 @@ const NewsPage: React.FC = () => {
 
             <FormField
               control={createForm.control}
-              name="slug"
+              name="event_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Slug (tùy chọn)</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Tự động tạo từ tiêu đề nếu để trống"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
+                  <FormLabel>Sự kiện liên quan</FormLabel>
+                  <Select
+                    onValueChange={(value) =>
+                      field.onChange(value ? parseInt(value) : null)
+                    }
+                    value={field.value?.toString() || ""}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn sự kiện" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="null">Không có</SelectItem>
+                      {eventsData?.map((event: any) => (
+                        <SelectItem key={event.id} value={event.id.toString()}>
+                          {event.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -719,13 +824,33 @@ const NewsPage: React.FC = () => {
 
             <FormField
               control={createForm.control}
-              name="summary"
+              name="figure_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tóm tắt</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nhập tóm tắt tin tức" {...field} />
-                  </FormControl>
+                  <FormLabel>Nhân vật liên quan</FormLabel>
+                  <Select
+                    onValueChange={(value) =>
+                      field.onChange(value ? parseInt(value) : null)
+                    }
+                    value={field.value?.toString() || ""}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn nhân vật" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="null">Không có</SelectItem>
+                      {figuresData?.map((figure: any) => (
+                        <SelectItem
+                          key={figure.id}
+                          value={figure.id.toString()}
+                        >
+                          {figure.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -733,177 +858,54 @@ const NewsPage: React.FC = () => {
 
             <FormField
               control={createForm.control}
-              name="published"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm w-full md:w-1/3">
-                  <div className="space-y-0.5">
-                    <FormLabel>Xuất bản</FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            {imageUploadField("create")}
-
-            <div className="space-y-4">
-              <FormField
-                control={createForm.control}
-                name="period_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Thời kỳ liên quan</FormLabel>
-                    <Select
-                      onValueChange={(value) =>
-                        field.onChange(value ? parseInt(value) : null)
-                      }
-                      value={field.value?.toString() || ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn thời kỳ" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="null">Không có</SelectItem>
-                        {periodsData?.map((period: any) => (
-                          <SelectItem
-                            key={period.id}
-                            value={period.id.toString()}
-                          >
-                            {period.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={createForm.control}
-                name="event_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sự kiện liên quan</FormLabel>
-                    <Select
-                      onValueChange={(value) =>
-                        field.onChange(value ? parseInt(value) : null)
-                      }
-                      value={field.value?.toString() || ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn sự kiện" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="null">Không có</SelectItem>
-                        {eventsData?.map((event: any) => (
-                          <SelectItem
-                            key={event.id}
-                            value={event.id.toString()}
-                          >
-                            {event.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={createForm.control}
-                name="figure_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nhân vật liên quan</FormLabel>
-                    <Select
-                      onValueChange={(value) =>
-                        field.onChange(value ? parseInt(value) : null)
-                      }
-                      value={field.value?.toString() || ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn nhân vật" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="null">Không có</SelectItem>
-                        {figuresData?.map((figure: any) => (
-                          <SelectItem
-                            key={figure.id}
-                            value={figure.id.toString()}
-                          >
-                            {figure.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={createForm.control}
-                name="site_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Di tích liên quan</FormLabel>
-                    <Select
-                      onValueChange={(value) =>
-                        field.onChange(value ? parseInt(value) : null)
-                      }
-                      value={field.value?.toString() || ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn di tích" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="null">Không có</SelectItem>
-                        {sitesData?.map((site: any) => (
-                          <SelectItem key={site.id} value={site.id.toString()}>
-                            {site.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={createForm.control}
-              name="content"
+              name="site_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nội dung</FormLabel>
-                  <FormControl>
-                    <RichTextEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                      uploadPath="/api/admin/news/upload"
-                    />
-                  </FormControl>
+                  <FormLabel>Di tích liên quan</FormLabel>
+                  <Select
+                    onValueChange={(value) =>
+                      field.onChange(value ? parseInt(value) : null)
+                    }
+                    value={field.value?.toString() || ""}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn di tích" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="null">Không có</SelectItem>
+                      {sitesData?.map((site: any) => (
+                        <SelectItem key={site.id} value={site.id.toString()}>
+                          {site.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+
+          <FormField
+            control={createForm.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nội dung</FormLabel>
+                <FormControl>
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    uploadPath="/api/admin/news/upload"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <DialogFooter>
           <Button
@@ -936,17 +938,23 @@ const NewsPage: React.FC = () => {
           <div className="mb-4 flex flex-wrap gap-2 bg-muted p-3 rounded-md text-sm">
             <div className="flex items-center gap-1">
               <ClockIcon className="h-4 w-4" />
-              <span>Ngày tạo: {formatDate(selectedNews.createdAt)}</span>
+              <span>Ngày tạo: {formatDate(selectedNews.createdAt)} | </span>
             </div>
             {selectedNews.updatedAt && (
               <div className="flex items-center gap-1">
                 <RefreshCwIcon className="h-4 w-4" />
-                <span>Cập nhật: {formatDate(selectedNews.updatedAt)}</span>
+                <span>Cập nhật: {formatDate(selectedNews.updatedAt)} | </span>
               </div>
             )}
             <div className="flex items-center gap-1">
               <EyeIcon className="h-4 w-4" />
-              <span>Lượt xem: <Badge variant="outline" className="ml-1 font-mono">{selectedNews.viewCount}</Badge></span>
+              <span>
+                Lượt xem:{" "}
+                <Badge variant="outline" className="ml-1 font-mono">
+                  {selectedNews.viewCount}
+                </Badge>{" "}
+                |
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <LinkIcon className="h-4 w-4" />
@@ -954,8 +962,8 @@ const NewsPage: React.FC = () => {
             </div>
           </div>
         )}
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
           <div className="space-y-6">
             <FormField
               control={editForm.control}
@@ -1004,22 +1012,22 @@ const NewsPage: React.FC = () => {
             />
 
             <FormField
-                control={editForm.control}
-                name="published"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm w-full md:w-1/3">
-                    <div className="space-y-0.5">
-                      <FormLabel>Xuất bản</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              control={editForm.control}
+              name="published"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm w-full md:w-1/3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Xuất bản</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
             <div className="space-y-4">
               <FormField
@@ -1030,13 +1038,16 @@ const NewsPage: React.FC = () => {
                     <FormLabel>Thời kỳ liên quan</FormLabel>
                     <Select
                       onValueChange={(value) => {
-                        const periodId = value === "null" ? null : parseInt(value);
+                        const periodId =
+                          value === "null" ? null : parseInt(value);
                         field.onChange(periodId);
-                        
+
                         // Lọc sự kiện theo thời kỳ đã chọn
                         if (periodId && eventsData) {
-                          const filteredEvents = eventsData.filter((event: any) => 
-                            event.periodId === periodId || event.period_id === periodId
+                          const filteredEvents = eventsData.filter(
+                            (event: any) =>
+                              event.periodId === periodId ||
+                              event.period_id === periodId,
                           );
                           setFilteredEvents(filteredEvents);
                         } else {
@@ -1075,14 +1086,22 @@ const NewsPage: React.FC = () => {
                     <FormLabel>Sự kiện liên quan</FormLabel>
                     <Select
                       onValueChange={(value) =>
-                        field.onChange(value === "null" ? null : parseInt(value))
+                        field.onChange(
+                          value === "null" ? null : parseInt(value),
+                        )
                       }
                       value={field.value?.toString() || ""}
                       disabled={!editForm.getValues("period_id")}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder={editForm.getValues("period_id") ? "Chọn sự kiện" : "Vui lòng chọn thời kỳ trước"} />
+                          <SelectValue
+                            placeholder={
+                              editForm.getValues("period_id")
+                                ? "Chọn sự kiện"
+                                : "Vui lòng chọn thời kỳ trước"
+                            }
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -1115,7 +1134,9 @@ const NewsPage: React.FC = () => {
                     <FormLabel>Nhân vật liên quan</FormLabel>
                     <Select
                       onValueChange={(value) =>
-                        field.onChange(value === "null" ? null : parseInt(value))
+                        field.onChange(
+                          value === "null" ? null : parseInt(value),
+                        )
                       }
                       value={field.value?.toString() || ""}
                     >
@@ -1149,7 +1170,9 @@ const NewsPage: React.FC = () => {
                     <FormLabel>Di tích liên quan</FormLabel>
                     <Select
                       onValueChange={(value) =>
-                        field.onChange(value === "null" ? null : parseInt(value))
+                        field.onChange(
+                          value === "null" ? null : parseInt(value),
+                        )
                       }
                       value={field.value?.toString() || ""}
                     >
