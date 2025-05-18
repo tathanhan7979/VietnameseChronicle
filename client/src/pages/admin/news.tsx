@@ -1003,12 +1003,11 @@ const NewsPage: React.FC = () => {
               )}
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormField
+            <FormField
                 control={editForm.control}
                 name="published"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm w-full md:w-1/3">
                     <div className="space-y-0.5">
                       <FormLabel>Xuất bản</FormLabel>
                     </div>
@@ -1021,25 +1020,6 @@ const NewsPage: React.FC = () => {
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={editForm.control}
-                name="is_featured"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Nổi bật</FormLabel>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <div className="space-y-4">
               <FormField
