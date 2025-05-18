@@ -508,10 +508,14 @@ const NewsPage: React.FC = () => {
       <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious
+            <button
               onClick={() => setPage((old) => Math.max(1, old - 1))}
               disabled={page === 1}
-            />
+              className="inline-flex items-center gap-1 rounded-md border border-input bg-background px-2.5 py-1.5 text-sm ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+            >
+              <ChevronLeftIcon className="h-4 w-4" />
+              <span>Trước</span>
+            </button>
           </PaginationItem>
           {startPage > 1 && (
             <>
@@ -520,7 +524,7 @@ const NewsPage: React.FC = () => {
               </PaginationItem>
               {startPage > 2 && (
                 <PaginationItem>
-                  <PaginationLink disabled>...</PaginationLink>
+                  <span className="flex h-9 w-9 items-center justify-center opacity-50">...</span>
                 </PaginationItem>
               )}
             </>
@@ -530,7 +534,7 @@ const NewsPage: React.FC = () => {
             <>
               {endPage < totalPages - 1 && (
                 <PaginationItem>
-                  <PaginationLink disabled>...</PaginationLink>
+                  <span className="flex h-9 w-9 items-center justify-center opacity-50">...</span>
                 </PaginationItem>
               )}
               <PaginationItem>
@@ -541,10 +545,14 @@ const NewsPage: React.FC = () => {
             </>
           )}
           <PaginationItem>
-            <PaginationNext
+            <button
               onClick={() => setPage((old) => Math.min(totalPages, old + 1))}
               disabled={page === totalPages}
-            />
+              className="inline-flex items-center gap-1 rounded-md border border-input bg-background px-2.5 py-1.5 text-sm ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+            >
+              <span>Tiếp</span>
+              <ChevronRightIcon className="h-4 w-4" />
+            </button>
           </PaginationItem>
         </PaginationContent>
       </Pagination>
