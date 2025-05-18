@@ -709,7 +709,7 @@ const NewsPage: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Không có</SelectItem>
+                        <SelectItem value="null">Không có</SelectItem>
                         {periodsData?.map((period: any) => (
                           <SelectItem
                             key={period.id}
@@ -743,7 +743,7 @@ const NewsPage: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Không có</SelectItem>
+                        <SelectItem value="null">Không có</SelectItem>
                         {eventsData?.map((event: any) => (
                           <SelectItem
                             key={event.id}
@@ -777,7 +777,7 @@ const NewsPage: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Không có</SelectItem>
+                        <SelectItem value="null">Không có</SelectItem>
                         {figuresData?.map((figure: any) => (
                           <SelectItem
                             key={figure.id}
@@ -811,7 +811,7 @@ const NewsPage: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Không có</SelectItem>
+                        <SelectItem value="null">Không có</SelectItem>
                         {sitesData?.map((site: any) => (
                           <SelectItem key={site.id} value={site.id.toString()}>
                             {site.name}
@@ -1004,7 +1004,7 @@ const NewsPage: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Không có</SelectItem>
+                        <SelectItem value="null">Không có</SelectItem>
                         {periodsData?.map((period: any) => (
                           <SelectItem
                             key={period.id}
@@ -1038,7 +1038,7 @@ const NewsPage: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Không có</SelectItem>
+                        <SelectItem value="null">Không có</SelectItem>
                         {eventsData?.map((event: any) => (
                           <SelectItem
                             key={event.id}
@@ -1072,7 +1072,7 @@ const NewsPage: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Không có</SelectItem>
+                        <SelectItem value="null">Không có</SelectItem>
                         {figuresData?.map((figure: any) => (
                           <SelectItem
                             key={figure.id}
@@ -1106,7 +1106,7 @@ const NewsPage: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Không có</SelectItem>
+                        <SelectItem value="null">Không có</SelectItem>
                         {sitesData?.map((site: any) => (
                           <SelectItem key={site.id} value={site.id.toString()}>
                             {site.name}
