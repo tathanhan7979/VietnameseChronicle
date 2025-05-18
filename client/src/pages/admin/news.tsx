@@ -78,7 +78,7 @@ interface News {
   imageUrl: string | null;
   published: boolean;
   is_featured: boolean;
-  view_count: number;
+  viewCount: number;
   period_id: number | null;
   event_id: number | null;
   figure_id: number | null;
@@ -956,7 +956,7 @@ const NewsPage: React.FC = () => {
             )}
             <div className="flex items-center gap-1">
               <EyeIcon className="h-4 w-4" />
-              <span>Lượt xem: <Badge variant="outline" className="ml-1 font-mono">{selectedNews.view_count}</Badge></span>
+              <span>Lượt xem: <Badge variant="outline" className="ml-1 font-mono">{selectedNews.viewCount}</Badge></span>
             </div>
             <div className="flex items-center gap-1">
               <LinkIcon className="h-4 w-4" />
@@ -1378,7 +1378,7 @@ const NewsPage: React.FC = () => {
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         <Badge variant="outline" className="font-mono">
-                          {item.view_count || 0}
+                          {item.viewCount || 0}
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
