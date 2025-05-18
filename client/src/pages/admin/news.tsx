@@ -57,6 +57,8 @@ import {
   Plus,
   Eye,
   ImageIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDate } from "@/lib/utils";
@@ -508,14 +510,16 @@ const NewsPage: React.FC = () => {
       <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <button
+            <Button 
+              variant="outline" 
+              size="sm" 
               onClick={() => setPage((old) => Math.max(1, old - 1))}
               disabled={page === 1}
-              className="inline-flex items-center gap-1 rounded-md border border-input bg-background px-2.5 py-1.5 text-sm ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              className="gap-1"
             >
-              <ChevronLeftIcon className="h-4 w-4" />
+              <span>«</span>
               <span>Trước</span>
-            </button>
+            </Button>
           </PaginationItem>
           {startPage > 1 && (
             <>
@@ -545,14 +549,16 @@ const NewsPage: React.FC = () => {
             </>
           )}
           <PaginationItem>
-            <button
+            <Button 
+              variant="outline" 
+              size="sm"
               onClick={() => setPage((old) => Math.min(totalPages, old + 1))}
               disabled={page === totalPages}
-              className="inline-flex items-center gap-1 rounded-md border border-input bg-background px-2.5 py-1.5 text-sm ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              className="gap-1"
             >
               <span>Tiếp</span>
-              <ChevronRightIcon className="h-4 w-4" />
-            </button>
+              <span>»</span>
+            </Button>
           </PaginationItem>
         </PaginationContent>
       </Pagination>
