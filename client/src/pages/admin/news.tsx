@@ -1284,7 +1284,6 @@ const NewsPage: React.FC = () => {
                 <SelectItem value="all">Tất cả</SelectItem>
                 <SelectItem value="published">Đã xuất bản</SelectItem>
                 <SelectItem value="draft">Bản nháp</SelectItem>
-                <SelectItem value="featured">Nổi bật</SelectItem>
               </SelectContent>
             </Select>
           </div>
