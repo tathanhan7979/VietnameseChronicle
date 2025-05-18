@@ -105,6 +105,8 @@ const newsFormSchema = z.object({
 type NewsFormValues = z.infer<typeof newsFormSchema>;
 
 const NewsPage: React.FC = () => {
+  // Sửa lỗi AdminLayout component title required
+  const title = "Quản lý tin tức";
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [status, setStatus] = useState("all");
@@ -310,6 +312,8 @@ const NewsPage: React.FC = () => {
         site_id: null,
       });
       setImagePreview(null);
+      setUseImageUrl(false);
+      setFilteredEvents(undefined);
     }
   }, [isCreateDialogOpen, createForm]);
 
@@ -330,8 +334,20 @@ const NewsPage: React.FC = () => {
         site_id: selectedNews.site_id,
       });
       setImagePreview(selectedNews.imageUrl);
+      setUseImageUrl(!!selectedNews.imageUrl);
+      
+      // Nếu có period_id, lọc danh sách sự kiện theo thời kỳ
+      if (selectedNews.period_id && eventsData) {
+        const periodId = selectedNews.period_id;
+        const filteredEvents = eventsData.filter((event: any) => 
+          event.periodId === periodId || event.period_id === periodId
+        );
+        setFilteredEvents(filteredEvents);
+      } else {
+        setFilteredEvents(undefined);
+      }
     }
-  }, [selectedNews, isEditDialogOpen, editForm]);
+  }, [selectedNews, isEditDialogOpen, editForm, eventsData]);
 
   // Hàm xử lý khi submit form tạo tin tức
   const handleCreateSubmit = (data: NewsFormValues) => {
@@ -537,8 +553,11 @@ const NewsPage: React.FC = () => {
 
   const imageUploadField = (formType: "create" | "edit") => {
     const form = formType === "create" ? createForm : editForm;
-    const [useURL, setUseURL] = useState(false);
-
+    
+    // Tạo state riêng cho component này để theo dõi xem đang sử dụng tùy chọn URL hay Upload
+    // Sử dụng useState với cùng giá trị khởi tạo mỗi lần render sẽ tạo ra state mới mỗi lần render
+    // Do đó, chúng ta cần sử dụng state từ component cha đã được khai báo ở trên
+    
     return (
       <div className="space-y-4">
         <FormLabel>Hình ảnh đại diện</FormLabel>
@@ -549,6 +568,9 @@ const NewsPage: React.FC = () => {
                 src={imagePreview}
                 alt="Preview"
                 className="w-full max-h-[200px] object-cover rounded-md"
+                onError={(e) => {
+                  e.currentTarget.src = "/uploads/error-img.png";
+                }}
               />
               <Button
                 type="button"
@@ -570,46 +592,41 @@ const NewsPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-2 mb-2">
             <Button
               type="button"
-              variant={!useURL ? "default" : "outline"}
-              onClick={() => setUseURL(false)}
+              variant={!useImageUrl ? "default" : "outline"}
+              onClick={() => setUseImageUrl(false)}
               className="w-full"
             >
               Tải lên
             </Button>
             <Button
               type="button"
-              variant={useURL ? "default" : "outline"}
-              onClick={() => setUseURL(true)}
+              variant={useImageUrl ? "default" : "outline"}
+              onClick={() => setUseImageUrl(true)}
               className="w-full"
             >
               Nhập URL
             </Button>
           </div>
 
-          {useURL ? (
-            <div className="flex space-x-2">
+          {useImageUrl ? (
+            <div className="flex flex-col space-y-2">
               <Input
                 type="text"
                 placeholder="Nhập URL hình ảnh"
                 value={form.getValues("imageUrl") || ""}
                 onChange={(e) => {
                   form.setValue("imageUrl", e.target.value);
-                  setImagePreview(e.target.value);
-                }}
-                className="flex-grow"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  if (form.getValues("imageUrl")) {
-                    setImagePreview(form.getValues("imageUrl"));
+                  if (e.target.value) {
+                    setImagePreview(e.target.value);
+                  } else {
+                    setImagePreview(null);
                   }
                 }}
-                className="whitespace-nowrap"
-              >
-                Xem trước
-              </Button>
+                className="w-full"
+              />
+              <div className="text-xs text-muted-foreground">
+                URL hình ảnh phải bắt đầu với http:// hoặc https://
+              </div>
             </div>
           ) : (
             <div className="flex space-x-2">
@@ -1225,7 +1242,7 @@ const NewsPage: React.FC = () => {
   );
 
   return (
-    <AdminLayout>
+    <AdminLayout title={title}>
       <div className="container mx-auto py-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Quản lý tin tức</h1>
