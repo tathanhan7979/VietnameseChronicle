@@ -113,11 +113,23 @@ export default function ContributorsSimple() {
   const fetchContributors = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/contributors");
+      // Lấy token từ localStorage
+      const token = localStorage.getItem('authToken');
+      
+      const response = await fetch("/api/contributors", {
+        headers: {
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
+        credentials: "include", // Gửi cookies nếu có
+      });
+      
       if (!response.ok) {
-        throw new Error("Failed to fetch contributors");
+        console.error("API Error:", response.status, response.statusText);
+        throw new Error(`Failed to fetch contributors: ${response.status} ${response.statusText}`);
       }
+      
       const data = await response.json();
+      console.log("Contributors data:", data);
       setContributors(data);
     } catch (error) {
       console.error("Error fetching contributors:", error);
@@ -133,7 +145,23 @@ export default function ContributorsSimple() {
 
   // Fetch data on component mount
   useEffect(() => {
-    fetchContributors();
+    // Tạo hàm async để fetch dữ liệu
+    const loadData = async () => {
+      console.log("Loading contributors data...");
+      await fetchContributors();
+    };
+    
+    // Gọi hàm load data
+    loadData();
+    
+    // Thiết lập interval để làm mới dữ liệu mỗi 10 giây
+    const intervalId = setInterval(() => {
+      console.log("Auto-refreshing contributors data...");
+      fetchContributors();
+    }, 10000);
+    
+    // Clear interval khi component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   // Update form values when editing
@@ -177,9 +205,16 @@ export default function ContributorsSimple() {
       if (imageFile) {
         const formData = new FormData();
         formData.append("file", imageFile);
+        
+        // Lấy token từ localStorage cho upload
+        const uploadToken = localStorage.getItem('authToken');
 
         const uploadRes = await fetch("/api/upload/contributors", {
           method: "POST",
+          headers: {
+            ...(uploadToken ? { "Authorization": `Bearer ${uploadToken}` } : {})
+          },
+          credentials: "include",
           body: formData,
         });
 
@@ -198,11 +233,16 @@ export default function ContributorsSimple() {
       
       const method = editingContributor ? "PUT" : "POST";
       
+      // Lấy token từ localStorage
+      const token = localStorage.getItem('authToken');
+        
       const res = await fetch(endpoint, {
         method,
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
         },
+        credentials: "include", // Gửi cookies nếu có
         body: JSON.stringify({
           ...values,
           avatarUrl,
@@ -226,8 +266,14 @@ export default function ContributorsSimple() {
       setShowAddDialog(false);
       setEditingContributor(null);
       
-      // Refresh the list
+      // Refresh the list immediately
       fetchContributors();
+      
+      // Hiển thị thông báo cho người dùng biết cần refresh trang
+      toast({
+        title: "Cập nhật dữ liệu",
+        description: "Dữ liệu đã được cập nhật thành công. Đang tải lại danh sách mới nhất...",
+      });
     } catch (error) {
       console.error("Error submitting form:", error);
       toast({
@@ -246,8 +292,15 @@ export default function ContributorsSimple() {
     
     setIsSubmitting(true);
     try {
+      // Lấy token từ localStorage
+      const token = localStorage.getItem('authToken');
+      
       const res = await fetch(`/api/admin/contributors/${deletingContributor.id}`, {
         method: "DELETE",
+        headers: {
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
+        credentials: "include", // Gửi cookies nếu có
       });
 
       if (!res.ok) {
@@ -263,6 +316,12 @@ export default function ContributorsSimple() {
       
       // Refresh the list
       fetchContributors();
+      
+      // Hiển thị thông báo cho người dùng biết dữ liệu đã được cập nhật
+      toast({
+        title: "Cập nhật dữ liệu",
+        description: "Người đóng góp đã được xóa thành công. Đang tải lại danh sách mới nhất...",
+      });
     } catch (error) {
       console.error("Error deleting contributor:", error);
       toast({
@@ -280,9 +339,24 @@ export default function ContributorsSimple() {
       <div className="container mx-auto py-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Quản lý người đóng góp</h1>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Thêm người đóng góp
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => fetchContributors()}
+              className="flex items-center gap-1"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 2v6h-6"></path>
+                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+                <path d="M3 12a9 9 0 0 0 6.7 15L13 21"></path>
+                <path d="M13 21h6v-6"></path>
+              </svg>
+              Làm mới
+            </Button>
+            <Button onClick={() => setShowAddDialog(true)}>
+              <Plus className="mr-2 h-4 w-4" /> Thêm người đóng góp
+            </Button>
+          </div>
         </div>
 
         <Card>

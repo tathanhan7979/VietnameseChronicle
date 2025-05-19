@@ -62,6 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Cập nhật thông tin người dùng và đặt trực tiếp vào queryClient
         if (data.user) {
           queryClient.setQueryData(["/api/auth/user"], data.user);
+          console.log("Token saved:", data.token);
+          console.log("User data cached:", data.user);
         }
         
         // Đồng thời refetch để đảm bảo
@@ -110,6 +112,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
+      console.log("Found existing token, attempting to restore session");
+      
+      // Thêm token vào header Authorization cho tất cả các request API
+      const authHeader = `Bearer ${token}`;
+      document.cookie = `authToken=${token}; path=/; max-age=86400`;
+      
       refetch();
     }
   }, [refetch]);
