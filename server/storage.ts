@@ -35,31 +35,50 @@ const handleDbError = (error: unknown, operation: string) => {
 
 // Hàm tạo slug từ chuỗi tiếng Việt
 function createSlug(text: string): string {
-  // Chuyển text thành chữ thường
-  let slug = text.toLowerCase();
+  if (!text) return "";
   
-  // Thay thế các dấu tiếng Việt
-  slug = slug.replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a');
-  slug = slug.replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e');
-  slug = slug.replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i');
-  slug = slug.replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o');
-  slug = slug.replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u');
-  slug = slug.replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y');
-  slug = slug.replace(/đ/gi, 'd');
+  // Chuyển thành chữ thường
+  let str = text.toLowerCase();
   
-  // Thay thế khoảng trắng bằng dấu gạch ngang
-  slug = slug.replace(/\s+/g, '-');
+  // Bản đồ chuyển đổi ký tự có dấu tiếng Việt
+  const vietnameseMap: { [key: string]: string } = {
+    'à': 'a', 'á': 'a', 'ả': 'a', 'ã': 'a', 'ạ': 'a',
+    'ă': 'a', 'ằ': 'a', 'ắ': 'a', 'ẳ': 'a', 'ẵ': 'a', 'ặ': 'a',
+    'â': 'a', 'ầ': 'a', 'ấ': 'a', 'ẩ': 'a', 'ẫ': 'a', 'ậ': 'a',
+    'đ': 'd',
+    'è': 'e', 'é': 'e', 'ẻ': 'e', 'ẽ': 'e', 'ẹ': 'e',
+    'ê': 'e', 'ề': 'e', 'ế': 'e', 'ể': 'e', 'ễ': 'e', 'ệ': 'e',
+    'ì': 'i', 'í': 'i', 'ỉ': 'i', 'ĩ': 'i', 'ị': 'i',
+    'ò': 'o', 'ó': 'o', 'ỏ': 'o', 'õ': 'o', 'ọ': 'o',
+    'ô': 'o', 'ồ': 'o', 'ố': 'o', 'ổ': 'o', 'ỗ': 'o', 'ộ': 'o',
+    'ơ': 'o', 'ờ': 'o', 'ớ': 'o', 'ở': 'o', 'ỡ': 'o', 'ợ': 'o',
+    'ù': 'u', 'ú': 'u', 'ủ': 'u', 'ũ': 'u', 'ụ': 'u',
+    'ư': 'u', 'ừ': 'u', 'ứ': 'u', 'ử': 'u', 'ữ': 'u', 'ự': 'u',
+    'ỳ': 'y', 'ý': 'y', 'ỷ': 'y', 'ỹ': 'y', 'ỵ': 'y'
+  };
   
-  // Loại bỏ ký tự đặc biệt
-  slug = slug.replace(/[^a-z0-9-]/g, '');
+  // Xử lý từng ký tự trong chuỗi
+  let result = '';
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    result += vietnameseMap[char] || char;
+  }
   
-  // Loại bỏ các dấu gạch ngang liên tiếp
-  slug = slug.replace(/-+/g, '-');
+  // Loại bỏ các dấu còn sót lại
+  result = result
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  
+  // Thay thế khoảng trắng bằng dấu gạch ngang và loại bỏ ký tự đặc biệt
+  result = result
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
   
   // Cắt dấu gạch ngang ở đầu và cuối
-  slug = slug.replace(/^-+|-+$/g, '');
+  result = result.replace(/^-+|-+$/g, '');
   
-  return slug;
+  return result;
 }
 
 // Import những chức năng quản lý tin tức
