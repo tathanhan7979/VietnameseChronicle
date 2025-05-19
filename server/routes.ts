@@ -936,6 +936,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         dir = "./uploads/figures";
       } else if (req.path.includes("/sites")) {
         dir = "./uploads/sites";
+      } else if (req.path.includes("/contributors")) {
+        dir = "./uploads/contributors";
       }
 
       if (!fs.existsSync(dir)) {
@@ -957,6 +959,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         prefix = "figure";
       } else if (req.path.includes("/sites")) {
         prefix = "site";
+      } else if (req.path.includes("/contributors")) {
+        prefix = "contributor";
       }
 
       cb(null, prefix + "-" + uniqueSuffix + path.extname(file.originalname));
@@ -3375,6 +3379,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Lỗi khi cập nhật thứ tự hiển thị' });
     }
   });
+  
+  // Upload hình ảnh cho người đóng góp
+  app.post(
+    `${apiPrefix}/upload/contributors`,
+    uploadImage.single("file"),
+    async (req, res) => {
+      try {
+        if (!req.file) {
+          return res
+            .status(400)
+            .json({ success: false, error: "Không có tập tin được tải lên" });
+        }
+
+        // Tạo URL cho tập tin
+        const fileUrl = `/uploads/contributors/${req.file.filename}`;
+
+        res.status(200).json({
+          success: true,
+          url: fileUrl
+        });
+      } catch (error) {
+        console.error("Error uploading contributor image:", error);
+        res
+          .status(500)
+          .json({ success: false, error: "Lỗi khi tải lên hình ảnh" });
+      }
+    },
+  );
 
   // Đăng ký routes cho tính năng tin tức
   registerNewsRoutes(app);
