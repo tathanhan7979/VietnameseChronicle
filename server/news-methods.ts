@@ -15,12 +15,35 @@ function createSlug(text: string): string {
   // Chuyển thành chữ thường
   let str = text.toLowerCase();
   
-  // Loại bỏ dấu tiếng Việt
+  // Bản đồ chuyển đổi ký tự có dấu tiếng Việt
+  const vietnameseMap: { [key: string]: string } = {
+    'à': 'a', 'á': 'a', 'ả': 'a', 'ã': 'a', 'ạ': 'a',
+    'ă': 'a', 'ằ': 'a', 'ắ': 'a', 'ẳ': 'a', 'ẵ': 'a', 'ặ': 'a',
+    'â': 'a', 'ầ': 'a', 'ấ': 'a', 'ẩ': 'a', 'ẫ': 'a', 'ậ': 'a',
+    'đ': 'd',
+    'è': 'e', 'é': 'e', 'ẻ': 'e', 'ẽ': 'e', 'ẹ': 'e',
+    'ê': 'e', 'ề': 'e', 'ế': 'e', 'ể': 'e', 'ễ': 'e', 'ệ': 'e',
+    'ì': 'i', 'í': 'i', 'ỉ': 'i', 'ĩ': 'i', 'ị': 'i',
+    'ò': 'o', 'ó': 'o', 'ỏ': 'o', 'õ': 'o', 'ọ': 'o',
+    'ô': 'o', 'ồ': 'o', 'ố': 'o', 'ổ': 'o', 'ỗ': 'o', 'ộ': 'o',
+    'ơ': 'o', 'ờ': 'o', 'ớ': 'o', 'ở': 'o', 'ỡ': 'o', 'ợ': 'o',
+    'ù': 'u', 'ú': 'u', 'ủ': 'u', 'ũ': 'u', 'ụ': 'u',
+    'ư': 'u', 'ừ': 'u', 'ứ': 'u', 'ử': 'u', 'ữ': 'u', 'ự': 'u',
+    'ỳ': 'y', 'ý': 'y', 'ỷ': 'y', 'ỹ': 'y', 'ỵ': 'y'
+  };
+  
+  // Thay thế các ký tự tiếng Việt
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    if (vietnameseMap[char]) {
+      str = str.replace(char, vietnameseMap[char]);
+    }
+  }
+  
+  // Loại bỏ các dấu còn sót lại
   str = str
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D");
+    .replace(/[\u0300-\u036f]/g, "");
   
   // Thay thế khoảng trắng bằng dấu gạch ngang và loại bỏ ký tự đặc biệt
   str = str
