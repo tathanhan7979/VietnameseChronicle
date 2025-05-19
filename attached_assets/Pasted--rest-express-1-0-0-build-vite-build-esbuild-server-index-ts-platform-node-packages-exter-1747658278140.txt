@@ -1,0 +1,45 @@
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --buvite v5.4.19 building for production...
+✓ 28 modules transformed.
+x Build failed in 1.91s
+error during build:
+[vite:esbuild] Transform failed with 3 errors:
+/home/runner/workspace/client/src/pages/admin/settings.tsx:630:13: ERROR: The character "}" is not valid inside a JSX element
+/home/runner/workspace/client/src/pages/admin/settings.tsx:631:12: ERROR: Unexpected closing "CardContent" tag does not match opening "div" tag
+/home/runner/workspace/client/src/pages/admin/settings.tsx:632:22: ERROR: Expected ")" but found "className"
+file: /home/runner/workspace/client/src/pages/admin/settings.tsx:630:13
+
+The character "}" is not valid inside a JSX element
+628|                  )}
+629|                />
+630|              )}
+   |               ^
+631|            </CardContent>
+632|            <CardFooter className="flex justify-end">
+
+Unexpected closing "CardContent" tag does not match opening "div" tag
+629|                />
+630|              )}
+631|            </CardContent>
+   |              ^
+632|            <CardFooter className="flex justify-end">
+633|              <Button type="submit" disabled={isPending}>
+
+Expected ")" but found "className"
+630|              )}
+631|            </CardContent>
+632|            <CardFooter className="flex justify-end">
+   |                        ^
+633|              <Button type="submit" disabled={isPending}>
+634|                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+
+    at failureErrorWithLog (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:1472:15)
+    at /home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:755:50
+    at responseCallbacks.<computed> (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:622:9)
+    at handleIncomingPacket (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:677:12)
+    at Socket.readFromStdout (/home/runner/workspace/node_modules/vite/node_modules/esbuild/lib/main.js:600:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:191:23)

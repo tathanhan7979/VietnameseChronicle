@@ -96,10 +96,8 @@ export const newsController = {
         } else if (status === "draft") {
           query = query.where(eq(news.published, false));
           countQuery = countQuery.where(eq(news.published, false));
-        } else if (status === "featured") {
-          query = query.where(eq(news.is_featured, true));
-          countQuery = countQuery.where(eq(news.is_featured, true));
         }
+        // Lưu ý: Đã loại bỏ trường hợp "featured" vì trường is_featured không tồn tại
       }
 
       // Tìm kiếm theo từ khóa
@@ -178,9 +176,10 @@ export const newsController = {
    */
   getNewsById: async (id: number): Promise<News | null> => {
     try {
-      return await db.query.news.findFirst({
+      const result = await db.query.news.findFirst({
         where: eq(news.id, id),
       });
+      return result || null;
     } catch (error) {
       console.error(`Error getting news with ID ${id}:`, error);
       throw new Error("Không thể lấy chi tiết tin tức");
@@ -192,9 +191,10 @@ export const newsController = {
    */
   getNewsBySlug: async (slug: string): Promise<News | null> => {
     try {
-      return await db.query.news.findFirst({
+      const result = await db.query.news.findFirst({
         where: eq(news.slug, slug),
       });
+      return result || null;
     } catch (error) {
       console.error(`Error getting news with slug ${slug}:`, error);
       throw new Error("Không thể lấy chi tiết tin tức");
@@ -312,23 +312,23 @@ export const newsController = {
       const conditions = [];
 
       // Thời kỳ liên quan
-      if (currentNews.period_id) {
-        conditions.push(eq(news.period_id, currentNews.period_id));
+      if (currentNews.periodId) {
+        conditions.push(eq(news.periodId, currentNews.periodId));
       }
 
       // Sự kiện liên quan
-      if (currentNews.event_id) {
-        conditions.push(eq(news.event_id, currentNews.event_id));
+      if (currentNews.eventId) {
+        conditions.push(eq(news.eventId, currentNews.eventId));
       }
 
       // Nhân vật liên quan
-      if (currentNews.figure_id) {
-        conditions.push(eq(news.figure_id, currentNews.figure_id));
+      if (currentNews.historicalFigureId) {
+        conditions.push(eq(news.historicalFigureId, currentNews.historicalFigureId));
       }
 
       // Di tích liên quan
-      if (currentNews.site_id) {
-        conditions.push(eq(news.site_id, currentNews.site_id));
+      if (currentNews.historicalSiteId) {
+        conditions.push(eq(news.historicalSiteId, currentNews.historicalSiteId));
       }
 
       // Nếu có ít nhất một điều kiện
@@ -370,17 +370,16 @@ export const newsController = {
   },
 
   /**
-   * Lấy tin tức nổi bật
+   * Lấy tin tức nổi bật (dựa trên lượt xem cao nhất)
    */
   getFeaturedNews: async (limit: number = 5): Promise<News[]> => {
     try {
-      // Sử dụng cột 'published' thay vì 'is_published'
-      // Vì chưa có cột 'is_featured', tạm thời lấy tất cả bài đã published
+      // Sử dụng lượt xem (viewCount) để xác định tin nổi bật
       return await db
         .select()
         .from(news)
         .where(eq(news.published, true))
-        .orderBy(desc(news.createdAt))
+        .orderBy(desc(news.viewCount)) // Sắp xếp theo lượt xem cao nhất
         .limit(limit);
     } catch (error) {
       console.error("Error getting featured news:", error);
