@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,7 +46,7 @@ import * as z from "zod";
 import { Trash, Pencil, Plus, Loader2 } from "lucide-react";
 import { Contributor } from "@shared/schema";
 
-// Schema cho form người đóng góp
+// Form schema cho người đóng góp
 const contributorSchema = z.object({
   name: z.string().min(2, "Tên phải có ít nhất 2 ký tự"),
   role: z.string().min(2, "Vai trò phải có ít nhất 2 ký tự"),
@@ -54,22 +54,19 @@ const contributorSchema = z.object({
   avatarUrl: z.string().optional(),
   contactInfo: z.string().optional(),
   isActive: z.boolean().default(true),
-  sortOrder: z.number().default(0),
 });
 
 type ContributorFormValues = z.infer<typeof contributorSchema>;
 
-export default function ContributorsFixed() {
+// Component quản lý người đóng góp
+export default function ContributorsAdmin() {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingContributor, setEditingContributor] = useState<Contributor | null>(null);
   const [deletingContributor, setDeletingContributor] = useState<Contributor | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form hook setup
   const form = useForm<ContributorFormValues>({
     resolver: zodResolver(contributorSchema),
     defaultValues: {
@@ -79,11 +76,9 @@ export default function ContributorsFixed() {
       avatarUrl: "",
       contactInfo: "",
       isActive: true,
-      sortOrder: 0,
     },
   });
 
-  // Reset form helper
   const resetForm = () => {
     form.reset({
       name: "",
@@ -92,141 +87,183 @@ export default function ContributorsFixed() {
       avatarUrl: "",
       contactInfo: "",
       isActive: true,
-      sortOrder: 0,
     });
     setImagePreview(null);
     setImageFile(null);
   };
 
-  // Fetch contributors
-  const { data: contributors, refetch, isLoading } = useQuery({
+  // Query để lấy danh sách người đóng góp
+  const {
+    data: contributors,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["/api/contributors"],
     queryFn: async () => {
-      try {
-        const res = await fetch("/api/contributors");
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await res.json();
-        return data;
-      } catch (error) {
-        console.error("Failed to fetch contributors:", error);
-        throw error;
+      const res = await apiRequest("GET", "/api/contributors");
+      if (!res.ok) {
+        throw new Error("Failed to fetch contributors");
       }
+      return await res.json();
     },
   });
 
-  // Handle form submission (create or update)
-  const handleSubmit = async (values: ContributorFormValues) => {
-    setIsSubmitting(true);
-    try {
-      let avatarUrl = values.avatarUrl || "";
+  // Mutation để thêm người đóng góp mới
+  const createMutation = useMutation({
+    mutationFn: async (data: ContributorFormValues) => {
+      let avatarUrl = data.avatarUrl;
 
-      // Upload image if selected
+      // Upload ảnh nếu có
       if (imageFile) {
         const formData = new FormData();
         formData.append("file", imageFile);
 
-        const uploadRes = await fetch("/api/upload/contributors", {
-          method: "POST",
-          body: formData,
-        });
+        try {
+          const uploadRes = await fetch("/api/upload/contributors", {
+            method: "POST",
+            body: formData,
+          });
 
-        if (!uploadRes.ok) {
+          if (!uploadRes.ok) {
+            throw new Error("Upload failed");
+          }
+
+          const uploadData = await uploadRes.json();
+          avatarUrl = uploadData.url;
+        } catch (error) {
+          console.error("Upload error:", error);
           throw new Error("Failed to upload image");
         }
-
-        const uploadData = await uploadRes.json();
-        avatarUrl = uploadData.url;
       }
 
-      // Create or update contributor
-      const endpoint = editingContributor
-        ? `/api/admin/contributors/${editingContributor.id}`
-        : "/api/admin/contributors";
-      
-      const method = editingContributor ? "PUT" : "POST";
-      
-      const res = await fetch(endpoint, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...values,
-          avatarUrl,
-        }),
+      // Tạo người đóng góp mới
+      const res = await apiRequest("POST", "/api/admin/contributors", {
+        ...data,
+        avatarUrl,
       });
 
       if (!res.ok) {
-        throw new Error(`Failed to ${editingContributor ? "update" : "create"} contributor`);
+        throw new Error("Create failed");
       }
 
-      // Success message
+      return await res.json();
+    },
+    onSuccess: () => {
       toast({
         title: "Thành công",
-        description: editingContributor
-          ? "Đã cập nhật thông tin người đóng góp"
-          : "Đã thêm người đóng góp mới",
+        description: "Đã thêm người đóng góp mới",
       });
-
-      // Reset form and close dialog
       resetForm();
       setShowAddDialog(false);
-      setEditingContributor(null);
-      
-      // Invalidate queries to refresh data
-      await queryClient.invalidateQueries({ queryKey: ["/api/contributors"] });
-      await refetch();
-    } catch (error) {
-      console.error("Error submitting form:", error);
+      // Vô hiệu hóa cache và refetch để lấy dữ liệu mới nhất
+      queryClient.invalidateQueries({ queryKey: ["/api/contributors"] });
+      setTimeout(() => {
+        refetch();
+      }, 300);
+    },
+    onError: (error: Error) => {
       toast({
         title: "Lỗi",
-        description: `Không thể ${editingContributor ? "cập nhật" : "thêm"} người đóng góp: ${error instanceof Error ? error.message : "Unknown error"}`,
+        description: `Không thể thêm người đóng góp: ${error.message}`,
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    },
+  });
 
-  // Handle delete contributor
-  const handleDelete = async () => {
-    if (!deletingContributor) return;
-    
-    setIsSubmitting(true);
-    try {
-      const res = await fetch(`/api/admin/contributors/${deletingContributor.id}`, {
-        method: "DELETE",
+  // Mutation để cập nhật người đóng góp
+  const updateMutation = useMutation({
+    mutationFn: async (data: ContributorFormValues & { id: number }) => {
+      const { id, ...rest } = data;
+      let avatarUrl = rest.avatarUrl;
+
+      // Upload ảnh nếu có
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+
+        try {
+          const uploadRes = await fetch("/api/upload/contributors", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!uploadRes.ok) {
+            throw new Error("Upload failed");
+          }
+
+          const uploadData = await uploadRes.json();
+          avatarUrl = uploadData.url;
+        } catch (error) {
+          console.error("Upload error:", error);
+          throw new Error("Failed to upload image");
+        }
+      }
+
+      // Cập nhật người đóng góp
+      const res = await apiRequest("PUT", `/api/admin/contributors/${id}`, {
+        ...rest,
+        avatarUrl,
       });
 
       if (!res.ok) {
-        throw new Error("Failed to delete contributor");
+        throw new Error("Update failed");
       }
 
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Thành công",
+        description: "Đã cập nhật thông tin người đóng góp",
+      });
+      resetForm();
+      setEditingContributor(null);
+      // Vô hiệu hóa cache và refetch để lấy dữ liệu mới nhất
+      queryClient.invalidateQueries({ queryKey: ["/api/contributors"] });
+      setTimeout(() => {
+        refetch();
+      }, 300);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Lỗi",
+        description: `Không thể cập nhật người đóng góp: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Mutation để xóa người đóng góp
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/admin/contributors/${id}`);
+      if (!res.ok) {
+        throw new Error("Delete failed");
+      }
+      return await res.json();
+    },
+    onSuccess: () => {
       toast({
         title: "Thành công",
         description: "Đã xóa người đóng góp",
       });
-
       setDeletingContributor(null);
-      
-      // Invalidate queries to refresh data
-      await queryClient.invalidateQueries({ queryKey: ["/api/contributors"] });
-      await refetch();
-    } catch (error) {
-      console.error("Error deleting contributor:", error);
+      // Vô hiệu hóa cache và refetch để lấy dữ liệu mới nhất
+      queryClient.invalidateQueries({ queryKey: ["/api/contributors"] });
+      setTimeout(() => {
+        refetch();
+      }, 300);
+    },
+    onError: (error: Error) => {
       toast({
         title: "Lỗi",
-        description: `Không thể xóa người đóng góp: ${error instanceof Error ? error.message : "Unknown error"}`,
+        description: `Không thể xóa người đóng góp: ${error.message}`,
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    },
+  });
 
-  // Update form values when editing
+  // Cập nhật form khi edit
   useEffect(() => {
     if (editingContributor) {
       form.reset({
@@ -236,25 +273,31 @@ export default function ContributorsFixed() {
         avatarUrl: editingContributor.avatarUrl || "",
         contactInfo: editingContributor.contactInfo || "",
         isActive: editingContributor.isActive,
-        sortOrder: editingContributor.sortOrder || 0,
       });
       setImagePreview(editingContributor.avatarUrl || null);
     }
   }, [editingContributor, form]);
 
-  // Handle file input change
+  // Xử lý upload file
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setImageFile(file);
-    
-    // Show preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result as string);
     };
     reader.readAsDataURL(file);
+  };
+
+  // Xử lý submit form khi thêm hoặc cập nhật
+  const onSubmit = (values: ContributorFormValues) => {
+    if (editingContributor) {
+      updateMutation.mutate({ ...values, id: editingContributor.id });
+    } else {
+      createMutation.mutate(values);
+    }
   };
 
   return (
@@ -319,9 +362,7 @@ export default function ContributorsFixed() {
                         <TableCell>{contributor.contactInfo}</TableCell>
                         <TableCell>
                           <div
-                            className={`w-3 h-3 rounded-full ${
-                              contributor.isActive ? "bg-green-500" : "bg-red-500"
-                            }`}
+                            className={`w-3 h-3 rounded-full ${contributor.isActive ? "bg-green-500" : "bg-red-500"}`}
                           ></div>
                         </TableCell>
                         <TableCell>
@@ -385,7 +426,7 @@ export default function ContributorsFixed() {
           </DialogHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 gap-6">
                 <div className="space-y-6">
                   <FormField
@@ -526,8 +567,8 @@ export default function ContributorsFixed() {
                 >
                   Hủy
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
+                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+                  {createMutation.isPending || updateMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : null}
                   {editingContributor ? "Cập nhật" : "Thêm mới"}
@@ -565,10 +606,14 @@ export default function ContributorsFixed() {
             </Button>
             <Button
               variant="destructive"
-              disabled={isSubmitting}
-              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              onClick={() => {
+                if (deletingContributor) {
+                  deleteMutation.mutate(deletingContributor.id);
+                }
+              }}
             >
-              {isSubmitting ? (
+              {deleteMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : null}
               Xóa

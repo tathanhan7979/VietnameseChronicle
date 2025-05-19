@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -44,9 +41,22 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Trash, Pencil, Plus, Loader2 } from "lucide-react";
-import { Contributor } from "@shared/schema";
 
-// Schema cho form người đóng góp
+// Define contributor interface
+interface Contributor {
+  id: number;
+  name: string;
+  role: string;
+  description: string;
+  avatarUrl?: string;
+  contactInfo?: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Schema for form validation
 const contributorSchema = z.object({
   name: z.string().min(2, "Tên phải có ít nhất 2 ký tự"),
   role: z.string().min(2, "Vai trò phải có ít nhất 2 ký tự"),
@@ -59,9 +69,10 @@ const contributorSchema = z.object({
 
 type ContributorFormValues = z.infer<typeof contributorSchema>;
 
-export default function ContributorsFixed() {
+export default function ContributorsSimple() {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [contributors, setContributors] = useState<Contributor[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingContributor, setEditingContributor] = useState<Contributor | null>(null);
   const [deletingContributor, setDeletingContributor] = useState<Contributor | null>(null);
@@ -69,7 +80,7 @@ export default function ContributorsFixed() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form hook setup
+  // Form setup
   const form = useForm<ContributorFormValues>({
     resolver: zodResolver(contributorSchema),
     defaultValues: {
@@ -99,24 +110,64 @@ export default function ContributorsFixed() {
   };
 
   // Fetch contributors
-  const { data: contributors, refetch, isLoading } = useQuery({
-    queryKey: ["/api/contributors"],
-    queryFn: async () => {
-      try {
-        const res = await fetch("/api/contributors");
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await res.json();
-        return data;
-      } catch (error) {
-        console.error("Failed to fetch contributors:", error);
-        throw error;
+  const fetchContributors = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/contributors");
+      if (!response.ok) {
+        throw new Error("Failed to fetch contributors");
       }
-    },
-  });
+      const data = await response.json();
+      setContributors(data);
+    } catch (error) {
+      console.error("Error fetching contributors:", error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể tải danh sách người đóng góp",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // Handle form submission (create or update)
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchContributors();
+  }, []);
+
+  // Update form values when editing
+  useEffect(() => {
+    if (editingContributor) {
+      form.reset({
+        name: editingContributor.name,
+        role: editingContributor.role,
+        description: editingContributor.description,
+        avatarUrl: editingContributor.avatarUrl || "",
+        contactInfo: editingContributor.contactInfo || "",
+        isActive: editingContributor.isActive,
+        sortOrder: editingContributor.sortOrder || 0,
+      });
+      setImagePreview(editingContributor.avatarUrl || null);
+    }
+  }, [editingContributor, form]);
+
+  // Handle file change
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageFile(file);
+    
+    // Preview image
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Handle form submission
   const handleSubmit = async (values: ContributorFormValues) => {
     setIsSubmitting(true);
     try {
@@ -175,9 +226,8 @@ export default function ContributorsFixed() {
       setShowAddDialog(false);
       setEditingContributor(null);
       
-      // Invalidate queries to refresh data
-      await queryClient.invalidateQueries({ queryKey: ["/api/contributors"] });
-      await refetch();
+      // Refresh the list
+      fetchContributors();
     } catch (error) {
       console.error("Error submitting form:", error);
       toast({
@@ -190,7 +240,7 @@ export default function ContributorsFixed() {
     }
   };
 
-  // Handle delete contributor
+  // Handle delete
   const handleDelete = async () => {
     if (!deletingContributor) return;
     
@@ -211,9 +261,8 @@ export default function ContributorsFixed() {
 
       setDeletingContributor(null);
       
-      // Invalidate queries to refresh data
-      await queryClient.invalidateQueries({ queryKey: ["/api/contributors"] });
-      await refetch();
+      // Refresh the list
+      fetchContributors();
     } catch (error) {
       console.error("Error deleting contributor:", error);
       toast({
@@ -224,37 +273,6 @@ export default function ContributorsFixed() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Update form values when editing
-  useEffect(() => {
-    if (editingContributor) {
-      form.reset({
-        name: editingContributor.name,
-        role: editingContributor.role,
-        description: editingContributor.description,
-        avatarUrl: editingContributor.avatarUrl || "",
-        contactInfo: editingContributor.contactInfo || "",
-        isActive: editingContributor.isActive,
-        sortOrder: editingContributor.sortOrder || 0,
-      });
-      setImagePreview(editingContributor.avatarUrl || null);
-    }
-  }, [editingContributor, form]);
-
-  // Handle file input change
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setImageFile(file);
-    
-    // Show preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
   };
 
   return (
@@ -294,7 +312,7 @@ export default function ContributorsFixed() {
                 </TableHeader>
                 <TableBody>
                   {contributors && contributors.length > 0 ? (
-                    contributors.map((contributor: Contributor) => (
+                    contributors.map((contributor) => (
                       <TableRow key={contributor.id}>
                         <TableCell className="font-medium">{contributor.id}</TableCell>
                         <TableCell>
