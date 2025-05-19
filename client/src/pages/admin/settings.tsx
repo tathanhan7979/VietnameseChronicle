@@ -217,10 +217,46 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
           // Cập nhật giá trị thời gian cập nhật
           form.setValue('value', new Date().toISOString());
           onUpdate(new Date().toISOString());
+          
+          toast({
+            title: "Tạo sitemap thành công",
+            description: "Sitemap đã được cập nhật từ dữ liệu mới nhất.",
+          });
         }
       }
     } catch (error) {
       console.error('Lỗi khi tạo sitemap:', error);
+      toast({
+        title: "Lỗi khi tạo sitemap",
+        description: "Không thể tạo sitemap. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  // Handle updating all slugs
+  const handleUpdateAllSlugs = async () => {
+    try {
+      const res = await apiRequest('POST', '/api/admin/update-all-slugs', {});
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          toast({
+            title: "Cập nhật slug thành công",
+            description: `Đã cập nhật ${data.stats.totalUpdated}/${data.stats.totalItems} slug.`,
+          });
+          
+          // Sau khi cập nhật slug, tự động cập nhật lại sitemap
+          handleRegenerateSitemap();
+        }
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật slug:', error);
+      toast({
+        title: "Lỗi khi cập nhật slug",
+        description: "Không thể cập nhật slug. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -494,20 +530,39 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                     </FormItem>
                   )}
                 />
-                <div className="flex flex-col space-y-2 p-4 bg-slate-50 dark:bg-slate-900 rounded-md">
-                  <h4 className="text-sm font-medium">Thông tin sitemap</h4>
-                  <p className="text-xs text-gray-500">
-                    Sitemap được tạo tự động bao gồm các trang sau:
-                  </p>
-                  <ul className="text-xs text-gray-500 list-disc pl-5 space-y-1">
-                    <li>Trang chủ</li>
-                    <li>Tất cả các thời kỳ lịch sử</li>
-                    <li>Tất cả các sự kiện lịch sử</li>
-                    <li>Tất cả các nhân vật lịch sử</li>
-                    <li>Tất cả các di tích lịch sử</li>
-                  </ul>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Tệp sitemap.xml được tạo tại: <code className="text-xs bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">client/public/sitemap.xml</code>
+                <div className="flex flex-col space-y-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-md">
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Cập nhật URL Slug</h4>
+                    <div className="flex space-x-2 items-center">
+                      <p className="text-xs text-gray-500 flex-1">
+                        Cập nhật tất cả URL slug để hỗ trợ đầy đủ tiếng Việt có dấu
+                      </p>
+                      <Button 
+                        type="button" 
+                        onClick={handleUpdateAllSlugs}
+                        className="whitespace-nowrap"
+                        variant="outline"
+                        size="sm"
+                      >
+                        Cập nhật tất cả Slug
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                    <h4 className="text-sm font-medium">Thông tin sitemap</h4>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Sitemap được tạo tự động bao gồm các trang sau:
+                    </p>
+                    <ul className="text-xs text-gray-500 list-disc pl-5 space-y-1 mt-2">
+                      <li>Trang chủ</li>
+                      <li>Tất cả các thời kỳ lịch sử</li>
+                      <li>Tất cả các sự kiện lịch sử</li>
+                      <li>Tất cả các nhân vật lịch sử</li>
+                      <li>Tất cả các di tích lịch sử</li>
+                      <li>Tất cả các bài viết tin tức</li>
+                    </ul>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Tệp sitemap.xml được tạo tại: <code className="text-xs bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">client/public/sitemap.xml</code>
                   </p>
                 </div>
               </div>

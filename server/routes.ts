@@ -3247,6 +3247,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Endpoint cho việc cập nhật tất cả các slug
+  app.post(`${apiPrefix}/admin/update-all-slugs`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      // Import hàm xử lý để cập nhật tất cả các slug
+      const { updateAllSlugsHandler } = await import('./update-slugs-api');
+      await updateAllSlugsHandler(req, res);
+    } catch (error) {
+      console.error('Error updating slugs:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Lỗi khi cập nhật các slug',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
 
   // Đăng ký routes cho tính năng tin tức
   registerNewsRoutes(app);
