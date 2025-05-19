@@ -1502,5 +1502,24 @@ export const storage = {
       handleDbError(error, "updateHistoricalSitesPeriod");
       return false;
     }
+  },
+  
+  // Lấy tất cả tin tức (có thể lọc theo trạng thái)
+  getAllNews: async (filters: { published?: boolean } = {}): Promise<News[]> => {
+    try {
+      const conditions = [];
+      
+      // Lọc theo trạng thái xuất bản nếu có
+      if (filters.published !== undefined) {
+        conditions.push(eq(news.published, filters.published));
+      }
+      
+      return await db.select().from(news)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(news.createdAt));
+    } catch (error) {
+      handleDbError(error, "getAllNews");
+      return [];
+    }
   }
 };

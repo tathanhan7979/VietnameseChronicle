@@ -5,6 +5,19 @@ import path from "path";
 /**
  * Tạo sitemap.xml tự động từ dữ liệu trong cơ sở dữ liệu
  */
+// Hàm giúp tạo slug thân thiện từ chuỗi tiếng Việt
+function createFriendlySlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, "d")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+}
+
 export async function generateSitemap() {
   try {
     // Lấy dữ liệu từ database
@@ -12,6 +25,7 @@ export async function generateSitemap() {
     const events = await storage.getAllEvents();
     const figures = await storage.getAllHistoricalFigures();
     const sites = await storage.getAllHistoricalSites();
+    const news = await storage.getAllNews({ published: true }); // Lấy tất cả tin tức đã xuất bản
 
     // Lấy các thiết lập SEO từ cơ sở dữ liệu
     const siteUrlSetting = await storage.getSetting('site_url');
@@ -34,6 +48,14 @@ export async function generateSitemap() {
       priority: "1.0",  // Trang chủ luôn có mức ưu tiên cao nhất
       changefreq: defaultChangeFreq,
     });
+    
+    // Thêm trang danh sách tin tức
+    urls.push({
+      loc: `${baseUrl}/tin-tuc`,
+      lastmod: currentDate,
+      priority: "0.9",  // Trang danh sách tin tức có mức ưu tiên cao thứ hai
+      changefreq: "daily",  // Tin tức thường xuyên cập nhật
+    });
 
     // Thêm các thời kỳ lịch sử
     for (const period of periods) {
@@ -45,19 +67,6 @@ export async function generateSitemap() {
           changefreq: defaultChangeFreq,
         });
       }
-    }
-
-    // Hàm giúp tạo slug thân thiện từ chuỗi tiếng Việt
-    function createFriendlySlug(text: string): string {
-      return text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[đĐ]/g, "d")
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-")
-        .trim();
     }
 
     // Thêm các sự kiện
@@ -97,6 +106,23 @@ export async function generateSitemap() {
         priority: defaultPriority,  // Sử dụng mức ưu tiên từ thiết lập
         changefreq: defaultChangeFreq,
       });
+    }
+    
+    // Thêm các bài viết tin tức
+    for (const article of news) {
+      // Chỉ thêm các bài viết đã xuất bản
+      if (article.published) {
+        // Sử dụng slug từ database hoặc tạo mới từ title nếu không có
+        const articleSlug = article.slug || createFriendlySlug(article.title);
+        const lastModified = article.updatedAt ? new Date(article.updatedAt).toISOString().split("T")[0] : currentDate;
+        
+        urls.push({
+          loc: `${baseUrl}/tin-tuc/${article.id}/${articleSlug}`,
+          lastmod: lastModified,
+          priority: "0.8",  // Tin tức thường có mức ưu tiên cao
+          changefreq: "weekly",  // Tin tức thường được cập nhật hàng tuần
+        });
+      }
     }
 
     // Tạo nội dung file sitemap.xml
