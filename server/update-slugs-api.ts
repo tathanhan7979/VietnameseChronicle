@@ -158,15 +158,20 @@ export async function updateAllSlugsHandler(req: Request, res: Response) {
       }
     };
     
-    console.log('Kết quả cập nhật slug:', result);
+    console.log('Kết quả cập nhật slug:', JSON.stringify(result));
     
-    return res.status(200).json(result);
+    // Trả về response và đảm bảo không có response nào được gửi sau đó
+    res.status(200).json(result);
   } catch (error) {
     console.error('Lỗi khi cập nhật slug:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi khi cập nhật slug',
-      error: error instanceof Error ? error.message : String(error)
-    });
+    
+    // Đảm bảo trả về một đối tượng JSON hợp lệ
+    if (!res.headersSent) {
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi khi cập nhật slug',
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
   }
 }

@@ -235,24 +235,40 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
   // Handle updating all slugs
   const handleUpdateAllSlugs = async () => {
     try {
+      toast({
+        title: "Đang cập nhật slug...",
+        description: "Quá trình này có thể mất vài giây.",
+      });
+      
       const res = await apiRequest('POST', '/api/admin/update-all-slugs', {});
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          toast({
-            title: "Cập nhật slug thành công",
-            description: `Đã cập nhật ${data.stats.totalUpdated}/${data.stats.totalItems} slug.`,
-          });
-          
-          // Sau khi cập nhật slug, tự động cập nhật lại sitemap
-          handleRegenerateSitemap();
-        }
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonError) {
+        console.error('Lỗi khi phân tích JSON:', jsonError);
+        throw new Error('Lỗi định dạng phản hồi');
+      }
+      
+      if (res.ok && data && data.success) {
+        const totalUpdated = data.stats?.totalUpdated || 0;
+        const totalItems = data.stats?.totalItems || 0;
+        
+        toast({
+          title: "Cập nhật slug thành công",
+          description: `Đã cập nhật ${totalUpdated}/${totalItems} slug.`,
+        });
+        
+        // Sau khi cập nhật slug, tự động cập nhật lại sitemap
+        handleRegenerateSitemap();
+      } else {
+        throw new Error(data?.message || 'Cập nhật không thành công');
       }
     } catch (error) {
       console.error('Lỗi khi cập nhật slug:', error);
       toast({
         title: "Lỗi khi cập nhật slug",
-        description: "Không thể cập nhật slug. Vui lòng thử lại sau.",
+        description: error instanceof Error ? error.message : "Không thể cập nhật slug. Vui lòng thử lại sau.",
         variant: "destructive",
       });
     }
