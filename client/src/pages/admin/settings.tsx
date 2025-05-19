@@ -544,4 +544,3 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
     </Card>
   );
 }
-}
