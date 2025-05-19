@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,6 +72,7 @@ type ContributorFormValues = z.infer<typeof contributorSchema>;
 
 export default function ContributorsBasic() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -113,10 +115,30 @@ export default function ContributorsBasic() {
   const fetchContributors = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/contributors");
+      // Kiểm tra đã đăng nhập chưa
+      if (!user) {
+        toast({
+          title: "Lỗi xác thực",
+          description: "Bạn cần đăng nhập với quyền admin để xem danh sách người đóng góp",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await fetch("/api/contributors", {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("authToken") || ""}`,
+        }
+      });
+      
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Không có quyền truy cập");
+        }
         throw new Error("Failed to fetch contributors");
       }
+      
       const data = await response.json();
       // Log to debug
       console.log("Fetched contributors:", data);
@@ -173,6 +195,16 @@ export default function ContributorsBasic() {
   const handleSubmit = async (values: ContributorFormValues) => {
     setIsSubmitting(true);
     try {
+      // Kiểm tra đã đăng nhập chưa
+      if (!user) {
+        toast({
+          title: "Lỗi xác thực",
+          description: "Bạn cần đăng nhập với quyền admin để thực hiện thao tác này",
+          variant: "destructive",
+        });
+        return;
+      }
+
       let avatarUrl = values.avatarUrl || "";
 
       // Upload image if selected
@@ -183,6 +215,10 @@ export default function ContributorsBasic() {
         const uploadRes = await fetch("/api/upload/contributors", {
           method: "POST",
           body: formData,
+          headers: {
+            // Thêm header xác thực nếu cần
+            "Authorization": `Bearer ${localStorage.getItem("authToken") || ""}`,
+          }
         });
 
         if (!uploadRes.ok) {
@@ -204,6 +240,8 @@ export default function ContributorsBasic() {
         method,
         headers: {
           "Content-Type": "application/json",
+          // Thêm header xác thực
+          "Authorization": `Bearer ${localStorage.getItem("authToken") || ""}`,
         },
         body: JSON.stringify({
           ...values,
@@ -212,6 +250,9 @@ export default function ContributorsBasic() {
       });
 
       if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error("Không có quyền thực hiện thao tác này");
+        }
         throw new Error(`Failed to ${editingContributor ? "update" : "create"} contributor`);
       }
 
@@ -246,13 +287,29 @@ export default function ContributorsBasic() {
   const handleDelete = async () => {
     if (!deletingContributor) return;
     
+    // Kiểm tra đã đăng nhập chưa
+    if (!user) {
+      toast({
+        title: "Lỗi xác thực",
+        description: "Bạn cần đăng nhập với quyền admin để thực hiện thao tác này",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       const res = await fetch(`/api/admin/contributors/${deletingContributor.id}`, {
         method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("authToken") || ""}`,
+        }
       });
 
       if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error("Không có quyền thực hiện thao tác này");
+        }
         throw new Error("Failed to delete contributor");
       }
 
