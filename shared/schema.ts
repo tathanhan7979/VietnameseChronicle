@@ -251,3 +251,21 @@ export const newsRelations = relations(news, ({ one }) => ({
     references: [historicalSites.id],
   }),
 }));
+
+// Bảng lưu thông tin người đóng góp
+export const contributors = pgTable("contributors", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  avatarUrl: text("avatar_url"),
+  description: text("description").notNull(),
+  role: text("role").notNull(),
+  contactInfo: text("contact_info"),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertContributorSchema = createInsertSchema(contributors);
+export type InsertContributor = z.infer<typeof insertContributorSchema>;
+export type Contributor = typeof contributors.$inferSelect;

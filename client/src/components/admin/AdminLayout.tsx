@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Settings,
   User,
+  Users,
   X,
   Newspaper
 } from 'lucide-react';
@@ -90,6 +91,13 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       label: 'Quản lý người dùng', 
       icon: <User size={20} />,
       // Chỉ admin mới có thể quản lý người dùng
+      accessControl: () => user?.isAdmin
+    },
+    { 
+      path: '/admin/contributors', 
+      label: 'Người đóng góp', 
+      icon: <Users size={20} />,
+      // Chỉ admin mới có thể quản lý người đóng góp
       accessControl: () => user?.isAdmin
     },
     { 

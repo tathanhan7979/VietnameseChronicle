@@ -10,6 +10,7 @@ import {
   feedback,
   settings,
   news,
+  contributors,
   type Period,
   type Event,
   type User,
@@ -23,7 +24,9 @@ import {
   type Setting,
   type InsertSetting,
   type News,
-  type InsertNews
+  type InsertNews,
+  type Contributor,
+  type InsertContributor
 } from "@shared/schema";
 import { eq, and, or, like, sql, desc, asc, count, max } from "drizzle-orm";
 
@@ -85,6 +88,91 @@ function createSlug(text: string): string {
 import { newsController } from "./news-methods";
 
 export const storage = {
+  // Contributors - Người đóng góp
+  getAllContributors: async (): Promise<Contributor[]> => {
+    try {
+      return await db.select().from(contributors).orderBy(asc(contributors.sortOrder));
+    } catch (error) {
+      handleDbError(error, "getAllContributors");
+      return [];
+    }
+  },
+  
+  getContributor: async (id: number): Promise<Contributor | null> => {
+    try {
+      const result = await db.select().from(contributors).where(eq(contributors.id, id));
+      return result.length > 0 ? result[0] : null;
+    } catch (error) {
+      handleDbError(error, "getContributor");
+      return null;
+    }
+  },
+  
+  createContributor: async (data: InsertContributor): Promise<Contributor> => {
+    try {
+      const result = await db.insert(contributors).values(data).returning();
+      return result[0];
+    } catch (error) {
+      handleDbError(error, "createContributor");
+      throw error;
+    }
+  },
+  
+  updateContributor: async (id: number, data: Partial<InsertContributor>): Promise<Contributor> => {
+    try {
+      const result = await db.update(contributors)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(contributors.id, id))
+        .returning();
+      
+      if (result.length === 0) {
+        throw new Error("Không tìm thấy người đóng góp");
+      }
+      
+      return result[0];
+    } catch (error) {
+      handleDbError(error, "updateContributor");
+      throw error;
+    }
+  },
+  
+  deleteContributor: async (id: number): Promise<boolean> => {
+    try {
+      const result = await db.delete(contributors)
+        .where(eq(contributors.id, id))
+        .returning({ id: contributors.id });
+      
+      return result.length > 0;
+    } catch (error) {
+      handleDbError(error, "deleteContributor");
+      throw error;
+    }
+  },
+  
+  updateContributorSortOrder: async (id: number, sortOrder: number): Promise<boolean> => {
+    try {
+      const result = await db.update(contributors)
+        .set({ sortOrder, updatedAt: new Date() })
+        .where(eq(contributors.id, id))
+        .returning({ id: contributors.id });
+      
+      return result.length > 0;
+    } catch (error) {
+      handleDbError(error, "updateContributorSortOrder");
+      throw error;
+    }
+  },
+  
+  getActiveContributors: async (): Promise<Contributor[]> => {
+    try {
+      return await db.select().from(contributors)
+        .where(eq(contributors.isActive, true))
+        .orderBy(asc(contributors.sortOrder));
+    } catch (error) {
+      handleDbError(error, "getActiveContributors");
+      return [];
+    }
+  },
   // Event to Event Type relations
   getAllEventToEventTypes: async () => {
     try {

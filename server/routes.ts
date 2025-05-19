@@ -3263,6 +3263,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // API endpoints cho quản lý người đóng góp
+  // Lấy danh sách tất cả người đóng góp
+  app.get(`${apiPrefix}/contributors`, async (req, res) => {
+    try {
+      const contributors = await storage.getAllContributors();
+      res.json(contributors);
+    } catch (error) {
+      console.error('Error fetching contributors:', error);
+      res.status(500).json({ error: 'Lỗi khi lấy danh sách người đóng góp' });
+    }
+  });
+  
+  // Lấy danh sách người đóng góp đang hoạt động (isActive = true)
+  app.get(`${apiPrefix}/contributors/active`, async (req, res) => {
+    try {
+      const contributors = await storage.getActiveContributors();
+      res.json(contributors);
+    } catch (error) {
+      console.error('Error fetching active contributors:', error);
+      res.status(500).json({ error: 'Lỗi khi lấy danh sách người đóng góp đang hoạt động' });
+    }
+  });
+  
+  // Lấy chi tiết một người đóng góp
+  app.get(`${apiPrefix}/contributors/:id`, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'ID không hợp lệ' });
+      }
+      
+      const contributor = await storage.getContributor(id);
+      if (!contributor) {
+        return res.status(404).json({ error: 'Không tìm thấy người đóng góp' });
+      }
+      
+      res.json(contributor);
+    } catch (error) {
+      console.error('Error fetching contributor:', error);
+      res.status(500).json({ error: 'Lỗi khi lấy thông tin người đóng góp' });
+    }
+  });
+  
+  // Thêm người đóng góp mới
+  app.post(`${apiPrefix}/admin/contributors`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const newContributor = await storage.createContributor(req.body);
+      res.status(201).json(newContributor);
+    } catch (error) {
+      console.error('Error creating contributor:', error);
+      res.status(500).json({ error: 'Lỗi khi thêm người đóng góp mới' });
+    }
+  });
+  
+  // Cập nhật thông tin người đóng góp
+  app.put(`${apiPrefix}/admin/contributors/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'ID không hợp lệ' });
+      }
+      
+      const updatedContributor = await storage.updateContributor(id, req.body);
+      res.json(updatedContributor);
+    } catch (error) {
+      console.error('Error updating contributor:', error);
+      res.status(500).json({ error: 'Lỗi khi cập nhật thông tin người đóng góp' });
+    }
+  });
+  
+  // Xóa người đóng góp
+  app.delete(`${apiPrefix}/admin/contributors/:id`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'ID không hợp lệ' });
+      }
+      
+      const success = await storage.deleteContributor(id);
+      if (!success) {
+        return res.status(404).json({ error: 'Không tìm thấy người đóng góp' });
+      }
+      
+      res.json({ success: true, message: 'Đã xóa người đóng góp thành công' });
+    } catch (error) {
+      console.error('Error deleting contributor:', error);
+      res.status(500).json({ error: 'Lỗi khi xóa người đóng góp' });
+    }
+  });
+  
+  // Cập nhật thứ tự hiển thị của người đóng góp
+  app.patch(`${apiPrefix}/admin/contributors/:id/sort-order`, requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { sortOrder } = req.body;
+      
+      if (isNaN(id) || typeof sortOrder !== 'number') {
+        return res.status(400).json({ error: 'Dữ liệu không hợp lệ' });
+      }
+      
+      const success = await storage.updateContributorSortOrder(id, sortOrder);
+      if (!success) {
+        return res.status(404).json({ error: 'Không tìm thấy người đóng góp' });
+      }
+      
+      res.json({ success: true, message: 'Đã cập nhật thứ tự hiển thị' });
+    } catch (error) {
+      console.error('Error updating contributor sort order:', error);
+      res.status(500).json({ error: 'Lỗi khi cập nhật thứ tự hiển thị' });
+    }
+  });
 
   // Đăng ký routes cho tính năng tin tức
   registerNewsRoutes(app);

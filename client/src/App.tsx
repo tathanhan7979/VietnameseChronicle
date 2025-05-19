@@ -14,6 +14,7 @@ import PeriodDetail from "@/pages/PeriodDetail";
 import SearchResults from "@/pages/SearchResults";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
+import Contributors from "@/pages/Contributors";
 import NotFound from "@/pages/not-found";
 import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -26,6 +27,7 @@ import FeedbackAdmin from "@/pages/admin/feedback";
 import SettingsAdmin from "@/pages/admin/settings";
 import UsersAdmin from "@/pages/admin/users";
 import NewsAdmin from "@/pages/admin/news";
+import ContributorsAdmin from "@/pages/admin/contributors";
 import NewsListPage from "@/pages/news-list";
 import NewsDetailPage from "@/pages/news-detail";
 import { useState, useEffect } from "react";
@@ -52,6 +54,7 @@ function Router() {
       <Route path="/tim-kiem" component={SearchResults} />
       <Route path="/chinh-sach-bao-mat" component={PrivacyPolicy} />
       <Route path="/dieu-khoan-su-dung" component={TermsOfService} />
+      <Route path="/nguoi-dong-gop" component={Contributors} />
       
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />
@@ -102,6 +105,11 @@ function Router() {
       <ProtectedRoute path="/admin/news" 
         component={NewsAdmin} 
         requirePermission="news" />
+        
+      {/* Quản lý người đóng góp - chỉ dành cho admin */}
+      <ProtectedRoute path="/admin/contributors" 
+        component={ContributorsAdmin} 
+        adminOnly={true} />
       
       {/* Catch all route for 404 */}
       <Route component={NotFound} />
