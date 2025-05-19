@@ -223,6 +223,7 @@ export default function ContributorsAdmin() {
       });
       resetForm();
       setEditingContributor(null);
+      queryClient.invalidateQueries(["/api/contributors"]);
       refetch();
     },
     onError: (error: Error) => {
@@ -249,6 +250,7 @@ export default function ContributorsAdmin() {
         description: "Đã xóa người đóng góp",
       });
       setDeletingContributor(null);
+      queryClient.invalidateQueries(["/api/contributors"]);
       refetch();
     },
     onError: (error: Error) => {
