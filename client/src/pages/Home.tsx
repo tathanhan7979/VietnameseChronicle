@@ -5,6 +5,7 @@ import TimelineSection from "@/components/TimelineSection";
 import HistoricalFiguresSection from "@/components/HistoricalFiguresSection";
 import HistoricalSitesSection from "@/components/HistoricalSitesSection";
 import NewsSection from "@/components/NewsSection";
+import ContributorsSection from "@/components/ContributorsSection";
 import SearchOverlay from "@/components/SearchOverlay";
 import Footer from "@/components/Footer";
 import {
@@ -86,6 +87,7 @@ export default function Home() {
         "timeline",
         "historical-figures",
         "historical-sites",
+        "contributors",
       ];
 
       for (const section of sections) {
@@ -165,6 +167,7 @@ export default function Home() {
       <HistoricalFiguresSection figures={figures} periods={periods} />
       <HistoricalSitesSection sites={sites} />
       <NewsSection />
+      <ContributorsSection />
       <Footer />
       <BackToTop />
 
