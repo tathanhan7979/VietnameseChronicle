@@ -3272,6 +3272,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Lấy danh sách tất cả người đóng góp
   app.get(`${apiPrefix}/contributors`, async (req, res) => {
     try {
+      // Đặt header cache-control để không lưu cache
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
       const contributors = await storage.getAllContributors();
       res.json(contributors);
     } catch (error) {
@@ -3283,6 +3288,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Lấy danh sách người đóng góp đang hoạt động (isActive = true)
   app.get(`${apiPrefix}/contributors/active`, async (req, res) => {
     try {
+      // Đặt header cache-control để không lưu cache
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
       const contributors = await storage.getActiveContributors();
       res.json(contributors);
     } catch (error) {
