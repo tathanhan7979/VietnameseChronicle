@@ -14,6 +14,7 @@ import {
   hashPassword,
   getUserFromToken,
 } from "./auth";
+import { setupAuth } from "./auth-setup";
 import { type User, periods, events, historicalSites } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { db } from "@db";
@@ -311,6 +312,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await createInitialAdminUser();
   // API prefix
   const apiPrefix = "/api";
+
+  // Thiết lập hệ thống xác thực mới
+  setupAuth(app);
 
   // Phục vụ thư mục uploads qua URL /uploads
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));

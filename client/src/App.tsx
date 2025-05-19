@@ -5,8 +5,10 @@ import { Toaster } from "@/components/ui/toaster";
 import Home from "@/pages/Home";
 import NotFound from "@/pages/not-found";
 import AdminLogin from "@/pages/admin/login";
+import AuthPage from "@/pages/auth-page";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "@/lib/protected-route";
 import ThemeProvider from "@/lib/theme-provider";
 
 // Thông báo bảo trì
@@ -32,10 +34,13 @@ function MaintenancePage() {
 function Router() {
   return (
     <Switch>
-      {/* Trang chủ */}
-      <Route path="/" component={Home} />
+      {/* Trang chủ có bảo vệ (người dùng phải đăng nhập) */}
+      <ProtectedRoute path="/" component={Home} />
       
-      {/* Trang login Admin */}
+      {/* Trang xác thực */}
+      <Route path="/auth" component={AuthPage} />
+      
+      {/* Trang login Admin (giữ nguyên) */}
       <Route path="/admin/login" component={AdminLogin} />
       
       {/* Tất cả các trang admin khác tạm thời chuyển đến trang bảo trì */}

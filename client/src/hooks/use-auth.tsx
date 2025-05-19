@@ -13,11 +13,19 @@ type AuthContextType = {
   error: Error | null;
   loginMutation: any; // UseMutationResult cho login
   logoutMutation: any; // UseMutationResult cho logout
+  registerMutation: any; // UseMutationResult cho register
 };
 
 type LoginData = {
   username: string;
   password: string;
+};
+
+type RegisterData = {
+  username: string;
+  password: string;
+  fullName: string;
+  email: string;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -32,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     refetch
   } = useQuery<User | null, Error>({
-    queryKey: ["/api/auth/user"],
+    queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: false
   });
@@ -41,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       try {
-        const res = await apiRequest("POST", "/api/auth/login", credentials);
+        const res = await apiRequest("POST", "/api/login", credentials);
         const data = await res.json();
         if (!data.success) {
           throw new Error(data.message || "Đăng nhập thất bại");
@@ -57,22 +65,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (data) => {
       // Lưu token vào localStorage
-      if (data.token) {
-        localStorage.setItem("authToken", data.token);
-        // Cập nhật thông tin người dùng và đặt trực tiếp vào queryClient
-        if (data.user) {
-          queryClient.setQueryData(["/api/auth/user"], data.user);
-        }
-        
-        // Đồng thời refetch để đảm bảo
-        refetch();
-        
-        toast({
-          title: "Đăng nhập thành công",
-          description: "Chào mừng bạn trở lại",
-          variant: "default",
-        });
+      // Đã đăng nhập thành công
+      // Cập nhật thông tin người dùng và đặt trực tiếp vào queryClient
+      if (data.user) {
+        queryClient.setQueryData(["/api/user"], data.user);
       }
+      
+      // Đồng thời refetch để đảm bảo
+      refetch();
+      
+      toast({
+        title: "Đăng nhập thành công",
+        description: "Chào mừng bạn trở lại",
+        variant: "default",
+      });
     },
     onError: (error: Error) => {
       toast({
@@ -86,10 +92,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Đăng xuất
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      // Xóa token trong localStorage
-      localStorage.removeItem("authToken");
+      // Gọi API đăng xuất
+      await apiRequest("POST", "/api/logout");
       // Đặt lại trạng thái người dùng
-      queryClient.setQueryData(["/api/auth/user"], null);
+      queryClient.setQueryData(["/api/user"], null);
     },
     onSuccess: () => {
       toast({
@@ -114,6 +120,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [refetch]);
 
+  // Đăng ký
+  const registerMutation = useMutation({
+    mutationFn: async (userData: RegisterData) => {
+      try {
+        const res = await apiRequest("POST", "/api/register", userData);
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.message || "Đăng ký thất bại");
+        }
+        return data;
+      } catch (error: any) {
+        if (error.message.includes('400')) {
+          throw new Error('Tên đăng nhập đã tồn tại');
+        }
+        throw new Error(error.message || "Đăng ký thất bại");
+      }
+    },
+    onSuccess: (data) => {
+      // Cập nhật thông tin người dùng
+      if (data.user) {
+        queryClient.setQueryData(["/api/user"], data.user);
+      }
+      
+      // Refetch để đảm bảo
+      refetch();
+      
+      toast({
+        title: "Đăng ký thành công",
+        description: "Chào mừng bạn tham gia",
+        variant: "default",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Đăng ký thất bại",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <AuthContext.Provider
       value={{
@@ -122,6 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error,
         loginMutation,
         logoutMutation,
+        registerMutation,
       }}
     >
       {children}
