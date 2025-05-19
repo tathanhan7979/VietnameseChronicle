@@ -1611,6 +1611,85 @@ export const storage = {
     }
   },
   
+  // Các hàm xử lý Người đóng góp (Contributors)
+  getAllContributors: async (): Promise<Contributor[]> => {
+    try {
+      return await db.select().from(contributors)
+        .orderBy(asc(contributors.sortOrder), asc(contributors.name));
+    } catch (error) {
+      handleDbError(error, "getAllContributors");
+      return [];
+    }
+  },
+  
+  getActiveContributors: async (): Promise<Contributor[]> => {
+    try {
+      return await db.select().from(contributors)
+        .where(eq(contributors.isActive, true))
+        .orderBy(asc(contributors.sortOrder), asc(contributors.name));
+    } catch (error) {
+      handleDbError(error, "getActiveContributors");
+      return [];
+    }
+  },
+  
+  getContributor: async (id: number): Promise<Contributor | null> => {
+    try {
+      const result = await db.select().from(contributors)
+        .where(eq(contributors.id, id))
+        .limit(1);
+      return result[0] || null;
+    } catch (error) {
+      handleDbError(error, "getContributor");
+      return null;
+    }
+  },
+  
+  createContributor: async (data: InsertContributor): Promise<Contributor> => {
+    try {
+      const [newContributor] = await db.insert(contributors).values(data).returning();
+      return newContributor;
+    } catch (error) {
+      handleDbError(error, "createContributor");
+      throw error;
+    }
+  },
+  
+  updateContributor: async (id: number, data: Partial<InsertContributor>): Promise<Contributor | null> => {
+    try {
+      const [updatedContributor] = await db.update(contributors)
+        .set(data)
+        .where(eq(contributors.id, id))
+        .returning();
+      return updatedContributor || null;
+    } catch (error) {
+      handleDbError(error, "updateContributor");
+      throw error;
+    }
+  },
+  
+  updateContributorSortOrder: async (id: number, sortOrder: number): Promise<boolean> => {
+    try {
+      await db.update(contributors)
+        .set({ sortOrder })
+        .where(eq(contributors.id, id));
+      return true;
+    } catch (error) {
+      handleDbError(error, "updateContributorSortOrder");
+      return false;
+    }
+  },
+  
+  deleteContributor: async (id: number): Promise<boolean> => {
+    try {
+      await db.delete(contributors).where(eq(contributors.id, id));
+      return true;
+    } catch (error) {
+      handleDbError(error, "deleteContributor");
+      return false;
+    }
+  },
+  
   // Lấy tất cả tin tức (có thể lọc theo trạng thái)
   getAllNews: async (filters: { published?: boolean } = {}): Promise<News[]> => {
     try {
