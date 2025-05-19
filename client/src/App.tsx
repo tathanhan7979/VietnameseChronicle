@@ -27,7 +27,7 @@ import FeedbackAdmin from "@/pages/admin/feedback";
 import SettingsAdmin from "@/pages/admin/settings";
 import UsersAdmin from "@/pages/admin/users";
 import NewsAdmin from "@/pages/admin/news";
-import ContributorsAdmin from "@/pages/admin/contributors-simple";
+import ContributorsAdmin from "@/pages/admin/contributors-basic";
 import NewsListPage from "@/pages/news-list";
 import NewsDetailPage from "@/pages/news-detail";
 import { useState, useEffect } from "react";
