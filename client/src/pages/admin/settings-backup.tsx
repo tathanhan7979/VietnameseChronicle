@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Save } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import RichTextEditor from '@/components/ui/rich-text-editor';
 
 interface Setting {
@@ -203,16 +205,85 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
     form.setValue('value', value);
   };
 
+  // Handle sitemap regeneration
+  const handleRegenerateSitemap = async () => {
+    try {
+      const res = await apiRequest('POST', '/api/admin/generate-sitemap', {});
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          // Cập nhật giá trị thời gian cập nhật
+          form.setValue('value', new Date().toISOString());
+          onUpdate(new Date().toISOString());
+          
+          toast({
+            title: "Tạo sitemap thành công",
+            description: "Sitemap đã được cập nhật từ dữ liệu mới nhất.",
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Lỗi khi tạo sitemap:', error);
+      toast({
+        title: "Lỗi khi tạo sitemap",
+        description: "Không thể tạo sitemap. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  // Handle updating all slugs
+  const handleUpdateAllSlugs = async () => {
+    try {
+      toast({
+        title: "Đang cập nhật slug...",
+        description: "Quá trình này có thể mất vài giây.",
+      });
+      
+      const res = await apiRequest('POST', '/api/admin/update-all-slugs', {});
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonError) {
+        console.error('Lỗi khi phân tích JSON:', jsonError);
+        throw new Error('Lỗi định dạng phản hồi');
+      }
+      
+      if (res.ok && data && data.success) {
+        const totalUpdated = data.stats?.totalUpdated || 0;
+        const totalItems = data.stats?.totalItems || 0;
+        
+        toast({
+          title: "Cập nhật slug thành công",
+          description: `Đã cập nhật ${totalUpdated}/${totalItems} slug.`,
+        });
+        
+        // Sau khi cập nhật slug, tự động cập nhật lại sitemap
+        handleRegenerateSitemap();
+      } else {
+        throw new Error(data?.message || 'Cập nhật không thành công');
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật slug:', error);
+      toast({
+        title: "Lỗi khi cập nhật slug",
+        description: error instanceof Error ? error.message : "Không thể cập nhật slug. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Handle image file upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Tạo preview
+    // Tạo preview ngay lập tức để người dùng thấy
     const localPreviewUrl = URL.createObjectURL(file);
     setImagePreview(localPreviewUrl);
 
-    // Xác định endpoint tải lên
+    // Xác định endpoint tải lên dựa trên loại hình ảnh
     let uploadEndpoint = '/api/upload/images';
     
     if (setting.key === 'site_favicon') {
@@ -327,6 +398,115 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                   </FormItem>
                 )}
               />
+            ) : setting.key === 'popup_enabled' || setting.inputType === 'select' ? (
+              <FormField
+                control={form.control}
+                name="value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{setting.displayName}</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center space-x-2">
+                        <select
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                        >
+                          {setting.key === 'popup_enabled' || setting.key === 'sitemap_auto_update' ? (
+                            <>
+                              <option value="true">Bật</option>
+                              <option value="false">Tắt</option>
+                            </>
+                          ) : setting.key === 'sitemap_changefreq' ? (
+                            <>
+                              <option value="always">Luôn luôn</option>
+                              <option value="hourly">Hàng giờ</option>
+                              <option value="daily">Hàng ngày</option>
+                              <option value="weekly">Hàng tuần</option>
+                              <option value="monthly">Hàng tháng</option>
+                              <option value="yearly">Hàng năm</option>
+                              <option value="never">Không bao giờ</option>
+                            </>
+                          ) : (
+                            <>
+                              <option value={field.value}>{field.value}</option>
+                            </>
+                          )}
+                        </select>
+                      </div>
+                    </FormControl>
+                    <FormDescription className="text-xs text-muted-foreground">
+                      {setting.description}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : setting.key === 'last_sitemap_update' ? (
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="value"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Thời gian cập nhật gần nhất</FormLabel>
+                      <FormControl>
+                        <div className="flex space-x-2">
+                          <Input {...field} readOnly className="flex-1" />
+                          <Button 
+                            type="button" 
+                            onClick={handleRegenerateSitemap}
+                            className="whitespace-nowrap"
+                            variant="secondary"
+                          >
+                            Tạo lại Sitemap
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Nhấn nút "Tạo lại Sitemap" để cập nhật sitemap.xml từ dữ liệu mới nhất
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex flex-col space-y-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-md">
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Cập nhật URL Slug</h4>
+                    <div className="flex space-x-2 items-center">
+                      <p className="text-xs text-gray-500 flex-1">
+                        Cập nhật tất cả URL slug để hỗ trợ đầy đủ tiếng Việt có dấu
+                      </p>
+                      <Button 
+                        type="button" 
+                        onClick={handleUpdateAllSlugs}
+                        className="whitespace-nowrap"
+                        variant="outline"
+                        size="sm"
+                      >
+                        Cập nhật tất cả Slug
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                    <h4 className="text-sm font-medium">Thông tin sitemap</h4>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Sitemap được tạo tự động bao gồm các trang sau:
+                    </p>
+                    <ul className="text-xs text-gray-500 list-disc pl-5 space-y-1 mt-2">
+                      <li>Trang chủ</li>
+                      <li>Tất cả các thời kỳ lịch sử</li>
+                      <li>Tất cả các sự kiện lịch sử</li>
+                      <li>Tất cả các nhân vật lịch sử</li>
+                      <li>Tất cả các di tích lịch sử</li>
+                      <li>Tất cả các bài viết tin tức</li>
+                    </ul>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Tệp sitemap.xml được tạo tại: <code className="text-xs bg-gray-200 dark:bg-gray-800 px-1 py-0.5 rounded">client/public/sitemap.xml</code>
+                    </p>
+                  </div>
+                </div>
+              </div>
             ) : (
               <FormField
                 control={form.control}
