@@ -2953,6 +2953,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/upload/events`,
     uploadEventImage.single("file"),
+    optimizeUploadedImage,
     (req, res) => {
       try {
         if (!req.file) {
