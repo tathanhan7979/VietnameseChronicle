@@ -244,6 +244,45 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
     }
   };
   
+  // Xử lý xóa cache
+  const handleClearCache = async () => {
+    try {
+      toast({
+        title: "Đang xóa cache...",
+        description: "Quá trình này có thể mất vài giây.",
+      });
+      
+      const res = await apiRequest('POST', '/api/admin/clear-cache', {});
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonError) {
+        console.error('Lỗi khi phân tích JSON:', jsonError);
+        throw new Error('Lỗi định dạng phản hồi');
+      }
+      
+      if (res.ok && data && data.success) {
+        toast({
+          title: "Xóa cache thành công",
+          description: data.message || "Đã xóa toàn bộ cache của hệ thống.",
+        });
+        
+        // Tải lại dữ liệu sau khi xóa cache
+        window.location.reload();
+      } else {
+        throw new Error(data?.message || 'Xóa cache không thành công');
+      }
+    } catch (error) {
+      console.error('Lỗi khi xóa cache:', error);
+      toast({
+        title: "Lỗi khi xóa cache",
+        description: error instanceof Error ? error.message : "Không thể xóa cache. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Handle updating all slugs
   const handleUpdateAllSlugs = async () => {
     try {
@@ -586,6 +625,30 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                         size="sm"
                       >
                         Tối ưu hóa ảnh
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                    <h4 className="text-sm font-medium mb-2">Xóa bộ nhớ đệm (Cache)</h4>
+                    <div className="flex space-x-2 items-center">
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500">
+                          Xóa bộ nhớ đệm (cache) của hệ thống để hiển thị dữ liệu mới nhất
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          <span className="text-amber-600 dark:text-amber-400">Lưu ý:</span> Sau khi xóa cache, trang web sẽ tải lại để áp dụng thay đổi
+                        </p>
+                      </div>
+                      <Button 
+                        type="button" 
+                        onClick={handleClearCache}
+                        className="whitespace-nowrap flex items-center gap-1"
+                        variant="outline"
+                        size="sm"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        Xóa cache
                       </Button>
                     </div>
                   </div>
