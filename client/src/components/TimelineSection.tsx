@@ -4,8 +4,7 @@ import { Link, useLocation } from "wouter";
 import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
-import { ChevronRight, History, AlignVerticalJustifyCenter, Rows3 } from "lucide-react";
-import HorizontalTimelineSection from "./HorizontalTimelineSection";
+import { ChevronRight, Clock, History, CalendarDays, LayoutVertical, LayoutHorizontal } from "lucide-react";
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -23,15 +22,9 @@ export default function TimelineSection({
   const [activeSection, setActiveSection] = useState<string | null>(
     activePeriodSlug,
   );
-  const [layoutType, setLayoutType] = useState<"vertical" | "horizontal">(() => {
-    // Lấy layout từ localStorage nếu có, mặc định là dọc (vertical)
-    const savedLayout = localStorage.getItem("timelineLayout");
-    return (savedLayout as "vertical" | "horizontal") || "vertical";
-  });
   const timelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
   let globalCounter = 0;
-  
   // Lấy tham số period từ URL khi quay lại trang chủ
   useEffect(() => {
     if (location.includes("?period=")) {
@@ -124,13 +117,6 @@ export default function TimelineSection({
     }
   };
 
-  // Handle layout toggle
-  const toggleLayout = () => {
-    const newLayout = layoutType === "vertical" ? "horizontal" : "vertical";
-    setLayoutType(newLayout);
-    localStorage.setItem("timelineLayout", newLayout);
-  };
-
   // Loading state
   if (periods.length === 0 || events.length === 0) {
     return (
@@ -159,196 +145,157 @@ export default function TimelineSection({
             </span>
           </h2>
           <p>Khám phá dòng thời gian lịch sử 4000 năm của Việt Nam</p>
-          <div className="flex justify-center mt-4">
-            <div className="inline-flex bg-gray-100 rounded-lg p-1 shadow-sm">
-              <button
-                onClick={toggleLayout}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                  layoutType === "vertical"
-                    ? "bg-[hsl(var(--primary))] text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-200"
-                }`}
-                title="Dòng thời gian dọc"
-              >
-                <AlignVerticalJustifyCenter className="h-5 w-5" />
-                <span className="hidden sm:inline">Dọc</span>
-              </button>
-              <button
-                onClick={toggleLayout}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                  layoutType === "horizontal"
-                    ? "bg-[hsl(var(--primary))] text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-200"
-                }`}
-                title="Dòng thời gian ngang"
-              >
-                <Rows3 className="h-5 w-5" />
-                <span className="hidden sm:inline">Ngang</span>
-              </button>
-            </div>
-          </div>
         </div>
 
-        {layoutType === "vertical" ? (
-          // BỐ CỤC DỌC (VERTICAL)
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {/* Left sidebar: Period navigation */}
-            <div className="md:col-span-1">
-              <div className="sticky top-24">
-                <h3 className="text-xl font-bold mb-4 font-['Playfair_Display'] text-[#4527A0]">
-                  CÁC THỜI KỲ
-                </h3>
-                <ul className="period-nav">
-                  {periods.map((period) => (
-                    <li
-                      key={period.id}
-                      className={activeSection === period.slug ? "active" : ""}
-                    >
-                      <a
-                        href={`#period-${period.slug}`}
-                        onClick={(e) => handlePeriodClick(period.slug, e)}
-                      >
-                        {period.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Right content: Timeline */}
-            <div className="md:col-span-3 relative">
-              {/* Main vertical timeline line */}
-              <div className="timeline-line"></div>
-              {periods.map((period, periodIndex) => {
-                const periodEvents = events.filter(
-                  (event) => event.periodId === period.id,
-                );
-
-                return (
-                  <div
-                    id={`period-${period.slug}`}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {/* Left sidebar: Period navigation */}
+          <div className="md:col-span-1">
+            <div className="sticky top-24">
+              <h3 className="text-xl font-bold mb-4 font-['Playfair_Display'] text-[#4527A0]">
+                CÁC THỜI KỲ
+              </h3>
+              <ul className="period-nav">
+                {periods.map((period) => (
+                  <li
                     key={period.id}
-                    className="mb-20"
+                    className={activeSection === period.slug ? "active" : ""}
                   >
-                    {/* Period marker circle */}
-                    <div className="period-marker">
-                      <div className="period-marker-circle">
-                        {periodIndex + 1}
-                      </div>
-                    </div>
+                    <a
+                      href={`#period-${period.slug}`}
+                      onClick={(e) => handlePeriodClick(period.slug, e)}
+                    >
+                      {period.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
-                    {/* Period title */}
-                    <div className="period-title">
-                      <h3>
-                        <Link
-                          href={`/thoi-ky/${period.slug}`}
-                          className="hover:underline hover:text-[hsl(var(--primary))]"
+          {/* Right content: Timeline */}
+          <div className="md:col-span-3 relative">
+            {/* Main vertical timeline line */}
+            <div className="timeline-line"></div>
+            {periods.map((period, periodIndex) => {
+              const periodEvents = events.filter(
+                (event) => event.periodId === period.id,
+              );
+
+              return (
+                <div
+                  id={`period-${period.slug}`}
+                  key={period.id}
+                  className="mb-20"
+                >
+                  {/* Period marker circle */}
+                  <div className="period-marker">
+                    <div className="period-marker-circle">
+                      {periodIndex + 1}
+                    </div>
+                  </div>
+
+                  {/* Period title */}
+                  <div className="period-title">
+                    <h3>
+                      <Link
+                        href={`/thoi-ky/${period.slug}`}
+                        className="hover:underline hover:text-[hsl(var(--primary))]"
+                      >
+                        <div className="items-center gap-2 justify-center">
+                          📅 {period.name} <span>({period.timeframe})</span>
+                        </div>
+                      </Link>
+                    </h3>
+                  </div>
+
+                  {/* Events container */}
+                  <div className="timeline-events-container">
+                    {periodEvents.map((event, index) => {
+                      const isLeft = globalCounter % 2 === 0;
+                      globalCounter++; // Tăng sau khi dùng
+                      return (
+                        <motion.div
+                          key={event.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.5 }}
+                          className={`timeline-event ${isLeft ? "left" : "right"}`}
                         >
-                          <div className="items-center gap-2 justify-center">
-                            📅 {period.name} <span>({period.timeframe})</span>
-                          </div>
-                        </Link>
-                      </h3>
-                    </div>
+                          {/* Event dot on the timeline */}
+                          <div className="event-dot"></div>
 
-                    {/* Events container */}
-                    <div className="timeline-events-container">
-                      {periodEvents.map((event, index) => {
-                        const isLeft = globalCounter % 2 === 0;
-                        globalCounter++; // Tăng sau khi dùng
-                        return (
-                          <motion.div
-                            key={event.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5 }}
-                            className={`timeline-event ${isLeft ? "left" : "right"}`}
-                          >
-                            {/* Event dot on the timeline */}
-                            <div className="event-dot"></div>
+                          {/* Event connector line */}
+                          <div className="event-connector"></div>
 
-                            {/* Event connector line */}
-                            <div className="event-connector"></div>
+                          {/* Event card */}
+                          <div className="event-card">
+                            <Link
+                              href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                            >
+                              <h4 className="event-title">{event.title}</h4>
+                            </Link>
 
-                            {/* Event card */}
-                            <div className="event-card">
+                            <span className="event-year">{event.year}</span>
+
+                            <p className="event-description">
+                              {event.description}
+                            </p>
+
+                            {event.imageUrl && (
+                              <picture>
+                                <img
+                                  src={event.imageUrl}
+                                  alt={event.title}
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="event-image"
+                                  onError={(e) => {
+                                    e.currentTarget.src =
+                                      "/uploads/error-img.png";
+                                  }}
+                                />
+                              </picture>
+                            )}
+
+                            <div className="mt-4">
+                              {event.eventTypes &&
+                                event.eventTypes.length > 0 && (
+                                  <div className="event-tags mb-2">
+                                    {event.eventTypes.map((type) => (
+                                      <span
+                                        key={type.id}
+                                        className="event-tag"
+                                        style={{
+                                          backgroundColor:
+                                            type.color || "#C62828",
+                                        }}
+                                      >
+                                        {type.name}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+
                               <Link
                                 href={`/su-kien/${event.id}/${slugify(event.title)}`}
                               >
-                                <h4 className="event-title">{event.title}</h4>
+                                <div className="view-details">
+                                  <span>Xem chi tiết</span>
+                                  <ChevronRight className="h-5 w-5 transition-transform" />
+                                </div>
                               </Link>
-
-                              <span className="event-year">{event.year}</span>
-
-                              <p className="event-description">
-                                {event.description}
-                              </p>
-
-                              {event.imageUrl && (
-                                <picture>
-                                  <img
-                                    src={event.imageUrl}
-                                    alt={event.title}
-                                    loading="lazy"
-                                    decoding="async"
-                                    className="event-image"
-                                    onError={(e) => {
-                                      e.currentTarget.src =
-                                        "/uploads/error-img.png";
-                                    }}
-                                  />
-                                </picture>
-                              )}
-
-                              <div className="mt-4">
-                                {event.eventTypes &&
-                                  event.eventTypes.length > 0 && (
-                                    <div className="event-tags mb-2">
-                                      {event.eventTypes.map((type) => (
-                                        <span
-                                          key={type.id}
-                                          className="event-tag"
-                                          style={{
-                                            backgroundColor:
-                                              type.color || "#C62828",
-                                          }}
-                                        >
-                                          {type.name}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  )}
-
-                                <Link
-                                  href={`/su-kien/${event.id}/${slugify(event.title)}`}
-                                >
-                                  <div className="view-details">
-                                    <span>Xem chi tiết</span>
-                                    <ChevronRight className="h-5 w-5 transition-transform" />
-                                  </div>
-                                </Link>
-                              </div>
                             </div>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
-        ) : (
-          // BỐ CỤC NGANG (HORIZONTAL)
-          <HorizontalTimelineSection 
-            periods={periods}
-            events={events}
-            activePeriodSlug={activeSection}
-            onPeriodSelect={onPeriodSelect}
-          />
-        )}
+        </div>
       </div>
     </section>
   );
