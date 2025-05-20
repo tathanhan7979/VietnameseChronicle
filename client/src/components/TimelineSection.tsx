@@ -5,6 +5,7 @@ import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
 import { ChevronRight, History, CalendarDays } from "lucide-react";
+import { getImageUrlWithTimestamp, handleImageError } from '@/lib/image-utils';
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -246,15 +247,14 @@ export default function TimelineSection({
                             {event.imageUrl && (
                               <picture>
                                 <img
-                                  src={event.imageUrl}
+                                  src={getImageUrlWithTimestamp(event.imageUrl)}
                                   alt={event.title}
                                   loading="lazy"
                                   decoding="async"
                                   className="event-image"
-                                  onError={(e) => {
-                                    e.currentTarget.src =
-                                      "/uploads/error-img.png";
-                                  }}
+                                  onError={(e) => 
+                                    handleImageError(e, event.imageUrl)
+                                  }
                                 />
                               </picture>
                             )}

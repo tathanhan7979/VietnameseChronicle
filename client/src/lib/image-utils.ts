@@ -19,7 +19,7 @@ export function getImageUrlWithTimestamp(url: string | null | undefined): string
 /**
  * Hàm xử lý lỗi ảnh và ghi log
  */
-export function handleImageError(e: React.SyntheticEvent<HTMLImageElement, Event>, originalSrc: string): void {
-  console.error('Lỗi khi tải hình ảnh:', originalSrc);
+export function handleImageError(e: React.SyntheticEvent<HTMLImageElement, Event>, originalSrc: string | null | undefined): void {
+  console.error('Lỗi khi tải hình ảnh:', originalSrc || 'URL không xác định');
   e.currentTarget.src = '/uploads/error-img.png';
 }

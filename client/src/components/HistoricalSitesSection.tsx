@@ -106,14 +106,12 @@ export default function HistoricalSitesSection({
                 <div className="h-52 overflow-hidden relative group">
                   <picture>
                     <img
-                      src={site.imageUrl || DEFAULT_IMAGE}
+                      src={getImageUrlWithTimestamp(site.imageUrl) || DEFAULT_IMAGE}
                       alt={site.name}
                       loading="lazy"
                       decoding="async"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      onError={(e) => {
-                        e.currentTarget.src = '/uploads/error-img.png';
-                      }}
+                      onError={(e) => handleImageError(e, site.imageUrl)}
                     />
                   </picture>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
