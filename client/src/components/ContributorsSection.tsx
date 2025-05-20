@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import useEmblaCarousel from 'embla-carousel-react';
 
 // Định nghĩa interface cho Contributor
 interface Contributor {
@@ -19,26 +18,7 @@ interface Contributor {
 export default function ContributorsSection() {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    loop: true,
-    align: 'center',
-    containScroll: 'trimSnaps'
-  });
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', onSelect);
-    onSelect();
-    return () => {
-      emblaApi.off('select', onSelect);
-    };
-  }, [emblaApi, onSelect]);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const fetchContributors = async () => {
@@ -87,13 +67,17 @@ export default function ContributorsSection() {
     return null; // Không hiển thị phần này nếu không có người đóng góp
   }
 
-  const scrollPrev = useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
+  const goToPrev = () => {
+    setActiveIndex(prev => 
+      prev === 0 ? contributors.length - 1 : prev - 1
+    );
+  };
 
-  const scrollNext = useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
+  const goToNext = () => {
+    setActiveIndex(prev => 
+      prev === contributors.length - 1 ? 0 : prev + 1
+    );
+  };
 
   return (
     <section id="contributors" className="py-16 bg-gradient-to-b from-white to-gray-50">
