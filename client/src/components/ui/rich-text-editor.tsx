@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { advancedQuillModules, advancedQuillFormats, quillCustomStyles } from '@/lib/quill-config';
-
-// Make sure we don't try to initialize modules on the server side
-const isClient = typeof window !== 'undefined';
 
 interface RichTextEditorProps {
   value: string;
@@ -19,11 +15,44 @@ interface RichTextEditorProps {
   uploadPath?: string;
 }
 
+// Simple toolbar configuration without custom modules
+const modules = {
+  toolbar: [
+    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+    [{ 'font': [] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'color': [] }, { 'background': [] }],
+    [{ 'script': 'sub'}, { 'script': 'super' }],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'indent': '-1'}, { 'indent': '+1' }],
+    [{ 'direction': 'rtl' }],
+    [{ 'align': [] }],
+    ['blockquote', 'code-block'],
+    ['link', 'image', 'video'],
+    ['clean']
+  ],
+  clipboard: {
+    matchVisual: false
+  }
+};
+
+// Formats to enable
+const formats = [
+  'header', 'font', 'size',
+  'bold', 'italic', 'underline', 'strike',
+  'color', 'background',
+  'script',
+  'list', 'bullet', 'indent',
+  'direction', 'align',
+  'blockquote', 'code-block',
+  'link', 'image', 'video'
+];
+
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
   onChange,
   placeholder = "Nhập nội dung...",
-  height,
+  height = 400,
   label,
   required = false,
   error,
@@ -31,43 +60,30 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   style = {},
 }) => {
   const [editorValue, setEditorValue] = useState(value || '');
-  // Use safe client-side modules to avoid SSR issues
-  const [modules, setModules] = useState({});
-  
-  // Initialize modules on client-side only
-  useEffect(() => {
-    if (isClient) {
-      setModules(advancedQuillModules);
-    }
-  }, []);
 
-  // Đồng bộ giá trị từ props
+  // Sync value from props
   useEffect(() => {
     setEditorValue(value || '');
   }, [value]);
 
-  // Xử lý thay đổi
+  // Handle changes
   const handleChange = (content: string) => {
     setEditorValue(content);
     onChange(content);
   };
 
-  // Kết hợp styles
+  // Container style
   const containerStyle = {
-    ...quillCustomStyles.container,
-    height: height || quillCustomStyles.container.height,
+    height,
     ...style,
   };
 
-  // Tính toán chiều cao của editor dựa trên container
-  const editorHeight = typeof containerStyle.height === 'number' 
-    ? (containerStyle.height as number) - 42 // Trừ đi chiều cao của toolbar
-    : '350px';
-
-  // Custom CSS cho editor
+  // Editor style
   const editorStyle = {
-    ...quillCustomStyles.editor,
-    height: editorHeight,
+    height: typeof height === 'number' ? (height as number) - 42 : '350px',
+    overflow: 'auto',
+    fontSize: '16px',
+    lineHeight: '1.5',
   };
 
   return (
@@ -87,7 +103,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           value={editorValue}
           onChange={handleChange}
           modules={modules}
-          formats={advancedQuillFormats}
+          formats={formats}
           placeholder={placeholder}
           style={editorStyle}
         />

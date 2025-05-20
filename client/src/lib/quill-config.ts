@@ -2,7 +2,7 @@
  * Cấu hình nâng cao cho trình soạn thảo ReactQuill
  */
 
-// Cấu hình các thanh công cụ nâng cao cho ReactQuill
+// Định nghĩa cấu hình cơ bản cho thanh công cụ Quill
 export const advancedQuillModules = {
   toolbar: [
     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
