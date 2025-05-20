@@ -184,7 +184,7 @@ interface SettingCardProps {
 
 function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(
-    setting.inputType === 'image' && setting.value ? setting.value : null
+    (setting.inputType === 'image' || setting.inputType === 'image-upload') && setting.value ? setting.value : null
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -382,7 +382,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent>
-            {setting.inputType === 'image' ? (
+            {setting.inputType === 'image' || setting.inputType === 'image-upload' ? (
               <div className="space-y-4">
                 <div className="flex items-center space-x-4">
                   <Button 
@@ -402,6 +402,10 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                   <Input 
                     {...form.register('value')} 
                     placeholder="URL hình ảnh" 
+                    onChange={(e) => {
+                      form.setValue('value', e.target.value);
+                      setImagePreview(e.target.value);
+                    }}
                   />
                 </div>
                 {imagePreview && (
