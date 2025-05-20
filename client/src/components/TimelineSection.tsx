@@ -4,7 +4,7 @@ import { Link, useLocation } from "wouter";
 import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
-import { ChevronRight, Clock, History, CalendarDays, PanelTop, List } from "lucide-react";
+import { ChevronRight, Clock, History, CalendarDays } from "lucide-react";
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -22,13 +22,7 @@ export default function TimelineSection({
   const [activeSection, setActiveSection] = useState<string | null>(
     activePeriodSlug,
   );
-  const [viewMode, setViewMode] = useState<'vertical' | 'horizontal'>(() => {
-    // Lấy chế độ xem từ localStorage hoặc mặc định là vertical
-    const savedViewMode = localStorage.getItem('timelineViewMode');
-    return (savedViewMode === 'horizontal' ? 'horizontal' : 'vertical') as 'vertical' | 'horizontal';
-  });
   const timelineRef = useRef<HTMLDivElement>(null);
-  const horizontalTimelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
   let globalCounter = 0;
   // Lấy tham số period từ URL khi quay lại trang chủ
@@ -99,43 +93,6 @@ export default function TimelineSection({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Chuyển đổi chế độ xem
-  const toggleViewMode = () => {
-    const newViewMode = viewMode === 'vertical' ? 'horizontal' : 'vertical';
-    setViewMode(newViewMode);
-    
-    // Lưu chế độ xem vào localStorage
-    localStorage.setItem('timelineViewMode', newViewMode);
-    
-    // Sau khi chuyển đổi chế độ xem, đảm bảo scroll đến thời kỳ đang active
-    setTimeout(() => {
-      if (activeSection) {
-        const elementId = `period-${activeSection}`;
-        const element = document.getElementById(elementId);
-        if (element) {
-          const offset = 100; // Header height + some padding
-          
-          if (newViewMode === 'horizontal' && horizontalTimelineRef.current) {
-            // Với timeline ngang, scroll theo chiều ngang
-            const elementPosition = element.offsetLeft;
-            horizontalTimelineRef.current.scrollTo({
-              left: elementPosition - 100,
-              behavior: 'smooth'
-            });
-          } else {
-            // Với timeline dọc, scroll theo chiều dọc
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.scrollY - offset;
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: "smooth",
-            });
-          }
-        }
-      }
-    }, 200);
-  };
-
   // Handle period click
   const handlePeriodClick = (slug: string, event: React.MouseEvent) => {
     event.preventDefault();
@@ -150,23 +107,13 @@ export default function TimelineSection({
     const element = document.getElementById(`period-${slug}`);
     if (element) {
       const offset = 100; // Header height + some padding
-      
-      if (viewMode === 'horizontal' && horizontalTimelineRef.current) {
-        // Với timeline ngang, scroll theo chiều ngang
-        const elementPosition = element.offsetLeft;
-        horizontalTimelineRef.current.scrollTo({
-          left: elementPosition - 100,
-          behavior: 'smooth'
-        });
-      } else {
-        // Với timeline dọc, scroll theo chiều dọc
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.scrollY - offset;
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth",
-        });
-      }
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
     }
   };
 
