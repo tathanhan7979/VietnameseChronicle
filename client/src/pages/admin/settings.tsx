@@ -40,13 +40,16 @@ export default function SettingsAdmin() {
   const [activeTab, setActiveTab] = useState('general');
   
   // Fetch all settings
-  const { data: settings, isLoading } = useQuery<Setting[]>({
-    queryKey: ['/api/settings'],
+  const { data: settings, isLoading, refetch } = useQuery<Setting[]>({
+    queryKey: ['/api/settings', new Date().getTime()], // Thêm timestamp để tránh cache
     queryFn: async () => {
-      const res = await fetch('/api/settings');
+      const timestamp = new Date().getTime();
+      const res = await fetch(`/api/settings?t=${timestamp}`);
       if (!res.ok) throw new Error('Failed to fetch settings');
       return res.json();
     },
+    refetchOnMount: true, // Luôn refetch khi component được tạo
+    refetchOnWindowFocus: true, // Refetch khi cửa sổ được focus lại
   });
 
   // Group settings by category
@@ -65,11 +68,15 @@ export default function SettingsAdmin() {
   // Update setting mutation
   const updateSettingMutation = useMutation({
     mutationFn: async ({ key, value }: { key: string; value: string }) => {
-      const res = await apiRequest('PUT', `/api/settings/${key}`, { value });
+      const timestamp = new Date().getTime(); // Thêm timestamp để tránh cache
+      const res = await apiRequest('PUT', `/api/settings/${key}?t=${timestamp}`, { value });
       return res.json();
     },
     onSuccess: () => {
+      // Tắt cache và buộc tải lại dữ liệu mới
       queryClient.invalidateQueries({ queryKey: ['/api/settings'] });
+      // Buộc refetch dữ liệu mới
+      setTimeout(() => refetch(), 100); // Thêm timeout nhỏ để đảm bảo dữ liệu được cập nhật
       toast({
         title: 'Cập nhật thành công',
         description: 'Thiết lập đã được cập nhật.',
