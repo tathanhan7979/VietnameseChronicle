@@ -14,9 +14,9 @@ export default function BackToTop() {
     }
   };
   
-  // Set scroll event listener
+  // Set scroll event listener with passive option for better performance
   useEffect(() => {
-    window.addEventListener('scroll', toggleVisibility);
+    window.addEventListener('scroll', toggleVisibility, { passive: true });
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
   

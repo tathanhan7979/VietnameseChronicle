@@ -61,7 +61,7 @@ export default function Header({
       setIsScrolled(scrollTop > 10);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 

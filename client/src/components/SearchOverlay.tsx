@@ -54,7 +54,7 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     };
     
     if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('keydown', handleKeyDown, { passive: true });
       document.body.style.overflow = 'hidden';
     }
     
