@@ -65,10 +65,8 @@ export async function optimizeImage(
     // Lưu file đã tối ưu
     await sharpImage.toFile(outputFilePath);
     
-    // Xóa file gốc sau khi đã tối ưu (nếu không phải cùng định dạng)
-    if (path.resolve(filePath) !== path.resolve(outputFilePath)) {
-      await fs.promises.unlink(filePath);
-    }
+    // Giữ nguyên file gốc để làm fallback
+    // Không xóa file gốc nữa, thay vào đó chỉ trả về đường dẫn đến file mới
     
     // Trả về đường dẫn đến file đã tối ưu
     return outputFilePath;

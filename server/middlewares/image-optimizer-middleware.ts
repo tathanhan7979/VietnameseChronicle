@@ -2,6 +2,21 @@ import { Request, Response, NextFunction } from 'express';
 import { optimizeImage } from '../utils/image-optimizer';
 import { log } from '../vite';
 
+// Mở rộng thêm loại File để bổ sung imageInfo
+declare global {
+  namespace Express {
+    namespace Multer {
+      interface File {
+        imageInfo?: {
+          webp: string;
+          original: string;
+          filename: string;
+        };
+      }
+    }
+  }
+}
+
 /**
  * Middleware tối ưu hóa hình ảnh sau khi đã tải lên
  * Sử dụng sau khi multer đã xử lý upload
@@ -20,16 +35,32 @@ export async function optimizeUploadedImage(
     const originalSize = req.file.size;
     log(`🖼️ Tối ưu hóa ảnh: ${req.file.originalname} (${formatBytes(originalSize)})`, 'image-optimizer');
 
-    // Thực hiện tối ưu hóa ảnh
+    // Thực hiện tối ưu hóa ảnh nhưng giữ lại ảnh gốc làm fallback
     const optimizedPath = await optimizeImage(req.file.path, {
       format: 'webp',  // Chuyển sang webp để nén tốt hơn
       quality: 80,     // Chất lượng 80% thường là sự cân bằng tốt
     });
     
-    // Cập nhật thông tin file trong request
+    // Giữ lại đường dẫn gốc và webp
     const originalPath = req.file.path;
     const optimizedFilename = optimizedPath.split('/').pop() || req.file.filename;
     
+    // Tạo URL của ảnh để trả về cho client
+    const originalUrl = originalPath.replace(process.cwd(), '');
+    const webpUrl = optimizedPath.replace(process.cwd(), '');
+    
+    // Tạo thông tin cần thiết cho picture tag để hỗ trợ fallback
+    const imageInfo = {
+      webp: webpUrl,
+      original: originalUrl,
+      filename: optimizedFilename,
+      // HTML mẫu: <picture><source srcset="image.webp" type="image/webp"><img src="image.jpg" alt=""></picture>
+    };
+    
+    // Lưu thông tin vào request để các bước sau có thể sử dụng
+    req.file.imageInfo = imageInfo;
+    
+    // Vẫn cập nhật đường dẫn chính là phiên bản tối ưu
     req.file.filename = optimizedFilename;
     req.file.path = optimizedPath;
     
@@ -76,14 +107,31 @@ export async function optimizeUploadedImages(
       log(`🖼️ Tối ưu hóa ảnh: ${file.originalname} (${formatBytes(originalSize)})`, 'image-optimizer');
 
       try {
-        // Thực hiện tối ưu hóa ảnh
+        // Thực hiện tối ưu hóa ảnh nhưng giữ lại ảnh gốc
         const optimizedPath = await optimizeImage(file.path, {
           format: 'webp',
           quality: 80,
         });
         
-        // Cập nhật thông tin file
+        // Giữ lại đường dẫn gốc và webp
+        const originalPath = file.path;
         const optimizedFilename = optimizedPath.split('/').pop() || file.filename;
+        
+        // Tạo URL của ảnh để trả về cho client
+        const originalUrl = originalPath.replace(process.cwd(), '');
+        const webpUrl = optimizedPath.replace(process.cwd(), '');
+        
+        // Tạo thông tin cần thiết cho picture tag để hỗ trợ fallback
+        const imageInfo = {
+          webp: webpUrl,
+          original: originalUrl,
+          filename: optimizedFilename,
+        };
+        
+        // Lưu thông tin vào file để các bước sau có thể sử dụng
+        file.imageInfo = imageInfo;
+        
+        // Vẫn cập nhật đường dẫn chính là phiên bản tối ưu
         file.filename = optimizedFilename;
         file.path = optimizedPath;
         
