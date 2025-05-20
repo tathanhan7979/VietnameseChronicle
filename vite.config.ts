@@ -28,5 +28,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Tăng giới hạn cảnh báo kích thước chunk lên để tránh cảnh báo
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        // Phân chia các chunk để giảm kích thước
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
+          ui: ['@radix-ui/react-accordion', '@radix-ui/react-dialog', '@radix-ui/react-tabs'],
+          tanstack: ['@tanstack/react-query'],
+        }
+      }
+    }
   },
 });
