@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import OptimizedImage from "@/components/ui/optimized-image";
 
 // Định nghĩa interface cho Contributor
 interface Contributor {
@@ -192,14 +193,11 @@ export default function ContributorsSection() {
                             isCenter ? 'border-primary w-36 h-36' : 'border-gray-200 w-28 h-28'
                           } transition-all duration-300 hover:border-primary`}>
                             {contributor.avatarUrl ? (
-                              <img
+                              <OptimizedImage
                                 src={contributor.avatarUrl}
                                 alt={contributor.name}
                                 className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = "/uploads/error-img.png";
-                                }}
+                                fallbackSrc="/uploads/error-img.png"
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-primary/10">
@@ -269,14 +267,11 @@ export default function ContributorsSection() {
                   <div className="mb-6 relative">
                     <div className="rounded-full overflow-hidden border-4 border-primary transition-all duration-300 w-32 h-32">
                       {contributors[currentIndex].avatarUrl ? (
-                        <img
+                        <OptimizedImage
                           src={contributors[currentIndex].avatarUrl}
                           alt={contributors[currentIndex].name}
                           className="w-full h-full object-cover transition-transform duration-300 scale-105 hover:scale-110"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = "/uploads/error-img.png";
-                          }}
+                          fallbackSrc="/uploads/error-img.png"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-primary/10">
