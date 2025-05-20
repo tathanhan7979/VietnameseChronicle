@@ -372,131 +372,314 @@ export default function TimelineSection({
               </ul>
             </div>
             
-            {/* Timeline ngang theo mẫu mới */}
+            {/* Timeline ngang theo mẫu mới - company timeline */}
             <div className="horizontal-timeline-wrapper">
               {/* Đường ngang giữa timeline */}
               <div className="horizontal-timeline-line"></div>
               
-              {/* Các điểm đánh dấu trên timeline */}
-              {periods.map((period, index) => (
-                <div 
-                  key={period.id}
-                  className="timeline-dot"
-                  style={{ left: `${10 + index * 20}%` }}
-                ></div>
-              ))}
-              
-              {periods.map((period, periodIndex) => {
-                const periodEvents = events.filter(
-                  (event) => event.periodId === period.id
-                );
+              <div className="horizontal-timeline">
+                {/* Title section ở bên trái */}
+                <div className="company-sidebar" style={{ 
+                  width: '250px',
+                  backgroundColor: '#00524c',
+                  color: 'white',
+                  padding: '30px 20px',
+                  borderRadius: '8px',
+                  marginRight: '30px',
+                  height: 'fit-content'
+                }}>
+                  <h2 style={{ 
+                    fontSize: '1.8rem', 
+                    fontWeight: 'bold', 
+                    marginBottom: '12px'
+                  }}>
+                    Lịch Sử Việt Nam
+                  </h2>
+                  <p style={{ fontSize: '0.95rem', lineHeight: 1.5 }}>
+                    Hành trình lịch sử hàng nghìn năm của dân tộc Việt Nam qua các giai đoạn phát triển.
+                  </p>
+                  <a href="#" style={{
+                    display: 'block',
+                    marginTop: '15px',
+                    color: '#fff',
+                    fontSize: '0.9rem'
+                  }}>
+                    Tìm hiểu thêm &gt;
+                  </a>
+                </div>
                 
-                return (
-                  <div 
-                    className="horizontal-timeline" 
-                    id={`period-${period.slug}`}
-                    key={period.id}
-                  >
-                    {/* Company/Period title section */}
-                    <div className="company-history" style={{ 
-                      position: 'absolute', 
-                      left: '30px',
-                      top: '40px',
-                      backgroundColor: '#064e40',
-                      color: 'white',
-                      padding: '20px',
-                      borderRadius: '8px',
-                      maxWidth: '220px'
-                    }}>
-                      <h3 style={{ 
-                        fontSize: '1.5rem', 
-                        fontWeight: 'bold', 
-                        marginBottom: '10px'
-                      }}>
-                        {period.name}
-                      </h3>
-                      <p style={{ fontSize: '0.9rem' }}>
-                        {period.timeframe}
-                      </p>
-                      <Link
-                        href={`/thoi-ky/${period.slug}`}
-                        style={{
-                          display: 'block',
-                          marginTop: '15px',
-                          color: '#fff',
-                          textDecoration: 'underline'
-                        }}
-                      >
-                        Xem thêm &gt;
-                      </Link>
-                    </div>
+                {/* Events container */}
+                <div style={{ 
+                  display: 'flex', 
+                  flex: 1,
+                  position: 'relative',
+                  paddingTop: '50px',
+                  paddingBottom: '50px'
+                }}>
+                  {/* Các events dàn ngang theo mẫu mới */}
+                  {periods.slice(0, 1).map((period) => {
+                    const periodEvents = events
+                      .filter(event => event.periodId === period.id)
+                      .slice(0, 6);
                     
-                    {/* Danh sách sự kiện ngang */}
-                    <div className="horizontal-events">
-                      {periodEvents.slice(0, 6).map((event, eventIndex) => (
-                        <motion.div
-                          key={event.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ 
-                            duration: 0.5,
-                            delay: eventIndex * 0.1 
-                          }}
-                          className="horizontal-event-card"
-                        >
-                          {/* Hiển thị năm ở góc trên */}
-                          <div className="year-marker">
-                            {event.year}
-                          </div>
-                          
-                          {/* Dấu chấm kết nối với timeline */}
-                          <div className="horizontal-event-dot"></div>
-                          
-                          {/* Nội dung sự kiện */}
-                          <div className="horizontal-event-content">
-                            <Link
-                              href={`/su-kien/${event.id}/${slugify(event.title)}`}
-                              className="hover:underline"
+                    return (
+                      <div key={period.id} className="flex flex-wrap" style={{ gap: '20px' }}>
+                        {/* Row 1 - Events ở trên timeline */}
+                        <div style={{ 
+                          display: 'flex', 
+                          gap: '30px', 
+                          marginBottom: '80px'
+                        }}>
+                          {periodEvents.slice(0, 3).map((event, idx) => (
+                            <motion.div
+                              key={event.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.4, delay: idx * 0.1 }}
+                              style={{
+                                width: '280px',
+                                backgroundColor: 'white',
+                                borderRadius: '10px',
+                                overflow: 'hidden',
+                                boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+                                position: 'relative'
+                              }}
                             >
-                              <h4 className="horizontal-event-title">{event.title}</h4>
-                            </Link>
-                            
-                            <p className="horizontal-event-description">
-                              {event.description.length > 120 
-                                ? `${event.description.slice(0, 120)}...` 
-                                : event.description}
-                            </p>
-                            
-                            {event.imageUrl && (
-                              <img
-                                src={event.imageUrl}
-                                alt={event.title}
-                                loading="lazy"
-                                className="horizontal-event-image mt-2"
-                                onError={(e) => {
-                                  e.currentTarget.src = "/uploads/error-img.png";
-                                }}
-                              />
-                            )}
-                            
-                            <div className="mt-3">
-                              <Link
-                                href={`/su-kien/${event.id}/${slugify(event.title)}`}
-                              >
-                                <div className="horizontal-view-details">
-                                  <span>Xem chi tiết</span>
-                                  <ChevronRight className="h-4 w-4 transition-transform" />
+                              {/* Year marker */}
+                              <div style={{
+                                padding: '8px 15px',
+                                backgroundColor: '#C62828',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                fontSize: '1rem',
+                                zIndex: 3
+                              }}>
+                                {event.year}
+                              </div>
+                              
+                              {/* Connection to timeline */}
+                              <div style={{
+                                position: 'absolute',
+                                width: '2px',
+                                height: '40px',
+                                backgroundColor: '#C62828',
+                                bottom: '-40px',
+                                left: '50%',
+                                transform: 'translateX(-50%)'
+                              }}></div>
+                              
+                              {/* Dot on timeline */}
+                              <div style={{
+                                position: 'absolute',
+                                width: '12px',
+                                height: '12px',
+                                backgroundColor: 'white',
+                                border: '3px solid #C62828',
+                                borderRadius: '50%',
+                                bottom: '-46px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                zIndex: 5
+                              }}></div>
+                              
+                              <div style={{ padding: '20px', paddingTop: '40px' }}>
+                                <Link
+                                  href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                                >
+                                  <h4 style={{
+                                    fontSize: '1.3rem',
+                                    fontWeight: 'bold',
+                                    color: '#C62828',
+                                    marginBottom: '10px',
+                                    lineHeight: 1.3
+                                  }}>
+                                    {event.title}
+                                  </h4>
+                                </Link>
+                                
+                                <p style={{
+                                  fontSize: '0.95rem',
+                                  color: '#444',
+                                  lineHeight: 1.5,
+                                  marginBottom: '15px'
+                                }}>
+                                  {event.description.length > 120 
+                                    ? `${event.description.slice(0, 120)}...` 
+                                    : event.description}
+                                </p>
+                                
+                                {event.imageUrl && (
+                                  <img
+                                    src={event.imageUrl}
+                                    alt={event.title}
+                                    loading="lazy"
+                                    style={{
+                                      width: '100%',
+                                      height: '150px',
+                                      objectFit: 'cover',
+                                      borderRadius: '4px'
+                                    }}
+                                    onError={(e) => {
+                                      e.currentTarget.src = "/uploads/error-img.png";
+                                    }}
+                                  />
+                                )}
+                                
+                                <div style={{ marginTop: '15px' }}>
+                                  <Link
+                                    href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                                  >
+                                    <div style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      color: '#C62828',
+                                      fontSize: '0.9rem',
+                                      fontWeight: 'bold'
+                                    }}>
+                                      <span>Xem chi tiết</span>
+                                      <ChevronRight className="h-4 w-4 ml-1" />
+                                    </div>
+                                  </Link>
                                 </div>
-                              </Link>
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                        
+                        {/* Row 2 - Events ở dưới timeline */}
+                        <div style={{ 
+                          display: 'flex', 
+                          gap: '30px',
+                          marginTop: '20px'
+                        }}>
+                          {periodEvents.slice(3, 6).map((event, idx) => (
+                            <motion.div
+                              key={event.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.4, delay: idx * 0.1 + 0.3 }}
+                              style={{
+                                width: '280px',
+                                backgroundColor: 'white',
+                                borderRadius: '10px',
+                                overflow: 'hidden',
+                                boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+                                position: 'relative'
+                              }}
+                            >
+                              {/* Year marker */}
+                              <div style={{
+                                padding: '8px 15px',
+                                backgroundColor: '#C62828',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                fontSize: '1rem',
+                                zIndex: 3
+                              }}>
+                                {event.year}
+                              </div>
+                              
+                              {/* Connection to timeline */}
+                              <div style={{
+                                position: 'absolute',
+                                width: '2px',
+                                height: '40px',
+                                backgroundColor: '#C62828',
+                                top: '-40px',
+                                left: '50%',
+                                transform: 'translateX(-50%)'
+                              }}></div>
+                              
+                              {/* Dot on timeline */}
+                              <div style={{
+                                position: 'absolute',
+                                width: '12px',
+                                height: '12px',
+                                backgroundColor: 'white',
+                                border: '3px solid #C62828',
+                                borderRadius: '50%',
+                                top: '-46px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                zIndex: 5
+                              }}></div>
+                              
+                              <div style={{ padding: '20px', paddingTop: '40px' }}>
+                                <Link
+                                  href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                                >
+                                  <h4 style={{
+                                    fontSize: '1.3rem',
+                                    fontWeight: 'bold',
+                                    color: '#C62828',
+                                    marginBottom: '10px',
+                                    lineHeight: 1.3
+                                  }}>
+                                    {event.title}
+                                  </h4>
+                                </Link>
+                                
+                                <p style={{
+                                  fontSize: '0.95rem',
+                                  color: '#444',
+                                  lineHeight: 1.5,
+                                  marginBottom: '15px'
+                                }}>
+                                  {event.description.length > 120 
+                                    ? `${event.description.slice(0, 120)}...` 
+                                    : event.description}
+                                </p>
+                                
+                                {event.imageUrl && (
+                                  <img
+                                    src={event.imageUrl}
+                                    alt={event.title}
+                                    loading="lazy"
+                                    style={{
+                                      width: '100%',
+                                      height: '150px',
+                                      objectFit: 'cover',
+                                      borderRadius: '4px'
+                                    }}
+                                    onError={(e) => {
+                                      e.currentTarget.src = "/uploads/error-img.png";
+                                    }}
+                                  />
+                                )}
+                                
+                                <div style={{ marginTop: '15px' }}>
+                                  <Link
+                                    href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                                  >
+                                    <div style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      color: '#C62828',
+                                      fontSize: '0.9rem',
+                                      fontWeight: 'bold'
+                                    }}>
+                                      <span>Xem chi tiết</span>
+                                      <ChevronRight className="h-4 w-4 ml-1" />
+                                    </div>
+                                  </Link>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         )}
