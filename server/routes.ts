@@ -2985,6 +2985,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/upload/figures`,
     uploadFigureImage.single("file"),
+    optimizeUploadedImage,
     (req, res) => {
       try {
         if (!req.file) {
@@ -3016,6 +3017,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/upload/sites`,
     uploadSiteImage.single("file"),
+    optimizeUploadedImage,
     (req, res) => {
       try {
         if (!req.file) {

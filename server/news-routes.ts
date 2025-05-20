@@ -3,6 +3,7 @@ import { requireAuth, requireNewsPermission } from "./middlewares";
 import { newsController } from "./news-methods";
 import { stringify } from "querystring";
 import { updateSitemapIfEnabled } from "./sitemap-helper";
+import { optimizeUploadedImage } from "./middlewares/image-optimizer-middleware";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
