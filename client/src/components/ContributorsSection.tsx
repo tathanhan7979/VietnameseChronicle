@@ -113,11 +113,11 @@ export default function ContributorsSection() {
 
         <div className="relative">
           <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex py-8">
+            <div className="flex py-12 px-2">
               {contributors.map((contributor, index) => (
                 <div 
                   key={contributor.id} 
-                  className="flex-grow-0 flex-shrink-0 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-4"
+                  className="flex-grow-0 flex-shrink-0 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-6"
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
@@ -126,14 +126,14 @@ export default function ContributorsSection() {
                     viewport={{ once: true }}
                     className={`group text-center transition-all duration-300 ${selectedIndex === index ? 'scale-110 z-10' : 'scale-90 opacity-70'}`}
                   >
-                    <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 flex flex-col items-center p-4">
-                      <div className="mb-4 relative">
-                        <div className={`rounded-full overflow-hidden border-4 ${selectedIndex === index ? 'border-primary' : 'border-gray-200'} transition-all duration-300`}>
+                    <div className={`bg-white rounded-xl shadow-lg overflow-hidden border ${selectedIndex === index ? 'border-primary/30' : 'border-gray-100'} flex flex-col items-center p-6 transition-all duration-300 ${selectedIndex === index ? 'pb-8' : 'pb-6'}`}>
+                      <div className="mb-5 relative group">
+                        <div className={`rounded-full overflow-hidden border-4 ${selectedIndex === index ? 'border-primary' : 'border-gray-200'} transition-all duration-300 group-hover:border-primary`}>
                           {contributor.avatarUrl ? (
                             <img
                               src={contributor.avatarUrl}
                               alt={contributor.name}
-                              className="w-32 h-32 object-cover"
+                              className={`w-32 h-32 object-cover transition-transform duration-700 ${selectedIndex === index ? 'scale-105' : ''} group-hover:scale-105`}
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
                                 target.src = "/uploads/error-img.png";
@@ -142,26 +142,33 @@ export default function ContributorsSection() {
                           ) : (
                             <div className="w-32 h-32 flex items-center justify-center bg-primary/10">
                               <span className="text-5xl font-bold text-primary/50">
-                                {contributor.name.charAt(0)}
+                                {contributor.name.charAt(0).toUpperCase()}
                               </span>
                             </div>
                           )}
                         </div>
+                        <div className={`absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-white rounded-full p-1 border-2 border-primary opacity-0 ${selectedIndex === index ? 'opacity-100' : ''} transition-opacity duration-300`}>
+                          <div className="bg-primary text-white rounded-full w-6 h-6 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        </div>
                       </div>
                       
-                      <h3 className="font-bold text-xl mb-1">{contributor.name}</h3>
+                      <h3 className="font-bold text-xl mb-1 text-gray-800">{contributor.name}</h3>
                       
                       <div className="bg-primary/5 rounded-full px-3 py-1 text-sm text-primary font-medium mb-3">
                         {contributor.role || "Thành viên"}
                       </div>
                       
-                      <p className="text-gray-700 text-sm line-clamp-3 mb-4">
+                      <p className="text-gray-600 text-sm line-clamp-3 mb-5 leading-relaxed text-center">
                         {contributor.description || "Người đóng góp cho dự án phát triển lịch sử Việt Nam"}
                       </p>
                       
                       <a 
                         href={contributor.contactInfo || "#"} 
-                        className="inline-flex items-center text-sm font-medium text-white bg-primary rounded-full px-4 py-2 hover:bg-primary/90 transition-colors"
+                        className={`inline-flex items-center text-sm font-medium text-white rounded-full px-4 py-2 hover:shadow-md transition-all ${selectedIndex === index ? 'bg-primary' : 'bg-primary/80'}`}
                       >
                         Liên hệ
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -178,7 +185,8 @@ export default function ContributorsSection() {
           {/* Nút điều hướng */}
           <button 
             onClick={scrollPrev}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-primary rounded-full w-10 h-10 flex items-center justify-center shadow-md z-20"
+            className="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-primary rounded-full w-12 h-12 flex items-center justify-center shadow-md z-20 hover:scale-110 transition-transform duration-300"
+            aria-label="Xem người đóng góp trước"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -186,7 +194,8 @@ export default function ContributorsSection() {
           </button>
           <button 
             onClick={scrollNext}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-primary rounded-full w-10 h-10 flex items-center justify-center shadow-md z-20"
+            className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-primary rounded-full w-12 h-12 flex items-center justify-center shadow-md z-20 hover:scale-110 transition-transform duration-300"
+            aria-label="Xem người đóng góp tiếp theo"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -194,16 +203,18 @@ export default function ContributorsSection() {
           </button>
         </div>
 
-        {/* Chỉ số dụng */}
-        <div className="flex justify-center mt-6 space-x-2">
+        {/* Chỉ số hiển thị */}
+        <div className="flex justify-center mt-8 space-x-3">
           {contributors.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full transition-all ${
-                index === selectedIndex ? 'bg-primary w-6' : 'bg-gray-300'
+              className={`transition-all duration-300 ${
+                index === selectedIndex 
+                  ? 'bg-primary w-8 h-3 rounded-full' 
+                  : 'bg-gray-300 w-3 h-3 rounded-full hover:bg-gray-400'
               }`}
               onClick={() => emblaApi?.scrollTo(index)}
-              aria-label={`Go to slide ${index + 1}`}
+              aria-label={`Xem người đóng góp ${index + 1}`}
             />
           ))}
         </div>
