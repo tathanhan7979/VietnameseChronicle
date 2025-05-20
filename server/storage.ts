@@ -1611,7 +1611,9 @@ export const storage = {
     }
   },
   
-  // Tiếp tục với các hàm khác (không phải Contributors)
+  // Các hàm liên quan đến Contributors đã được định nghĩa ở đầu file nên không cần nữa
+  
+  // Lưu ý: Đã xóa các khai báo trùng lặp ở đây để tránh cảnh báo "duplicate-object-key"
   
   // Lấy tất cả tin tức (có thể lọc theo trạng thái)
   getAllNews: async (filters: { published?: boolean } = {}): Promise<News[]> => {
