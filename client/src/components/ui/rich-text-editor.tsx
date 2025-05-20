@@ -3,6 +3,9 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { advancedQuillModules, advancedQuillFormats, quillCustomStyles } from '@/lib/quill-config';
 
+// Make sure we don't try to initialize modules on the server side
+const isClient = typeof window !== 'undefined';
+
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -28,6 +31,15 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   style = {},
 }) => {
   const [editorValue, setEditorValue] = useState(value || '');
+  // Use safe client-side modules to avoid SSR issues
+  const [modules, setModules] = useState({});
+  
+  // Initialize modules on client-side only
+  useEffect(() => {
+    if (isClient) {
+      setModules(advancedQuillModules);
+    }
+  }, []);
 
   // Đồng bộ giá trị từ props
   useEffect(() => {
@@ -74,7 +86,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           theme="snow"
           value={editorValue}
           onChange={handleChange}
-          modules={advancedQuillModules}
+          modules={modules}
           formats={advancedQuillFormats}
           placeholder={placeholder}
           style={editorStyle}

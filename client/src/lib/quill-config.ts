@@ -2,7 +2,7 @@
  * Cấu hình nâng cao cho trình soạn thảo ReactQuill
  */
 
-// Cấu hình các thanh công cụ nâng cao cho ReactQuill với hỗ trợ resize ảnh
+// Cấu hình các thanh công cụ nâng cao cho ReactQuill
 export const advancedQuillModules = {
   toolbar: [
     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -20,20 +20,6 @@ export const advancedQuillModules = {
   ],
   clipboard: {
     matchVisual: false
-  },
-  imageResize: {
-    // Using modern handlers and observers instead of deprecated DOM mutation events
-    parchment: {
-      image: {
-        attribute: ['width', 'height'],
-      },
-    },
-    modules: ['Resize', 'DisplaySize'],
-    overlayStyles: {
-      hatches: {
-        color: 'rgba(0, 0, 0, 0.6)',
-      },
-    },
   }
 };
 
