@@ -3,6 +3,18 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { advancedQuillModules, advancedQuillFormats, quillCustomStyles } from '@/lib/quill-config';
 
+// Import image resize module and register it properly
+import ImageResize from 'quill-image-resize-module-react';
+
+// Check if we're in browser environment before registering the module
+if (typeof window !== 'undefined') {
+  // Use dynamic import for Quill to avoid SSR issues
+  const Quill = ReactQuill.Quill;
+  if (Quill) {
+    Quill.register('modules/imageResize', ImageResize);
+  }
+}
+
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
