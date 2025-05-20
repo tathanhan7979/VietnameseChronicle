@@ -29,201 +29,178 @@ export default function HorizontalTimelineSection({
     }
   }, [activePeriodSlug]);
   
-  // Handle period click
-  const handlePeriodClick = (slug: string, event: React.MouseEvent) => {
-    event.preventDefault();
-    setActiveSection(slug);
-
-    // Notify parent component
-    if (onPeriodSelect) {
-      onPeriodSelect(slug);
-    }
-
-    // Scroll to element
-    const element = document.getElementById(`period-h-${slug}`);
-    if (element) {
-      const offset = 100; // Header height + some padding
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-    }
-  };
-
+  // Lọc sự kiện theo thời kỳ đang chọn
+  const activePeriod = periods.find(p => p.slug === activeSection) || periods[0];
+  const activePeriodEvents = events.filter(event => event.periodId === activePeriod?.id);
+  
   // Loading state
   if (periods.length === 0 || events.length === 0) {
     return (
-      <section id="timeline" className="timeline-container py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="font-['Playfair_Display'] font-bold text-3xl md:text-4xl text-[#C62828] mb-16">
-            Đang tải dữ liệu lịch sử...
-          </h2>
-          <div className="flex justify-center">
-            <div className="w-20 h-20 border-4 border-[#C62828] border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        </div>
-      </section>
+      <div className="text-center py-10">
+        <div className="w-12 h-12 border-4 border-[#0095ff] border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p className="mt-4 text-gray-600">Đang tải dữ liệu...</p>
+      </div>
     );
   }
 
   return (
-    <div className="horizontal-timeline mt-8">
-      {/* Timeline Top Bar - các thời kỳ */}
-      <div className="timeline-years">
+    <div className="horizontal-timeline-container mt-8">
+      {/* Timeline thời kỳ */}
+      <div className="period-selector mb-4 flex flex-wrap gap-2 justify-center">
         {periods.map((period, index) => (
-          <div 
+          <button
             key={period.id}
-            className={`timeline-year ${activeSection === period.slug ? 'active' : ''}`}
-            onClick={(e) => {
-              handlePeriodClick(period.slug, e);
+            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+              activeSection === period.slug
+                ? "bg-[#0095ff] text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+            onClick={() => {
+              setActiveSection(period.slug);
+              if (onPeriodSelect) {
+                onPeriodSelect(period.slug);
+              }
             }}
           >
-            <div className="timeline-year-circle">{index + 1}</div>
-            <div className="timeline-year-text">
-              {period.name}
-              <span className="timeline-year-timeframe">{period.timeframe}</span>
-            </div>
-          </div>
+            {period.name}
+          </button>
         ))}
       </div>
       
-      {/* Timeline Events Container - hiển thị sự kiện của thời kỳ đang chọn */}
-      {periods.map((period) => {
-        const periodEvents = events.filter(event => event.periodId === period.id);
-        const isActive = period.slug === activeSection;
+      {/* Timeline hiển thị các sự kiện xen kẽ trên/dưới */}
+      <div className="alternating-timeline relative py-10 overflow-x-auto">
+        {/* Đường timeline chính chạy ngang */}
+        <div className="timeline-main-line absolute h-1 bg-[#0095ff] left-0 right-0 top-1/2 transform -translate-y-1/2"></div>
         
-        return (
-          <div 
-            key={period.id} 
-            id={`period-h-${period.slug}`}
-            className={`timeline-events-container ${isActive ? 'active' : ''}`}
-          >
-            <div className="timeline-events-header">
-              <h2 className="timeline-events-title">
-                <Link href={`/thoi-ky/${period.slug}`} className="hover:underline">
-                  {period.name}
-                </Link>
-              </h2>
-              <p className="timeline-events-subtitle">{period.timeframe} • {periodEvents.length} sự kiện</p>
-            </div>
-            
-            {period.description && (
-              <div className="mb-6 text-gray-700 timeline-period-description">
-                {period.description.length > 200 
-                  ? `${period.description.substring(0, 200)}...` 
-                  : period.description}
-              </div>
-            )}
-            
-            {periodEvents.length > 0 ? (
-              <>
-                <div className="timeline-events-list">
-                  {periodEvents.slice(0, 6).map((event) => (
-                    <div key={event.id} className="timeline-event-card">
-                      {event.imageUrl && (
-                        <div className="timeline-event-image">
-                          <img 
-                            src={event.imageUrl} 
-                            alt={event.title}
-                            onError={(e) => {
-                              e.currentTarget.src = "/uploads/error-img.png";
-                            }}
-                          />
-                        </div>
-                      )}
-                      
-                      <div className="timeline-event-content">
-                        <div className="timeline-event-year">{event.year}</div>
-                        
-                        <h3 className="timeline-event-title">
-                          <Link href={`/su-kien/${event.id}/${slugify(event.title)}`}>
-                            {event.title}
-                          </Link>
-                        </h3>
-                        
-                        <p className="timeline-event-description">
-                          {event.description}
-                        </p>
-                        
-                        {event.eventTypes && event.eventTypes.length > 0 && (
-                          <div className="timeline-event-tags">
-                            {event.eventTypes.map((type) => (
-                              <span
-                                key={type.id}
-                                className="timeline-event-tag"
-                                style={{
-                                  backgroundColor: type.color ? `${type.color}20` : '#f2f2f2',
-                                  color: type.color || '#666',
-                                }}
-                              >
-                                {type.name}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        
-                        <Link 
-                          href={`/su-kien/${event.id}/${slugify(event.title)}`}
-                          className="timeline-event-link"
-                        >
-                          Xem chi tiết
-                          <ChevronRight size={16} />
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+        <div className="timeline-events-wrapper flex flex-col relative min-w-max">
+          {activePeriodEvents.length > 0 ? (
+            <div className="timeline-events-row relative" style={{ minWidth: `${Math.max(activePeriodEvents.length * 300, 800)}px` }}>
+              {activePeriodEvents.map((event, index) => {
+                const isTop = index % 2 === 0;
+                const eventPosition = `${(index / (activePeriodEvents.length - 1 || 1)) * 100}%`;
                 
-                {periodEvents.length > 6 && (
-                  <Link href={`/thoi-ky/${period.slug}`} className="timeline-see-more">
-                    Xem tất cả {periodEvents.length} sự kiện
-                  </Link>
-                )}
-              </>
-            ) : (
-              <div className="text-center text-gray-500 py-8">
-                Không có sự kiện nào trong thời kỳ này
-              </div>
-            )}
-          </div>
-        );
-      })}
+                return (
+                  <div 
+                    key={event.id}
+                    className={`timeline-alt-event absolute ${isTop ? 'top-event' : 'bottom-event'}`}
+                    style={{
+                      left: activePeriodEvents.length > 1 ? eventPosition : '50%',
+                      transform: 'translateX(-50%)'
+                    }}
+                  >
+                    {/* Card sự kiện */}
+                    <div className={`timeline-alt-card ${isTop ? 'mb-10' : 'mt-10'} bg-white p-4 rounded-lg shadow-md w-64`}>
+                      <h3 className="text-lg font-bold mb-2 text-[#333]">
+                        <Link href={`/su-kien/${event.id}/${slugify(event.title)}`} className="hover:text-[#0095ff]">
+                          {event.title}
+                        </Link>
+                      </h3>
+                      
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-4">
+                        {event.description}
+                      </p>
+                      
+                      <Link
+                        href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                        className="text-[#0095ff] text-sm font-medium flex items-center hover:underline"
+                      >
+                        <span>Xem chi tiết</span>
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Link>
+                    </div>
+                    
+                    {/* Năm giữa timeline */}
+                    <div className="year-bubble absolute bg-[#0095ff] text-white text-xs font-bold px-3 py-1 rounded-full z-10"
+                      style={{
+                        left: '50%',
+                        top: isTop ? '100%' : '0',
+                        transform: `translate(-50%, ${isTop ? '25%' : '-125%'})`
+                      }}
+                    >
+                      {event.year}
+                    </div>
+                    
+                    {/* Đường kết nối */}
+                    <div className="connector-line absolute w-1 bg-[#0095ff]"
+                      style={{
+                        left: '50%',
+                        top: isTop ? '100%' : '0',
+                        height: '30px',
+                        transform: 'translateX(-50%)',
+                        [isTop ? 'bottom' : 'top']: 'auto'
+                      }}
+                    ></div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center text-gray-500 py-10">
+              Không có sự kiện nào trong thời kỳ này
+            </div>
+          )}
+        </div>
+      </div>
       
-      {/* Timeline Navigation - nút điều hướng */}
-      <div className="timeline-nav">
+      {/* Hiển thị thông tin thời kỳ được chọn */}
+      {activePeriod && (
+        <div className="period-info mt-6 bg-gray-50 p-4 rounded-lg">
+          <h2 className="text-xl font-bold text-[#0095ff] mb-2">
+            <Link href={`/thoi-ky/${activePeriod.slug}`} className="hover:underline">
+              {activePeriod.name} <span className="text-gray-500 font-normal">({activePeriod.timeframe})</span>
+            </Link>
+          </h2>
+          
+          {activePeriod.description && (
+            <p className="text-gray-700 text-sm mb-2">
+              {activePeriod.description.length > 200 
+                ? `${activePeriod.description.substring(0, 200)}...` 
+                : activePeriod.description}
+            </p>
+          )}
+          
+          <Link href={`/thoi-ky/${activePeriod.slug}`} className="text-[#0095ff] text-sm font-medium inline-flex items-center hover:underline">
+            Xem tất cả {activePeriodEvents.length} sự kiện 
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Link>
+        </div>
+      )}
+      
+      {/* Nút điều hướng */}
+      <div className="timeline-navigation flex justify-between mt-4">
         <button 
-          className="timeline-nav-button"
-          onClick={(e) => {
+          className="nav-button px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          onClick={() => {
             const currentIndex = periods.findIndex(p => p.slug === activeSection);
             if (currentIndex > 0) {
-              handlePeriodClick(periods[currentIndex - 1].slug, e);
+              const prevPeriod = periods[currentIndex - 1];
+              setActiveSection(prevPeriod.slug);
+              if (onPeriodSelect) {
+                onPeriodSelect(prevPeriod.slug);
+              }
             }
           }}
           disabled={periods.findIndex(p => p.slug === activeSection) === 0}
         >
-          ← Trước
+          ← Thời kỳ trước
         </button>
         
         <button 
-          className="timeline-nav-button"
-          onClick={(e) => {
+          className="nav-button px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          onClick={() => {
             const currentIndex = periods.findIndex(p => p.slug === activeSection);
             if (currentIndex < periods.length - 1) {
-              handlePeriodClick(periods[currentIndex + 1].slug, e);
+              const nextPeriod = periods[currentIndex + 1];
+              setActiveSection(nextPeriod.slug);
+              if (onPeriodSelect) {
+                onPeriodSelect(nextPeriod.slug);
+              }
             }
           }}
           disabled={periods.findIndex(p => p.slug === activeSection) === periods.length - 1}
         >
-          Sau →
+          Thời kỳ sau →
         </button>
-      </div>
-      
-      {/* Timeline Instructions */}
-      <div className="timeline-instructions">
-        Nhấp vào các thời kỳ trên timeline để xem thông tin chi tiết. Sử dụng các nút điều hướng để di chuyển giữa các thời kỳ.
       </div>
     </div>
   );
