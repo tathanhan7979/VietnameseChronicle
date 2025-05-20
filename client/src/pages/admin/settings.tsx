@@ -198,6 +198,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
   // Xác định các mục cần dùng trình soạn thảo phong phú
   const shouldUseRichText = setting.inputType === 'richtext' 
     || setting.key === 'popup_content'
+    || setting.key === 'popup_notification'
     || setting.key === 'privacy_policy'
     || setting.key === 'terms_of_service';
 
