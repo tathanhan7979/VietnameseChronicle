@@ -30,6 +30,7 @@ import NewsAdmin from "@/pages/admin/news";
 import ContributorsAdmin from "@/pages/admin/contributors-simple";
 import NewsListPage from "@/pages/news-list";
 import NewsDetailPage from "@/pages/news-detail";
+import ImageOptimizer from "@/pages/admin/image-optimizer";
 import { useState, useEffect } from "react";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
@@ -109,6 +110,11 @@ function Router() {
       {/* Quản lý người đóng góp - chỉ dành cho admin */}
       <ProtectedRoute path="/admin/contributors" 
         component={ContributorsAdmin} 
+        adminOnly={true} />
+        
+      {/* Công cụ tối ưu hóa ảnh - chỉ dành cho admin */}
+      <ProtectedRoute path="/admin/image-optimizer" 
+        component={ImageOptimizer} 
         adminOnly={true} />
       
       {/* Catch all route for 404 */}

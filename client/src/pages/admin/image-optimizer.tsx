@@ -140,7 +140,7 @@ const ImageOptimizer = () => {
   };
 
   return (
-    <AdminLayout>
+    <AdminLayout title="Tối ưu hóa hình ảnh">
       <Helmet>
         <title>Tối ưu hóa hình ảnh - Quản trị</title>
       </Helmet>

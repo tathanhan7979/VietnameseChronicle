@@ -14,7 +14,8 @@ import {
   User,
   Users,
   X,
-  Newspaper
+  Newspaper,
+  Image
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -42,6 +43,13 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       icon: <LayoutDashboard size={20} />,
       // Tất cả người dùng đều có thể truy cập trang tổng quan
       accessControl: () => true
+    },
+    { 
+      path: '/admin/image-optimizer', 
+      label: 'Tối ưu hóa ảnh', 
+      icon: <Image size={20} />,
+      // Chỉ admin mới có thể sử dụng công cụ tối ưu hóa ảnh
+      accessControl: () => user?.isAdmin
     },
     { 
       path: '/admin/periods', 
