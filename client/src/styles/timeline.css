@@ -82,232 +82,231 @@ body {
 }
 
 /* Thiết kế timeline ngang mới theo mẫu */
-.horizontal-timeline-wrapper {
-  position: relative;
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 40px 0;
-  margin: 0 auto;
-  background-color: rgba(218, 242, 238, 0.5);
-  border-radius: 16px;
+:root {
+  --white: #fff;
+  --black: #323135;
+  --crystal: #a8dadd;
+  --columbia-blue: #cee9e4;
+  --midnight-green: #01565b;
+  --yellow: #e5f33d;
+  --timeline-gradient: rgba(206, 233, 228, 1) 0%, rgba(206, 233, 228, 1) 50%,
+    rgba(206, 233, 228, 0) 100%;
 }
 
-/* Đường ngang giữa timeline */
-.horizontal-timeline-line {
+.horizontal-timeline-wrapper {
+  position: relative;
+  white-space: nowrap;
+  max-width: 1400px;
+  padding: 0 10px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 320px auto;
+  grid-gap: 20px;
+  background: var(--columbia-blue);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.horizontal-timeline-wrapper::before,
+.horizontal-timeline-wrapper::after {
+  content: "";
   position: absolute;
-  left: 0;
+  top: 0;
+  bottom: 30px;
+  width: 100px;
+  z-index: 2;
+}
+
+.horizontal-timeline-wrapper::after {
   right: 0;
-  top: 50%;
-  height: 6px;
-  background-color: rgba(32, 178, 104, 0.7);
-  z-index: 1;
+  background: linear-gradient(270deg, var(--timeline-gradient));
+}
+
+.horizontal-timeline-wrapper::before {
+  left: 340px;
+  background: linear-gradient(90deg, var(--timeline-gradient));
+}
+
+.timeline-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 40px;
+  color: var(--white);
+  background: var(--midnight-green);
+  white-space: normal;
+  border-radius: 10px;
+}
+
+.timeline-info img {
+  margin-bottom: 20px;
+}
+
+.timeline-info h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.timeline-info p {
+  margin-top: 10px;
+  color: var(--crystal);
+}
+
+.timeline-info a {
+  text-decoration: none;
+  margin-top: 15px;
+  display: inline-block;
+  color: var(--white);
 }
 
 .horizontal-timeline {
-  display: flex;
-  position: relative;
-  min-width: 100%;
-  z-index: 2;
-  padding: 80px 40px;
+  font-size: 0;
+  padding: 250px 0;
+  transition: all 1s;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  scrollbar-color: var(--yellow) var(--midnight-green);
 }
 
-/* Điểm đánh dấu trên timeline */
-.timeline-dot {
-  width: 14px;
-  height: 14px;
-  background-color: var(--color-primary);
-  border: 2px solid white;
-  border-radius: 50%;
+.horizontal-timeline::-webkit-scrollbar {
+  height: 12px;
+}
+
+.horizontal-timeline::-webkit-scrollbar-thumb,
+.horizontal-timeline::-webkit-scrollbar-track {
+  border-radius: 92px;
+}
+
+.horizontal-timeline::-webkit-scrollbar-thumb {
+  background: var(--midnight-green);
+}
+
+.horizontal-timeline::-webkit-scrollbar-track {
+  background: var(--yellow);
+}
+
+.horizontal-events {
+  position: relative;
+  display: inline-block;
+  list-style-type: none;
+  white-space: nowrap;
+}
+
+.horizontal-event-card {
+  position: relative;
+  display: inline-block;
+  list-style-type: none;
+  width: 160px;
+  height: 5px;
+  background: var(--white);
+  scroll-snap-align: start;
+  margin-right: 14px;
+}
+
+.horizontal-event-card:not(:last-child)::after {
+  content: "";
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-}
-
-/* Event cards container - ngang */
-.horizontal-events {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 40px;
-  position: relative;
-  margin: 0 40px;
-}
-
-/* Tùy chỉnh event cards theo mẫu mới */
-.horizontal-event-card {
-  flex: 0 0 auto;
-  width: 340px;
-  max-width: 100%;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  margin-bottom: 30px;
-  position: relative;
-}
-
-.horizontal-event-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-
-/* Hiển thị các event xen kẽ trên và dưới */
-.horizontal-event-card:nth-child(odd) {
-  margin-top: -200px;
-  margin-bottom: 200px;
-}
-
-.horizontal-event-card:nth-child(even) {
-  margin-top: 50px;
-}
-
-/* Style cho event dot và connector */
-.horizontal-event-dot {
-  position: absolute;
+  left: calc(100% + 1px);
+  bottom: 0;
   width: 16px;
   height: 16px;
+  transform: translateY(-50%);
   border-radius: 50%;
-  background-color: var(--color-primary);
-  border: 3px solid white;
-  z-index: 10;
-}
-
-/* Thêm connectors từ card đến timeline */
-.horizontal-event-card:nth-child(odd) .horizontal-event-dot {
-  left: 50%;
-  bottom: -8px;
-  transform: translateX(-50%);
-}
-
-.horizontal-event-card:nth-child(even) .horizontal-event-dot {
-  left: 50%;
-  top: -8px;
-  transform: translateX(-50%);
-}
-
-/* Thêm đường kết nối từ card đến timeline */
-.horizontal-event-card::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  width: 2px;
-  background-color: var(--color-primary);
-  transform: translateX(-50%);
+  background: var(--midnight-green);
   z-index: 1;
 }
 
-.horizontal-event-card:nth-child(odd)::after {
-  top: 100%;
-  height: 100px;
-}
-
-.horizontal-event-card:nth-child(even)::after {
-  bottom: 100%;
-  height: 50px;
-}
-
-/* Hiển thị năm */
-.year-marker {
-  position: absolute;
-  padding: 6px 12px;
-  background-color: var(--color-primary);
-  color: white;
-  font-weight: bold;
-  border-radius: 4px;
-  font-size: 1rem;
-  z-index: 3;
-  top: 0;
-  left: 0;
-}
-
-/* Content styling */
 .horizontal-event-content {
-  padding: 20px;
-  position: relative;
-  padding-top: 50px; /* Space for year marker */
+  position: absolute;
+  left: calc(100% + 7px);
+  width: 280px;
+  padding: 15px;
+  font-size: 1rem;
+  white-space: normal;
+  color: var(--black);
+  background: var(--white);
+  border-radius: 0 10px 10px 10px;
+}
+
+.horizontal-event-content::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.horizontal-event-card:nth-child(odd) .horizontal-event-content {
+  top: -16px;
+  transform: translateY(-100%);
+  border-radius: 10px 10px 10px 0;
+}
+
+.horizontal-event-card:nth-child(odd) .horizontal-event-content::before {
+  top: 100%;
+  border-width: 8px 8px 0 0;
+  border-color: var(--white) transparent transparent transparent;
+}
+
+.horizontal-event-card:nth-child(even) .horizontal-event-content {
+  top: calc(100% + 16px);
+}
+
+.horizontal-event-card:nth-child(even) .horizontal-event-content::before {
+  top: -8px;
+  border-width: 8px 0 0 8px;
+  border-color: transparent transparent transparent var(--white);
+}
+
+.horizontal-event-year {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: var(--midnight-green);
 }
 
 .horizontal-event-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: var(--color-primary);
-  margin-bottom: 12px;
-  line-height: 1.3;
+  margin-bottom: 8px;
+  color: var(--midnight-green);
 }
 
 .horizontal-event-description {
   font-size: 0.95rem;
-  color: #444;
+  color: #333;
   line-height: 1.5;
-  margin-bottom: 15px;
 }
 
 .horizontal-event-image {
   width: 100%;
-  height: 180px;
-  object-fit: cover;
+  height: auto;
+  margin-top: 10px;
+  border-radius: 5px;
 }
 
-/* Period markers on timeline */
-.horizontal-period-marker {
-  position: absolute;
-  bottom: 20px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 20px;
-  z-index: 5;
-}
+@media screen and (max-width: 800px) {
+  .horizontal-timeline-wrapper {
+    display: block;
+  }
 
-.horizontal-period-section {
-  position: relative;
-  min-width: 800px;
-  flex: 0 0 auto;
-}
+  .horizontal-timeline-wrapper::before,
+  .horizontal-timeline-wrapper::after {
+    width: 50px;
+  }
 
-.horizontal-period-circle {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: var(--color-primary);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 5;
-}
+  .horizontal-timeline-wrapper::before {
+    left: 0;
+  }
 
-.horizontal-period-title {
-  position: absolute;
-  bottom: -40px;
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 5px 15px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  text-align: center;
-  z-index: 2;
-  white-space: nowrap;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 120px;
-}
-
-.horizontal-period-title h3 {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  margin: 0;
+  .timeline-info {
+    display: none;
+  }
 }
 
 .horizontal-event-content {
