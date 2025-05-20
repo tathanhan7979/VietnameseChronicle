@@ -19,7 +19,9 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
     queryKey: ["/api/settings/home_background_url"],
     queryFn: async () => {
       try {
-        const response = await fetch("/api/settings/home_background_url");
+        // Thêm timestamp để tránh cache
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/settings/home_background_url?t=${timestamp}`);
         if (!response.ok) return null;
         return await response.json();
       } catch (error) {
@@ -27,12 +29,23 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
         return null;
       }
     },
+    refetchOnMount: true,
+    staleTime: 0, // Luôn refetch dữ liệu
+    cacheTime: 0, // Không lưu kết quả vào cache
   });
 
-  // Cập nhật URL ảnh nền khi có dữ liệu từ settings
+  // Cập nhật URL ảnh nền khi có dữ liệu từ settings và thêm timestamp
   useEffect(() => {
     if (homeBgSetting?.value) {
-      setBackgroundUrl(homeBgSetting.value);
+      const url = homeBgSetting.value;
+      // Thêm timestamp để tránh cache trình duyệt
+      const timestamp = new Date().getTime();
+      // Kiểm tra nếu là URL tương đối (không phải URL bên ngoài)
+      if (url.startsWith('/')) {
+        setBackgroundUrl(`${url}?t=${timestamp}`);
+      } else {
+        setBackgroundUrl(url);
+      }
     }
   }, [homeBgSetting]);
 
@@ -93,6 +106,7 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
               }}
               loading="eager"
               onError={(e) => {
+                console.error("Lỗi khi tải hình ảnh nền:", backgroundUrl);
                 e.currentTarget.src = "/uploads/error-img.png";
               }}
             />
