@@ -4,7 +4,7 @@ import { Link, useLocation } from "wouter";
 import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
-import { ChevronRight, Clock, History, CalendarDays, PanelTop, List } from "lucide-react";
+import { ChevronRight, Clock, History, CalendarDays, LayoutGrid, AlignJustify } from "lucide-react";
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -179,20 +179,22 @@ export default function TimelineSection({
           {/* Nút chuyển đổi chế độ xem */}
           <div className="flex justify-center mt-4">
             <div className="timeline-view-toggle">
-              <button
+              <button 
+                type="button"
                 onClick={toggleViewMode}
                 className={`toggle-btn ${viewMode === 'vertical' ? 'active' : ''}`}
                 title="Xem dọc"
               >
-                <List className="h-5 w-5" />
+                <AlignJustify className="h-5 w-5" />
                 <span>Dọc</span>
               </button>
               <button
+                type="button"
                 onClick={toggleViewMode}
                 className={`toggle-btn ${viewMode === 'horizontal' ? 'active' : ''}`}
                 title="Xem ngang"
               >
-                <PanelTop className="h-5 w-5" />
+                <LayoutGrid className="h-5 w-5" />
                 <span>Ngang</span>
               </button>
             </div>
