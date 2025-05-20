@@ -372,8 +372,9 @@ export default function TimelineSection({
               </ul>
             </div>
             
-            {/* Timeline ngang */}
+            {/* Timeline ngang với đường dọc ở giữa */}
             <div className="horizontal-timeline-wrapper">
+              {/* Đường dọc timeline */}
               <div className="horizontal-timeline-line"></div>
               
               <div className="horizontal-timeline">
@@ -404,7 +405,7 @@ export default function TimelineSection({
                         </div>
                       </div>
                       
-                      {/* Danh sách sự kiện */}
+                      {/* Danh sách sự kiện cuộn ngang */}
                       <div className="horizontal-events">
                         {periodEvents.map((event) => (
                           <motion.div
@@ -415,7 +416,7 @@ export default function TimelineSection({
                             transition={{ duration: 0.5 }}
                             className="horizontal-event-card"
                           >
-                            {/* Dấu chấm sự kiện */}
+                            {/* Dấu chấm sự kiện kết nối với đường dọc */}
                             <div className="horizontal-event-dot"></div>
                             
                             {/* Thẻ sự kiện */}
@@ -478,6 +479,14 @@ export default function TimelineSection({
                           </motion.div>
                         ))}
                       </div>
+                      
+                      {/* Thêm chỉ dẫn cuộn ngang */}
+                      {periodEvents.length > 2 && (
+                        <div className="scroll-hint">
+                          <span>Vuốt sang phải để xem thêm</span>
+                          <ChevronRight className="h-4 w-4" />
+                        </div>
+                      )}
                     </div>
                   );
                 })}
