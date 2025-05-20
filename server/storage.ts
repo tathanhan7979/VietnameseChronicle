@@ -1611,65 +1611,17 @@ export const storage = {
     }
   },
   
-  // Các hàm xử lý Người đóng góp (Contributors)
-  getAllContributors: async (): Promise<Contributor[]> => {
-    try {
-      return await db.select().from(contributors)
-        .orderBy(asc(contributors.sortOrder), asc(contributors.name));
-    } catch (error) {
-      handleDbError(error, "getAllContributors");
-      return [];
-    }
-  },
+  // Các hàm khác tiếp theo
   
-  getActiveContributors: async (): Promise<Contributor[]> => {
-    try {
-      return await db.select().from(contributors)
-        .where(eq(contributors.isActive, true))
-        .orderBy(asc(contributors.sortOrder), asc(contributors.name));
-    } catch (error) {
-      handleDbError(error, "getActiveContributors");
-      return [];
-    }
-  },
+  // Chú ý: Các hàm liên quan đến Contributors đã được định nghĩa ở phần đầu file
+  // và không nên định nghĩa lại ở đây để tránh trùng lặp
   
-  getContributor: async (id: number): Promise<Contributor | null> => {
-    try {
-      const result = await db.select().from(contributors)
-        .where(eq(contributors.id, id))
-        .limit(1);
-      return result[0] || null;
-    } catch (error) {
-      handleDbError(error, "getContributor");
-      return null;
-    }
-  },
+  // Bắt đầu các hàm mới từ đây
   
-  createContributor: async (data: InsertContributor): Promise<Contributor> => {
-    try {
-      const [newContributor] = await db.insert(contributors).values(data).returning();
-      return newContributor;
-    } catch (error) {
-      handleDbError(error, "createContributor");
-      throw error;
-    }
-  },
-  
-  updateContributor: async (id: number, data: Partial<InsertContributor>): Promise<Contributor | null> => {
-    try {
-      const [updatedContributor] = await db.update(contributors)
-        .set(data)
-        .where(eq(contributors.id, id))
-        .returning();
-      return updatedContributor || null;
-    } catch (error) {
-      handleDbError(error, "updateContributor");
-      throw error;
-    }
-  },
-  
-  updateContributorSortOrder: async (id: number, sortOrder: number): Promise<boolean> => {
-    try {
+  // Ví dụ: 
+  // yourNewMethod: async () => {
+  //   ...
+  // },
       await db.update(contributors)
         .set({ sortOrder })
         .where(eq(contributors.id, id));

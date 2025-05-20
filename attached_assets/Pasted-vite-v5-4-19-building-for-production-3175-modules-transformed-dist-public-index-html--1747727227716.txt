@@ -1,0 +1,88 @@
+vite v5.4.19 building for production...
+✓ 3175 modules transformed.
+../dist/public/index.html                     5.44 kB │ gzip:   1.95 kB
+../dist/public/assets/index-DMHns8oD.css    153.10 kB │ gzip:  23.90 kB
+../dist/public/assets/index-D8XQxyB_.js   1,245.50 kB │ gzip: 352.29 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 13.26s
+▲ [WARNING] Duplicate key "getAllContributors" in object literal [duplicate-object-key]
+
+    server/storage.ts:1615:2:
+      1615 │   getAllContributors: async (): Promise<Contributor[]> => {
+           ╵   ~~~~~~~~~~~~~~~~~~
+
+  The original key "getAllContributors" is here:
+
+    server/storage.ts:92:2:
+      92 │   getAllContributors: async (): Promise<Contributor[]> => {
+         ╵   ~~~~~~~~~~~~~~~~~~
+
+▲ [WARNING] Duplicate key "getActiveContributors" in object literal [duplicate-object-key]
+
+    server/storage.ts:1625:2:
+      1625 │   getActiveContributors: async (): Promise<Contributor[]> => {
+           ╵   ~~~~~~~~~~~~~~~~~~~~~
+
+  The original key "getActiveContributors" is here:
+
+    server/storage.ts:166:2:
+      166 │   getActiveContributors: async (): Promise<Contributor[]> => {
+          ╵   ~~~~~~~~~~~~~~~~~~~~~
+
+▲ [WARNING] Duplicate key "getContributor" in object literal [duplicate-object-key]
+
+    server/storage.ts:1636:2:
+      1636 │   getContributor: async (id: number): Promise<Contributor | null...
+           ╵   ~~~~~~~~~~~~~~
+
+  The original key "getContributor" is here:
+
+    server/storage.ts:101:2:
+      101 │   getContributor: async (id: number): Promise<Contributor | null>...
+          ╵   ~~~~~~~~~~~~~~
+
+▲ [WARNING] Duplicate key "createContributor" in object literal [duplicate-object-key]
+
+    server/storage.ts:1648:2:
+      1648 │   createContributor: async (data: InsertContributor): Promise<Co...
+           ╵   ~~~~~~~~~~~~~~~~~
+
+  The original key "createContributor" is here:
+
+    server/storage.ts:111:2:
+      111 │   createContributor: async (data: InsertContributor): Promise<Con...
+          ╵   ~~~~~~~~~~~~~~~~~
+
+▲ [WARNING] Duplicate key "updateContributor" in object literal [duplicate-object-key]
+
+    server/storage.ts:1658:2:
+      1658 │   updateContributor: async (id: number, data: Partial<InsertCont...
+           ╵   ~~~~~~~~~~~~~~~~~
+
+  The original key "updateContributor" is here:
+
+    server/storage.ts:121:2:
+      121 │   updateContributor: async (id: number, data: Partial<InsertContr...
+          ╵   ~~~~~~~~~~~~~~~~~
+
+▲ [WARNING] Duplicate key "updateContributorSortOrder" in object literal [duplicate-object-key]
+
+    server/storage.ts:1671:2:
+      1671 │   updateContributorSortOrder: async (id: number, sortOrder: numb...
+           ╵   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The original key "updateContributorSortOrder" is here:
+
+    server/storage.ts:152:2:
+      152 │   updateContributorSortOrder: async (id: number, sortOrder: numbe...
+          ╵   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+6 of 7 warnings shown (disable the message limit with --log-limit=0)
+
+  dist/index.js  200.7kb
+
+⚡ Done in 40ms
