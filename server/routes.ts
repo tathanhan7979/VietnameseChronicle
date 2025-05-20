@@ -24,6 +24,7 @@ import { randomUUID } from "crypto";
 import { optimizeUploadedImage, optimizeUploadedImages } from "./middlewares/image-optimizer-middleware";
 import { generateSitemap } from "./sitemap-generator";
 import { registerNewsRoutes } from "./news-routes";
+import { registerOptimizeRoutes } from "./optimize-api";
 import { 
   requireAuth, 
   requireAdmin, 
@@ -3426,6 +3427,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Đăng ký routes cho tính năng tin tức
   registerNewsRoutes(app);
+  
+  // Đăng ký routes cho tính năng tối ưu hóa ảnh
+  registerOptimizeRoutes(app);
   
   // Create HTTP server
   const httpServer = createServer(app);
