@@ -273,6 +273,47 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
       });
     }
   };
+  
+  // Hàm xử lý tối ưu hóa ảnh
+  const handleOptimizeImages = async () => {
+    try {
+      if (window.confirm('Quá trình tối ưu hóa ảnh có thể mất vài phút tùy thuộc vào số lượng ảnh. Bạn có muốn tiếp tục không?')) {
+        toast({
+          title: "Đang tối ưu hóa ảnh...",
+          description: "Quá trình này có thể mất vài phút. Vui lòng chờ.",
+        });
+        
+        const res = await apiRequest('POST', '/api/admin/optimize-images', {});
+        
+        let data;
+        try {
+          data = await res.json();
+        } catch (jsonError) {
+          console.error('Lỗi khi phân tích JSON:', jsonError);
+          throw new Error('Lỗi định dạng phản hồi');
+        }
+        
+        if (res.ok && data && data.success) {
+          const totalProcessed = data.summary?.totalProcessed || 0;
+          const totalSavedSpace = data.summary?.totalSavedSpace || '0 KB';
+          
+          toast({
+            title: "Tối ưu hóa ảnh thành công",
+            description: `Đã tối ưu ${totalProcessed} ảnh, tiết kiệm ${totalSavedSpace} dung lượng.`,
+          });
+        } else {
+          throw new Error(data?.message || 'Tối ưu hóa không thành công');
+        }
+      }
+    } catch (error) {
+      console.error('Lỗi khi tối ưu hóa ảnh:', error);
+      toast({
+        title: "Lỗi khi tối ưu hóa ảnh",
+        description: error instanceof Error ? error.message : "Không thể tối ưu hóa ảnh. Vui lòng thử lại sau.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Handle image file upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -488,6 +529,30 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                       </Button>
                     </div>
                   </div>
+                  
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                    <h4 className="text-sm font-medium mb-2">Tối ưu hóa hình ảnh</h4>
+                    <div className="flex space-x-2 items-center">
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-500">
+                          Tối ưu hóa tất cả hình ảnh đã tải lên để giảm dung lượng và tăng tốc độ tải trang
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          <span className="text-amber-600 dark:text-amber-400">Lưu ý:</span> Quá trình này có thể mất vài phút tùy thuộc vào số lượng ảnh
+                        </p>
+                      </div>
+                      <Button 
+                        type="button" 
+                        onClick={handleOptimizeImages}
+                        className="whitespace-nowrap"
+                        variant="outline"
+                        size="sm"
+                      >
+                        Tối ưu hóa ảnh
+                      </Button>
+                    </div>
+                  </div>
+                  
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
                     <h4 className="text-sm font-medium">Thông tin sitemap</h4>
                     <p className="text-xs text-gray-500 mt-1">
