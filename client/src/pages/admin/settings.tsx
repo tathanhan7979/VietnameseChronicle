@@ -41,13 +41,14 @@ export default function SettingsAdmin() {
   
   // Fetch all settings
   const { data: settings, isLoading, refetch } = useQuery<Setting[]>({
-    queryKey: ['/api/settings', new Date().getTime()], // Thêm timestamp để tránh cache
+    queryKey: ['/api/settings'], // Sử dụng queryKey cố định
     queryFn: async () => {
       const timestamp = new Date().getTime();
       const res = await fetch(`/api/settings?t=${timestamp}`);
       if (!res.ok) throw new Error('Failed to fetch settings');
       return res.json();
     },
+    staleTime: 0, // Dữ liệu luôn được coi là đã cũ
     refetchOnMount: true, // Luôn refetch khi component được tạo
     refetchOnWindowFocus: true, // Refetch khi cửa sổ được focus lại
   });
@@ -75,8 +76,6 @@ export default function SettingsAdmin() {
     onSuccess: () => {
       // Tắt cache và buộc tải lại dữ liệu mới
       queryClient.invalidateQueries({ queryKey: ['/api/settings'] });
-      // Buộc refetch dữ liệu mới
-      setTimeout(() => refetch(), 100); // Thêm timeout nhỏ để đảm bảo dữ liệu được cập nhật
       toast({
         title: 'Cập nhật thành công',
         description: 'Thiết lập đã được cập nhật.',
