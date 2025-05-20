@@ -194,7 +194,12 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const shouldUseRichText = setting.inputType === 'richtext' || setting.key === 'popup_content';
+  
+  // Xác định các mục cần dùng trình soạn thảo phong phú
+  const shouldUseRichText = setting.inputType === 'richtext' 
+    || setting.key === 'popup_content'
+    || setting.key === 'privacy_policy'
+    || setting.key === 'terms_of_service';
 
   const form = useForm<SettingFormValues>({
     resolver: zodResolver(settingSchema),

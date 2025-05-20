@@ -24,10 +24,21 @@ export async function apiRequest(
     const token = localStorage.getItem('authToken');
     const headers: Record<string, string> = {
       ...(data ? { "Content-Type": "application/json" } : {}),
-      ...(token ? { "Authorization": `Bearer ${token}` } : {})
+      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+      // Thêm no-cache headers cho mọi request
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0"
     };
+    
+    // Thêm timestamp để tránh cache cho GET request
+    let finalUrl = url;
+    if (method === 'GET') {
+      const separator = url.includes('?') ? '&' : '?';
+      finalUrl = `${url}${separator}_t=${new Date().getTime()}`;
+    }
 
-    const res = await fetch(url, {
+    const res = await fetch(finalUrl, {
       method,
       headers,
       body: data ? JSON.stringify(data) : undefined,
@@ -149,7 +160,14 @@ export const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 60,    // 60 phút
       retry: 1,
       retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
-
+      // Settings đặc biệt cho các API settings để tránh lặp vô hạn
+      refetchOnMount: query => {
+        // Chỉ refetch khi thực sự cần thiết (ví dụ: cho settings)
+        if (typeof query.queryKey[0] === 'string' && query.queryKey[0].includes('/api/settings')) {
+          return 'always';
+        }
+        return true;
+      }
     },
     mutations: {
       retry: 1,
