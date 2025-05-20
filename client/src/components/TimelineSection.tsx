@@ -372,122 +372,131 @@ export default function TimelineSection({
               </ul>
             </div>
             
-            {/* Timeline ngang với đường ngang ở giữa như trong hình mẫu */}
+            {/* Timeline ngang theo mẫu mới */}
             <div className="horizontal-timeline-wrapper">
               {/* Đường ngang giữa timeline */}
               <div className="horizontal-timeline-line"></div>
               
-              <div className="horizontal-timeline">
-                {periods.map((period, periodIndex) => {
-                  const periodEvents = events.filter(
-                    (event) => event.periodId === period.id
-                  );
-                  
-                  return (
-                    <div 
-                      className="horizontal-period-section" 
-                      id={`period-${period.slug}`}
-                      key={period.id}
-                    >
-                      {/* Điểm đánh dấu thời kỳ nằm trên đường ngang */}
-                      <div className="horizontal-period-marker">
-                        <div className="horizontal-period-circle">
-                          {periodIndex + 1}
-                        </div>
-                        <div className="horizontal-period-title">
-                          <Link
-                            href={`/thoi-ky/${period.slug}`}
-                            className="hover:underline hover:text-[hsl(var(--primary))]"
-                          >
-                            <h3>{period.name}</h3>
-                          </Link>
-                        </div>
-                      </div>
-                      
-                      {/* Danh sách sự kiện xen kẽ trên dưới */}
-                      <div className="horizontal-events">
-                        {periodEvents.slice(0, 6).map((event, eventIndex) => (
-                          <motion.div
-                            key={event.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ 
-                              duration: 0.5,
-                              delay: eventIndex * 0.1 
-                            }}
-                            className="horizontal-event-card"
-                          >
-                            {/* Dấu chấm sự kiện kết nối với đường ngang */}
-                            <div className="horizontal-event-dot"></div>
+              {/* Các điểm đánh dấu trên timeline */}
+              {periods.map((period, index) => (
+                <div 
+                  key={period.id}
+                  className="timeline-dot"
+                  style={{ left: `${10 + index * 20}%` }}
+                ></div>
+              ))}
+              
+              {periods.map((period, periodIndex) => {
+                const periodEvents = events.filter(
+                  (event) => event.periodId === period.id
+                );
+                
+                return (
+                  <div 
+                    className="horizontal-timeline" 
+                    id={`period-${period.slug}`}
+                    key={period.id}
+                  >
+                    {/* Company/Period title section */}
+                    <div className="company-history" style={{ 
+                      position: 'absolute', 
+                      left: '30px',
+                      top: '40px',
+                      backgroundColor: '#064e40',
+                      color: 'white',
+                      padding: '20px',
+                      borderRadius: '8px',
+                      maxWidth: '220px'
+                    }}>
+                      <h3 style={{ 
+                        fontSize: '1.5rem', 
+                        fontWeight: 'bold', 
+                        marginBottom: '10px'
+                      }}>
+                        {period.name}
+                      </h3>
+                      <p style={{ fontSize: '0.9rem' }}>
+                        {period.timeframe}
+                      </p>
+                      <Link
+                        href={`/thoi-ky/${period.slug}`}
+                        style={{
+                          display: 'block',
+                          marginTop: '15px',
+                          color: '#fff',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        Xem thêm &gt;
+                      </Link>
+                    </div>
+                    
+                    {/* Danh sách sự kiện ngang */}
+                    <div className="horizontal-events">
+                      {periodEvents.slice(0, 6).map((event, eventIndex) => (
+                        <motion.div
+                          key={event.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ 
+                            duration: 0.5,
+                            delay: eventIndex * 0.1 
+                          }}
+                          className="horizontal-event-card"
+                        >
+                          {/* Hiển thị năm ở góc trên */}
+                          <div className="year-marker">
+                            {event.year}
+                          </div>
+                          
+                          {/* Dấu chấm kết nối với timeline */}
+                          <div className="horizontal-event-dot"></div>
+                          
+                          {/* Nội dung sự kiện */}
+                          <div className="horizontal-event-content">
+                            <Link
+                              href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                              className="hover:underline"
+                            >
+                              <h4 className="horizontal-event-title">{event.title}</h4>
+                            </Link>
                             
-                            {/* Thẻ năm trên timeline */}
-                            <span className="year-marker">{event.year}</span>
+                            <p className="horizontal-event-description">
+                              {event.description.length > 120 
+                                ? `${event.description.slice(0, 120)}...` 
+                                : event.description}
+                            </p>
                             
-                            {/* Thẻ sự kiện */}
-                            <div className="horizontal-event-content">
-                              <span className="text-sm text-gray-500">{event.year}</span>
+                            {event.imageUrl && (
+                              <img
+                                src={event.imageUrl}
+                                alt={event.title}
+                                loading="lazy"
+                                className="horizontal-event-image mt-2"
+                                onError={(e) => {
+                                  e.currentTarget.src = "/uploads/error-img.png";
+                                }}
+                              />
+                            )}
+                            
+                            <div className="mt-3">
                               <Link
                                 href={`/su-kien/${event.id}/${slugify(event.title)}`}
                               >
-                                <h4 className="horizontal-event-title">{event.title}</h4>
+                                <div className="horizontal-view-details">
+                                  <span>Xem chi tiết</span>
+                                  <ChevronRight className="h-4 w-4 transition-transform" />
+                                </div>
                               </Link>
-                              
-                              <p className="horizontal-event-description">
-                                {event.description.length > 120 
-                                  ? `${event.description.slice(0, 120)}...` 
-                                  : event.description}
-                              </p>
-                                
-                              {event.imageUrl && (
-                                <picture className="horizontal-event-image-container">
-                                  <img
-                                    src={event.imageUrl}
-                                    alt={event.title}
-                                    loading="lazy"
-                                    decoding="async"
-                                    className="horizontal-event-image"
-                                    onError={(e) => {
-                                      e.currentTarget.src = "/uploads/error-img.png";
-                                    }}
-                                  />
-                                </picture>
-                              )}
-                                
-                              <div className="mt-3">
-                                {event.eventTypes && event.eventTypes.length > 0 && (
-                                  <div className="horizontal-event-tags mb-2">
-                                    {event.eventTypes.map((type) => (
-                                      <span
-                                        key={type.id}
-                                        className="horizontal-event-tag"
-                                        style={{
-                                          backgroundColor: type.color || "#C62828",
-                                        }}
-                                      >
-                                        {type.name}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                                
-                                <Link
-                                  href={`/su-kien/${event.id}/${slugify(event.title)}`}
-                                >
-                                  <div className="horizontal-view-details">
-                                    <span>Xem chi tiết</span>
-                                    <ChevronRight className="h-4 w-4 transition-transform" />
-                                  </div>
-                                </Link>
-                              </div>
                             </div>
-                          </motion.div>
-                        ))}
-                      </div>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
