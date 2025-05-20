@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { advancedQuillModules, advancedQuillFormats, quillCustomStyles } from '@/lib/quill-config';
-
-// Import image resize module and register it properly
-import ImageResize from 'quill-image-resize-module-react';
+import { setupQuillImageResize } from '@/lib/quill-image-resize';
 
 // Check if we're in browser environment before registering the module
 if (typeof window !== 'undefined') {
   // Use dynamic import for Quill to avoid SSR issues
   const Quill = ReactQuill.Quill;
   if (Quill) {
-    Quill.register('modules/imageResize', ImageResize);
+    // Use our custom image resize module that doesn't use deprecated DOM events
+    setupQuillImageResize(Quill);
   }
 }
 
