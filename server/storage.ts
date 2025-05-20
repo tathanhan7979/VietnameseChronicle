@@ -343,7 +343,7 @@ export const storage = {
           description: "Icon hiển thị trên thẻ trình duyệt (favicon)",
           displayName: "Icon trang web",
           category: "general",
-          inputType: "text",
+          inputType: "image",
           sortOrder: 0
         },
         {
