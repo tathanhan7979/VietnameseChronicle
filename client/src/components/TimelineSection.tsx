@@ -340,131 +340,160 @@ export default function TimelineSection({
             </div>
           </div>
         ) : (
-          // BỐ CỤC NGANG (HORIZONTAL) THEO THANH TRƯỢT
+          // BỐ CỤC NGANG (HORIZONTAL) THEO MẪU CODEPEN
           <div className="mt-8">
-            {/* Thanh điều hướng các thời kỳ */}
-            <div className="mb-2 overflow-x-auto">
-              <ul className="horizontal-period-nav flex space-x-2 min-w-max pb-3 px-4">
-                {periods.map((period, index) => (
-                  <li
-                    key={period.id}
-                    className={`
-                      inline-flex items-center px-4 py-2 rounded-lg transition-all 
-                      ${activeSection === period.slug 
-                        ? "bg-[hsl(var(--primary))] text-white font-semibold" 
-                        : "bg-gray-100 hover:bg-gray-200"
-                      }
-                    `}
-                  >
-                    <a
-                      href={`#period-h-${period.slug}`}
-                      onClick={(e) => handlePeriodClick(period.slug, e)}
-                      className="flex items-center gap-2"
-                    >
-                      <div className="period-marker-mini flex items-center justify-center w-6 h-6 bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] rounded-full font-bold text-sm">
-                        {index + 1}
-                      </div>
-                      <span>{period.name}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Timeline ngang đơn giản - sẽ có thể cuộn ngang để xem */}
-            <div className="simple-horizontal-timeline overflow-x-auto pb-2 pt-2">
-              {/* Vùng chứa thanh timeline */}
-              <div className="simple-timeline-track relative" style={{ minWidth: `${Math.max(periods.length * 250, 1000)}px`, height: '250px' }}>
-                {/* Đường timeline chính */}
-                <div className="h-2 bg-[#ccc] absolute left-0 right-0 top-1/2 transform -translate-y-1/2"></div>
-                
-                {/* Các điểm thời kỳ */}
-                {periods.map((period, periodIndex) => {
-                  const periodEvents = events.filter(event => event.periodId === period.id);
-                  const periodPosition = `${(periodIndex / (periods.length - 1)) * 100}%`;
-                  const isEven = periodIndex % 2 === 0;
-                  
-                  // Lấy sự kiện nổi bật nhất để hiển thị (nếu có)
-                  const featuredEvent = periodEvents.length > 0 ? periodEvents[0] : null;
-                  
-                  return (
-                    <div 
-                      key={period.id} 
-                      id={`period-h-${period.slug}`}
-                      className="simple-period-marker absolute group"
-                      style={{ 
-                        left: periodPosition,
-                        top: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        zIndex: 5
-                      }}
-                    >
-                      {/* Điểm thời kỳ trên timeline */}
-                      <div className="flex flex-col items-center">
-                        <Link 
-                          href={`/thoi-ky/${period.slug}`}
-                          className={`w-12 h-12 rounded-full bg-[hsl(var(--primary))] text-white font-bold flex items-center justify-center relative shadow-md border-2 border-white hover:scale-110 transition-transform`}
-                        >
-                          {periodIndex + 1}
-                        </Link>
+            <section className="cd-horizontal-timeline loaded">
+              <div className="timeline">
+                <div className="events-wrapper">
+                  <div className="events" style={{ width: `${Math.max(periods.length * 200, 1200)}px` }}>
+                    <ol>
+                      {periods.map((period, index) => {
+                        // Tính toán vị trí của mỗi điểm thời gian trên timeline
+                        const position = `${(index / (periods.length - 1)) * 100}%`;
+                        const isSelected = period.slug === activeSection;
+                        const isOlderEvent = index < periods.findIndex(p => p.slug === activeSection);
                         
-                        {/* Card thông tin */}
-                        <div className={`mt-4 py-2 ${isEven ? 'mt-4' : 'mb-4'}`}>
-                          <div 
-                            className={`simple-period-info bg-white px-3 py-2 rounded shadow-md border border-gray-200 text-center w-44`}
-                          >
-                            <Link 
-                              href={`/thoi-ky/${period.slug}`}
-                              className="font-bold text-[hsl(var(--primary))] text-sm hover:underline"
+                        return (
+                          <li key={period.id}>
+                            <a 
+                              href={`#0`}
+                              data-date={period.timeframe}
+                              style={{ left: position }}
+                              className={`${isSelected ? 'selected' : ''} ${isOlderEvent ? 'older-event' : ''}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handlePeriodClick(period.slug, e);
+                              }}
                             >
-                              {period.name}
-                            </Link>
-                            <div className="text-gray-600 text-xs">
-                              {period.timeframe}
-                            </div>
-                            
-                            {/* Hiển thị sự kiện tiêu biểu nếu có */}
-                            {featuredEvent && (
-                              <div className="event-preview mt-2 pt-2 border-t border-gray-100">
-                                <div className="text-xs bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] inline-block px-2 rounded-full mb-1">
-                                  {featuredEvent.year}
-                                </div>
-                                <Link 
-                                  href={`/su-kien/${featuredEvent.id}/${slugify(featuredEvent.title)}`}
-                                  className="text-xs font-medium line-clamp-2 hover:underline"
-                                >
-                                  {featuredEvent.title}
-                                </Link>
-                              </div>
-                            )}
-                            
-                            {/* Số lượng sự kiện khác */}
-                            {periodEvents.length > 1 && (
-                              <Link 
-                                href={`/thoi-ky/${period.slug}`}
-                                className="text-xs text-[hsl(var(--primary))] hover:underline mt-2 inline-block"
-                              >
-                                +{periodEvents.length - 1} sự kiện khác
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-                
-                {/* Chỉ dẫn thời gian */}
-                <div className="simple-timeline-hint absolute bottom-0 left-0 right-0 flex justify-between text-sm text-gray-500 px-4">
-                  <div>← Cổ đại</div>
-                  <div>Hiện đại →</div>
+                              <div className="event-circle">{index + 1}</div>
+                              <div className="event-name">{period.name}</div>
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                    
+                    {/* Filling line - đường màu đỏ sẽ fill dần theo tiến trình */}
+                    <span className="filling-line" aria-hidden="true" style={{
+                      transform: `scaleX(${periods.findIndex(p => p.slug === activeSection) / (periods.length - 1)})`
+                    }}></span>
+                  </div>
                 </div>
+                
+                {/* Nút điều hướng timeline */}
+                <ul className="cd-timeline-navigation">
+                  <a href="#0" className="prev events-navigation" onClick={(e) => {
+                    e.preventDefault();
+                    const currentIndex = periods.findIndex(p => p.slug === activeSection);
+                    if (currentIndex > 0) {
+                      handlePeriodClick(periods[currentIndex - 1].slug, e);
+                    }
+                  }}>
+                    Prev
+                  </a>
+                  <a href="#0" className="next events-navigation" onClick={(e) => {
+                    e.preventDefault();
+                    const currentIndex = periods.findIndex(p => p.slug === activeSection);
+                    if (currentIndex < periods.length - 1) {
+                      handlePeriodClick(periods[currentIndex + 1].slug, e);
+                    }
+                  }}>
+                    Next
+                  </a>
+                </ul>
               </div>
-            </div>
+              
+              {/* Nội dung sự kiện */}
+              <div className="events-content" style={{ height: 'auto' }}>
+                <ol>
+                  {periods.map((period, periodIndex) => {
+                    const periodEvents = events.filter(event => event.periodId === period.id);
+                    const isSelected = period.slug === activeSection;
+                    const isPrev = periodIndex < periods.findIndex(p => p.slug === activeSection);
+                    
+                    return (
+                      <li key={period.id} className={isSelected ? 'selected' : isPrev ? 'prev' : ''} style={{ opacity: isSelected ? 1 : 0, transform: isSelected ? 'translateX(0)' : isPrev ? 'translateX(-100%)' : 'translateX(100%)' }}>
+                        <div className="event-content">
+                          <h3 className="text-2xl font-bold mb-4 text-[hsl(var(--primary))]">
+                            <Link href={`/thoi-ky/${period.slug}`} className="hover:underline">
+                              {period.name} <span className="text-gray-500">({period.timeframe})</span>
+                            </Link>
+                          </h3>
+                          
+                          <div className="event-date text-sm text-gray-500 mb-4">
+                            {periodEvents.length} sự kiện trong thời kỳ này
+                          </div>
+                          
+                          {period.description && (
+                            <div className="event-description mb-6 text-gray-700">
+                              {period.description}
+                            </div>
+                          )}
+                          
+                          {/* Danh sách các sự kiện nổi bật */}
+                          {periodEvents.length > 0 && (
+                            <div className="featured-events">
+                              <h4 className="text-xl font-semibold mb-4 text-[hsl(var(--secondary))]">Các sự kiện tiêu biểu</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {periodEvents.slice(0, 6).map(event => (
+                                  <div key={event.id} className="bg-gray-50 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="bg-[hsl(var(--secondary))] text-white text-xs font-semibold px-2 py-1 rounded inline-block mb-2">
+                                      {event.year}
+                                    </div>
+                                    <Link href={`/su-kien/${event.id}/${slugify(event.title)}`}>
+                                      <h5 className="font-bold text-[hsl(var(--primary))] hover:underline mb-2 line-clamp-2">
+                                        {event.title}
+                                      </h5>
+                                    </Link>
+                                    {event.imageUrl && (
+                                      <div className="mb-2 h-32 overflow-hidden rounded">
+                                        <img 
+                                          src={event.imageUrl} 
+                                          alt={event.title}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            e.currentTarget.src = "/uploads/error-img.png";
+                                          }}
+                                        />
+                                      </div>
+                                    )}
+                                    <p className="text-sm text-gray-600 line-clamp-3 mb-2">
+                                      {event.description}
+                                    </p>
+                                    <Link 
+                                      href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                                      className="text-[hsl(var(--primary))] text-sm font-medium flex items-center hover:underline"
+                                    >
+                                      Xem chi tiết
+                                      <ChevronRight className="h-4 w-4" />
+                                    </Link>
+                                  </div>
+                                ))}
+                              </div>
+                              
+                              {periodEvents.length > 6 && (
+                                <div className="text-center mt-4">
+                                  <Link 
+                                    href={`/thoi-ky/${period.slug}`}
+                                    className="inline-flex items-center justify-center bg-[hsl(var(--primary))] text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors"
+                                  >
+                                    Xem tất cả {periodEvents.length} sự kiện
+                                  </Link>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            </section>
             
-            {/* Hướng dẫn sử dụng */}
-            <div className="text-center text-xs text-gray-500 mt-1 animate-pulse">
-              <span>← Kéo ngang để xem toàn bộ dòng thời gian →</span>
+            {/* Chỉ dẫn sử dụng timeline */}
+            <div className="text-center text-xs text-gray-500 mt-4 mb-2">
+              <span>Sử dụng các nút mũi tên hoặc nhấp vào các điểm trên timeline để xem các thời kỳ khác nhau</span>
             </div>
           </div>
         )}
