@@ -330,7 +330,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
     
     if (setting.key === 'site_favicon') {
       uploadEndpoint = '/api/upload/favicon';
-    } else if (setting.key === 'home_background_url') {
+    } else if (setting.key === 'home_background_url' || setting.key === 'home_background_image') {
       uploadEndpoint = '/api/upload/backgrounds';
     }
 
@@ -384,7 +384,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent>
             {setting.inputType === 'image' || setting.inputType === 'image-upload' || 
-              setting.key === 'home_background_url' || setting.key === 'site_logo' ? (
+              setting.key === 'home_background_url' || setting.key === 'home_background_image' || setting.key === 'site_logo' ? (
               <div className="space-y-4">
                 <div className="flex items-center space-x-4">
                   <Button 
