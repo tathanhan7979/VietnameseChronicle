@@ -194,9 +194,9 @@ export const settings = pgTable("settings", {
   key: text("key").notNull().unique(),
   value: text("value"),
   description: text("description"),
-  category: text("category").default("general").notNull(), // general, social, analytics, legal, etc.
+  category: text("category").default("general").notNull(), // general, social, analytics, etc.
   displayName: text("display_name").notNull(),
-  inputType: text("input_type").default("text").notNull(), // text, textarea, number, file, image-upload, rich-text, etc.
+  inputType: text("input_type").default("text").notNull(), // text, textarea, number, file, etc.
   sortOrder: integer("sort_order").default(0).notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });

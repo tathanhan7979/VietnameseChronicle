@@ -15,7 +15,7 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
   );
 
   // Lấy URL ảnh nền từ settings
-  const { data: homeBgUrlSetting } = useQuery({
+  const { data: homeBgSetting } = useQuery({
     queryKey: ["/api/settings/home_background_url"],
     queryFn: async () => {
       try {
@@ -31,10 +31,10 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
 
   // Cập nhật URL ảnh nền khi có dữ liệu từ settings
   useEffect(() => {
-    if (homeBgUrlSetting?.value) {
-      setBackgroundUrl(homeBgUrlSetting.value);
+    if (homeBgSetting?.value) {
+      setBackgroundUrl(homeBgSetting.value);
     }
-  }, [homeBgUrlSetting]);
+  }, [homeBgSetting]);
 
   const handleFeedbackClick = (e: React.MouseEvent) => {
     e.preventDefault();

@@ -343,7 +343,7 @@ export const storage = {
           description: "Icon hiển thị trên thẻ trình duyệt (favicon)",
           displayName: "Icon trang web",
           category: "general",
-          inputType: "image",
+          inputType: "text",
           sortOrder: 0
         },
         {
@@ -433,7 +433,7 @@ export const storage = {
           description: "Nội dung chính sách bảo mật",
           displayName: "Chính sách bảo mật",
           category: "legal",
-          inputType: "richtext",
+          inputType: "textarea",
           sortOrder: 0
         },
         {
@@ -442,7 +442,7 @@ export const storage = {
           description: "Nội dung điều khoản sử dụng",
           displayName: "Điều khoản sử dụng",
           category: "legal",
-          inputType: "richtext",
+          inputType: "textarea",
           sortOrder: 1
         }
       ];

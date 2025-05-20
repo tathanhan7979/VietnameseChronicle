@@ -184,12 +184,11 @@ interface SettingCardProps {
 
 function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(
-    (setting.inputType === 'image' || setting.inputType === 'image-upload') && setting.value ? setting.value : null
+    setting.inputType === 'image' && setting.value ? setting.value : null
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const shouldUseRichText = setting.inputType === 'richtext' || setting.key === 'popup_content' || 
-    setting.key === 'privacy_policy' || setting.key === 'terms_of_service';
+  const shouldUseRichText = setting.inputType === 'richtext' || setting.key === 'popup_content';
 
   const form = useForm<SettingFormValues>({
     resolver: zodResolver(settingSchema),
@@ -330,7 +329,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
     
     if (setting.key === 'site_favicon') {
       uploadEndpoint = '/api/upload/favicon';
-    } else if (setting.key === 'home_background_url' || setting.key === 'home_background_image') {
+    } else if (setting.key === 'home_background_url') {
       uploadEndpoint = '/api/upload/backgrounds';
     }
 
@@ -383,8 +382,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent>
-            {setting.inputType === 'image' || setting.inputType === 'image-upload' || 
-              setting.key === 'home_background_url' || setting.key === 'home_background_image' || setting.key === 'site_logo' ? (
+            {setting.inputType === 'image' ? (
               <div className="space-y-4">
                 <div className="flex items-center space-x-4">
                   <Button 
@@ -403,11 +401,8 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                   />
                   <Input 
                     {...form.register('value')} 
-                    placeholder="Hoặc nhập URL hình ảnh" 
+                    placeholder="URL hình ảnh" 
                   />
-                </div>
-                <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                  <span>Bạn có thể tải lên hình ảnh mới hoặc nhập URL trực tiếp</span>
                 </div>
                 {imagePreview && (
                   <div className="mt-4">
@@ -415,7 +410,7 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
                       <img 
                         src={imagePreview} 
                         alt="Preview" 
-                        className="w-full h-full object-contain" 
+                        className="w-full h-full object-cover" 
                         onError={() => setImagePreview(null)}
                       />
                     </div>
