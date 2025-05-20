@@ -4,7 +4,7 @@ import { Link, useLocation } from "wouter";
 import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
-import { ChevronRight, Clock, History, CalendarDays } from "lucide-react";
+import { ChevronRight, Clock, History, CalendarDays, LayoutVertical, LayoutHorizontal } from "lucide-react";
 
 interface TimelineSectionProps {
   periods: PeriodData[];
