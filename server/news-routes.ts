@@ -216,6 +216,7 @@ export function registerNewsRoutes(app: Express) {
   app.post(
     "/api/admin/news/upload",
     upload.single("image"),
+    optimizeUploadedImage,
     async (req: Request, res: Response) => {
       try {
         if (!req.file) {
