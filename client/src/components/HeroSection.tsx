@@ -14,8 +14,8 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
     "https://images.unsplash.com/photo-1624009582782-1be02fbb7f23?q=80&w=2071&auto=format&fit=crop",
   );
 
-  // Lấy ảnh nền từ settings (có thể là URL hoặc đường dẫn đến ảnh đã tải lên)
-  const { data: homeBgSetting } = useQuery({
+  // Lấy URL ảnh nền từ settings
+  const { data: homeBgUrlSetting } = useQuery({
     queryKey: ["/api/settings/home_background_url"],
     queryFn: async () => {
       try {
@@ -23,7 +23,22 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
         if (!response.ok) return null;
         return await response.json();
       } catch (error) {
-        console.error("Không thể lấy ảnh nền:", error);
+        console.error("Không thể lấy URL ảnh nền:", error);
+        return null;
+      }
+    },
+  });
+
+  // Lấy ảnh tải lên từ settings
+  const { data: homeBgImageSetting } = useQuery({
+    queryKey: ["/api/settings/home_background_image"],
+    queryFn: async () => {
+      try {
+        const response = await fetch("/api/settings/home_background_image");
+        if (!response.ok) return null;
+        return await response.json();
+      } catch (error) {
+        console.error("Không thể lấy ảnh nền tải lên:", error);
         return null;
       }
     },
@@ -31,10 +46,15 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
 
   // Cập nhật URL ảnh nền khi có dữ liệu từ settings
   useEffect(() => {
-    if (homeBgSetting?.value) {
-      setBackgroundUrl(homeBgSetting.value);
+    // Ưu tiên sử dụng ảnh tải lên nếu có
+    if (homeBgImageSetting?.value) {
+      setBackgroundUrl(homeBgImageSetting.value);
     }
-  }, [homeBgSetting]);
+    // Nếu không có ảnh tải lên, sử dụng URL
+    else if (homeBgUrlSetting?.value) {
+      setBackgroundUrl(homeBgUrlSetting.value);
+    }
+  }, [homeBgImageSetting, homeBgUrlSetting]);
 
   const handleFeedbackClick = (e: React.MouseEvent) => {
     e.preventDefault();
