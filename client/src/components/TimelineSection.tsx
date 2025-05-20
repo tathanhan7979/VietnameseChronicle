@@ -372,9 +372,9 @@ export default function TimelineSection({
               </ul>
             </div>
             
-            {/* Timeline ngang với đường dọc ở giữa */}
+            {/* Timeline ngang với đường ngang ở giữa như trong mẫu */}
             <div className="horizontal-timeline-wrapper">
-              {/* Đường dọc timeline */}
+              {/* Đường ngang giữa timeline */}
               <div className="horizontal-timeline-line"></div>
               
               <div className="horizontal-timeline">
@@ -389,7 +389,7 @@ export default function TimelineSection({
                       id={`period-${period.slug}`}
                       key={period.id}
                     >
-                      {/* Điểm đánh dấu thời kỳ */}
+                      {/* Điểm đánh dấu thời kỳ nằm trên đường ngang */}
                       <div className="horizontal-period-marker">
                         <div className="horizontal-period-circle">
                           {periodIndex + 1}
@@ -400,12 +400,11 @@ export default function TimelineSection({
                             className="hover:underline hover:text-[hsl(var(--primary))]"
                           >
                             <h3>{period.name}</h3>
-                            <span className="text-sm">({period.timeframe})</span>
                           </Link>
                         </div>
                       </div>
                       
-                      {/* Danh sách sự kiện cuộn ngang */}
+                      {/* Danh sách sự kiện xen kẽ trên dưới */}
                       <div className="horizontal-events">
                         {periodEvents.map((event) => (
                           <motion.div
@@ -416,7 +415,7 @@ export default function TimelineSection({
                             transition={{ duration: 0.5 }}
                             className="horizontal-event-card"
                           >
-                            {/* Dấu chấm sự kiện kết nối với đường dọc */}
+                            {/* Dấu chấm sự kiện kết nối với đường ngang */}
                             <div className="horizontal-event-dot"></div>
                             
                             {/* Thẻ sự kiện */}
@@ -428,65 +427,55 @@ export default function TimelineSection({
                                 <h4 className="horizontal-event-title">{event.title}</h4>
                               </Link>
                               
-                              <div className="horizontal-event-details">
-                                <p className="horizontal-event-description">
-                                  {event.description}
-                                </p>
+                              <p className="horizontal-event-description">
+                                {event.description}
+                              </p>
                                 
-                                {event.imageUrl && (
-                                  <picture className="horizontal-event-image-container">
-                                    <img
-                                      src={event.imageUrl}
-                                      alt={event.title}
-                                      loading="lazy"
-                                      decoding="async"
-                                      className="horizontal-event-image"
-                                      onError={(e) => {
-                                        e.currentTarget.src = "/uploads/error-img.png";
-                                      }}
-                                    />
-                                  </picture>
+                              {event.imageUrl && (
+                                <picture className="horizontal-event-image-container">
+                                  <img
+                                    src={event.imageUrl}
+                                    alt={event.title}
+                                    loading="lazy"
+                                    decoding="async"
+                                    className="horizontal-event-image"
+                                    onError={(e) => {
+                                      e.currentTarget.src = "/uploads/error-img.png";
+                                    }}
+                                  />
+                                </picture>
+                              )}
+                                
+                              <div className="mt-3">
+                                {event.eventTypes && event.eventTypes.length > 0 && (
+                                  <div className="horizontal-event-tags mb-2">
+                                    {event.eventTypes.map((type) => (
+                                      <span
+                                        key={type.id}
+                                        className="horizontal-event-tag"
+                                        style={{
+                                          backgroundColor: type.color || "#C62828",
+                                        }}
+                                      >
+                                        {type.name}
+                                      </span>
+                                    ))}
+                                  </div>
                                 )}
                                 
-                                <div className="mt-3">
-                                  {event.eventTypes && event.eventTypes.length > 0 && (
-                                    <div className="horizontal-event-tags mb-2">
-                                      {event.eventTypes.map((type) => (
-                                        <span
-                                          key={type.id}
-                                          className="horizontal-event-tag"
-                                          style={{
-                                            backgroundColor: type.color || "#C62828",
-                                          }}
-                                        >
-                                          {type.name}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  )}
-                                  
-                                  <Link
-                                    href={`/su-kien/${event.id}/${slugify(event.title)}`}
-                                  >
-                                    <div className="horizontal-view-details">
-                                      <span>Xem chi tiết</span>
-                                      <ChevronRight className="h-4 w-4 transition-transform" />
-                                    </div>
-                                  </Link>
-                                </div>
+                                <Link
+                                  href={`/su-kien/${event.id}/${slugify(event.title)}`}
+                                >
+                                  <div className="horizontal-view-details">
+                                    <span>Xem chi tiết</span>
+                                    <ChevronRight className="h-4 w-4 transition-transform" />
+                                  </div>
+                                </Link>
                               </div>
                             </div>
                           </motion.div>
                         ))}
                       </div>
-                      
-                      {/* Thêm chỉ dẫn cuộn ngang */}
-                      {periodEvents.length > 2 && (
-                        <div className="scroll-hint">
-                          <span>Vuốt sang phải để xem thêm</span>
-                          <ChevronRight className="h-4 w-4" />
-                        </div>
-                      )}
                     </div>
                   );
                 })}

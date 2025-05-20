@@ -81,52 +81,53 @@ body {
   box-shadow: 0 4px 10px rgba(198, 40, 40, 0.3);
 }
 
-/* Thiết kế timeline ngang mới với đường dọc ở giữa */
+/* Thiết kế timeline ngang mới theo mẫu */
 .horizontal-timeline-wrapper {
   position: relative;
   width: 100%;
-  padding: 30px 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  padding: 80px 40px;
 }
 
-/* Đường dọc giữa timeline */
+/* Đường ngang giữa timeline */
 .horizontal-timeline-line {
   position: absolute;
-  left: 40px;
-  top: 0;
-  bottom: 0;
-  width: 4px;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 4px;
   background-color: var(--color-primary);
   z-index: 1;
 }
 
 .horizontal-timeline {
   display: flex;
-  flex-direction: column;
   position: relative;
+  min-width: 100%;
   z-index: 2;
-  gap: 60px;
-  padding-left: 40px;
-  padding-right: 20px;
 }
 
 .horizontal-period-section {
+  display: flex;
+  flex-direction: column;
   position: relative;
-  margin-bottom: 50px;
+  margin-right: 120px;
+  flex: 1;
+  min-width: 300px;
 }
 
 .horizontal-period-marker {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-bottom: 30px;
-  margin-left: -20px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
 }
 
 .horizontal-period-circle {
-  width: 60px;
-  height: 60px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background-color: var(--color-gold);
   color: white;
@@ -136,18 +137,24 @@ body {
   font-weight: bold;
   border: 3px solid white;
   box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.3);
-  font-size: 1.3rem;
+  font-size: 1rem;
   z-index: 5;
-  margin-right: 20px;
+  margin: 0 auto;
 }
 
 .horizontal-period-title {
+  position: absolute;
   z-index: 5;
   background-color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-width: 300px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  font-size: 0.9rem;
+  top: calc(50% + 30px);
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
 }
 
 .horizontal-period-title h3 {
@@ -155,54 +162,45 @@ body {
   font-weight: 700;
   color: var(--color-primary);
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1rem;
 }
 
-/* Container cho các sự kiện theo thời kỳ */
+/* Container cho các sự kiện theo thời kỳ - xen kẽ trên dưới */
 .horizontal-events {
   display: flex;
-  flex-wrap: nowrap;
-  padding: 20px 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  padding-left: 40px;
-  gap: 30px;
-}
-
-.horizontal-events::-webkit-scrollbar {
-  height: 8px;
-}
-
-.horizontal-events::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.horizontal-events::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: 10px;
-}
-
-.horizontal-events::-webkit-scrollbar-thumb:hover {
-  background: #b31b1b;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  position: relative;
 }
 
 .horizontal-event-card {
   position: relative;
-  min-width: 300px;
-  max-width: 300px;
+  width: 350px;
+  max-width: 100%;
   background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: all 0.3s ease;
   border: 1px solid rgba(0, 0, 0, 0.05);
-  flex-shrink: 0;
+  margin: 0 auto;
 }
 
 .horizontal-event-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Sự kiện xen kẽ trên dưới */
+.horizontal-event-card:nth-child(odd) {
+  align-self: flex-start;
+  margin-bottom: 80px;
+}
+
+.horizontal-event-card:nth-child(even) {
+  align-self: flex-end;
+  margin-top: 80px;
 }
 
 /* Connector từ timeline đến sự kiện */
@@ -213,9 +211,40 @@ body {
   border-radius: 50%;
   background-color: white;
   border: 3px solid var(--color-primary);
-  top: 30px;
-  left: -46px;
+  left: 50%;
   z-index: 10;
+}
+
+/* Điều chỉnh vị trí dấu chấm và đường kết nối */
+.horizontal-event-card:nth-child(odd) .horizontal-event-dot {
+  bottom: -40px;
+  transform: translateX(-50%);
+}
+
+.horizontal-event-card:nth-child(even) .horizontal-event-dot {
+  top: -40px;
+  transform: translateX(-50%);
+}
+
+/* Thêm đường kết nối từ dot đến timeline */
+.horizontal-event-card:nth-child(odd)::after,
+.horizontal-event-card:nth-child(even)::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 2px;
+  background-color: var(--color-primary);
+  transform: translateX(-50%);
+}
+
+.horizontal-event-card:nth-child(odd)::after {
+  top: 100%;
+  height: 40px;
+}
+
+.horizontal-event-card:nth-child(even)::after {
+  bottom: 100%;
+  height: 40px;
 }
 
 .horizontal-event-content {
