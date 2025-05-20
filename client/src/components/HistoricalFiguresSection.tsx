@@ -5,6 +5,7 @@ import { Link, useLocation } from 'wouter';
 import { HistoricalFigure, PeriodData } from '@/lib/types';
 import { ChevronRight, UserIcon, Award, Users } from 'lucide-react';
 import { slugify } from '@/lib/utils';
+import { getImageUrlWithTimestamp, handleImageError } from '@/lib/image-utils';
 
 interface HistoricalFiguresSectionProps {
   figures?: HistoricalFigure[];
@@ -106,14 +107,12 @@ export default function HistoricalFiguresSection({ figures: propFigures, periods
               <div className="relative">
                 <picture>
                   <img 
-                    src={figure.imageUrl} 
+                    src={getImageUrlWithTimestamp(figure.imageUrl)} 
                     alt={figure.name} 
                     loading="lazy"
                     decoding="async"
                     className="w-full h-56 object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = '/uploads/error-img.png';
-                    }}
+                    onError={(e) => handleImageError(e, figure.imageUrl)}
                   />
                 </picture>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">

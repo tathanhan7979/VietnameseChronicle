@@ -15,6 +15,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { slugify } from "@/lib/utils";
+import { getImageUrlWithTimestamp, handleImageError } from '@/lib/image-utils';
 
 interface HistoricalSitesSectionProps {
   sites?: HistoricalSite[];
