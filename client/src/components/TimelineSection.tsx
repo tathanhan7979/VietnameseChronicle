@@ -340,8 +340,8 @@ export default function TimelineSection({
             </div>
           </div>
         ) : (
-          {/* BỐ CỤC NGANG (HORIZONTAL) THEO MẪU MARKANDAN CODEPEN */}
           <div className="horizontal-timeline mt-8">
+            {/* BỐ CỤC NGANG (HORIZONTAL) THEO MẪU MARKANDAN CODEPEN */}
             {/* Timeline Top Bar - các thời kỳ */}
             <div className="timeline-years">
               {periods.map((period, index) => (
