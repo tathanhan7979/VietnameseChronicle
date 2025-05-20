@@ -396,37 +396,58 @@ function SettingCard({ setting, onUpdate, isPending }: SettingCardProps) {
           <CardContent>
             {setting.inputType === 'image' || setting.inputType === 'image-upload' ? (
               <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    Chọn hình ảnh
-                  </Button>
-                  <Input 
-                    ref={fileInputRef}
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleImageUpload} 
-                    className="hidden" 
-                  />
-                  <Input 
-                    {...form.register('value')} 
-                    placeholder="URL hình ảnh" 
-                    onChange={(e) => {
-                      form.setValue('value', e.target.value);
-                      setImagePreview(e.target.value);
-                    }}
-                  />
+                <div className="grid gap-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="w-full sm:w-1/3">
+                      <Button 
+                        type="button" 
+                        variant="secondary"
+                        className="w-full flex items-center justify-center gap-2"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className=""><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"></path><path d="m9 15 3-3 3 3"></path><path d="M12 12v6"></path></svg>
+                        Tải ảnh lên
+                      </Button>
+                      <Input 
+                        ref={fileInputRef}
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleImageUpload} 
+                        className="hidden" 
+                      />
+                    </div>
+                    <div className="w-full sm:w-2/3">
+                      <FormLabel htmlFor={`image-url-${setting.id}`} className="text-sm">
+                        Hoặc nhập URL hình ảnh
+                      </FormLabel>
+                      <Input 
+                        id={`image-url-${setting.id}`}
+                        {...form.register('value')} 
+                        placeholder="https://example.com/image.jpg" 
+                        onChange={(e) => {
+                          form.setValue('value', e.target.value);
+                          setImagePreview(e.target.value);
+                        }}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground">
+                    {setting.key === 'home_background_url' && 
+                      "URL ảnh nền trang chủ. Nên sử dụng ảnh có tỷ lệ 16:9 và kích thước tối thiểu 1920x1080 pixels."}
+                    {setting.key === 'site_favicon' && 
+                      "URL icon hiển thị trên tab trình duyệt. Nên sử dụng ảnh vuông có kích thước 32x32, 64x64 hoặc 128x128 pixels."}
+                  </div>
                 </div>
+                
                 {imagePreview && (
                   <div className="mt-4">
-                    <div className="w-full h-[200px] overflow-hidden rounded-md border">
+                    <FormLabel className="text-sm">Xem trước hình ảnh</FormLabel>
+                    <div className="w-full h-[200px] overflow-hidden rounded-md border bg-muted/10">
                       <img 
                         src={imagePreview} 
                         alt="Preview" 
-                        className="w-full h-full object-cover" 
+                        className="w-full h-full object-contain" 
                         onError={() => setImagePreview(null)}
                       />
                     </div>
