@@ -372,7 +372,7 @@ export default function TimelineSection({
               </ul>
             </div>
             
-            {/* Timeline ngang với đường ngang ở giữa như trong mẫu */}
+            {/* Timeline ngang với đường ngang ở giữa như trong hình mẫu */}
             <div className="horizontal-timeline-wrapper">
               {/* Đường ngang giữa timeline */}
               <div className="horizontal-timeline-line"></div>
@@ -406,21 +406,27 @@ export default function TimelineSection({
                       
                       {/* Danh sách sự kiện xen kẽ trên dưới */}
                       <div className="horizontal-events">
-                        {periodEvents.map((event) => (
+                        {periodEvents.slice(0, 6).map((event, eventIndex) => (
                           <motion.div
                             key={event.id}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.5 }}
+                            transition={{ 
+                              duration: 0.5,
+                              delay: eventIndex * 0.1 
+                            }}
                             className="horizontal-event-card"
                           >
                             {/* Dấu chấm sự kiện kết nối với đường ngang */}
                             <div className="horizontal-event-dot"></div>
                             
+                            {/* Thẻ năm trên timeline */}
+                            <span className="year-marker">{event.year}</span>
+                            
                             {/* Thẻ sự kiện */}
                             <div className="horizontal-event-content">
-                              <span className="horizontal-event-year">{event.year}</span>
+                              <span className="text-sm text-gray-500">{event.year}</span>
                               <Link
                                 href={`/su-kien/${event.id}/${slugify(event.title)}`}
                               >
@@ -428,7 +434,9 @@ export default function TimelineSection({
                               </Link>
                               
                               <p className="horizontal-event-description">
-                                {event.description}
+                                {event.description.length > 120 
+                                  ? `${event.description.slice(0, 120)}...` 
+                                  : event.description}
                               </p>
                                 
                               {event.imageUrl && (

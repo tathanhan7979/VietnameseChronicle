@@ -87,7 +87,9 @@ body {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 80px 40px;
+  padding: 40px 0;
+  margin: 0 auto;
+  max-width: 1600px;
 }
 
 /* Đường ngang giữa timeline */
@@ -106,14 +108,13 @@ body {
   position: relative;
   min-width: 100%;
   z-index: 2;
+  padding: 150px 0;
 }
 
 .horizontal-period-section {
-  display: flex;
-  flex-direction: column;
   position: relative;
-  margin-right: 120px;
-  flex: 1;
+  margin-right: 30px;
+  flex: 0 0 auto;
   min-width: 300px;
 }
 
@@ -123,23 +124,25 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .horizontal-period-circle {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: var(--color-gold);
+  background-color: var(--color-primary);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   border: 3px solid white;
-  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.3);
   font-size: 1rem;
   z-index: 5;
-  margin: 0 auto;
 }
 
 .horizontal-period-title {
@@ -151,10 +154,11 @@ body {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   white-space: nowrap;
   font-size: 0.9rem;
-  top: calc(50% + 30px);
+  bottom: -60px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
+  min-width: 120px;
 }
 
 .horizontal-period-title h3 {
@@ -162,29 +166,28 @@ body {
   font-weight: 700;
   color: var(--color-primary);
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
-/* Container cho các sự kiện theo thời kỳ - xen kẽ trên dưới */
+/* Thiết kế cho timeline xen kẽ như trong hình mẫu */
 .horizontal-events {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  width: 100%;
   position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 300px;
+  margin: 0 auto;
 }
 
+/* Các sự kiện xếp xen kẽ trên và dưới */
 .horizontal-event-card {
-  position: relative;
-  width: 350px;
-  max-width: 100%;
+  position: absolute;
+  width: 280px; 
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: all 0.3s ease;
   border: 1px solid rgba(0, 0, 0, 0.05);
-  margin: 0 auto;
 }
 
 .horizontal-event-card:hover {
@@ -192,41 +195,63 @@ body {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Sự kiện xen kẽ trên dưới */
-.horizontal-event-card:nth-child(odd) {
-  align-self: flex-start;
-  margin-bottom: 80px;
+/* Vị trí sự kiện - cách đều nhau */
+.horizontal-event-card:nth-child(1) {
+  top: -280px;
+  left: 10px;
 }
 
-.horizontal-event-card:nth-child(even) {
-  align-self: flex-end;
-  margin-top: 80px;
+.horizontal-event-card:nth-child(2) {
+  top: 80px;
+  left: 10px;
 }
 
-/* Connector từ timeline đến sự kiện */
+.horizontal-event-card:nth-child(3) {
+  top: -280px;
+  left: calc(100% + 40px);
+}
+
+.horizontal-event-card:nth-child(4) {
+  top: 80px;
+  left: calc(100% + 40px);
+}
+
+.horizontal-event-card:nth-child(5) {
+  top: -280px;
+  left: calc(200% + 80px);
+}
+
+.horizontal-event-card:nth-child(6) {
+  top: 80px;
+  left: calc(200% + 80px);
+}
+
+/* Dots and connectors */
 .horizontal-event-dot {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  display: block;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background-color: white;
-  border: 3px solid var(--color-primary);
-  left: 50%;
-  z-index: 10;
+  border: 2px solid var(--color-primary);
+  z-index: 3;
 }
 
-/* Điều chỉnh vị trí dấu chấm và đường kết nối */
+/* Vị trí dots trên timeline */
 .horizontal-event-card:nth-child(odd) .horizontal-event-dot {
-  bottom: -40px;
+  bottom: -20px;
+  left: 50%;
   transform: translateX(-50%);
 }
 
 .horizontal-event-card:nth-child(even) .horizontal-event-dot {
-  top: -40px;
+  top: -20px;
+  left: 50%;
   transform: translateX(-50%);
 }
 
-/* Thêm đường kết nối từ dot đến timeline */
+/* Đường kết nối từ sự kiện đến timeline */
 .horizontal-event-card:nth-child(odd)::after,
 .horizontal-event-card:nth-child(even)::after {
   content: '';
@@ -239,12 +264,36 @@ body {
 
 .horizontal-event-card:nth-child(odd)::after {
   top: 100%;
-  height: 40px;
+  height: 20px;
 }
 
 .horizontal-event-card:nth-child(even)::after {
   bottom: 100%;
-  height: 40px;
+  height: 20px;
+}
+
+/* Thông tin năm ở trên timeline */
+.year-marker {
+  position: absolute;
+  background-color: white;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 4;
+}
+
+.horizontal-event-card:nth-child(odd) .year-marker {
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.horizontal-event-card:nth-child(even) .year-marker {
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .horizontal-event-content {
