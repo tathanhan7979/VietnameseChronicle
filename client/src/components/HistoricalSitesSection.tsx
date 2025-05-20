@@ -15,7 +15,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { slugify } from "@/lib/utils";
-import { getImageUrlWithTimestamp, handleImageError } from '@/lib/image-utils';
+import { getOptimizedImageUrl, handleImageError } from '@/lib/image-utils';
 
 interface HistoricalSitesSectionProps {
   sites?: HistoricalSite[];
@@ -106,7 +106,7 @@ export default function HistoricalSitesSection({
                 <div className="h-52 overflow-hidden relative group">
                   <picture>
                     <img
-                      src={getImageUrlWithTimestamp(site.imageUrl) || DEFAULT_IMAGE}
+                      src={getOptimizedImageUrl(site.imageUrl) || DEFAULT_IMAGE}
                       alt={site.name}
                       loading="lazy"
                       decoding="async"

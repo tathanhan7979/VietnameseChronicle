@@ -5,7 +5,7 @@ import { Link, useLocation } from 'wouter';
 import { HistoricalFigure, PeriodData } from '@/lib/types';
 import { ChevronRight, UserIcon, Award, Users } from 'lucide-react';
 import { slugify } from '@/lib/utils';
-import { getImageUrlWithTimestamp, handleImageError } from '@/lib/image-utils';
+import { getOptimizedImageUrl, handleImageError } from '@/lib/image-utils';
 
 interface HistoricalFiguresSectionProps {
   figures?: HistoricalFigure[];
@@ -107,7 +107,7 @@ export default function HistoricalFiguresSection({ figures: propFigures, periods
               <div className="relative">
                 <picture>
                   <img 
-                    src={getImageUrlWithTimestamp(figure.imageUrl)} 
+                    src={getOptimizedImageUrl(figure.imageUrl)} 
                     alt={figure.name} 
                     loading="lazy"
                     decoding="async"

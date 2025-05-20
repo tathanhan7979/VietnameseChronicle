@@ -5,7 +5,7 @@ import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
 import { ChevronRight, History, CalendarDays } from "lucide-react";
-import { getImageUrlWithTimestamp, handleImageError } from '@/lib/image-utils';
+import { getOptimizedImageUrl, handleImageError } from '@/lib/image-utils';
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -247,7 +247,7 @@ export default function TimelineSection({
                             {event.imageUrl && (
                               <picture>
                                 <img
-                                  src={getImageUrlWithTimestamp(event.imageUrl)}
+                                  src={getOptimizedImageUrl(event.imageUrl)}
                                   alt={event.title}
                                   loading="lazy"
                                   decoding="async"
