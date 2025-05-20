@@ -21,6 +21,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { randomUUID } from "crypto";
+import { optimizeUploadedImage, optimizeUploadedImages } from "./middlewares/image-optimizer-middleware";
 import { generateSitemap } from "./sitemap-generator";
 import { registerNewsRoutes } from "./news-routes";
 import { 
@@ -979,6 +980,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/upload/favicon`,
     uploadImage.single("file"),
+    optimizeUploadedImage,
     async (req, res) => {
       try {
         if (!req.file) {
@@ -1011,6 +1013,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     `${apiPrefix}/upload/backgrounds`,
     uploadImage.single("file"),
+    optimizeUploadedImage,
     async (req, res) => {
       try {
         if (!req.file) {
