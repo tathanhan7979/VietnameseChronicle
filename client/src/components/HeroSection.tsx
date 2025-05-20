@@ -29,32 +29,12 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
     },
   });
 
-  // Lấy ảnh tải lên từ settings
-  const { data: homeBgImageSetting } = useQuery({
-    queryKey: ["/api/settings/home_background_image"],
-    queryFn: async () => {
-      try {
-        const response = await fetch("/api/settings/home_background_image");
-        if (!response.ok) return null;
-        return await response.json();
-      } catch (error) {
-        console.error("Không thể lấy ảnh nền tải lên:", error);
-        return null;
-      }
-    },
-  });
-
   // Cập nhật URL ảnh nền khi có dữ liệu từ settings
   useEffect(() => {
-    // Ưu tiên sử dụng ảnh tải lên nếu có
-    if (homeBgImageSetting?.value) {
-      setBackgroundUrl(homeBgImageSetting.value);
-    }
-    // Nếu không có ảnh tải lên, sử dụng URL
-    else if (homeBgUrlSetting?.value) {
+    if (homeBgUrlSetting?.value) {
       setBackgroundUrl(homeBgUrlSetting.value);
     }
-  }, [homeBgImageSetting, homeBgUrlSetting]);
+  }, [homeBgUrlSetting]);
 
   const handleFeedbackClick = (e: React.MouseEvent) => {
     e.preventDefault();

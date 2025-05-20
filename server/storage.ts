@@ -356,15 +356,6 @@ export const storage = {
           sortOrder: 1
         },
         {
-          key: "home_background_image",
-          value: "",
-          description: "Ảnh nền trang chủ (tải lên)",
-          displayName: "Tải lên ảnh nền trang chủ",
-          category: "general",
-          inputType: "image",
-          sortOrder: 2
-        },
-        {
           key: "last_sitemap_update",
           value: "",
           description: "Thời gian cập nhật sitemap.xml gần nhất",
