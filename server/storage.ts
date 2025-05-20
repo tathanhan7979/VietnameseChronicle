@@ -433,7 +433,7 @@ export const storage = {
           description: "Nội dung chính sách bảo mật",
           displayName: "Chính sách bảo mật",
           category: "legal",
-          inputType: "textarea",
+          inputType: "richtext",
           sortOrder: 0
         },
         {
@@ -442,8 +442,17 @@ export const storage = {
           description: "Nội dung điều khoản sử dụng",
           displayName: "Điều khoản sử dụng",
           category: "legal",
-          inputType: "textarea",
+          inputType: "richtext",
           sortOrder: 1
+        },
+        {
+          key: "home_background_image",
+          value: "",
+          description: "Ảnh nền trang chủ (tải lên)",
+          displayName: "Tải lên ảnh nền trang chủ",
+          category: "general",
+          inputType: "image",
+          sortOrder: 2
         }
       ];
       
