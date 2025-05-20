@@ -914,6 +914,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all settings
   app.get(`${apiPrefix}/settings`, async (req, res) => {
     try {
+      // Đảm bảo phản hồi không bị lưu cache
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.setHeader('Surrogate-Control', 'no-store');
+      
       const allSettings = await storage.getAllSettings();
       res.json(allSettings);
     } catch (error) {
