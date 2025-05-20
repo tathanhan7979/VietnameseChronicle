@@ -86,7 +86,7 @@
     <!-- Google tag (gtag.js) -->
     <script
       async
-      src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"
+      src="https://www.googletagmanager.com/gtag/js?id=G-GDN25M8C0N"
     ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -110,37 +110,47 @@
     <!-- Tùy chỉnh cách tải script module -->
     <script>
       // Kiểm tra lỗi MIME type và thử tải lại
-      window.addEventListener('error', function(e) {
-        // Chỉ log lỗi liên quan đến MIME type và module
-        if ((e.message && (e.message.includes('MIME type') || e.message.includes('module specifier') || e.message.includes('Failed to fetch'))) && 
-            (e.filename && e.filename.includes('main') || !e.filename)) {
-          console.log('Phát hiện lỗi tải module, thử tải lại script...');
-          // Thêm timestamp để tránh cache
-          const timestamp = Date.now();
-          setTimeout(function() {
-            const script = document.createElement('script');
-            script.type = 'module';
-            script.setAttribute('crossorigin', 'anonymous');
-            script.src = '/src/main.tsx?v=' + timestamp;
-            document.body.appendChild(script);
-          }, 1000);
-        }
-      }, true);
-      
+      window.addEventListener(
+        "error",
+        function (e) {
+          // Chỉ log lỗi liên quan đến MIME type và module
+          if (
+            e.message &&
+            (e.message.includes("MIME type") ||
+              e.message.includes("module specifier") ||
+              e.message.includes("Failed to fetch")) &&
+            ((e.filename && e.filename.includes("main")) || !e.filename)
+          ) {
+            console.log("Phát hiện lỗi tải module, thử tải lại script...");
+            // Thêm timestamp để tránh cache
+            const timestamp = Date.now();
+            setTimeout(function () {
+              const script = document.createElement("script");
+              script.type = "module";
+              script.setAttribute("crossorigin", "anonymous");
+              script.src = "/src/main.tsx?v=" + timestamp;
+              document.body.appendChild(script);
+            }, 1000);
+          }
+        },
+        true,
+      );
+
       // Sao lưu phương thức fetch
       const originalFetch = window.fetch;
       // Ghi đè phương thức fetch để xử lý lỗi MIME type
-      window.fetch = function(url, options) {
-        return originalFetch(url, options)
-          .catch(error => {
-            console.error('Lỗi khi fetch:', url, error);
-            // Nếu là lỗi MIME type, thử lại với tham số cache-busting
-            if (error.message && error.message.includes('MIME type')) {
-              const bustCache = url.includes('?') ? '&_cb=' + Date.now() : '?_cb=' + Date.now();
-              return originalFetch(url + bustCache, options);
-            }
-            throw error;
-          });
+      window.fetch = function (url, options) {
+        return originalFetch(url, options).catch((error) => {
+          console.error("Lỗi khi fetch:", url, error);
+          // Nếu là lỗi MIME type, thử lại với tham số cache-busting
+          if (error.message && error.message.includes("MIME type")) {
+            const bustCache = url.includes("?")
+              ? "&_cb=" + Date.now()
+              : "?_cb=" + Date.now();
+            return originalFetch(url + bustCache, options);
+          }
+          throw error;
+        });
       };
     </script>
     <script type="module" src="/src/main.tsx?v=20250516"></script>
