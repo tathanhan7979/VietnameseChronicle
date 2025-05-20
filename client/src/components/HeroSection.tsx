@@ -31,7 +31,7 @@ export default function HeroSection({ onStartExplore }: HeroSectionProps) {
     },
     refetchOnMount: true,
     staleTime: 0, // Luôn refetch dữ liệu
-    cacheTime: 0, // Không lưu kết quả vào cache
+    gcTime: 0, // Không lưu kết quả vào cache (TanStack Query v5 dùng gcTime thay cho cacheTime)
   });
 
   // Cập nhật URL ảnh nền khi có dữ liệu từ settings và thêm timestamp
