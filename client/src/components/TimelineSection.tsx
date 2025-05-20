@@ -4,7 +4,7 @@ import { Link, useLocation } from "wouter";
 import { slugify } from "@/lib/utils";
 import { PeriodData, EventData } from "@/lib/types";
 import "../styles/timeline.css";
-import { ChevronRight, Clock, History, CalendarDays, LayoutVertical, LayoutHorizontal } from "lucide-react";
+import { ChevronRight, Clock, History, CalendarDays, LayoutPanelTop, Rows } from "lucide-react";
 
 interface TimelineSectionProps {
   periods: PeriodData[];
@@ -22,7 +22,13 @@ export default function TimelineSection({
   const [activeSection, setActiveSection] = useState<string | null>(
     activePeriodSlug,
   );
+  const [viewMode, setViewMode] = useState<'vertical' | 'horizontal'>(() => {
+    // Lấy chế độ xem từ localStorage hoặc mặc định là vertical
+    const savedViewMode = localStorage.getItem('timelineViewMode');
+    return (savedViewMode === 'horizontal' ? 'horizontal' : 'vertical') as 'vertical' | 'horizontal';
+  });
   const timelineRef = useRef<HTMLDivElement>(null);
+  const horizontalTimelineRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
   let globalCounter = 0;
   // Lấy tham số period từ URL khi quay lại trang chủ
