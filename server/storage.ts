@@ -349,10 +349,10 @@ export const storage = {
         {
           key: "home_background_url",
           value: "https://images.unsplash.com/photo-1624009582782-1be02fbb7f23?q=80&w=2071&auto=format&fit=crop",
-          description: "URL ảnh nền của trang chủ",
+          description: "URL hoặc tải lên ảnh nền trang chủ",
           displayName: "Ảnh nền trang chủ",
           category: "general",
-          inputType: "text",
+          inputType: "image",
           sortOrder: 1
         },
         {
@@ -444,15 +444,6 @@ export const storage = {
           category: "legal",
           inputType: "richtext",
           sortOrder: 1
-        },
-        {
-          key: "home_background_image",
-          value: "",
-          description: "Ảnh nền trang chủ (tải lên)",
-          displayName: "Tải lên ảnh nền trang chủ",
-          category: "general",
-          inputType: "image",
-          sortOrder: 2
         }
       ];
       
