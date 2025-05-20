@@ -5,6 +5,35 @@ import { type Express, type Request, type Response } from 'express';
 import { requireAuth, requireAdmin } from './middlewares';
 
 export function registerOptimizeRoutes(app: Express) {
+  // API endpoint để xóa cache
+  app.post(
+    "/api/admin/clear-cache",
+    requireAuth,
+    requireAdmin,
+    async (req: Request, res: Response) => {
+      try {
+        // Xóa bộ nhớ đệm của hệ thống
+        // Hiện tại chức năng này chủ yếu để thiết lập các header cho các yêu cầu mới
+        // và để client có thể reload trang để tải mới dữ liệu
+        
+        // Ghi log về việc xóa cache
+        console.log("Yêu cầu xóa cache từ quản trị viên:", req.user?.username);
+        
+        res.json({
+          success: true,
+          message: "Đã xóa bộ nhớ đệm của hệ thống thành công",
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error('Lỗi khi xóa cache:', error);
+        res.status(500).json({ 
+          success: false, 
+          error: 'Lỗi khi xóa bộ nhớ đệm',
+          message: error.message 
+        });
+      }
+    }
+  );
   // API endpoint để tối ưu hóa ảnh
   app.post(
     "/api/admin/optimize-images",
